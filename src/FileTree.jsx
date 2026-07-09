@@ -48,13 +48,25 @@ function FileItem({ node, depth, isLast, parentPath, onSelectFile, activeId }) {
 
   return (
     <div className="select-none">
+      {/* rows keep the source component's div structure but carry button
+          semantics so the explorer is keyboard-navigable */}
       <div
         className={cx(
           "ft-row",
           isHovered && "ft-row--hover",
           isActive && "ft-row--active"
         )}
+        role="button"
+        tabIndex={0}
+        aria-expanded={isFolder ? isOpen : undefined}
+        aria-current={isActive ? "true" : undefined}
         onClick={handleClick}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            handleClick();
+          }
+        }}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
         style={{ paddingLeft: `${depth * 16 + 8}px` }}

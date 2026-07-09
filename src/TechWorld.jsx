@@ -1,9 +1,10 @@
 // TECH WORLD: phosphor dark. Green-black, JetBrains Mono, hairline modules,
 // fast snappy motion. The wide Archivo display type is the only thread shared
 // with the design world: one identity, different reality.
-import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import FileTree from "./FileTree.jsx";
+import WorldTabs from "./WorldTabs.jsx";
+import useSectionSpy from "./useSectionSpy.js";
 
 const EASE = [0.22, 1, 0.36, 1];
 const EMAIL = "mrinalibhardwaj0705@gmail.com";
@@ -65,88 +66,9 @@ const NAV = [
   { id: "tw-contact", label: "contact" },
 ];
 
-function jumpTo(id) {
-  const el = document.getElementById(id);
-  if (!el) return;
-  const reduced = window.matchMedia(
-    "(prefers-reduced-motion: reduce)"
-  ).matches;
-  el.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "start" });
-}
-
 export default function TechWorld() {
-  const [activeSection, setActiveSection] = useState(SECTION_IDS[0]);
-  // while a click-triggered smooth-scroll is in flight, scroll-spy defers to
-  // the section the user actually chose — see the note below on why.
-  const jumpingRef = useRef(false);
-  const jumpTimeoutRef = useRef(null);
-
-  // scroll-spy: the explorer highlights whichever section is currently in
-  // view, the same way VS Code highlights the open file. The active section
-  // is whichever one's top has most recently crossed a line near the top of
-  // the viewport (the classic scrollspy approach), with the last section
-  // pinned once the page is scrolled to the very bottom — this page is short
-  // enough that the final section can sit fully visible without ever
-  // reaching that line.
-  useEffect(() => {
-    const els = SECTION_IDS.map((id) => document.getElementById(id)).filter(
-      Boolean
-    );
-    let raf = null;
-
-    const update = () => {
-      raf = null;
-      if (jumpingRef.current) return;
-
-      const line = window.innerHeight * 0.3;
-      const atBottom =
-        window.innerHeight + window.scrollY >=
-        document.documentElement.scrollHeight - 2;
-
-      let current = els[0]?.id;
-      for (const el of els) {
-        if (el.getBoundingClientRect().top <= line) current = el.id;
-      }
-      // only the bottom-pin can promote a section past what the line found —
-      // never demote one the line already confirmed (e.g. a page short
-      // enough that several sections sit stacked above the fold at once)
-      if (atBottom) current = SECTION_IDS[SECTION_IDS.length - 1];
-      if (current) setActiveSection(current);
-    };
-
-    const onScroll = () => {
-      if (raf === null) raf = requestAnimationFrame(update);
-    };
-
-    update();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
-    return () => {
-      if (raf !== null) cancelAnimationFrame(raf);
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
-    };
-  }, []);
-
-  // a clicked file becomes active immediately and holds until its jump's
-  // smooth-scroll settles — on a page this short, several sections can end
-  // up simultaneously visible at max scroll, so scroll position alone can't
-  // always tell which one the user meant
-  const selectFile = (id) => {
-    setActiveSection(id);
-    jumpingRef.current = true;
-    if (jumpTimeoutRef.current) clearTimeout(jumpTimeoutRef.current);
-    jumpTo(id);
-
-    const release = () => {
-      jumpingRef.current = false;
-    };
-    if ("onscrollend" in window) {
-      window.addEventListener("scrollend", release, { once: true });
-    } else {
-      jumpTimeoutRef.current = setTimeout(release, 900);
-    }
-  };
+  // scroll-spy + click-to-jump, shared with the design world's layers panel
+  const [activeSection, selectFile] = useSectionSpy(SECTION_IDS);
 
   return (
     <div className="tw">
@@ -160,6 +82,9 @@ export default function TechWorld() {
       />
 
       <div className="tw-content">
+        {/* the open-pages strip: this world and its sibling as editor tabs */}
+        <WorldTabs world="tech" />
+
         <header className="tw-top">
           <a className="tw-mark display" href="#" aria-label="Back to the start">
             MB

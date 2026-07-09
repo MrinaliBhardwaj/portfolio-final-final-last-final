@@ -2,14 +2,22 @@
 // design applications and #/tech with engineering ones; those visitors never
 // see the other world. Choosing a side on the cover triggers a full-screen
 // wipe in the destination world's color, then navigates.
+//
+// The dock lives here, above the routes, so it persists across them like an
+// OS layer: on the cover it surfaces once the divergence settles; on the
+// worlds it is always present, showing which "app" is open, and switches
+// between them like tabs (a quick crossfade, no wipe ceremony).
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, MotionConfig } from "framer-motion";
 import Cover from "./Cover.jsx";
 import DesignWorld from "./DesignWorld.jsx";
 import TechWorld from "./TechWorld.jsx";
+import Dock from "./Dock.jsx";
 import "./cover.css";
 import "./dock.css";
+import "./world-tabs.css";
 import "./design-world.css";
+import "./figma-panel.css";
 import "./file-tree.css";
 import "./tech-world.css";
 
@@ -32,6 +40,7 @@ function getRoute() {
 export default function App() {
   const [route, setRoute] = useState(getRoute);
   const [entering, setEntering] = useState(null);
+  const [coverSettled, setCoverSettled] = useState(false);
   const navigated = useRef(false);
 
   useEffect(() => {
@@ -44,12 +53,32 @@ export default function App() {
     document.title = TITLES[route];
     document.documentElement.dataset.world = route || "void";
     window.scrollTo(0, 0);
+    // back on the cover, the dock retracts until the divergence settles again
+    if (route === "") setCoverSettled(false);
   }, [route]);
 
   const choose = (world) => {
     if (entering) return;
     navigated.current = false;
     setEntering(world);
+  };
+
+  // the dock's click semantics depend on where you are: from the cover it
+  // launches a world with the wipe; on a world it switches like a tab, and
+  // clicking the already-open app just returns you to its top
+  const dockChoose = (world) => {
+    if (route === "") {
+      choose(world);
+      return;
+    }
+    if (world === route) {
+      const reduced = window.matchMedia(
+        "(prefers-reduced-motion: reduce)"
+      ).matches;
+      window.scrollTo({ top: 0, behavior: reduced ? "auto" : "smooth" });
+      return;
+    }
+    window.location.hash = "/" + world;
   };
 
   return (
@@ -63,7 +92,7 @@ export default function App() {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
           >
-            <Cover onChoose={choose} />
+            <Cover onChoose={choose} onSettledChange={setCoverSettled} />
           </motion.div>
         )}
 
@@ -73,7 +102,7 @@ export default function App() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.5 }}
+            transition={{ duration: 0.32 }}
           >
             <DesignWorld />
           </motion.div>
@@ -85,12 +114,19 @@ export default function App() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.35 }}
+            transition={{ duration: 0.28 }}
           >
             <TechWorld />
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* the OS layer: present on every route, above the page, below the wipe */}
+      <Dock
+        visible={route === "" ? coverSettled : true}
+        onChoose={dockChoose}
+        active={route || null}
+      />
 
       <AnimatePresence>
         {entering && (

@@ -76,20 +76,26 @@ function GlassFilter() {
 // One dock app. The tile's layout box never changes size — the bar can't
 // grow or shift, and no other icon is affected. The glyph itself just scales
 // up, centred, on its own :hover — a plain CSS transition, no JS physics.
-function DockItem({ app }) {
+// A macOS-style dot beneath the icon marks the world currently open.
+function DockItem({ app, active }) {
+  const isOn = app.world && app.world === active;
   return (
     <button
       type="button"
-      className={`dock-item${app.action ? "" : " is-placeholder"}`}
+      className={`dock-item${app.action ? "" : " is-placeholder"}${
+        isOn ? " is-active" : ""
+      }`}
       onClick={app.action || undefined}
       aria-label={app.label}
+      aria-current={isOn ? "page" : undefined}
     >
       <span className="dock-item-glyph">{app.node}</span>
+      <span className="dock-item-dot" aria-hidden="true" />
     </button>
   );
 }
 
-export default function Dock({ visible, onChoose }) {
+export default function Dock({ visible, onChoose, active }) {
   // real brand marks via Simple Icons (same CDN pattern as the nav's GitHub
   // logo) — a single monochrome tint keeps them from reading as "colorful
   // app icons" and closer to a quiet, premium glass surface. VS Code has no
@@ -99,6 +105,7 @@ export default function Dock({ visible, onChoose }) {
     {
       key: "figma",
       label: "Figma — enter the design world",
+      world: "design",
       action: () => onChoose("design"),
       node: (
         <img
@@ -112,6 +119,7 @@ export default function Dock({ visible, onChoose }) {
     {
       key: "vscode",
       label: "VS Code — enter the tech world",
+      world: "tech",
       action: () => onChoose("tech"),
       node: <Code2 className="dock-item-icon dock-item-icon--glyph" strokeWidth={1.4} aria-hidden="true" />,
     },
@@ -175,7 +183,7 @@ export default function Dock({ visible, onChoose }) {
         <div className="dock-glass-bevel" aria-hidden="true" />
         <div className="dock-row">
           {apps.map((a) => (
-            <DockItem key={a.key} app={a} />
+            <DockItem key={a.key} app={a} active={active} />
           ))}
         </div>
       </div>

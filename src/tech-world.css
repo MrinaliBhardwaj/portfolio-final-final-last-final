@@ -62,6 +62,14 @@
   gap: 1.5rem;
 }
 
+/* on desktop the explorer + tab strip ARE the navigation; a second row of
+   section buttons in the header would be the same nav twice */
+@media (min-width: 769px) {
+  .tw-nav {
+    display: none;
+  }
+}
+
 .tw-nav button {
   font-family: var(--font-mono);
   font-size: 0.8rem;
@@ -276,9 +284,9 @@
   color: var(--tw-dim);
 }
 
-/* contact */
+/* contact — extra bottom room so the last section clears the floating dock */
 .tw-foot {
-  padding-bottom: 4rem;
+  padding-bottom: 9rem;
 }
 
 .tw-mail {

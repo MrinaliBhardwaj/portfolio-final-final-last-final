@@ -1,0 +1,125 @@
+/* ============ the open-pages tab strip (desktop world chrome) ============ */
+.wt {
+  display: flex;
+  align-items: stretch;
+  user-select: none;
+}
+
+.wt-tab {
+  display: flex;
+  align-items: stretch;
+}
+
+.wt-tab-main {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0 0.9rem;
+}
+
+.wt-tab-icon {
+  width: 13px;
+  height: 13px;
+  flex: none;
+  object-fit: contain;
+}
+
+/* the close affordance only exists on the active tab */
+.wt-tab-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  margin: auto 6px auto -4px;
+  border-radius: 4px;
+  opacity: 0.55;
+  transition: opacity 0.2s var(--ease-soft), background-color 0.2s var(--ease-soft);
+}
+
+.wt-tab-close:hover {
+  opacity: 1;
+}
+
+/* --- VS Code chrome (tech world) --- */
+.wt--code {
+  position: sticky;
+  top: 0;
+  z-index: 35;
+  height: 38px;
+  background: #060a08;
+  border-bottom: 1px solid var(--tw-line);
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+}
+
+.wt--code .wt-tab {
+  border-right: 1px solid var(--tw-line);
+  color: var(--tw-dim);
+  transition: color 0.2s var(--ease-soft), background-color 0.2s var(--ease-soft);
+}
+
+/* active editor tab: editor-coloured, accent line along the top edge */
+.wt--code .wt-tab.is-active {
+  background: var(--tw-bg);
+  color: var(--tw-text);
+  box-shadow: inset 0 1px 0 var(--tw-accent);
+}
+
+.wt--code .wt-tab:not(.is-active):hover {
+  color: var(--tw-text);
+  background: rgba(75, 229, 141, 0.05);
+}
+
+.wt--code .wt-tab-close:hover {
+  background: rgba(75, 229, 141, 0.12);
+}
+
+/* --- Figma chrome (design world) --- */
+/* spans the full top of the viewport, above the layers panel, like the app */
+.wt--figma {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 45;
+  height: 44px;
+  background: #e9e6e0;
+  border-bottom: 1px solid rgba(26, 24, 21, 0.12);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.wt-app-mark {
+  width: 15px;
+  height: 15px;
+  margin: auto 0.7rem auto 1.1rem;
+  opacity: 0.85;
+}
+
+.wt--figma .wt-tab {
+  color: rgba(26, 24, 21, 0.5);
+  transition: color 0.2s var(--ease-soft), background-color 0.2s var(--ease-soft);
+}
+
+/* active file tab reads as part of the canvas below it */
+.wt--figma .wt-tab.is-active {
+  background: var(--dw-bg);
+  color: var(--dw-ink);
+  margin-bottom: -1px;
+}
+
+.wt--figma .wt-tab:not(.is-active):hover {
+  color: rgba(26, 24, 21, 0.78);
+}
+
+.wt--figma .wt-tab-close:hover {
+  background: rgba(26, 24, 21, 0.08);
+}
+
+/* mobile: no tab chrome — the dock carries world switching */
+@media (max-width: 768px) {
+  .wt {
+    display: none;
+  }
+}

@@ -6,6 +6,18 @@
   overflow-x: clip;
 }
 
+/* desktop app chrome: the fixed Figma tab bar above, the layers panel left;
+   the canvas (everything else) clears both — VS Code-style editor layout */
+@media (min-width: 769px) {
+  .dw {
+    padding-top: 44px;
+  }
+
+  .dw-content {
+    margin-left: 240px;
+  }
+}
+
 /* faint paper grain, fixed and inert */
 .dw-grain {
   position: fixed;
@@ -330,11 +342,11 @@
   margin-top: 1.1rem;
 }
 
-/* footer */
+/* footer — extra bottom room so the last section clears the floating dock */
 .dw-foot {
   max-width: 1200px;
   margin: 0 auto;
-  padding: clamp(4rem, 10vh, 7rem) 2.2rem 3rem;
+  padding: clamp(4rem, 10vh, 7rem) 2.2rem 9rem;
   border-top: 1px solid var(--dw-line);
 }
 

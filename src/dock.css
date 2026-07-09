@@ -150,6 +150,25 @@
   height: 48%;
 }
 
+/* macOS-style indicator: a dot beneath the app whose world is open */
+.dock-item-dot {
+  position: absolute;
+  bottom: -5px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: rgba(240, 240, 244, 0.8);
+  opacity: 0;
+  transition: opacity 0.4s var(--ease-soft);
+  pointer-events: none;
+}
+
+.dock-item.is-active .dock-item-dot {
+  opacity: 1;
+}
+
 /* placeholders read the same but hint they're not wired yet */
 .dock-item.is-placeholder .dock-item-icon {
   opacity: 0.6;

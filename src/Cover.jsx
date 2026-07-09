@@ -18,7 +18,6 @@ import {
 import { ChevronDown, Mail, ArrowUpRight } from "lucide-react";
 import { createParticles } from "./particles.js";
 import { createLotusScrubber } from "./lotus.js";
-import Dock from "./Dock.jsx";
 
 // vendored locally at build time; see public/lotus-bloom.mp4
 const VIDEO_URL = "/lotus-bloom.mp4";
@@ -32,14 +31,13 @@ const SCRUB_END = 0.86;
 
 const EASE = [0.22, 1, 0.36, 1];
 
-export default function Cover({ onChoose }) {
+export default function Cover({ onChoose, onSettledChange }) {
   const particlesRef = useRef(null);
   const trackRef = useRef(null);
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const progressRef = useRef(0);
   const [split, setSplit] = useState(false);
-  const [settled, setSettled] = useState(false);
 
   useEffect(() => {
     const p = createParticles(particlesRef.current);
@@ -55,8 +53,9 @@ export default function Cover({ onChoose }) {
     progressRef.current = v;
     // the identity diverges as the re-bloom starts — brighten the nav labels
     setSplit(v > 0.43);
-    // once the divergence scene has fully settled, the dock surfaces
-    setSettled(v > 0.66);
+    // once the divergence scene has fully settled, the dock (owned by App,
+    // where it persists across routes) surfaces
+    onSettledChange?.(v > 0.66);
   });
 
   // beat 1: the name rises and is gone by the time the flower closes (~T5,
@@ -229,9 +228,6 @@ export default function Cover({ onChoose }) {
           </motion.div>
         </div>
       </section>
-
-      {/* the OS layer: a liquid-glass dock surfaces at the divergence point */}
-      <Dock visible={settled} onChoose={onChoose} />
     </div>
   );
 }
