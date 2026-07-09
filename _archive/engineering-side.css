@@ -1,0 +1,286 @@
+/* ============================================================
+   Engineering side — a pure technical portfolio in the
+   lab-notebook dialect: grid paper, graphite + muted blue,
+   monospace headings. Zero handwriting, zero blush.
+   ============================================================ */
+.es {
+  position: relative;
+  min-height: 100vh;
+  min-height: 100dvh;
+  background:
+    repeating-linear-gradient(0deg, rgba(91, 122, 153, 0.06) 0 1px, transparent 1px 26px),
+    repeating-linear-gradient(90deg, rgba(91, 122, 153, 0.06) 0 1px, transparent 1px 26px),
+    #f4f1e8;
+  color: #1c1c1a;
+}
+
+/* lab-notebook margin rule down the left edge */
+.es::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: clamp(12px, 2vw, 26px);
+  width: 1px;
+  background: rgba(76, 101, 121, 0.22);
+  pointer-events: none;
+}
+
+/* ---- sticky mono nav ---- */
+.es-top {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px clamp(24px, 5vw, 90px);
+  background: rgba(244, 241, 232, 0.92);
+  backdrop-filter: blur(4px);
+  border-bottom: 1px solid rgba(76, 101, 121, 0.22);
+}
+.es-mark {
+  font-family: "Space Mono", "Courier New", monospace;
+  font-weight: 700;
+  font-size: 15px;
+  color: #22282c;
+  text-decoration: none;
+}
+.es-mark:hover { color: #4c6579; }
+.es-nav { display: flex; gap: clamp(10px, 2vw, 22px); flex-wrap: wrap; }
+.es-nav button {
+  border: none;
+  background: none;
+  padding: 4px 2px;
+  font-family: "Space Mono", "Courier New", monospace;
+  font-size: 12px;
+  color: #445a68;
+  cursor: pointer;
+}
+.es-nav button:hover,
+.es-nav button:focus-visible { color: #22282c; text-decoration: underline; text-underline-offset: 4px; }
+
+/* ---- intro ---- */
+.es-intro {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: clamp(44px, 6vw, 84px) clamp(24px, 5vw, 90px) 0;
+}
+.es-intro h2 {
+  font-family: "Space Mono", "Courier New", monospace;
+  font-weight: 700;
+  font-size: clamp(26px, 3.4vw, 40px);
+  letter-spacing: -0.01em;
+}
+.es-intro-line {
+  font-family: "Space Mono", "Courier New", monospace;
+  font-size: 13px;
+  color: #4c6579;
+  margin-top: 6px;
+}
+.es-intro-sub {
+  font-family: "Inter", sans-serif;
+  font-size: 15px;
+  line-height: 1.65;
+  color: #514c44;
+  max-width: 560px;
+  margin-top: 14px;
+}
+
+/* ---- paper terminal ---- */
+.es-term {
+  max-width: 560px;
+  margin-top: 26px;
+  background: #fbfaf4;
+  border: 1px solid rgba(76, 101, 121, 0.24);
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 10px 20px rgba(40, 40, 30, 0.07);
+}
+.es-term-bar {
+  display: flex;
+  gap: 6px;
+  padding: 9px 12px;
+  border-bottom: 1px solid rgba(76, 101, 121, 0.18);
+  background: rgba(91, 122, 153, 0.06);
+}
+.es-term-bar span {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  border: 1px solid rgba(76, 101, 121, 0.4);
+}
+.es-term-body {
+  margin: 0;
+  padding: 14px 16px 16px;
+  font-family: "Space Mono", "Courier New", monospace;
+  font-size: 12.5px;
+  line-height: 1.75;
+  color: #2c2823;
+  white-space: pre-wrap;
+}
+.es-term-prompt { color: #4c6579; font-weight: 700; }
+.es-cursor {
+  display: inline-block;
+  width: 7px;
+  height: 14px;
+  margin-left: 4px;
+  vertical-align: -2px;
+  background: #4c6579;
+  animation: es-blink 1.1s steps(1) infinite;
+}
+@keyframes es-blink { 50% { opacity: 0; } }
+
+/* ---- sections ---- */
+.es-section {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: clamp(36px, 5vw, 60px) clamp(24px, 5vw, 90px) 0;
+  scroll-margin-top: 104px;
+}
+.es-head {
+  font-family: "Space Mono", "Courier New", monospace;
+  font-size: 15px;
+  letter-spacing: 0.06em;
+  border-bottom: 1px solid rgba(76, 101, 121, 0.22);
+  padding-bottom: 12px;
+  margin-bottom: 24px;
+}
+.es-head::before { content: "// "; color: #4c6579; }
+
+/* ---- projects ---- */
+.es-proj-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 22px;
+}
+.es-proj {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: #fbfaf4;
+  border: 1px solid rgba(76, 101, 121, 0.24);
+  border-radius: 4px;
+  padding: 20px;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+.es-proj:hover { transform: translateY(-3px); box-shadow: 0 16px 28px rgba(40, 40, 30, 0.1); }
+.es-proj--placeholder {
+  border-style: dashed;
+  background: transparent;
+}
+.es-proj--placeholder .es-proj-name,
+.es-proj--placeholder .es-proj-blurb { color: #8a8478; }
+.es-proj-path {
+  font-family: "Space Mono", "Courier New", monospace;
+  font-size: 10.5px;
+  color: #6f6a5f;
+  border-bottom: 1px dashed rgba(76, 101, 121, 0.25);
+  padding-bottom: 8px;
+  margin-bottom: 2px;
+}
+.es-proj-name {
+  font-family: "Space Mono", "Courier New", monospace;
+  font-weight: 700;
+  font-size: 16px;
+}
+.es-proj-blurb {
+  font-family: "Inter", sans-serif;
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: #514c44;
+}
+.es-chips {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.es-chips li {
+  font-family: "Space Mono", "Courier New", monospace;
+  font-size: 11px;
+  color: #445a68;
+  background: rgba(91, 122, 153, 0.1);
+  border: 1px solid rgba(76, 101, 121, 0.2);
+  border-radius: 3px;
+  padding: 3px 8px;
+}
+.es-proj-links { display: flex; gap: 18px; margin-top: auto; padding-top: 4px; }
+.es-proj-links a {
+  font-family: "Space Mono", "Courier New", monospace;
+  font-size: 12px;
+  color: #4c6579;
+  text-decoration: none;
+}
+.es-proj-links a:hover { text-decoration: underline; text-underline-offset: 4px; }
+.es-mut {
+  font-family: "Space Mono", "Courier New", monospace;
+  font-size: 12px;
+  color: #a39c90;
+}
+
+/* ---- experience ---- */
+.es-exp {
+  display: grid;
+  grid-template-columns: 150px 1fr;
+  gap: 18px;
+  align-items: start;
+}
+.es-exp-date { font-family: "Space Mono", monospace; font-size: 11px; color: #6f6a5f; padding-top: 3px; }
+.es-exp-title { font-family: "Space Mono", monospace; font-weight: 700; font-size: 15px; }
+.es-exp-org { font-family: "Inter", sans-serif; font-size: 13.5px; color: #514c44; margin-top: 2px; }
+.es-exp-note { font-family: "Space Mono", monospace; font-size: 11.5px; color: #8a8478; margin-top: 8px; }
+
+/* ---- skills ---- */
+.es-skill-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 26px;
+}
+.es-skill-group {
+  font-family: "Inter", sans-serif;
+  font-size: 11.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #445a68;
+  margin-bottom: 12px;
+}
+
+/* ---- education ---- */
+.es-edu h3 { font-family: "Space Mono", monospace; font-weight: 700; font-size: 15px; }
+.es-edu p { font-family: "Inter", sans-serif; font-size: 13.5px; color: #514c44; margin-top: 4px; }
+
+/* ---- contact ---- */
+.es-foot {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-width: 1040px;
+  margin: clamp(44px, 6vw, 72px) auto 0;
+  padding: 24px clamp(24px, 5vw, 90px) clamp(48px, 6vw, 80px);
+  border-top: 1px solid rgba(76, 101, 121, 0.22);
+  scroll-margin-top: 104px;
+}
+.es-status {
+  font-family: "Space Mono", "Courier New", monospace;
+  font-size: 12px;
+  color: #4c6579;
+}
+.es-foot-links {
+  display: flex;
+  gap: clamp(18px, 4vw, 44px);
+  flex-wrap: wrap;
+}
+.es-foot a {
+  font-family: "Space Mono", "Courier New", monospace;
+  font-size: 12.5px;
+  color: #22282c;
+  text-decoration: none;
+}
+.es-foot a:hover { color: #4c6579; text-decoration: underline; text-underline-offset: 4px; }
+
+@media (max-width: 700px) {
+  .es-exp { grid-template-columns: 1fr; gap: 6px; }
+}

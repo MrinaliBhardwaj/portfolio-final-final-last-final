@@ -1,0 +1,107 @@
+/* ============================================================
+   Hero — faithful rebuild of Figma "Desktop - 12".
+   The .hero-stage is a 1440x1024 canvas; 1 Figma px == var(--u),
+   so the whole composition scales with the viewport.
+   ============================================================ */
+.hero {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;      /* fallback for browsers without dvh */
+  min-height: 100dvh;     /* avoids the mobile URL-bar height jump */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f9f8f4;
+  overflow: hidden;
+}
+
+.hero-stage {
+  container-type: inline-size;
+  position: relative;
+  /* keep the 1440:1024 frame fully visible and as large as the viewport allows */
+  width: min(96vw, 135vh);
+  aspect-ratio: 1440 / 1024;
+  --u: calc(100cqw / 1440);
+  overflow: hidden;
+  background: #f9f8f4;
+}
+
+/* placed image assets (paper, lotus, tape, swatch, flourish, grain) */
+.hero-stage .h-asset {
+  position: absolute;
+  pointer-events: none;
+  user-select: none;
+}
+.hero-stage .h-asset img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: fill;
+  -webkit-user-drag: none;
+}
+
+/* paper collage group */
+.hero-stage .h-grp {
+  position: absolute;
+}
+.hero-stage .h-grp .h-asset {
+  /* children share the group's coordinate space */
+}
+
+/* z-order mirrors the Figma child order (last = on top) */
+.hero-stage .h-name { z-index: 3; }
+.hero-stage .h-role { z-index: 3; }
+.hero-stage .h-flourish { z-index: 4; }
+.hero-stage .h-grain { z-index: 5; mix-blend-mode: multiply; opacity: 0.9; }
+
+/* ---- the name ---- */
+.hero-stage .h-name p {
+  position: absolute;
+  margin: 0;
+  font-family: "Ballet", cursive;
+  font-weight: 400;
+  font-style: normal;
+  line-height: 1.2;
+  white-space: nowrap;
+  font-variation-settings: "opsz" 72;
+  transform-origin: center;
+}
+
+/* ---- bottom-left role label ---- */
+/* Space Mono ties this label to the archival index tabs / spines / notes,
+   which all use the same monospace voice. */
+.hero-stage .h-role {
+  position: absolute;
+  font-family: "Space Mono", "Courier New", monospace;
+  letter-spacing: 0.02em;
+  color: #7b6453;
+  line-height: 1.35;
+  white-space: nowrap;
+}
+
+/* ---- registration crosshair ---- */
+.hero-stage .h-line {
+  position: absolute;
+  background: #b1a392;
+  z-index: 6;
+}
+
+/* ---- cinematic entrance ---- */
+/* Only the stage container is animated (transform/opacity), because every
+   child carries its own inline transform for positioning — animating those
+   would wipe their rotations and offsets. Honours reduced-motion. */
+@media (prefers-reduced-motion: no-preference) {
+  .hero-stage {
+    animation: hero-in 1.1s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  @keyframes hero-in {
+    from { opacity: 0; transform: translateY(16px) scale(0.986); }
+    to   { opacity: 1; transform: none; }
+  }
+}
+
+/* graceful fallback on very narrow screens: use the full width available so
+   the fixed-aspect cover is as large as possible before it letterboxes */
+@media (max-width: 700px) {
+  .hero-stage { width: min(100vw, 135dvh); }
+}

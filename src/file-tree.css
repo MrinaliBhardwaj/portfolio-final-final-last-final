@@ -1,0 +1,257 @@
+/* ============ file tree (ported component) ============ */
+/* colors are drawn from the tech world's own tokens (--tw-*) so the explorer
+   reads as native to the theme, not a pasted-in card */
+.ft {
+  background: var(--tw-bg);
+  font-family: var(--font-mono);
+  padding: 0.85rem 0.6rem;
+  height: 100%;
+  overflow-y: auto;
+}
+
+.select-none {
+  user-select: none;
+}
+
+/* header: traffic-light dots + label, same shape as the source component */
+.ft-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding-bottom: 0.75rem;
+  margin-bottom: 0.5rem;
+  border-bottom: 1px solid var(--tw-line);
+}
+
+.ft-dots {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.ft-dot-lamp {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.ft-dot-lamp--red {
+  background: oklch(0.65 0.2 25);
+}
+
+.ft-dot-lamp--amber {
+  background: oklch(0.75 0.18 85);
+}
+
+.ft-dot-lamp--green {
+  background: oklch(0.65 0.18 150);
+}
+
+.ft-header-label {
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  color: var(--tw-dim);
+  margin-left: 0.2rem;
+}
+
+.ft-tree {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+/* one row */
+.ft-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.28rem 0.5rem;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.2s var(--ease-soft);
+}
+
+.ft-row--hover {
+  background: rgba(75, 229, 141, 0.08);
+}
+
+/* the currently-viewed section's file stays highlighted, hover or not */
+.ft-row--active {
+  background: rgba(75, 229, 141, 0.12);
+}
+
+.ft-row--active::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 3px;
+  bottom: 3px;
+  width: 2px;
+  background: var(--tw-accent);
+}
+
+/* connecting guide line for nested rows */
+.ft-line-slot {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  display: flex;
+}
+
+.ft-line {
+  width: 1px;
+  background: var(--tw-line);
+  transition: background-color 0.2s var(--ease-soft);
+}
+
+.ft-line--hover {
+  background: rgba(75, 229, 141, 0.4);
+}
+
+/* chevron / file-extension glyph slot */
+.ft-chevron {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1rem;
+  height: 1rem;
+  flex: none;
+  transition: transform 0.2s var(--ease-soft);
+}
+
+.ft-chevron--open {
+  transform: rotate(90deg);
+}
+
+.ft-chevron-icon {
+  color: var(--tw-dim);
+  transition: color 0.2s var(--ease-soft);
+}
+
+.ft-chevron-icon--hover {
+  color: var(--tw-accent);
+}
+
+.ft-glyph {
+  font-size: 0.7rem;
+}
+
+/* folder / file icon */
+.ft-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  flex: none;
+  border-radius: 4px;
+  transition: transform 0.2s var(--ease-soft), opacity 0.2s var(--ease-soft), color 0.2s var(--ease-soft);
+}
+
+.ft-icon--folder {
+  color: oklch(0.78 0.14 95);
+  opacity: 0.85;
+}
+
+.ft-icon--hover {
+  transform: scale(1.1);
+  opacity: 1;
+}
+
+.ft-icon--dim {
+  opacity: 0.7;
+}
+
+/* per-extension file colors — kept distinct and recognizable, VS Code-style,
+   rather than tinted to the green accent (real file explorers stay colorful
+   in every theme) */
+.ft-ext-tsx {
+  color: oklch(0.65 0.18 220);
+}
+
+.ft-ext-ts {
+  color: oklch(0.6 0.15 230);
+}
+
+.ft-ext-js {
+  color: oklch(0.8 0.18 90);
+}
+
+.ft-ext-css {
+  color: oklch(0.65 0.2 280);
+}
+
+.ft-ext-json {
+  color: oklch(0.75 0.15 85);
+}
+
+.ft-ext-svg {
+  color: oklch(0.7 0.15 160);
+}
+
+.ft-ext-png {
+  color: oklch(0.65 0.12 160);
+}
+
+.ft-ext-muted {
+  color: var(--tw-dim);
+}
+
+/* name label */
+.ft-name {
+  font-family: var(--font-mono);
+  font-size: 0.83rem;
+  transition: color 0.2s var(--ease-soft);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ft-name--folder {
+  color: var(--tw-text);
+}
+
+.ft-name--dim {
+  color: var(--tw-dim);
+}
+
+.ft-name--bright {
+  color: var(--tw-text);
+}
+
+.ft-name--active {
+  color: var(--tw-accent);
+}
+
+/* hover indicator dot, right edge */
+.ft-dot {
+  position: absolute;
+  right: 0.5rem;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--tw-accent);
+  opacity: 0;
+  transform: scale(0);
+  transition: opacity 0.2s var(--ease-soft), transform 0.2s var(--ease-soft);
+}
+
+.ft-dot--visible {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* children container, animated open/close */
+.ft-children {
+  overflow: hidden;
+  transition: opacity 0.3s var(--ease-soft);
+}
+
+.ft-children--open {
+  opacity: 1;
+}
+
+.ft-children--closed {
+  opacity: 0;
+  height: 0;
+}

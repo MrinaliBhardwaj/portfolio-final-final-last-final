@@ -1,0 +1,181 @@
+/* ============ the liquid-glass dock (the surfacing OS layer) ============ */
+/* a detached interface layer: fixed, bottom-centre, floating over the page */
+/* centred via auto margins (not translateX) so Framer Motion can own the
+   transform for the rise-from-below entrance */
+.dock {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 1.9rem;
+  margin: 0 auto;
+  width: max-content;
+  z-index: 60;
+  will-change: transform, opacity, filter;
+}
+
+.dock-filter {
+  position: absolute;
+  width: 0;
+  height: 0;
+}
+
+/* the glass slab — premium black glass, thin and quiet */
+.dock-glass {
+  position: relative;
+  display: flex;
+  padding: 0.4rem 0.55rem;
+  border-radius: 1.4rem;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  box-shadow: 0 22px 55px rgba(0, 0, 0, 0.55),
+    0 3px 12px rgba(0, 0, 0, 0.4);
+}
+
+/* refraction: blur + displace the background (lotus/starfield) seen through */
+.dock-glass-distortion {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  backdrop-filter: blur(5px) saturate(1.05);
+  -webkit-backdrop-filter: blur(5px) saturate(1.05);
+  filter: url(#dock-glass-distortion);
+  isolation: isolate;
+}
+
+/* dark tint instead of the demo's heavy white frost */
+.dock-glass-tint {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(
+    to bottom,
+    rgba(16, 17, 23, 0.34),
+    rgba(4, 5, 9, 0.52)
+  );
+}
+
+/* soft bevel — restrained highlights, not the demo's bright rims */
+.dock-glass-bevel {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  border-radius: inherit;
+  box-shadow: inset 1px 1px 1px rgba(255, 255, 255, 0.13),
+    inset -1px -1px 1px rgba(255, 255, 255, 0.04),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.015);
+}
+
+/* a whisper of sheen along the top edge */
+.dock-glass::after {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 40%;
+  z-index: 2;
+  border-radius: inherit;
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.06),
+    transparent
+  );
+  pointer-events: none;
+}
+
+.dock-row {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* each app tile — a FIXED layout box. The bar can't grow or shift, and
+   hovering one icon never touches its neighbors — each tile only ever
+   responds to its own hover. */
+.dock-item {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  flex: none;
+}
+
+/* tactile press feedback, independent of the hover scale on the glyph below */
+.dock-item:active {
+  transform: scale(0.92);
+}
+
+/* the glyph enlarges in place, centred, on its own hover — a plain CSS
+   transition with the source component's elastic easing, no pointer-distance
+   physics and no lift */
+.dock-item-glyph {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  transform-origin: center center;
+  transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 2.2);
+}
+
+.dock-item:hover .dock-item-glyph {
+  transform: scale(1.35);
+}
+
+.dock-item-icon {
+  position: relative;
+  z-index: 1;
+  width: 52%;
+  height: 52%;
+  object-fit: contain;
+  opacity: 0.82;
+  color: rgba(240, 240, 244, 0.82);
+  transition: opacity 0.3s var(--ease-soft), color 0.3s var(--ease-soft);
+  pointer-events: none;
+}
+
+.dock-item:hover .dock-item-icon {
+  opacity: 1;
+  color: #fff;
+}
+
+/* the one non-image glyph (VS Code has no brand mark in our icon set) reads
+   a touch thinner so it doesn't outweigh the photographic logos beside it */
+.dock-item-icon--glyph {
+  width: 48%;
+  height: 48%;
+}
+
+/* placeholders read the same but hint they're not wired yet */
+.dock-item.is-placeholder .dock-item-icon {
+  opacity: 0.6;
+}
+
+.dock-item.is-placeholder:hover .dock-item-icon {
+  opacity: 0.78;
+}
+
+@media (max-width: 719px) {
+  .dock {
+    bottom: 1.2rem;
+  }
+
+  .dock-glass {
+    padding: 0.35rem 0.45rem;
+    border-radius: 1.2rem;
+  }
+
+  .dock-row {
+    gap: 0.35rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dock {
+    transition: opacity 0.3s linear;
+  }
+}

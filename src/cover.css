@@ -1,0 +1,477 @@
+/* ============ THE COVER: the void + the lotus ============ */
+.cover {
+  position: relative;
+  color: var(--void-text);
+  background: var(--void-bg);
+}
+
+/* starfield spans the whole cover, above the video, below the text */
+.cover-particles {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 3;
+  pointer-events: none;
+}
+
+/* nav */
+.cover-nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.4rem 2.2rem;
+}
+
+.cover-nav-left {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+/* monogram mark — echoes the interior worlds' mb/MB marks so the giant
+   script name below can own the full-name identity without duplication.
+   Pinyon Script (a single-weight display script, distinct from the Ballet
+   name) keeps the mark legible at small nav size. */
+.cover-mark {
+  font-family: var(--font-monogram);
+  font-weight: 400;
+  font-size: 2.4rem;
+  line-height: 1;
+  color: var(--void-text);
+}
+
+.cover-links {
+  display: flex;
+  gap: 0.6rem;
+}
+
+/* links carry a 44px-tall tap target (padding), with negative inline margin so
+   the text still reads flush next to the mark */
+/* links carry a 44px-tall tap target (padding), with negative inline margin so
+   the text still reads flush next to the mark. Colour transitions slowly so
+   the split reveal (is-split) brightens them gradually to their side tints. */
+.cover-links a {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--void-dim);
+  text-decoration: none;
+  transition: color 1.4s var(--ease-soft);
+}
+
+.cover-links a:first-child {
+  margin-left: -0.5rem;
+}
+
+/* animated underline affordance (snappy on hover) */
+.cover-links a::after {
+  content: "";
+  position: absolute;
+  left: 0.5rem;
+  right: 0.5rem;
+  bottom: calc(50% - 0.7em);
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.28s var(--ease-soft);
+}
+
+.cover-links a:hover::after,
+.cover-links a:focus-visible::after {
+  transform: scaleX(1);
+}
+
+/* once the identity has diverged, the labels glow in their discipline's tint */
+.cover-nav.is-split .cover-link--design {
+  color: var(--design-tint);
+}
+
+.cover-nav.is-split .cover-link--tech {
+  color: var(--tech-tint);
+}
+
+.cover-social {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-right: -0.6rem; /* offset the enlarged hit areas back to the edge */
+}
+
+/* icons get a full 44x44 tap target while staying visually small */
+.cover-social a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  color: var(--void-dim);
+  transition: color 0.25s var(--ease-soft);
+}
+
+.cover-social a:hover {
+  color: var(--void-text);
+}
+
+.cover-social-logo img {
+  opacity: 0.62;
+  transition: opacity 0.25s var(--ease-soft);
+}
+
+.cover-social-logo:hover img {
+  opacity: 1;
+}
+
+/* ============ beat 1: the pinned lotus ============ */
+/* the tall track supplies the scroll distance that scrubs the bloom; a longer
+   track spreads the arc out so it reads slowly and cinematically */
+.cover-track {
+  position: relative;
+  z-index: 2;
+  height: 360vh;
+}
+
+/* the stage pins to the viewport for the length of the track, then releases */
+.cover-stage {
+  position: sticky;
+  top: 0;
+  height: 100dvh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  text-align: center;
+}
+
+.cover-video {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* the decoded-frame canvas sits over the fallback video and fades in when
+   the frame cache is ready (opacity is toggled from lotus.js) */
+.cover-video-canvas {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: opacity 0.4s var(--ease-soft);
+}
+
+.cover-video-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    rgba(1, 1, 4, 0.82),
+    rgba(1, 1, 4, 0.1) 45%,
+    rgba(1, 1, 4, 0.35)
+  );
+}
+
+.cover-hero-inner {
+  position: relative;
+  z-index: 4;
+  width: 100%;
+  padding: 0 1.25rem 3vh;
+  text-align: center;
+}
+
+/* soft scrim so the script name stays legible over the lower petals,
+   without a visible box edge; travels with the name as it lifts on scroll */
+.cover-hero-inner::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -6%;
+  width: 108%;
+  height: 150%;
+  transform: translateX(-50%);
+  background: radial-gradient(
+    60% 62% at 50% 62%,
+    rgba(1, 1, 4, 0.62),
+    rgba(1, 1, 4, 0) 72%
+  );
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* the name, set in Ballet script, spanning the lower width of the stage */
+.cover-name-script {
+  font-family: var(--font-script);
+  font-weight: 400;
+  font-optical-sizing: auto;
+  font-variation-settings: "opsz" 72;
+  font-size: clamp(3.4rem, 13.5vw, 17rem);
+  line-height: 0.9;
+  letter-spacing: 0.01em;
+  color: #fff;
+  white-space: nowrap;
+  text-shadow: 0 2px 40px rgba(0, 0, 0, 0.55);
+}
+
+/* scroll indicator */
+.cover-scroll {
+  position: absolute;
+  bottom: 1.8rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 4;
+  color: var(--void-dim);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .cover-scroll {
+    animation: cover-nudge 2s var(--ease-soft) infinite;
+  }
+}
+
+/* a soft, smoothly-eased vertical nudge — a scroll cue, not a springy bounce */
+@keyframes cover-nudge {
+  0%,
+  100% {
+    transform: translate(-50%, 0);
+    opacity: 0.7;
+  }
+  50% {
+    transform: translate(-50%, 30%);
+    opacity: 1;
+  }
+}
+
+/* ============ beat 3: the split — one identity, two disciplines ============ */
+/* absolutely placed inside the pinned stage so the two blocks float in the
+   side margins, vertically centred relative to the flower. No cards, no
+   panels — text floating in space. */
+.cover-split {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 clamp(2rem, 6vw, 6.5rem);
+}
+
+.cover-side {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  max-width: 25rem;
+}
+
+/* design reads left-aligned (overrides the stage's inherited text-align) */
+.cover-side--design {
+  align-items: flex-start;
+  text-align: left;
+}
+
+.cover-side--tech {
+  align-items: flex-end;
+  text-align: right;
+}
+
+/* a whisper of a scrim keeps the serif legible over the darker side regions
+   of the video without reading as a box */
+.cover-side::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 150%;
+  height: 160%;
+  transform: translateY(-50%);
+  z-index: -1;
+  pointer-events: none;
+}
+
+.cover-side--design::before {
+  left: -25%;
+  background: radial-gradient(
+    58% 50% at 42% 50%,
+    rgba(1, 1, 4, 0.66),
+    transparent 74%
+  );
+}
+
+.cover-side--tech::before {
+  right: -25%;
+  background: radial-gradient(
+    58% 50% at 58% 50%,
+    rgba(1, 1, 4, 0.66),
+    transparent 74%
+  );
+}
+
+/* mono discipline label */
+.cover-side-label {
+  font-family: var(--font-mono-alt);
+  font-size: 0.72rem;
+  letter-spacing: 0.42em;
+  text-transform: uppercase;
+  margin-bottom: 1.7rem;
+}
+
+.cover-side--design .cover-side-label {
+  color: var(--design-tint);
+}
+
+.cover-side--tech .cover-side-label {
+  color: var(--tech-tint);
+  margin-right: -0.42em; /* absorb trailing letter-spacing for a flush edge */
+}
+
+/* editorial serif heading, softly glowing in its tint */
+.cover-side-title {
+  font-family: var(--font-serif);
+  font-weight: 500;
+  font-size: clamp(2.6rem, 4vw, 4rem);
+  line-height: 1.02;
+  letter-spacing: 0.005em;
+  max-width: 7em;
+}
+
+.cover-side--design .cover-side-title {
+  color: var(--design-tint);
+  text-shadow: 0 0 46px rgba(242, 199, 211, 0.3);
+}
+
+.cover-side--tech .cover-side-title {
+  color: var(--tech-tint);
+  text-shadow: 0 0 46px rgba(167, 199, 255, 0.28);
+}
+
+.cover-side-body {
+  margin-top: 1.7rem;
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: clamp(1.08rem, 1.35vw, 1.3rem);
+  line-height: 1.78;
+  color: rgba(237, 236, 234, 0.74);
+  max-width: 23rem;
+}
+
+/* delicate, not button-like: a letter-spaced mono line with a hairline rule */
+.cover-side-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin-top: 2.5rem;
+  padding-bottom: 0.4rem;
+  font-family: var(--font-mono-alt);
+  font-size: 0.72rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: rgba(237, 236, 234, 0.82);
+  border-bottom: 1px solid rgba(237, 236, 234, 0.22);
+  transition: color 0.4s var(--ease-soft), border-color 0.4s var(--ease-soft);
+}
+
+.cover-side-cta svg {
+  transition: transform 0.4s var(--ease-soft);
+}
+
+.cover-side--design .cover-side-cta:hover,
+.cover-side--design .cover-side-cta:focus-visible {
+  color: var(--design-tint);
+  border-color: var(--design-tint);
+}
+
+.cover-side--tech .cover-side-cta:hover,
+.cover-side--tech .cover-side-cta:focus-visible {
+  color: var(--tech-tint);
+  border-color: var(--tech-tint);
+}
+
+.cover-side-cta:hover svg,
+.cover-side-cta:focus-visible svg {
+  transform: translate(2px, -2px);
+}
+
+/* ============ mobile ============ */
+@media (max-width: 719px) {
+  .cover-nav {
+    padding: 1.1rem 1.25rem;
+  }
+
+  .cover-nav-left {
+    gap: 1.1rem;
+  }
+
+  .cover-links {
+    display: none;
+  }
+
+  .cover-hero-inner {
+    padding-bottom: 8vh;
+  }
+
+  /* wrap the name to two lines on narrow screens so it stays large and legible
+     instead of being clipped at the viewport edges */
+  .cover-name-script {
+    white-space: normal;
+    font-size: clamp(3.6rem, 22vw, 7rem);
+    line-height: 0.86;
+  }
+
+  /* the split stacks: Design near the top, Tech near the bottom, flower
+     centred behind — the two disciplines still frame the bloom */
+  .cover-split {
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    /* extra bottom room so the tech block clears the floating dock */
+    padding: 6rem 1.5rem 9rem;
+    text-align: center;
+  }
+
+  .cover-side,
+  .cover-side--tech {
+    max-width: 100%;
+    align-items: center;
+    text-align: center;
+  }
+
+  .cover-side--tech .cover-side-label {
+    margin-right: 0;
+  }
+
+  .cover-side::before {
+    left: 50%;
+    right: auto;
+    width: 130%;
+    transform: translate(-50%, -50%);
+    background: radial-gradient(
+      60% 50% at 50% 50%,
+      rgba(1, 1, 4, 0.66),
+      transparent 74%
+    );
+  }
+
+  .cover-side-title {
+    font-size: clamp(2.1rem, 9vw, 2.9rem);
+    max-width: 12ch;
+  }
+
+  .cover-side-body {
+    font-size: 1rem;
+    max-width: 34ch;
+  }
+}

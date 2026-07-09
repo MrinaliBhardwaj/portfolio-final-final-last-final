@@ -1,0 +1,129 @@
+/* ============ tokens ============ */
+:root {
+  /* the void (cover) — steel blue, drawn from the lotus video */
+  --void-bg: #010104;
+  --void-text: #edecea;
+  --void-dim: #9a9aa6;
+  --void-line: rgba(237, 236, 234, 0.14);
+  --void-accent: #2c5c88;
+  --void-accent-hi: #4d8bc4;
+
+  /* design world: gallery light */
+  --dw-bg: #f4f3f0;
+  --dw-ink: #1a1815;
+  --dw-dim: #6d6962;
+  --dw-accent: #e23a16;
+  --dw-line: rgba(26, 24, 21, 0.16);
+  --dw-slot: #eae8e3;
+
+  /* tech world: phosphor dark */
+  --tw-bg: #090d0b;
+  --tw-text: #dce7de;
+  --tw-dim: #7e8d82;
+  --tw-accent: #4be58c;
+  --tw-line: rgba(75, 229, 141, 0.18);
+  --tw-card: #0c1210;
+
+  --font-sans: "Archivo Variable", system-ui, -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono Variable", ui-monospace, "Cascadia Code", monospace;
+  --font-script: "Ballet Variable", "Segoe Script", cursive;
+  --font-monogram: "Pinyon Script", "Segoe Script", cursive;
+  --font-serif: "Cormorant Garamond", "Times New Roman", serif;
+  --font-mono-alt: "Space Mono", ui-monospace, monospace;
+
+  /* the split: two disciplines flanking the flower */
+  --design-tint: #f2c7d3;
+  --tech-tint: #a7c7ff;
+
+  --ease-soft: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ============ reset ============ */
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  /* clip (not hidden) contains horizontal overflow WITHOUT creating a scroll
+     container — hidden would break position: sticky on the cover stage */
+  overflow-x: clip;
+  background: var(--void-bg);
+  scrollbar-gutter: stable;
+}
+html[data-world="design"] {
+  background: var(--dw-bg);
+}
+html[data-world="tech"] {
+  background: var(--tw-bg);
+}
+
+body {
+  font-family: var(--font-sans);
+  color: var(--void-text);
+  overflow-x: clip;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+img,
+canvas,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+a {
+  color: inherit;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+::selection {
+  background: rgba(226, 58, 22, 0.85);
+  color: #fff;
+}
+html[data-world="tech"] ::selection {
+  background: rgba(75, 229, 141, 0.85);
+  color: #06120b;
+}
+
+:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 4px;
+}
+
+/* wide display treatment shared by all three surfaces: one identity */
+.display {
+  font-family: var(--font-sans);
+  font-stretch: 125%;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: -0.015em;
+}
+
+/* route-transition wipe */
+.wipe {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
