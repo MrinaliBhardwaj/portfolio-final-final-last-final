@@ -2,6 +2,28 @@
 
 Decisions that survive rebuilds. Append, don't rewrite history.
 
+## 2026-07-12 — The Gallery app (dome)
+
+- **The dock's Gallery icon is now a real destination**, `#/gallery`, wired
+  exactly like Figma→design and VS Code→tech. It's a third dock "app," not a
+  placeholder (Claude/Game remain placeholders).
+- **It hosts React Bits' `DomeGallery`** (JS+CSS variant, `@use-gesture/react`)
+  — a draggable 3D dome of image tiles, click-to-enlarge. The component
+  (`DomeGallery.jsx` + `.css`) is dropped in **verbatim**; do not rewrite its
+  interaction/enlarge logic. It's wrapped by `GalleryWorld.jsx` /
+  `gallery-world.css`, which gives it a fixed full-viewport void-dark stage
+  (`#05040a`), passes the same colour as `overlayBlurColor` so the dome's
+  radial fade dissolves into the page edges, and adds minimal chrome
+  (Pinyon "mb" monogram, "GALLERY" label, a 44px close → cover). Props follow
+  the reference: minRadius 500, maxVerticalRotationDeg 20, segments 30,
+  dragDampening 3.8, grayscale false.
+- **Chrome-over-dome layering:** `.gw-stage` gets its own stacking context
+  (`z-index:0`) so the dome's internal `z-index:9999` enlarge overlay stays
+  contained; the gallery chrome sits above at `z-index:10`. The dock (App,
+  fixed) still floats above everything as the OS layer.
+- **Images are placeholders** (6 Unsplash) — TODO: swap for real work, ideally
+  vendored to `public/` like the lotus video to drop the external-URL risk.
+
 ## 2026-07-10 — The OS-layer navigation model
 
 - **The dock is persistent chrome, not a cover effect.** It lives in `App.jsx`

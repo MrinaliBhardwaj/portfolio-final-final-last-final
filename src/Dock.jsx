@@ -125,8 +125,9 @@ export default function Dock({ visible, onChoose, active }) {
     },
     {
       key: "gallery",
-      label: "Gallery (coming soon)",
-      action: null,
+      label: "Gallery — open the dome gallery",
+      world: "gallery",
+      action: () => onChoose("gallery"),
       node: (
         <img
           className="dock-item-icon"

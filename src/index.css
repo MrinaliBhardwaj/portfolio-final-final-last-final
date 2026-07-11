@@ -60,6 +60,9 @@ html[data-world="design"] {
 html[data-world="tech"] {
   background: var(--tw-bg);
 }
+html[data-world="gallery"] {
+  background: #05040a;
+}
 
 body {
   font-family: var(--font-sans);

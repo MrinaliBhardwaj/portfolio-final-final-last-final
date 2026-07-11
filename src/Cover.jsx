@@ -23,11 +23,13 @@ import { createLotusScrubber } from "./lotus.js";
 const VIDEO_URL = "/lotus-bloom.mp4";
 
 // The clip runs a full arc: open → closes to a bud (~T5) → rotates and
-// re-blooms (~T7) → fully open (~T10). We stretch it across most of the track
-// (0 → SCRUB_END) so the bloom reads slowly, then hold the final open frame.
-// Beat timings below are pinned to this arc: the name is gone by the time the
-// flower closes; the split text reveals only once it has re-bloomed.
-const SCRUB_END = 0.86;
+// re-blooms (~T7) → fully open (~T10). The bloom now spans the WHOLE track
+// (0 → 1) so there's no frozen held frame at the end — scrolling to the very
+// bottom keeps the lotus opening, and the fully-open flower is the resting
+// state you land on. Beat timings below are pinned to this arc: the name is
+// gone by the time the flower closes; the split text reveals only once it has
+// re-bloomed.
+const SCRUB_END = 1;
 
 const EASE = [0.22, 1, 0.36, 1];
 
@@ -52,27 +54,28 @@ export default function Cover({ onChoose, onSettledChange }) {
   useMotionValueEvent(scrollYProgress, "change", (v) => {
     progressRef.current = v;
     // the identity diverges as the re-bloom starts — brighten the nav labels
-    setSplit(v > 0.43);
+    setSplit(v > 0.5);
     // once the divergence scene has fully settled, the dock (owned by App,
     // where it persists across routes) surfaces
-    onSettledChange?.(v > 0.66);
+    onSettledChange?.(v > 0.77);
   });
 
   // beat 1: the name rises and is gone by the time the flower closes (~T5,
-  // progress ~0.43)
+  // progress ~0.5 now that the bloom spans the whole track)
   const rise =
     typeof window !== "undefined" ? window.innerHeight * 0.55 : 440;
-  const nameOpacity = useTransform(scrollYProgress, [0.05, 0.4], [1, 0]);
-  const nameLift = useTransform(scrollYProgress, [0, 0.4], [0, -rise]);
-  const chevronOpacity = useTransform(scrollYProgress, [0, 0.1], [1, 0]);
+  const nameOpacity = useTransform(scrollYProgress, [0.06, 0.47], [1, 0]);
+  const nameLift = useTransform(scrollYProgress, [0, 0.47], [0, -rise]);
+  const chevronOpacity = useTransform(scrollYProgress, [0, 0.12], [1, 0]);
 
   // beat 3: ~0.5s after the name is gone, as the flower STARTS re-blooming
-  // (~T5.1, progress ~0.44), the two disciplines drift in from their sides —
-  // tech a touch after design — settling as the bloom opens
-  const designOpacity = useTransform(scrollYProgress, [0.44, 0.58], [0, 1]);
-  const designX = useTransform(scrollYProgress, [0.44, 0.64], [-40, 0]);
-  const techOpacity = useTransform(scrollYProgress, [0.47, 0.61], [0, 1]);
-  const techX = useTransform(scrollYProgress, [0.47, 0.67], [40, 0]);
+  // (~T5.1, progress ~0.51), the two disciplines drift in from their sides —
+  // tech a touch after design — settling as the bloom opens. The flower keeps
+  // opening past the settle point to full bloom at the very bottom.
+  const designOpacity = useTransform(scrollYProgress, [0.51, 0.67], [0, 1]);
+  const designX = useTransform(scrollYProgress, [0.51, 0.74], [-40, 0]);
+  const techOpacity = useTransform(scrollYProgress, [0.55, 0.71], [0, 1]);
+  const techX = useTransform(scrollYProgress, [0.55, 0.78], [40, 0]);
 
   // decode the clip to frames once, then paint the frame matching scroll
   // progress to the canvas (smooth at any scroll speed)

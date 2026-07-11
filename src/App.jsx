@@ -12,6 +12,7 @@ import { AnimatePresence, motion, MotionConfig } from "framer-motion";
 import Cover from "./Cover.jsx";
 import DesignWorld from "./DesignWorld.jsx";
 import TechWorld from "./TechWorld.jsx";
+import GalleryWorld from "./GalleryWorld.jsx";
 import Dock from "./Dock.jsx";
 import "./cover.css";
 import "./dock.css";
@@ -20,20 +21,23 @@ import "./design-world.css";
 import "./figma-panel.css";
 import "./file-tree.css";
 import "./tech-world.css";
+import "./gallery-world.css";
 
 const TITLES = {
   "": "Mrinali Bhardwaj",
   design: "Mrinali Bhardwaj - Design",
   tech: "Mrinali Bhardwaj - Tech",
+  gallery: "Mrinali Bhardwaj - Gallery",
 };
 
-const WIPE_BG = { design: "#f4f3f0", tech: "#090d0b" };
+const WIPE_BG = { design: "#f4f3f0", tech: "#090d0b", gallery: "#05040a" };
 
 function getRoute() {
   const hash = window.location.hash.replace(/^#\/?/, "").toLowerCase();
   if (hash === "design") return "design";
   // "engineering" kept as an alias for links already in circulation
   if (hash === "tech" || hash === "engineering") return "tech";
+  if (hash === "gallery") return "gallery";
   return "";
 }
 
@@ -119,6 +123,18 @@ export default function App() {
             <TechWorld />
           </motion.div>
         )}
+
+        {route === "gallery" && (
+          <motion.div
+            key="gallery"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.32 }}
+          >
+            <GalleryWorld />
+          </motion.div>
+        )}
       </AnimatePresence>
 
       {/* the OS layer: present on every route, above the page, below the wipe */}
@@ -143,8 +159,7 @@ export default function App() {
             onAnimationComplete={() => {
               if (navigated.current) return;
               navigated.current = true;
-              window.location.hash =
-                entering === "design" ? "/design" : "/tech";
+              window.location.hash = "/" + entering;
               window.setTimeout(() => setEntering(null), 160);
             }}
           />

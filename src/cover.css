@@ -138,7 +138,7 @@
 .cover-track {
   position: relative;
   z-index: 2;
-  height: 360vh;
+  height: 320vh;
 }
 
 /* the stage pins to the viewport for the length of the track, then releases */
