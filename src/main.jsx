@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import "@fontsource-variable/archivo/wdth.css";
 import "@fontsource-variable/archivo/wdth-italic.css";
 import "@fontsource-variable/jetbrains-mono";
+import "@fontsource-variable/inter";
 import "@fontsource-variable/ballet";
 import "@fontsource/pinyon-script";
 import "@fontsource/cormorant-garamond/400.css";

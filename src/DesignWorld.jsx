@@ -1,8 +1,10 @@
-// DESIGN WORLD: gallery light. Off-white, ink, one vermilion accent, wide
-// Archivo display type, slow soft motion. No mono type, no terminal dialect,
-// nothing from the tech world leaks in here — the chrome around the page
-// (tab strip, layers panel) speaks Figma instead, the way the tech world's
-// chrome speaks VS Code.
+// DESIGN WORLD: the portfolio as an open Figma file. The page is the dark
+// #1E1E1E canvas; the content lives on light artboard FRAMES scattered
+// across it, each with a frame-name label. The scroll-spy SELECTS frames —
+// blue ring, corner handles, dimension pill — exactly like clicking one in
+// Figma, and the layers panel + properties panel track the selection.
+// Chrome speaks Inter (Figma's UI font); the hero headline keeps the wide
+// Archivo display type — the one identity thread shared across surfaces.
 import { motion } from "framer-motion";
 import FigmaPanel from "./FigmaPanel.jsx";
 import WorldTabs from "./WorldTabs.jsx";
@@ -10,121 +12,256 @@ import useSectionSpy from "./useSectionSpy.js";
 
 const EASE = [0.22, 1, 0.36, 1];
 const EMAIL = "mailto:mrinalibhardwaj0705@gmail.com";
+const LINKEDIN = "https://www.linkedin.com/in/mrinali-bhardwaj-a340a3322/";
+const BEHANCE = "https://www.behance.net/mrinalibhardwaj1";
 
 const reveal = {
-  initial: { opacity: 0, y: 26 },
+  initial: { opacity: 0, y: 24 },
   whileInView: { opacity: 1, y: 0 },
-  viewport: { once: true, margin: "-80px" },
-  transition: { duration: 0.8, ease: EASE },
+  viewport: { once: true, margin: "-70px" },
+  transition: { duration: 0.7, ease: EASE },
 };
 
-const work = [
-  {
-    id: "luma",
-    org: "LUMA Technologies",
-    role: "UI/UX Designer",
-    meta: "Freelance · Jul - Oct 2025",
-    blurb: "Interface and experience design, end to end.",
-    size: "lg",
-  },
-  {
-    id: "moon",
-    org: "Moon Finance",
-    role: "Graphic Designer",
-    meta: "Internship · Jan - Jul 2025",
-    blurb: "Brand and campaign graphics for a finance product.",
-    size: "sm",
-  },
-  {
-    id: "riviera",
-    org: "Riviera'26",
-    role: "Design Coordinator",
-    meta: "Cultural fest · Feb 2026",
-    blurb: "Design direction for VIT's cultural fest.",
-    size: "sm",
-  },
-  {
-    id: "ecell",
-    org: "Entrepreneurship Cell",
-    role: "Design Executive",
-    meta: "Leadership · 2024 - 2025",
-    blurb: "Design leadership across events and campaigns.",
-    size: "lg",
-  },
-];
-
-const capabilities = [
-  "UI & UX design",
-  "User research",
-  "Wireframing",
-  "Prototyping",
-  "Design systems",
-  "Visual design",
-];
-
-// the sections of this page, presented in the layers panel as Frames with
-// their notable children — the design twin of the tech explorer's file map
+// one entry per section-frame: layers-panel children + properties-panel data
 const FRAMES = [
   {
     id: "dw-hero",
-    name: "hero",
+    name: "hero / cover",
+    props: { x: 0, y: 0, w: 1440, h: 640, fill: "#F6F5F2" },
     children: [
-      { icon: "text", name: "Design that lands" },
-      { icon: "text", name: "intro" },
+      { icon: "text", name: "Mrinali Bhardwaj" },
+      { icon: "text", name: "statement" },
+      { icon: "component", name: "stat-chips" },
+    ],
+  },
+  {
+    id: "dw-exp",
+    name: "experience",
+    props: { x: 0, y: 760, w: 1440, h: 560, fill: "#F6F5F2" },
+    children: [
+      { icon: "component", name: "NextG Apex" },
+      { icon: "component", name: "LUMA Technologies" },
+      { icon: "component", name: "Moon Finance" },
     ],
   },
   {
     id: "dw-work",
     name: "selected-work",
+    props: { x: 240, y: 1440, w: 1200, h: 620, fill: "#F6F5F2" },
     children: [
-      { icon: "image", name: "LUMA Technologies" },
-      { icon: "image", name: "Moon Finance" },
-      { icon: "image", name: "Riviera'26" },
-      { icon: "image", name: "E-Cell" },
+      { icon: "image", name: "Public Pulse" },
+      { icon: "image", name: "Meal Maestro" },
+      { icon: "image", name: "Futurepreneurs 10.0" },
     ],
   },
   {
-    id: "dw-what",
-    name: "what-i-do",
+    id: "dw-skills",
+    name: "skills",
+    props: { x: 0, y: 2180, w: 840, h: 420, fill: "#232323" },
     children: [
       { icon: "component", name: "capabilities" },
       { icon: "component", name: "tools" },
     ],
   },
   {
-    id: "dw-about",
-    name: "about",
+    id: "dw-lead",
+    name: "leadership",
+    props: { x: 600, y: 2720, w: 840, h: 400, fill: "#E23A16" },
     children: [
-      { icon: "image", name: "portrait" },
-      { icon: "text", name: "story" },
+      { icon: "image", name: "Riviera'26" },
+      { icon: "image", name: "E-Cell" },
     ],
   },
   {
     id: "dw-contact",
     name: "contact",
-    children: [{ icon: "text", name: "say-hello" }],
+    props: { x: 0, y: 3240, w: 1440, h: 460, fill: "#F6F5F2" },
+    children: [
+      { icon: "text", name: "say-hello" },
+      { icon: "text", name: "education" },
+    ],
   },
 ];
 
 const SECTION_IDS = FRAMES.map((f) => f.id);
 
+/* one artboard on the canvas. When it's the active section it wears Figma's
+   selection: blue ring, four corner handles, a dimension pill below. */
+function Frame({ frame, active, tone, area, children }) {
+  return (
+    <motion.section
+      className={`cvf${tone ? ` cvf--${tone}` : ""}${active ? " is-selected" : ""}`}
+      id={frame.id}
+      aria-label={frame.name}
+      style={{ gridColumn: area }}
+      {...reveal}
+    >
+      <p className="cvf-label" aria-hidden="true">
+        {frame.name}
+      </p>
+      <div className="cvf-body">
+        {children}
+        <span className="cvf-handle cvf-handle--tl" aria-hidden="true" />
+        <span className="cvf-handle cvf-handle--tr" aria-hidden="true" />
+        <span className="cvf-handle cvf-handle--bl" aria-hidden="true" />
+        <span className="cvf-handle cvf-handle--br" aria-hidden="true" />
+        <span className="cvf-dims" aria-hidden="true">
+          {frame.props.w} × {frame.props.h}
+        </span>
+      </div>
+    </motion.section>
+  );
+}
+
+/* the right-hand properties panel, tracking the selected frame */
+function PropsPanel({ frame }) {
+  const p = frame.props;
+  const rows = [
+    ["X", p.x],
+    ["Y", p.y],
+    ["W", p.w],
+    ["H", p.h],
+  ];
+  return (
+    <aside className="dwp" aria-label="Properties">
+      <div className="dwp-head">
+        <span className="dwp-tab">Design</span>
+        <span className="dwp-zoom">100%</span>
+      </div>
+      <p className="dwp-selected">{frame.name}</p>
+      <div className="dwp-grid">
+        {rows.map(([k, v]) => (
+          <div className="dwp-cell" key={k}>
+            <span className="dwp-k">{k}</span>
+            <span className="dwp-v">{v}</span>
+          </div>
+        ))}
+      </div>
+      <div className="dwp-sec">
+        <p className="dwp-label">Fill</p>
+        <div className="dwp-fill">
+          <span className="dwp-swatch" style={{ background: p.fill }} />
+          <span className="dwp-v">{p.fill.replace("#", "")}</span>
+          <span className="dwp-k">100%</span>
+        </div>
+      </div>
+      <div className="dwp-sec">
+        <p className="dwp-label">Export</p>
+        <p className="dwp-export">
+          <span className="dwp-k">+</span> PNG 2x
+        </p>
+      </div>
+    </aside>
+  );
+}
+
+const experience = [
+  {
+    org: "NextG Apex",
+    role: "Design Engineer Intern",
+    when: "Jun 2026",
+    kpi: "11 sections · 4 weeks",
+    points: [
+      "Led the end-to-end strategic redesign of a retail-tech site serving ₹50–500 Cr FMCG brands — from generic vendor to category-defining “phygital” product.",
+      "Rebuilt the design system in Figma: 5 core tokens, 2 typefaces, a dark/light section rhythm.",
+    ],
+  },
+  {
+    org: "LUMA Technologies",
+    role: "UI/UX Design Intern",
+    when: "Jul – Oct 2025",
+    kpi: "10,000+ users · 4 days",
+    points: [
+      "End-to-end UX for a lifestyle platform across web and mobile — 40+ hi-fi screens and prototypes, from scratch.",
+      "Onboarding cut from 5 steps to 2; a reusable component library trimmed design-to-dev handoff ~30%.",
+    ],
+  },
+  {
+    org: "Moon Finance",
+    role: "Brand & Social Design Intern",
+    when: "Jan – Jul 2025",
+    kpi: "+35–50% engagement",
+    points: [
+      "60+ branded social creatives building one cohesive, recognizable identity across platforms.",
+    ],
+  },
+];
+
+const work = [
+  {
+    name: "Public Pulse",
+    what: "Civic-issue platform · web & mobile",
+    when: "Sep 2025",
+    tag: "SIH national finalist",
+    blurb:
+      "End-to-end product design for citizen-reported civic issues — capture, feeds, voting — shortlisted for the Smart India Hackathon finals.",
+    size: "lg",
+  },
+  {
+    name: "Meal Maestro",
+    what: "UI design",
+    when: "Mar 2025",
+    tag: "GDG Design-a-thon · 3rd",
+    blurb:
+      "A smart meal-planning app: personalized recipes and grocery lists from user preferences.",
+    size: "sm",
+  },
+  {
+    name: "Futurepreneurs 10.0",
+    what: "Branding & UI",
+    when: "Oct 2024",
+    tag: "2,200+ registrations",
+    blurb:
+      "Full identity and digital assets — website, social, reels, brochures — driving 10,000+ views.",
+    size: "wide",
+  },
+];
+
+const capabilities = [
+  "UI/UX design",
+  "User-centered design",
+  "Wireframing",
+  "Prototyping",
+  "Design systems",
+  "Design tokens",
+  "Component libraries",
+  "Visual identity",
+  "Responsive design",
+  "Design-to-dev handoff",
+];
+
 export default function DesignWorld() {
-  // scroll-spy + click-to-jump, shared with the tech world's explorer
   const [activeSection, selectFrame] = useSectionSpy(SECTION_IDS);
+  const activeFrame =
+    FRAMES.find((f) => f.id === activeSection) || FRAMES[0];
 
   return (
     <div className="dw">
       {/* the open-pages strip: this world and its sibling as Figma file tabs */}
       <WorldTabs world="design" />
 
-      {/* the layers panel: this page's sections as Frames */}
+      {/* left: layers. right: properties. the canvas sits between. */}
       <FigmaPanel
         frames={FRAMES}
         activeId={activeSection}
         onSelect={selectFrame}
       />
+      <PropsPanel frame={activeFrame} />
 
       <div className="dw-content">
+        {/* a collaborator drifting across the canvas */}
+        <div className="dw-cur" aria-hidden="true">
+          <svg viewBox="0 0 16 16" width="15" height="15">
+            <path
+              d="M2 1l11 5.2-4.9 1.4L5.6 13z"
+              fill="#e23a16"
+              stroke="#fff"
+              strokeWidth="1"
+            />
+          </svg>
+          <span>mrinali</span>
+        </div>
+
         <header className="dw-top">
           <a className="dw-mark" href="#" aria-label="Back to the start">
             MB
@@ -134,143 +271,146 @@ export default function DesignWorld() {
           </a>
         </header>
 
-        {/* ============ statement hero ============ */}
-        <section className="dw-hero" id="dw-hero" aria-label="Introduction">
-          <motion.h1
-            initial={{ opacity: 0, y: 34 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.9, ease: EASE, delay: 0.1 }}
-          >
-            Design that <em>lands</em>
-            <br />
-            before the words do.
-          </motion.h1>
-          <motion.p
-            className="dw-hero-sub"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: EASE, delay: 0.3 }}
-          >
-            Mrinali Bhardwaj. Product and visual design, from research to final
-            pixel.
-          </motion.p>
-        </section>
+        <div className="dw-canvas">
+          {/* ============ hero ============ */}
+          <Frame frame={FRAMES[0]} active={activeSection === "dw-hero"} area="1 / span 12">
+            {/* a Figma comment pinned to the artboard */}
+            <a className="cvf-pin" href={EMAIL}>
+              <span className="cvf-pin-dot">1</span>
+              <span className="cvf-pin-note">
+                Open to design internships — say hello
+              </span>
+            </a>
 
-        {/* ============ selected work ============ */}
-        <section className="dw-section" id="dw-work" aria-label="Selected work">
-          <motion.h2 className="dw-h2 display" {...reveal}>
-            Selected work
-          </motion.h2>
-          <div className="dw-grid">
-            {work.map((w, i) => (
-              <motion.article
-                className={`dw-card dw-card--${w.size}`}
-                key={w.id}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-60px" }}
-                transition={{ duration: 0.8, ease: EASE, delay: (i % 2) * 0.12 }}
-              >
-                <div className="dw-visual">
-                  {/* TODO: replace with real case study visuals */}
-                  <span>Case study visuals in progress</span>
-                </div>
-                <div className="dw-meta">
-                  <div className="dw-meta-head">
-                    <h3>{w.org}</h3>
-                    <span className="dw-arrow" aria-hidden="true">
-                      &rarr;
-                    </span>
+            <p className="dw-eyebrow">Mrinali Bhardwaj — design engineer</p>
+            <h1 className="dw-h1 display">
+              Designs it in Figma.
+              <br />
+              Ships it in <em>code.</em>
+            </h1>
+            <p className="dw-sub">
+              End-to-end product experiences — design systems to hi-fi
+              prototypes — built on a computer-science foundation that knows
+              exactly how they ship.
+            </p>
+            <ul className="dw-chips" aria-label="Highlights">
+              <li>10,000+ users in 4 days</li>
+              <li>40+ hi-fi screens</li>
+              <li>GDG Design-a-thon · 3rd</li>
+              <li>SIH national finalist</li>
+            </ul>
+          </Frame>
+
+          {/* ============ experience ============ */}
+          <Frame frame={FRAMES[1]} active={activeSection === "dw-exp"} area="1 / span 12">
+            <h2 className="dw-h2">Experience</h2>
+            <div className="dw-exp-grid">
+              {experience.map((e) => (
+                <article className="dw-exp" key={e.org}>
+                  <p className="dw-exp-when">{e.when}</p>
+                  <h3 className="dw-exp-org">{e.org}</h3>
+                  <p className="dw-exp-role">{e.role}</p>
+                  <p className="dw-exp-kpi">{e.kpi}</p>
+                  {e.points.map((pt) => (
+                    <p className="dw-exp-point" key={pt.slice(0, 24)}>
+                      {pt}
+                    </p>
+                  ))}
+                </article>
+              ))}
+            </div>
+          </Frame>
+
+          {/* ============ selected work ============ */}
+          <Frame frame={FRAMES[2]} active={activeSection === "dw-work"} area="3 / span 10">
+            <h2 className="dw-h2">Selected work</h2>
+            <div className="dw-work-grid">
+              {work.map((w) => (
+                <article className={`dw-card dw-card--${w.size}`} key={w.name}>
+                  <div className="dw-card-visual">
+                    {/* TODO: real case-study visuals */}
+                    <span>{w.name}</span>
                   </div>
-                  <p className="dw-role">{w.role}</p>
-                  <p className="dw-blurb">{w.blurb}</p>
-                  <p className="dw-date">{w.meta}</p>
-                </div>
-              </motion.article>
-            ))}
-          </div>
-        </section>
+                  <p className="dw-card-tag">{w.tag}</p>
+                  <h3 className="dw-card-name">{w.name}</h3>
+                  <p className="dw-card-what">
+                    {w.what} · {w.when}
+                  </p>
+                  <p className="dw-card-blurb">{w.blurb}</p>
+                </article>
+              ))}
+            </div>
+          </Frame>
 
-        {/* ============ capabilities ============ */}
-        <section className="dw-section dw-cap" id="dw-what" aria-label="Capabilities">
-          <div className="dw-cap-left">
-            <motion.h2 className="dw-h2 display" {...reveal}>
-              What I do
-            </motion.h2>
-            <ul className="dw-cap-list">
-              {capabilities.map((c, i) => (
-                <motion.li
-                  key={c}
-                  initial={{ opacity: 0, x: -18 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true, margin: "-40px" }}
-                  transition={{ duration: 0.6, ease: EASE, delay: i * 0.06 }}
-                >
-                  <span className="dw-cap-tick" aria-hidden="true" />
-                  {c}
-                </motion.li>
+          {/* ============ skills (a dark frame on the canvas) ============ */}
+          <Frame
+            frame={FRAMES[3]}
+            active={activeSection === "dw-skills"}
+            tone="dark"
+            area="1 / span 7"
+          >
+            <h2 className="dw-h2">Skills</h2>
+            <ul className="dw-skill-chips">
+              {capabilities.map((c) => (
+                <li key={c}>{c}</li>
               ))}
             </ul>
-          </div>
-          <motion.div className="dw-cap-right" {...reveal}>
-            <h3 className="dw-side-head">Tools</h3>
-            <div className="dw-tools">
-              <span className="dw-tool" title="Figma">
-                <img
-                  src="https://cdn.simpleicons.org/figma/d0d0d0"
-                  alt="Figma"
-                  width="22"
-                  height="22"
-                />
-              </span>
-              <span className="dw-tool" title="Adobe Photoshop">
-                Ps
-              </span>
-              <span className="dw-tool" title="Adobe Illustrator">
-                Ai
-              </span>
-              <span className="dw-tool" title="Adobe After Effects">
-                Ae
-              </span>
+            <p className="dw-tools-line">
+              Figma · Photoshop · design tokens in real code —{" "}
+              <a href="#/tech">see the tech side →</a>
+            </p>
+          </Frame>
+
+          {/* ============ leadership (the vermilion frame) ============ */}
+          <Frame
+            frame={FRAMES[4]}
+            active={activeSection === "dw-lead"}
+            tone="accent"
+            area="6 / span 7"
+          >
+            <h2 className="dw-h2">Leadership</h2>
+            <div className="dw-lead-grid">
+              <article>
+                <h3>Riviera&rsquo;26 — Design Coordinator</h3>
+                <p>
+                  Visual identity + official website for a 30,000-participant
+                  fest — 80,000+ site visits, 150+ assets produced.
+                </p>
+              </article>
+              <article>
+                <h3>E-Cell — Design Executive</h3>
+                <p>
+                  Led the design department across 8+ large-scale events,
+                  mentoring 75+ student designers.
+                </p>
+              </article>
             </div>
-            <h3 className="dw-side-head">Credential</h3>
-            <p className="dw-cred">Google UX Design Certificate</p>
-            <p className="dw-cred-sub">Coursera, 2025</p>
-          </motion.div>
-        </section>
+          </Frame>
 
-        {/* ============ about ============ */}
-        <section className="dw-section dw-about" id="dw-about" aria-label="About">
-          <motion.div className="dw-portrait" {...reveal}>
-            {/* TODO: replace with a real portrait */}
-            <span>Portrait coming soon</span>
-          </motion.div>
-          <motion.div className="dw-about-copy" {...reveal}>
-            <h2 className="dw-h2 display">About</h2>
-            <p>
-              It started at eleven, with a camera and an audience of six hundred
-              before any formal training. The taste came first. The craft is
-              what I keep sharpening.
-            </p>
-            <p>
-              These days I study computer science at VIT and design like it is
-              my job. Sometimes it is.
-            </p>
-          </motion.div>
-        </section>
-
-        {/* ============ contact ============ */}
-        <footer className="dw-foot" id="dw-contact">
-          <motion.a className="dw-foot-cta display" href={EMAIL} {...reveal}>
-            Say hello <span aria-hidden="true">&rarr;</span>
-          </motion.a>
-          <div className="dw-foot-row">
-            <a href="/resume-design.pdf" download>
-              Design resume (PDF)
+          {/* ============ contact ============ */}
+          <Frame frame={FRAMES[5]} active={activeSection === "dw-contact"} area="1 / span 12">
+            <a className="dw-cta display" href={EMAIL}>
+              Say hello <span aria-hidden="true">&rarr;</span>
             </a>
-            <a href="#">Back to the start</a>
-          </div>
-        </footer>
+            <div className="dw-links">
+              <a href={EMAIL}>mrinalibhardwaj0705@gmail.com</a>
+              <a href={LINKEDIN} target="_blank" rel="noreferrer">
+                LinkedIn
+              </a>
+              <a href={BEHANCE} target="_blank" rel="noreferrer">
+                Behance
+              </a>
+              <a href="/resume-design.docx" download>
+                Design resume
+              </a>
+              <a href="#">Back to the start</a>
+            </div>
+            <p className="dw-edu">
+              B.Tech CSE, Vellore Institute of Technology · CGPA 8.34 · 2023 –
+              2027
+            </p>
+          </Frame>
+        </div>
       </div>
     </div>
   );

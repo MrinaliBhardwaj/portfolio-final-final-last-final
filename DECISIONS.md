@@ -77,6 +77,44 @@ Decisions that survive rebuilds. Append, don't rewrite history.
   one third per act. Long-idle resets to act I. `?sim` + `w` still walks all
   three acts automatically (forceMirror auto-cups the firefly).
 
+## 2026-07-12 — The Pond, third pass: STILL WATER (the game is dead)
+
+- **PIVOT (user brief): the pond is an art installation, not a game.** No
+  instructions, HUDs, meters, objectives or win states anywhere on screen.
+  Visitors should leave thinking they saw something magical, not that they
+  played something. All prior act/meter/surge/caption/tally machinery was
+  DELETED (do not resurrect). Dev HUD survives only behind `?hud`/`?sim`.
+- **Photoreal hero via ASSET, not procedural** (user directive: "do not spend
+  time generating flowers procedurally"): the filmed lotus-bloom clip
+  (`public/lotus-bloom.mp4`, also the cover) IS the pond's flower.
+  `src/pond/flower.js` decodes the clip's bloom segment (36%→97% — the clip
+  is edited footage; the first third is a separate beauty shot) into ~44
+  ImageBitmaps (same strided-seek trick as `src/lotus.js`) and serves the
+  frame matching bloom progress as a GL texture. Luminance-keyed over the
+  night (its blacks dissolve), border-faded so no rectangle ever shows,
+  mirrored + ripple-bent + depth-smeared for the reflection. NOTE:
+  `UNPACK_FLIP_Y_WEBGL` is ignored for ImageBitmap uploads — flip v in the
+  shader.
+- **Cinematic post pass is what killed the "PS2 demo" look**: scene renders
+  to an FBO with mips, then post = mip-chain bloom (halation), horizontal
+  anamorphic streaks, ACES-ish curve, teal-shadow/warm-highlight grade,
+  vignette, grain. Also: fog-bank far shore (no hard cutouts), hazy moon
+  behind slow cloud, moon glitter path on the water, water micro-waves.
+- **Moments, not gameplay** (`src/pond/game.js` is now a presence engine):
+  · the flower leans toward whoever is here; fireflies gather around hands
+  · THE moment (user's pick): a lotus of pure light forms between two raised
+    palms (`src/pond/spirit.js`, additive point cloud + palm-to-palm thread)
+    — apart = elongates, together = condenses, wrists = rotation, crossing
+    past a half-turn = petals fold inside-out
+  · released, the light sinks into the water and the REAL flower opens one
+    breath further (persisted at `pond:bloom`; every offering leaves a mote
+    at the waterline, `pond:motes` — silent memory, never explained)
+  · pointer fallback: press-and-hold gathers the same spirit at the cursor
+  · long stillness: the reflection de-renders into phosphor for a breath
+    (the tech-world whisper — subtle, centered, never full-screen static)
+- Sim harness: `__pond.hands([{x,y},…])`, `__pond.hold(x,y,down)`,
+  `__pond.step(n)`, `__pond.snap()`.
+
 ## 2026-07-12 — The Gallery app (dome)
 
 - **The dock's Gallery icon is now a real destination**, `#/gallery`, wired

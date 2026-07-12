@@ -1,34 +1,27 @@
-// UNDERTOW — the pond's game loop. Pure state, no DOM, no GL: PondWorld
-// feeds it entities (a hand/cursor above the waterline, one below) and it
-// returns everything the renderer needs each frame.
-//
-// The rule of the piece: the reflection disobeys. Lotus B (below the line)
-// chases lotus A's *past* — delayed and noise-bent by `disagree`. Holding a
-// true mirror between your two hands raises `sync`, which tightens the lag
-// until the worlds move as one; hold that agreement and both lotuses bloom.
-
-// fraction of viewport height (from the bottom) where the water ends
+// STILL WATER — the pond's presence engine. Not a game: no objectives, no
+// meters, no win. It watches for hands and composes moments:
+//   · alone, the pond breathes — fireflies wander, mist drifts, petals fall
+//   · one presence: the flower leans, fireflies gather, water answers touch
+//   · two hands: a lotus of light forms in the space between the palms —
+//     apart it elongates, together it condenses, turning wrists turn it,
+//     folding past a half-turn it blooms inside-out
+//   · letting it go, the light sinks into the pond and the real flower
+//     opens a breath further (this persists; the pond remembers quietly)
+//   · long stillness: the reflection forgets, for a moment, that it is
+//     water — it de-renders into phosphor and heals
 export const WATERLINE = 0.44;
 
-const STORE_COUNT = "pond:agreements";
+const STORE_BLOOM = "pond:bloom";
 const STORE_MOTES = "pond:motes";
 const MOTE_CAP = 48;
-
-const SYNC_GATE = 0.7; // sync above this fills progress, below drains it
-const SURGE_SECONDS = 1.6; // how long each doubt-storm lasts
-const BLOOM_SECONDS = 3.0;
-const AFTERGLOW_SECONDS = 6.0;
-const SETTLE_SECONDS = 4.0;
-// one-handed visitors in camera mode aren't stranded: after this long with
-// only one hand offered, the reflection stirs on its own as a partner
-const LONELY_SECONDS = 12.0;
+const FLY_COUNT = 14;
 
 function readStore() {
-  let count = 0;
+  let bloom = 0.12;
   let motes = [];
   try {
-    const n = parseInt(window.localStorage.getItem(STORE_COUNT) || "0", 10);
-    if (Number.isFinite(n) && n > 0) count = n;
+    const b = parseFloat(window.localStorage.getItem(STORE_BLOOM) || "0.12");
+    if (Number.isFinite(b)) bloom = Math.min(1, Math.max(0.08, b));
     const raw = JSON.parse(window.localStorage.getItem(STORE_MOTES) || "[]");
     if (Array.isArray(raw)) {
       motes = raw
@@ -36,14 +29,14 @@ function readStore() {
         .slice(-MOTE_CAP);
     }
   } catch {
-    /* private mode etc — the pond just forgets */
+    /* private mode — the pond just forgets */
   }
-  return { count, motes };
+  return { bloom, motes };
 }
 
-function writeStore(count, motes) {
+function writeStore(bloom, motes) {
   try {
-    window.localStorage.setItem(STORE_COUNT, String(count));
+    window.localStorage.setItem(STORE_BLOOM, String(bloom));
     window.localStorage.setItem(STORE_MOTES, JSON.stringify(motes));
   } catch {
     /* ignore */
@@ -52,9 +45,7 @@ function writeStore(count, motes) {
 
 const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
 const damp = (from, to, rate, dt) => from + (to - from) * (1 - Math.exp(-rate * dt));
-const easeInOut = (t) => t * t * (3 - 2 * t);
 
-// cheap deterministic wander (sum of incommensurate sines ≈ smooth noise)
 function wander(t, seed) {
   return (
     Math.sin(t * 0.83 + seed * 12.9) * 0.55 +
@@ -65,349 +56,227 @@ function wander(t, seed) {
 
 export function createGame({ calm = false } = {}) {
   const stored = readStore();
+  const amp = calm ? 0.35 : 1;
 
   const g = {
-    // phases: play | blooming | afterglow | settle
-    // and within play, three acts: 1 meet it, 2 lead it, 3 hold it
-    phase: "play",
-    phaseT: 0,
-    stage: 1,
-    stageProg: 0,
-    surge: 0,
-    stageGlow: 0,
-    justAdvanced: false,
-    firefly: { x: 0.62, y: WATERLINE + 0.16, on: 0, held: 0 },
     time: 0,
-    sync: 0,
-    progress: 0,
-    disagree: 1,
-    bloomFlash: 0,
-    burstT: 0,
-    agreements: stored.count,
-    motes: stored.motes,
-    justWon: false, // true for exactly one frame after a win lands
-    firstWin: false,
-    captionKey: "idle",
-    lotusA: { lean: 0, sway: 0, bloom: 0.2 },
-    lotusB: { lean: 0, sway: 0, bloom: 0.14 },
-    // renderer entities — vec3 style {x, y, on}
-    above: { x: 0.5, y: 0.72, on: 0 },
+    // presence, for the water's soft glows
+    above: { x: 0.5, y: 0.7, on: 0 },
     below: { x: 0.5, y: 0.2, on: 0 },
-    ghost: { x: 0.5, y: 0.2, on: 0 },
-    belowIsSynth: false,
+    lean: 0,
+    sway: 0,
+    // the real flower (filmed): 0 closed … 1 full bloom
+    flower: stored.bloom,
+    flowerGlow: 0,
+    // the flower of light between the hands
+    spirit: {
+      x: 0.5, y: 0.66, scale: 0.1, stretch: 1, angle: 0,
+      invert: 0, alive: 0, sink: 0, sinkX: 0.5, sinkY: WATERLINE, thread: 0,
+      palmAx: 0.4, palmAy: 0.66, palmBx: 0.6, palmBy: 0.66,
+    },
+    fireflies: [],
+    petal: { x: 0.5, y: 0.8, rot: 0, life: 0 },
+    derender: 0,
+    motes: stored.motes,
+    justSank: false,
+    petalLanded: false,
   };
 
-  // the reflection chases the flower's past: a short ring buffer of A's state
-  const HIST = 120;
-  const hist = new Float32Array(HIST * 3); // lean, sway, bloom
-  let histHead = 0;
-  let histFilled = 0;
+  let bloomTarget = stored.bloom;
+  let heldT = 0;
+  let prevAngle = 0;
+  let sinkT = 0;
+  let stillT = 0;
+  let derenderCool = 20;
+  let petalTimer = 12 + Math.random() * 14;
 
-  // the synthesized partner (pointer mode / lonely-hand fallback)
-  const follower = { x: 0.5, y: WATERLINE * 0.5, engaged: false };
-  let lonelyT = 0;
-  let stillT = 0; // how long the guiding hand has been parked
-  let idleT = 0; // nobody here: the ritual resets to its first act
-  let surgeT = 0;
-  const surgesFired = [false, false];
-  const amp = calm ? 0.3 : 1;
-
-  function resetStages() {
-    g.stage = 1;
-    g.stageProg = 0;
-    surgeT = 0;
-    g.surge = 0;
-    surgesFired[0] = false;
-    surgesFired[1] = false;
-    g.firefly.held = 0;
+  for (let i = 0; i < FLY_COUNT; i++) {
+    g.fireflies.push({
+      x: Math.random(),
+      y: WATERLINE + 0.05 + Math.random() * 0.3,
+      vx: 0,
+      vy: 0,
+      ph: Math.random() * Math.PI * 2,
+      br: 0.5 + Math.random() * 0.5,
+    });
   }
 
-  function advance() {
-    g.stage += 1;
-    g.stageProg = 0;
-    g.justAdvanced = true;
-    // a small answering pulse of light when an act completes
-    g.bloomFlash = Math.max(g.bloomFlash, 0.30);
+  function angleUnwrap(next) {
+    let d = next - prevAngle;
+    while (d > Math.PI) d -= Math.PI * 2;
+    while (d < -Math.PI) d += Math.PI * 2;
+    prevAngle += d;
+    return prevAngle;
   }
 
-  // the guide firefly: free until cupped, led while held, and after the
-  // leading act it settles onto the flower's heart
-  function updateFirefly(dt, hand, force) {
-    const t = g.time;
-    const f = g.firefly;
-    const inLead = g.phase === "play" && g.stage === 2;
-    if (inLead && hand) {
-      const d = Math.hypot(hand.x - f.x, hand.y - f.y);
-      if (!f.held && (d < 0.055 || force)) f.held = 1;
-      if (f.held && d > 0.11 && !force) f.held = 0;
-    } else if (!force || g.phase !== "play") {
-      f.held = 0;
-    }
-    let tx;
-    let ty;
-    let rate = 1.4;
-    if (f.held && hand) {
-      tx = hand.x;
-      ty = hand.y - 0.012;
-      rate = 6;
-    } else if (g.phase !== "play" || g.stage >= 3) {
-      // it has been led home: it rests on the heart of the lotus
-      tx = 0.5;
-      ty = WATERLINE + 0.30;
-      rate = 2;
-    } else {
-      tx = 0.5 + 0.26 * Math.sin(t * 0.11 + 1.7) + 0.04 * wander(t, 51);
-      ty = WATERLINE + 0.11 + 0.08 * Math.sin(t * 0.17 + 4.0) + 0.015 * wander(t, 77);
-    }
-    f.x = damp(f.x, tx, rate, dt);
-    f.y = damp(f.y, ty, rate, dt);
-    f.on = g.phase !== "play" || g.stage >= 2 ? 1 : 0;
-  }
-
-  function pushHist(dt) {
-    // ~60Hz ring; store every frame, sampling handles variable dt roughly
-    hist[histHead * 3] = g.lotusA.lean;
-    hist[histHead * 3 + 1] = g.lotusA.sway;
-    hist[histHead * 3 + 2] = g.lotusA.bloom;
-    histHead = (histHead + 1) % HIST;
-    if (histFilled < HIST) histFilled++;
-  }
-
-  function sampleHist(delaySeconds, dt) {
-    const frames = clamp(Math.round(delaySeconds / Math.max(dt, 1 / 120)), 0, histFilled - 1);
-    const idx = (histHead - 1 - frames + HIST * 2) % HIST;
-    return [hist[idx * 3], hist[idx * 3 + 1], hist[idx * 3 + 2]];
-  }
-
-  function win() {
-    g.phase = "blooming";
-    g.phaseT = 0;
-  }
-
-  function landWin() {
-    g.agreements += 1;
-    g.firstWin = g.agreements === 1;
-    g.motes.push({ x: 0.24 + Math.random() * 0.52, h: Math.random() });
+  function landSink() {
+    bloomTarget = clamp(bloomTarget + 0.16, 0, 1);
+    g.flowerGlow = 1;
+    g.motes.push({ x: clamp(g.spirit.sinkX + (Math.random() - 0.5) * 0.08, 0.05, 0.95), h: Math.random() });
     if (g.motes.length > MOTE_CAP) g.motes.shift();
-    writeStore(g.agreements, g.motes);
-    g.justWon = true;
+    writeStore(bloomTarget, g.motes);
+    g.justSank = true;
   }
 
-  // input: { a: {x,y,speed}|null, b: {x,y,speed}|null, allowSynth, forceMirror }
+  // input: { hands: [{x,y,speed}…], pointer: {x,y,down,active}|null }
   function update(dt, input) {
     dt = clamp(dt, 0.001, 0.05);
     g.time += dt;
-    g.phaseT += dt;
-    g.justWon = false;
     const t = g.time;
+    g.justSank = false;
+    g.petalLanded = false;
 
-    // -------- entities --------
-    let a = input.a;
-    let b = input.b;
-    g.belowIsSynth = false;
-    g.aboveIsSynth = false;
+    const hands = input.hands || [];
+    const ptr = input.pointer && input.pointer.active ? input.pointer : null;
+    const presences = hands.length ? hands : ptr ? [ptr] : [];
+    const twoHands = hands.length >= 2;
+    const gathering = twoHands || (ptr && ptr.down);
 
-    if ((a && !b) || (!a && b)) {
-      // a partner on the missing side can be synthesized: always in pointer
-      // mode, and in camera mode only after the hand has been alone a while
-      lonelyT += dt;
-      const maySynth = input.allowSynth || lonelyT > LONELY_SECONDS;
-      if (maySynth) {
-        const src = a || b;
-        const tx = src.x;
-        const ty = 2 * WATERLINE - src.y; // the true mirror point
-        if (input.forceMirror) {
-          follower.x = tx;
-          follower.y = ty;
-        } else {
-          // the reflection wants to be LED, not waited out: a parked hand
-          // bores it (it drifts off), a slow steady trace lets it catch up
-          const speed = src.speed || 0;
-          if (speed < 0.02) stillT += dt;
-          else stillT = Math.max(0, stillT - dt * 3);
-          const bored = clamp((stillT - 2.5) * 0.5, 0, 1.6);
-          const rate = 1 / ((0.12 + 1.05 * (1 - g.sync)) * (1 + bored * 2.2));
-          follower.x = damp(follower.x, tx, rate, dt);
-          follower.y = damp(follower.y, ty, rate, dt);
-          const wob = (0.028 * (1 - g.sync) + 0.03 * bored) * amp * dt * 6;
-          follower.x += wander(t, 3) * wob;
-          follower.y += wander(t, 9) * wob * 0.75;
-        }
-        follower.engaged = true;
-        const synth = {
-          x: follower.x,
-          y: a
-            ? clamp(follower.y, 0.02, WATERLINE - 0.01)
-            : clamp(follower.y, WATERLINE + 0.01, 0.98),
-          speed: 0,
-        };
-        if (a) {
-          b = synth;
-          g.belowIsSynth = true;
-        } else {
-          a = synth;
-          g.aboveIsSynth = true;
-        }
+    // -------- presence glows for the water --------
+    g.above.on = 0;
+    g.below.on = 0;
+    for (const p of presences) {
+      if (p.y > WATERLINE && !g.above.on) {
+        g.above = { x: p.x, y: p.y, on: 1 };
+      } else if (p.y <= WATERLINE && !g.below.on) {
+        g.below = { x: p.x, y: p.y, on: 1 };
+      }
+    }
+
+    // -------- the real flower leans toward whoever is here --------
+    const focus = presences[0] || null;
+    g.sway = (0.05 * Math.sin(t * 0.4) + 0.02 * Math.sin(t * 1.1 + 2.0)) * amp;
+    g.lean = damp(g.lean, focus ? clamp((focus.x - 0.5) * 0.8, -0.5, 0.5) : 0, 1.6, dt);
+
+    g.flower = damp(g.flower, bloomTarget, 0.7, dt);
+    g.flowerGlow = damp(g.flowerGlow, 0, 1.6, dt);
+
+    // -------- the flower of light between the hands --------
+    const sp = g.spirit;
+    if (sp.sink > 0 && sp.sink < 1) {
+      // draining — nothing interrupts the offering
+      sinkT += dt;
+      sp.sink = clamp(sinkT / 1.35, 0, 1);
+      sp.alive = damp(sp.alive, 0.85, 2, dt);
+      if (sp.sink >= 1) {
+        landSink();
+        sp.alive = 0;
+        sp.sink = 0;
+        heldT = 0;
+      }
+    } else if (gathering) {
+      heldT += dt;
+      const wake = clamp(heldT / 0.7, 0, 1);
+      sp.alive = damp(sp.alive, wake, 3, dt);
+      sp.sink = 0;
+      if (twoHands) {
+        const [h1, h2] = hands;
+        const mx = (h1.x + h2.x) / 2;
+        const my = (h1.y + h2.y) / 2;
+        const dist = Math.hypot(h1.x - h2.x, h1.y - h2.y);
+        const ang = angleUnwrap(Math.atan2(h2.y - h1.y, h2.x - h1.x));
+        sp.palmAx = h1.x;
+        sp.palmAy = h1.y;
+        sp.palmBx = h2.x;
+        sp.palmBy = h2.y;
+        sp.x = damp(sp.x, mx, 10, dt);
+        sp.y = damp(sp.y, my, 10, dt);
+        sp.scale = damp(sp.scale, clamp(dist * 0.55, 0.06, 0.28), 8, dt);
+        sp.stretch = damp(sp.stretch, clamp(0.55 + dist * 2.0, 0.7, 1.6), 6, dt);
+        sp.angle = damp(sp.angle, ang, 10, dt);
+        // fold the flower through itself past a half-turn of the wrists:
+        // wrapped angle near ±π means the hands have crossed over
+        const wrapped = ((sp.angle % (Math.PI * 2)) + Math.PI * 3) % (Math.PI * 2) - Math.PI;
+        sp.invert = damp(sp.invert, Math.abs(wrapped) > 2.1 ? 1 : 0, 4, dt);
+        sp.thread = 1;
+      } else if (ptr) {
+        sp.x = damp(sp.x, ptr.x, 8, dt);
+        sp.y = damp(sp.y, ptr.y, 8, dt);
+        sp.scale = damp(sp.scale, clamp(0.05 + heldT * 0.09, 0.05, 0.22), 3, dt);
+        sp.stretch = damp(sp.stretch, 1 + 0.15 * Math.sin(t * 1.3), 4, dt);
+        sp.angle += dt * 0.25;
+        sp.invert = damp(sp.invert, 0, 4, dt);
+        sp.thread = 0;
       }
     } else {
-      lonelyT = 0;
-      follower.engaged = false;
-    }
-
-    // -------- sync: how truly the two sides mirror --------
-    if (a && b) {
-      const mx = a.x;
-      const my = 2 * WATERLINE - a.y;
-      const err = Math.hypot(b.x - mx, (b.y - my) * 1.4);
-      const inst = Math.exp(-((err / 0.1) ** 2));
-      g.sync = damp(g.sync, inst, 6, dt);
-      // the ghost marks where your second hand should be: it haunts the
-      // synthetic side's world, mirroring the real hand
-      if (g.aboveIsSynth) {
-        g.ghost.x = b.x;
-        g.ghost.y = 2 * WATERLINE - b.y;
+      // released: if it was truly held, it becomes an offering
+      if (sp.alive > 0.55 && heldT > 0.9) {
+        sinkT = 0.0001;
+        sp.sink = 0.0001;
+        sp.sinkX = sp.x;
+        sp.sinkY = WATERLINE - 0.015;
       } else {
-        g.ghost.x = mx;
-        g.ghost.y = my;
+        sp.alive = damp(sp.alive, 0, 5, dt);
+        heldT = Math.max(0, heldT - dt * 3);
       }
-      g.ghost.on = 1;
-    } else {
-      g.sync = damp(g.sync, 0, 2.5, dt);
-      g.ghost.on = 0;
-    }
-    g.disagree = damp(g.disagree, 1 - g.sync, 2.5, dt);
-
-    g.above.on = a ? 1 : 0;
-    if (a) {
-      g.above.x = a.x;
-      g.above.y = a.y;
-    }
-    g.below.on = b ? 1 : 0;
-    if (b) {
-      g.below.x = b.x;
-      g.below.y = b.y;
     }
 
-    // -------- the ritual: three acts, then the bloom --------
-    g.justAdvanced = false;
-    updateFirefly(dt, a, !!input.forceMirror);
-    if (!a && !b) idleT += dt;
-    else idleT = 0;
-
-    if (g.phase === "play") {
-      const paired = !!(a && b);
-      if (idleT > 10 && (g.stage > 1 || g.stageProg > 0)) resetStages();
-
-      if (g.stage === 1) {
-        // act I — meet it: cover the calling ring with your other self
-        if (paired && g.sync > 0.8) g.stageProg += dt / 0.9;
-        else g.stageProg = Math.max(0, g.stageProg - dt * 0.8);
-        if (g.stageProg >= 1) advance();
-      } else if (g.stage === 2) {
-        // act II — lead it: cup the firefly and carry it, mirrored
-        const held = g.firefly.held === 1 || input.forceMirror;
-        if (held && paired && g.sync > 0.5) g.stageProg += dt / 5.5;
-        else g.stageProg = Math.max(0, g.stageProg - dt / 8);
-        if (g.stageProg >= 1) advance();
-      } else if (surgeT > 0) {
-        // act III, mid-storm: the reflection doubts; hold anyway
-        surgeT -= dt;
-        const x = 1 - Math.max(surgeT, 0) / SURGE_SECONDS;
-        g.surge = Math.sin(Math.min(x, 1) * Math.PI);
-        g.disagree = Math.max(g.disagree, 0.85 * g.surge);
-        if (paired && g.sync > 0.55) g.stageProg += dt / 7;
-        else g.stageProg = Math.max(0, g.stageProg - dt / 4);
-        if (g.stageProg >= 1) win();
+    // -------- fireflies: drawn to whoever is gentle --------
+    const seek = focus || null;
+    for (let i = 0; i < FLY_COUNT; i++) {
+      const f = g.fireflies[i];
+      let tx;
+      let ty;
+      if (seek && i % 3 !== 0) {
+        const orbA = t * (0.25 + (i % 5) * 0.11) + i * 2.4;
+        const orbR = 0.05 + (i % 4) * 0.035;
+        tx = seek.x + Math.cos(orbA) * orbR;
+        ty = seek.y + Math.sin(orbA) * orbR * 0.7;
       } else {
-        // act III — hold the agreement
-        g.surge = damp(g.surge, 0, 6, dt);
-        if (paired && g.sync > SYNC_GATE) g.stageProg += dt / 4.5;
-        else g.stageProg = Math.max(0, g.stageProg - dt / 3);
-        if (!surgesFired[0] && g.stageProg > 0.35) {
-          surgesFired[0] = true;
-          surgeT = SURGE_SECONDS;
-        } else if (!surgesFired[1] && g.stageProg > 0.72) {
-          surgesFired[1] = true;
-          surgeT = SURGE_SECONDS;
-        }
-        if (g.stageProg >= 1) win();
+        tx = 0.5 + 0.42 * wander(t * 0.4, i * 7.3);
+        ty = WATERLINE + 0.16 + 0.14 * wander(t * 0.33, i * 3.1);
       }
-
-      // the waterline meter tells the whole ritual, a third per act
-      g.progress = clamp((g.stage - 1 + clamp(g.stageProg, 0, 1)) / 3, 0, 1);
-      g.stageGlow = damp(g.stageGlow, g.stage === 1 && g.ghost.on ? 1 : 0, 4, dt);
-      g.bloomFlash = damp(g.bloomFlash, 0, 4, dt);
-      g.burstT = 0;
-    } else if (g.phase === "blooming") {
-      const p = clamp(g.phaseT / BLOOM_SECONDS, 0, 1);
-      g.sync = 1;
-      g.disagree = damp(g.disagree, 0, 8, dt);
-      g.progress = 1;
-      // flash peaks early then decays; the burst rides the whole bloom
-      g.bloomFlash = Math.exp(-((p - 0.18) ** 2) / 0.02) * 0.9;
-      g.burstT = p;
-      if (p >= 1) {
-        landWin();
-        g.phase = "afterglow";
-        g.phaseT = 0;
+      ty = Math.max(ty, WATERLINE + 0.02);
+      f.vx += (tx - f.x) * dt * 2.2;
+      f.vy += (ty - f.y) * dt * 2.2;
+      f.vx *= Math.exp(-dt * 1.8);
+      f.vy *= Math.exp(-dt * 1.8);
+      const sp2 = Math.hypot(f.vx, f.vy);
+      const cap = 0.22;
+      if (sp2 > cap) {
+        f.vx = (f.vx / sp2) * cap;
+        f.vy = (f.vy / sp2) * cap;
       }
-    } else if (g.phase === "afterglow") {
-      g.bloomFlash = damp(g.bloomFlash, 0, 2, dt);
-      g.burstT = 1;
-      if (g.phaseT > AFTERGLOW_SECONDS) {
-        g.phase = "settle";
-        g.phaseT = 0;
-      }
-    } else if (g.phase === "settle") {
-      g.progress = damp(g.progress, 0, 1.2, dt);
-      g.burstT = 1;
-      if (g.phaseT > SETTLE_SECONDS) {
-        g.phase = "play";
-        g.phaseT = 0;
-        g.progress = 0;
-        resetStages();
-      }
-    }
-    if (g.phase !== "play") {
-      g.surge = damp(g.surge, 0, 6, dt);
-      g.stageGlow = damp(g.stageGlow, 0, 4, dt);
+      f.x += f.vx * dt;
+      f.y += f.vy * dt;
+      f.ph += dt * (0.7 + (i % 3) * 0.4);
+      f.br = damp(f.br, seek ? 1 : 0.55, 1.5, dt);
     }
 
-    // -------- lotus A: alive, and leaning to the offered hand --------
-    const sway =
-      (0.05 * Math.sin(t * 0.5) + 0.022 * Math.sin(t * 1.37 + 1.3)) * amp;
-    g.lotusA.sway = sway;
-    const leanTarget = a ? clamp((a.x - 0.5) * 0.55, -0.22, 0.22) : 0;
-    g.lotusA.lean = damp(g.lotusA.lean, leanTarget, 3, dt);
+    // -------- now and then, a petal lets go of the flower --------
+    const pt = g.petal;
+    if (pt.life > 0) {
+      pt.life -= dt / 8;
+      pt.x += (wander(t * 0.7, 9.1) * 0.02 + g.sway * 0.3) * dt * 3;
+      pt.y -= dt * 0.045;
+      pt.rot += dt * (0.6 + wander(t, 4.4) * 0.4);
+      if (pt.y <= WATERLINE + 0.004) {
+        g.petalLanded = true;
+        pt.life = 0;
+      }
+    } else if (g.flower > 0.35 && sp.alive < 0.1) {
+      petalTimer -= dt;
+      if (petalTimer <= 0) {
+        petalTimer = 18 + Math.random() * 18;
+        pt.x = 0.5 + (Math.random() - 0.5) * 0.12;
+        pt.y = WATERLINE + 0.30 + Math.random() * 0.06;
+        pt.rot = Math.random() * Math.PI;
+        pt.life = 1;
+      }
+    }
 
-    let bloomTarget;
-    if (g.phase === "blooming") bloomTarget = easeInOut(clamp(g.phaseT / BLOOM_SECONDS, 0, 1)) * 0.65 + 0.35;
-    else if (g.phase === "afterglow") bloomTarget = 1;
-    else if (g.phase === "settle") bloomTarget = 0.5;
-    else bloomTarget = 0.34 + (a ? 0.1 : 0) + 0.45 * g.progress;
-    g.lotusA.bloom = damp(g.lotusA.bloom, bloomTarget, g.phase === "blooming" ? 2.2 : 1.6, dt);
-
-    pushHist(dt);
-
-    // -------- lotus B: the disobedient reflection --------
-    const delayed = sampleHist(1.1 * g.disagree, dt);
-    const d = g.disagree * amp;
-    g.lotusB.lean = delayed[0] + wander(t, 21) * 0.16 * d;
-    g.lotusB.sway = delayed[1] + wander(t, 33) * 0.1 * d;
-    g.lotusB.bloom = clamp(delayed[2] - 0.07 * g.disagree, 0.05, 1);
-
-    // -------- caption --------
-    if (g.phase === "blooming") g.captionKey = "quiet";
-    else if (g.phase === "afterglow") g.captionKey = "won";
-    else if (g.phase === "settle") g.captionKey = "settle";
-    else if (!a && !b) g.captionKey = "idle";
-    else if (a && !b) g.captionKey = "aboveOnly";
-    else if (!a && b) g.captionKey = "belowOnly";
-    else if (g.stage === 1) g.captionKey = "meet";
-    else if (g.stage === 2) g.captionKey = g.firefly.held ? "lead" : "cup";
-    else if (g.surge > 0.15) g.captionKey = "surge";
-    else if (g.sync > 0.55) g.captionKey = "hold";
-    else g.captionKey = "agree";
+    // -------- long stillness: the reflection forgets itself --------
+    if (presences.length === 0) stillT += dt;
+    else stillT = 0;
+    derenderCool -= dt;
+    if (stillT > 22 && derenderCool <= 0 && g.derender === 0) {
+      g.derender = 0.0001;
+      derenderCool = 45;
+    }
+    if (g.derender > 0) {
+      g.derender += dt / 4.5;
+      if (g.derender >= 1) g.derender = 0;
+    }
 
     return g;
   }

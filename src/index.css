@@ -20,16 +20,36 @@
   --dw-panel: #2c2c2c; /* Figma panel / toolbar surface */
   --dw-panel-line: #1a1a1a; /* near-black divider against the canvas */
   --dw-blue: #0d99ff; /* Figma selection blue */
+  /* artboards: the light frames sitting ON the dark canvas */
+  --dw-board: #f6f5f2;
+  --dw-board-ink: #1c1b19;
+  --dw-board-dim: #6f6b64;
+  --dw-board-line: rgba(28, 27, 25, 0.12);
 
-  /* tech world: phosphor dark */
-  --tw-bg: #090d0b;
-  --tw-text: #dce7de;
-  --tw-dim: #7e8d82;
-  --tw-accent: #4be58c;
-  --tw-line: rgba(75, 229, 141, 0.18);
-  --tw-card: #0c1210;
+  /* tech world: VS Code Dark+. Editor #1E1E1E, sidebar #252526, activity bar
+     #333333, status bar #007ACC — real VS Code UI colours. The phosphor-green
+     terminal look is dead; the page IS the editor now. */
+  --tw-bg: #1e1e1e; /* editor */
+  --tw-side: #252526; /* sidebar / tab strip surfaces */
+  --tw-activity: #333333; /* activity bar */
+  --tw-text: #d4d4d4;
+  --tw-dim: #858585;
+  --tw-accent: #007acc; /* status bar / focus blue */
+  --tw-line: #2d2d30; /* panel borders */
+  --tw-card: #252526;
+  /* Dark+ syntax */
+  --syn-kw: #c586c0;
+  --syn-str: #ce9178;
+  --syn-fn: #dcdcaa;
+  --syn-type: #4ec9b2;
+  --syn-var: #9cdcfe;
+  --syn-com: #6a9955;
+  --syn-num: #b5cea8;
+  --syn-punc: #8a8a8a;
+  --syn-md: #569cd6;
 
   --font-sans: "Archivo Variable", system-ui, -apple-system, sans-serif;
+  --font-ui: "Inter Variable", "Segoe UI", system-ui, sans-serif;
   --font-mono: "JetBrains Mono Variable", ui-monospace, "Cascadia Code", monospace;
   --font-script: "Ballet Variable", "Segoe Script", cursive;
   --font-monogram: "Pinyon Script", "Segoe Script", cursive;
@@ -104,8 +124,9 @@ button {
   color: #fff;
 }
 html[data-world="tech"] ::selection {
-  background: rgba(75, 229, 141, 0.85);
-  color: #06120b;
+  /* VS Code's editor selection */
+  background: #264f78;
+  color: #ffffff;
 }
 
 :focus-visible {

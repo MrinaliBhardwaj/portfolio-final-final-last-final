@@ -1,13 +1,17 @@
-/* ============ DESIGN WORLD: authentic Figma dark ============ */
+/* ============ DESIGN WORLD: an open Figma file ============ */
+/* the page is the #1E1E1E canvas; the portfolio lives on light artboard
+   frames scattered across it. Chrome + body speak Inter (Figma's UI font);
+   the hero headline keeps the wide Archivo display — the shared thread. */
 .dw {
   background: var(--dw-bg);
   color: var(--dw-ink);
   min-height: 100dvh;
   overflow-x: clip;
+  font-family: var(--font-ui);
 }
 
-/* desktop app chrome: the fixed Figma tab bar above, the layers panel left;
-   the canvas (everything else) clears both — VS Code-style editor layout */
+/* desktop app chrome: fixed Figma tab bar above, layers panel left,
+   properties panel right; the canvas clears all three */
 @media (min-width: 769px) {
   .dw {
     padding-top: 44px;
@@ -18,9 +22,15 @@
   }
 }
 
-/* the canvas: Figma's subtle dot grid over the #1E1E1E field. It rides the
-   content (scrolls with it) the way Figma's grid pans with the canvas. */
+@media (min-width: 1100px) {
+  .dw-content {
+    margin-right: 240px;
+  }
+}
+
+/* the canvas: Figma's subtle dot grid over the #1E1E1E field */
 .dw-content {
+  position: relative;
   background-image: radial-gradient(
     circle,
     rgba(255, 255, 255, 0.05) 1px,
@@ -34,399 +44,647 @@
 }
 
 .dw ::selection {
-  background: rgba(226, 58, 22, 0.85);
+  background: rgba(13, 153, 255, 0.75);
   color: #fff;
 }
 
-/* header */
+/* header: floats quietly at the top of the canvas */
 .dw-top {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1.4rem 2.2rem;
+  padding: 1.3rem clamp(1.25rem, 4vw, 3rem) 0;
 }
 
 .dw-mark {
+  font-family: var(--font-sans);
   font-stretch: 125%;
   font-weight: 900;
-  font-size: 1.05rem;
-  text-decoration: none;
+  font-size: 1rem;
   letter-spacing: 0.02em;
+  text-decoration: none;
 }
 
 .dw-hello {
-  font-size: 0.85rem;
-  font-weight: 600;
+  font-size: 0.82rem;
+  font-weight: 550;
   text-decoration: none;
+  color: var(--dw-dim);
   border-bottom: 1px solid var(--dw-line);
   padding-bottom: 2px;
-  transition: color 0.3s var(--ease-soft),
-    border-color 0.3s var(--ease-soft);
+  transition: color 0.3s var(--ease-soft), border-color 0.3s var(--ease-soft);
 }
 
 .dw-hello:hover {
-  color: var(--dw-accent);
-  border-color: var(--dw-accent);
+  color: var(--dw-ink);
+  border-color: var(--dw-ink);
 }
 
-/* hero */
-.dw-hero {
-  padding: clamp(4rem, 12vh, 6rem) 2.2rem 5rem;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-.dw-hero h1 {
-  font-size: clamp(2.6rem, 6.8vw, 5.6rem);
-  font-weight: 800;
-  font-stretch: 112%;
-  line-height: 1.04;
-  letter-spacing: -0.02em;
-  max-width: 16ch;
-}
-
-.dw-hero h1 em {
-  font-style: italic;
-  color: var(--dw-accent);
-  line-height: 1.1;
-}
-
-.dw-hero-sub {
-  margin-top: 1.8rem;
-  color: var(--dw-dim);
-  font-size: clamp(1rem, 1.6vw, 1.15rem);
-  max-width: 42ch;
-  line-height: 1.6;
-}
-
-/* shared section shell */
-.dw-section {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: clamp(3.5rem, 9vh, 6.5rem) 2.2rem;
-}
-
-.dw-h2 {
-  font-size: clamp(1.5rem, 3vw, 2.2rem);
-  margin-bottom: 2.6rem;
-}
-
-/* work grid: asymmetric 12-col */
-.dw-grid {
+/* ============ the canvas grid of frames ============ */
+.dw-canvas {
   display: grid;
   grid-template-columns: repeat(12, 1fr);
-  gap: 2.4rem;
-  align-items: start;
+  gap: clamp(4rem, 7vh, 6rem) 1.5rem;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: clamp(2.5rem, 6vh, 4rem) clamp(1.25rem, 4vw, 3rem) 10rem;
 }
 
-.dw-card {
+/* ---- one artboard ---- */
+.cvf {
+  min-width: 0;
+}
+
+/* the frame-name label above every artboard, exactly like Figma */
+.cvf-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: #9b9b9b;
+  margin-bottom: 7px;
+  user-select: none;
+  transition: color 0.25s var(--ease-soft);
+}
+
+.cvf.is-selected .cvf-label {
+  color: #7cc4ff;
+}
+
+.cvf-body {
+  position: relative;
+  background: var(--dw-board);
+  color: var(--dw-board-ink);
+  padding: clamp(2rem, 4.5vw, 4rem);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.45), 0 14px 44px rgba(0, 0, 0, 0.35);
+  transition: box-shadow 0.3s var(--ease-soft);
+}
+
+/* Figma's selection ring */
+.cvf.is-selected .cvf-body {
+  box-shadow: 0 0 0 1.5px var(--dw-blue), 0 14px 44px rgba(0, 0, 0, 0.35);
+}
+
+/* corner handles — visible only while selected */
+.cvf-handle {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: #fff;
+  border: 1.5px solid var(--dw-blue);
+  opacity: 0;
+  transition: opacity 0.25s var(--ease-soft);
+  pointer-events: none;
+}
+
+.cvf.is-selected .cvf-handle {
+  opacity: 1;
+}
+
+.cvf-handle--tl { top: -4px; left: -4px; }
+.cvf-handle--tr { top: -4px; right: -4px; }
+.cvf-handle--bl { bottom: -4px; left: -4px; }
+.cvf-handle--br { bottom: -4px; right: -4px; }
+
+/* dimension pill under the selected frame */
+.cvf-dims {
+  position: absolute;
+  left: 50%;
+  bottom: -22px;
+  transform: translateX(-50%);
+  background: var(--dw-blue);
+  color: #fff;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  padding: 2px 7px;
+  border-radius: 3px;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.25s var(--ease-soft);
+  pointer-events: none;
+}
+
+.cvf.is-selected .cvf-dims {
+  opacity: 1;
+}
+
+/* tonal variants: a dark frame and the one vermilion frame */
+.cvf--dark .cvf-body {
+  background: #232323;
+  color: #ececec;
+}
+
+.cvf--accent .cvf-body {
+  background: var(--dw-accent);
+  color: #fff5f2;
+}
+
+/* ---- the pinned Figma comment on the hero ---- */
+.cvf-pin {
+  position: absolute;
+  top: -14px;
+  right: 28px;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
   text-decoration: none;
+  z-index: 2;
 }
 
-.dw-card--lg {
-  grid-column: span 7;
-}
-
-.dw-card--sm {
-  grid-column: span 5;
-  margin-top: 4.5rem;
-}
-
-.dw-card--sm:nth-of-type(3) {
-  margin-top: 0;
-}
-
-.dw-visual {
+.cvf-pin-dot {
   display: grid;
   place-items: center;
-  border: 1px solid var(--dw-line);
+  width: 28px;
+  height: 28px;
+  background: var(--dw-accent);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  border-radius: 50% 50% 50% 4px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45), 0 0 0 2px #fff;
+  transition: transform 0.25s var(--ease-soft);
+}
+
+.cvf-pin:hover .cvf-pin-dot,
+.cvf-pin:focus-visible .cvf-pin-dot {
+  transform: scale(1.12);
+}
+
+.cvf-pin-note {
+  background: #fff;
+  color: #1c1b19;
+  font-size: 11.5px;
+  font-weight: 500;
+  line-height: 1.45;
+  padding: 8px 11px;
+  border-radius: 3px 10px 10px 10px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+  max-width: 200px;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 0.25s var(--ease-soft), transform 0.25s var(--ease-soft);
+  pointer-events: none;
+}
+
+.cvf-pin:hover .cvf-pin-note,
+.cvf-pin:focus-visible .cvf-pin-note {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ---- a collaborator's cursor drifting over the canvas ---- */
+.dw-cur {
+  position: absolute;
+  top: 130px;
+  left: 55%;
+  z-index: 5;
+  display: flex;
+  align-items: flex-start;
+  gap: 2px;
+  pointer-events: none;
+}
+
+.dw-cur span {
+  background: var(--dw-accent);
+  color: #fff;
+  font-size: 10.5px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 10px;
+  margin-top: 10px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .dw-cur {
+    animation: dw-drift 26s ease-in-out infinite alternate;
+  }
+}
+
+@keyframes dw-drift {
+  0% { transform: translate(0, 0); }
+  25% { transform: translate(-16vw, 22vh); }
+  50% { transform: translate(8vw, 48vh); }
+  75% { transform: translate(-24vw, 30vh); }
+  100% { transform: translate(4vw, 8vh); }
+}
+
+/* ============ artboard content ============ */
+.dw-eyebrow {
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--dw-board-dim);
+}
+
+.dw-h1 {
+  margin-top: 1.2rem;
+  font-size: clamp(2.2rem, 5.4vw, 4.4rem);
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+  max-width: 18ch;
+}
+
+.dw-h1 em {
+  font-style: italic;
+  color: var(--dw-accent);
+}
+
+.dw-sub {
+  margin-top: 1.6rem;
+  font-size: clamp(0.98rem, 1.4vw, 1.12rem);
+  line-height: 1.65;
+  color: var(--dw-board-dim);
+  max-width: 52ch;
+}
+
+/* stat chips — Figma-style tag pills */
+.dw-chips {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  margin-top: 2.1rem;
+}
+
+.dw-chips li {
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 0.42rem 0.8rem;
+  border-radius: 999px;
+  border: 1px solid var(--dw-board-line);
+  background: #fff;
+}
+
+/* section heading inside frames */
+.dw-h2 {
+  font-family: var(--font-sans);
+  font-stretch: 120%;
+  font-weight: 850;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  font-size: clamp(1.15rem, 2vw, 1.5rem);
+  margin-bottom: 2rem;
+}
+
+/* ---- experience: three columns on one artboard ---- */
+.dw-exp-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2.4rem;
+}
+
+.dw-exp-when {
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--dw-board-dim);
+}
+
+.dw-exp-org {
+  margin-top: 0.5rem;
+  font-size: 1.18rem;
+  font-weight: 750;
+  letter-spacing: -0.01em;
+}
+
+.dw-exp-role {
+  margin-top: 0.15rem;
+  font-size: 0.86rem;
+  font-weight: 550;
+  color: var(--dw-board-dim);
+}
+
+.dw-exp-kpi {
+  display: inline-block;
+  margin-top: 0.9rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--dw-accent);
+  border: 1px solid rgba(226, 58, 22, 0.35);
+  border-radius: 999px;
+  padding: 0.3rem 0.7rem;
+}
+
+.dw-exp-point {
+  margin-top: 0.85rem;
+  font-size: 0.87rem;
+  line-height: 1.6;
+  color: #3d3a35;
+}
+
+/* ---- selected work ---- */
+.dw-work-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 2.2rem;
+}
+
+.dw-card--lg { grid-column: span 7; }
+.dw-card--sm { grid-column: span 5; }
+.dw-card--wide { grid-column: span 12; }
+
+.dw-card-visual {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 16 / 9;
   background: linear-gradient(
       150deg,
-      rgba(226, 58, 22, 0.09),
-      rgba(226, 58, 22, 0.015) 60%
+      rgba(226, 58, 22, 0.1),
+      rgba(226, 58, 22, 0.02) 60%
     ),
-    var(--dw-slot);
-  transition: background-color 0.5s var(--ease-soft);
+    #eceae5;
+  border: 1px solid var(--dw-board-line);
 }
 
-.dw-card--lg .dw-visual {
-  aspect-ratio: 16 / 10;
+.dw-card--wide .dw-card-visual {
+  aspect-ratio: 21 / 6;
 }
 
-.dw-card--sm .dw-visual {
-  aspect-ratio: 4 / 5;
-}
-
-.dw-visual span {
-  font-style: italic;
-  font-size: 0.85rem;
-  color: var(--dw-dim);
-}
-
-.dw-meta {
-  padding-top: 1.2rem;
-}
-
-.dw-meta-head {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 1rem;
-}
-
-.dw-meta h3 {
-  font-size: 1.35rem;
-  font-weight: 750;
-  font-stretch: 110%;
-  letter-spacing: -0.01em;
-  transition: color 0.35s var(--ease-soft);
-}
-
-.dw-arrow {
-  color: var(--dw-accent);
-  font-size: 1.2rem;
-  opacity: 0;
-  transform: translateX(-8px);
-  transition: opacity 0.35s var(--ease-soft),
-    transform 0.35s var(--ease-soft);
-}
-
-.dw-card:hover h3 {
-  color: var(--dw-accent);
-}
-
-.dw-card:hover .dw-arrow {
-  opacity: 1;
-  transform: translateX(0);
-}
-
-.dw-role {
-  margin-top: 0.3rem;
-  font-weight: 600;
-  font-size: 0.95rem;
-}
-
-.dw-blurb {
-  margin-top: 0.5rem;
-  color: var(--dw-dim);
-  font-size: 0.92rem;
-  line-height: 1.55;
-  max-width: 44ch;
-}
-
-.dw-date {
-  margin-top: 0.7rem;
-  font-size: 0.8rem;
-  color: var(--dw-dim);
+.dw-card-visual span {
+  font-family: var(--font-sans);
+  font-stretch: 120%;
+  font-weight: 850;
+  text-transform: uppercase;
+  font-size: clamp(1rem, 2vw, 1.5rem);
+  color: rgba(28, 27, 25, 0.35);
   letter-spacing: 0.02em;
 }
 
-/* capabilities */
-.dw-cap {
-  display: grid;
-  grid-template-columns: 7fr 4fr;
-  gap: 4rem;
-}
-
-.dw-cap-list {
-  list-style: none;
-}
-
-.dw-cap-list li {
-  display: flex;
-  align-items: center;
-  gap: 1.1rem;
-  font-size: clamp(1.5rem, 3vw, 2.4rem);
+.dw-card-tag {
+  margin-top: 1rem;
+  font-size: 0.7rem;
   font-weight: 700;
-  font-stretch: 108%;
-  letter-spacing: -0.015em;
-  padding: 0.55rem 0;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--dw-accent);
+}
+
+.dw-card-name {
+  margin-top: 0.3rem;
+  font-size: 1.25rem;
+  font-weight: 750;
+  letter-spacing: -0.01em;
+}
+
+.dw-card-what {
+  margin-top: 0.15rem;
+  font-size: 0.82rem;
+  color: var(--dw-board-dim);
+}
+
+.dw-card-blurb {
+  margin-top: 0.6rem;
+  font-size: 0.88rem;
+  line-height: 1.6;
+  color: #3d3a35;
+  max-width: 52ch;
+}
+
+/* ---- skills (dark frame) ---- */
+.dw-skill-chips {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.dw-skill-chips li {
+  font-size: 0.8rem;
+  font-weight: 550;
+  padding: 0.45rem 0.85rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  color: #dedede;
+}
+
+.dw-tools-line {
+  margin-top: 2rem;
+  font-size: 0.88rem;
+  color: #a8a8a8;
+}
+
+.dw-tools-line a {
+  color: #7cc4ff;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(124, 196, 255, 0.4);
+  transition: border-color 0.25s var(--ease-soft);
+}
+
+.dw-tools-line a:hover {
+  border-color: #7cc4ff;
+}
+
+/* ---- leadership (vermilion frame) ---- */
+.dw-lead-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2.4rem;
+}
+
+.dw-lead-grid h3 {
+  font-size: 1.05rem;
+  font-weight: 750;
+  letter-spacing: -0.01em;
+}
+
+.dw-lead-grid p {
+  margin-top: 0.6rem;
+  font-size: 0.88rem;
+  line-height: 1.6;
+  color: rgba(255, 245, 242, 0.88);
+}
+
+.cvf--accent .dw-h2 {
+  color: #fff;
+}
+
+/* ---- contact ---- */
+.dw-cta {
+  display: inline-block;
+  font-size: clamp(2rem, 5.4vw, 4rem);
+  line-height: 1.05;
+  text-decoration: none;
   transition: color 0.3s var(--ease-soft);
 }
 
-.dw-cap-tick {
-  width: 0.55em;
-  height: 3px;
-  background: var(--dw-accent);
-  flex: none;
-  transform-origin: left;
-  transition: transform 0.35s var(--ease-soft);
-}
-
-.dw-cap-list li:hover {
+.dw-cta:hover {
   color: var(--dw-accent);
 }
 
-.dw-cap-list li:hover .dw-cap-tick {
-  transform: scaleX(1.8);
-}
-
-.dw-side-head {
-  font-size: 0.85rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  color: var(--dw-dim);
-  margin-bottom: 1rem;
-}
-
-.dw-side-head + .dw-side-head,
-.dw-cred-sub + .dw-side-head,
-.dw-side-head:nth-of-type(2) {
-  margin-top: 2.6rem;
-}
-
-.dw-tools {
-  display: flex;
-  gap: 0.7rem;
-  margin-bottom: 2.6rem;
-}
-
-.dw-tool {
-  width: 52px;
-  height: 52px;
-  display: grid;
-  place-items: center;
-  border: 1px solid var(--dw-line);
-  background: var(--dw-slot);
-  font-weight: 700;
-  font-size: 0.95rem;
-}
-
-.dw-cred {
-  font-size: 1.15rem;
-  font-weight: 700;
-  font-stretch: 108%;
-}
-
-.dw-cred-sub {
-  margin-top: 0.3rem;
-  color: var(--dw-dim);
-  font-size: 0.9rem;
-}
-
-/* about */
-.dw-about {
-  display: grid;
-  grid-template-columns: 5fr 7fr;
-  gap: 4rem;
-  align-items: center;
-}
-
-.dw-portrait {
-  aspect-ratio: 4 / 5;
-  display: grid;
-  place-items: center;
-  border: 1px solid var(--dw-line);
-  background: linear-gradient(
-      200deg,
-      rgba(226, 58, 22, 0.08),
-      rgba(226, 58, 22, 0.01) 65%
-    ),
-    var(--dw-slot);
-  box-shadow: 14px 14px 0 rgba(226, 58, 22, 0.14);
-}
-
-.dw-portrait span {
-  font-style: italic;
-  font-size: 0.85rem;
-  color: var(--dw-dim);
-}
-
-.dw-about-copy p {
-  color: var(--dw-dim);
-  line-height: 1.7;
-  max-width: 52ch;
-  font-size: clamp(1rem, 1.5vw, 1.1rem);
-}
-
-.dw-about-copy p + p {
-  margin-top: 1.1rem;
-}
-
-/* footer — extra bottom room so the last section clears the floating dock */
-.dw-foot {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: clamp(4rem, 10vh, 7rem) 2.2rem 9rem;
-  border-top: 1px solid var(--dw-line);
-}
-
-.dw-foot-cta {
-  display: inline-block;
-  font-size: clamp(2.2rem, 6vw, 4.6rem);
-  text-decoration: none;
-  line-height: 1.05;
-  transition: color 0.35s var(--ease-soft);
-}
-
-.dw-foot-cta:hover {
-  color: var(--dw-accent);
-}
-
-.dw-foot-row {
-  margin-top: 3.5rem;
+.dw-links {
+  margin-top: 2.4rem;
   display: flex;
   flex-wrap: wrap;
-  gap: 2rem;
+  gap: 1.6rem;
 }
 
-.dw-foot-row a {
-  font-size: 0.88rem;
-  font-weight: 600;
-  color: var(--dw-dim);
+.dw-links a {
+  font-size: 0.85rem;
+  font-weight: 550;
+  color: var(--dw-board-dim);
   text-decoration: none;
-  border-bottom: 1px solid var(--dw-line);
+  border-bottom: 1px solid var(--dw-board-line);
   padding-bottom: 2px;
-  transition: color 0.3s var(--ease-soft),
-    border-color 0.3s var(--ease-soft);
+  transition: color 0.25s var(--ease-soft), border-color 0.25s var(--ease-soft);
 }
 
-.dw-foot-row a:hover {
+.dw-links a:hover {
   color: var(--dw-accent);
   border-color: var(--dw-accent);
+}
+
+.dw-edu {
+  margin-top: 1.6rem;
+  font-size: 0.8rem;
+  color: var(--dw-board-dim);
+}
+
+/* ============ the properties panel (right) ============ */
+.dwp {
+  display: none;
+}
+
+@media (min-width: 1100px) {
+  .dwp {
+    display: block;
+    position: fixed;
+    top: 44px;
+    right: 0;
+    bottom: 0;
+    width: 240px;
+    z-index: 40;
+    background: var(--dw-panel);
+    border-left: 1px solid var(--dw-panel-line);
+    font-size: 11.5px;
+    color: #c4c4c4;
+    user-select: none;
+    overflow-y: auto;
+  }
+}
+
+.dwp-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 40px;
+  padding: 0 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.dwp-tab {
+  font-weight: 600;
+  color: #e5e5e5;
+}
+
+.dwp-zoom {
+  color: #8c8c8c;
+}
+
+.dwp-selected {
+  padding: 12px 14px 4px;
+  font-weight: 600;
+  color: #e5e5e5;
+}
+
+.dwp-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  padding: 8px 14px 4px;
+}
+
+.dwp-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 4px;
+  padding: 5px 8px;
+}
+
+.dwp-k {
+  color: #8c8c8c;
+}
+
+.dwp-v {
+  color: #e5e5e5;
+  font-variant-numeric: tabular-nums;
+}
+
+.dwp-sec {
+  padding: 10px 14px 0;
+  margin-top: 6px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.dwp-label {
+  font-weight: 600;
+  color: #8c8c8c;
+  margin-bottom: 8px;
+}
+
+.dwp-fill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dwp-swatch {
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.dwp-export {
+  color: #c4c4c4;
+  padding-bottom: 14px;
 }
 
 /* ============ mobile ============ */
 @media (max-width: 768px) {
   .dw-top {
-    padding: 1.1rem 1.25rem;
+    padding: 1.1rem 1.25rem 0;
   }
 
-  .dw-hero,
-  .dw-section,
-  .dw-foot {
-    padding-left: 1.25rem;
-    padding-right: 1.25rem;
+  .dw-canvas {
+    gap: 3.2rem 0;
+    padding-bottom: 9rem;
   }
 
-  .dw-grid {
+  /* every frame goes full width; the canvas becomes a single column */
+  .dw-canvas > .cvf {
+    grid-column: 1 / span 12 !important;
+  }
+
+  .cvf-body {
+    padding: 1.6rem 1.3rem;
+  }
+
+  .dw-cur {
+    display: none;
+  }
+
+  .cvf-pin {
+    top: -12px;
+    right: 14px;
+  }
+
+  /* the note would overflow small screens on hover; keep the pin only */
+  .cvf-pin-note {
+    display: none;
+  }
+
+  .dw-exp-grid,
+  .dw-lead-grid {
     grid-template-columns: 1fr;
-    gap: 2.8rem;
+    gap: 2rem;
   }
 
   .dw-card--lg,
-  .dw-card--sm {
-    grid-column: auto;
-    margin-top: 0;
-  }
-
-  .dw-card--sm .dw-visual {
-    aspect-ratio: 16 / 10;
-  }
-
-  .dw-cap,
-  .dw-about {
-    grid-template-columns: 1fr;
-    gap: 2.5rem;
-  }
-
-  .dw-portrait {
-    max-width: 340px;
-  }
-
-  /* keep work hover affordances visible on touch */
-  .dw-arrow {
-    opacity: 1;
-    transform: none;
+  .dw-card--sm,
+  .dw-card--wide {
+    grid-column: span 12;
   }
 }
