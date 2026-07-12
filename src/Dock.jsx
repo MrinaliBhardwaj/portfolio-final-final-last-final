@@ -12,7 +12,7 @@
 // pointer-distance "magnetic" simulation. Figma → design world, VS Code →
 // tech world; Gallery / Claude / Game respond but don't navigate yet.
 import { motion } from "framer-motion";
-import { Code2 } from "lucide-react";
+import { Code2, Flower2 } from "lucide-react";
 
 const EASE = [0.22, 1, 0.36, 1];
 
@@ -152,13 +152,13 @@ export default function Dock({ visible, onChoose, active }) {
     },
     {
       key: "game",
-      label: "Game (coming soon)",
-      action: null,
+      label: "The Pond — an interactive installation",
+      world: "pond",
+      action: () => onChoose("pond"),
       node: (
-        <img
-          className="dock-item-icon"
-          src="https://cdn.simpleicons.org/steam/e8e8ec"
-          alt=""
+        <Flower2
+          className="dock-item-icon dock-item-icon--glyph"
+          strokeWidth={1.4}
           aria-hidden="true"
         />
       ),

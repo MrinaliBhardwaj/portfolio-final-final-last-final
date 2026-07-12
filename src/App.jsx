@@ -13,6 +13,7 @@ import Cover from "./Cover.jsx";
 import DesignWorld from "./DesignWorld.jsx";
 import TechWorld from "./TechWorld.jsx";
 import GalleryWorld from "./GalleryWorld.jsx";
+import PondWorld from "./PondWorld.jsx";
 import Dock from "./Dock.jsx";
 import "./cover.css";
 import "./dock.css";
@@ -22,22 +23,35 @@ import "./figma-panel.css";
 import "./file-tree.css";
 import "./tech-world.css";
 import "./gallery-world.css";
+import "./pond-world.css";
 
 const TITLES = {
   "": "Mrinali Bhardwaj",
   design: "Mrinali Bhardwaj - Design",
   tech: "Mrinali Bhardwaj - Tech",
   gallery: "Mrinali Bhardwaj - Gallery",
+  pond: "Mrinali Bhardwaj - The Pond",
 };
 
-const WIPE_BG = { design: "#f4f3f0", tech: "#090d0b", gallery: "#05040a" };
+const WIPE_BG = {
+  design: "#f4f3f0",
+  tech: "#090d0b",
+  gallery: "#05040a",
+  pond: "#030807",
+};
 
 function getRoute() {
-  const hash = window.location.hash.replace(/^#\/?/, "").toLowerCase();
+  // the pond takes dev flags after a "?" (#/pond?sim) — route on the path only
+  const hash = window.location.hash
+    .replace(/^#\/?/, "")
+    .split("?")[0]
+    .toLowerCase();
   if (hash === "design") return "design";
   // "engineering" kept as an alias for links already in circulation
   if (hash === "tech" || hash === "engineering") return "tech";
   if (hash === "gallery") return "gallery";
+  // the dock calls it the Game; the piece calls itself the pond
+  if (hash === "pond" || hash === "game") return "pond";
   return "";
 }
 
@@ -133,6 +147,18 @@ export default function App() {
             transition={{ duration: 0.32 }}
           >
             <GalleryWorld />
+          </motion.div>
+        )}
+
+        {route === "pond" && (
+          <motion.div
+            key="pond"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.32 }}
+          >
+            <PondWorld />
           </motion.div>
         )}
       </AnimatePresence>

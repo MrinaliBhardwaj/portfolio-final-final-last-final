@@ -63,6 +63,9 @@ html[data-world="tech"] {
 html[data-world="gallery"] {
   background: #05040a;
 }
+html[data-world="pond"] {
+  background: #030807;
+}
 
 body {
   font-family: var(--font-sans);

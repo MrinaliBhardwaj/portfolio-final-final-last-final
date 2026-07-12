@@ -1,0 +1,321 @@
+/* ============ THE POND: the dock's Game app ============ */
+/* An interactive installation, fixed & immersive like the gallery: the water
+   fills the viewport, the dock floats above it as the OS layer. The stage is
+   one WebGL canvas; everything else here is quiet chrome and ritual copy. */
+.pw {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  background: #030807;
+  color: var(--void-text);
+}
+
+.pw-stage {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.pw-stage canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* chrome: monogram left, app label centre, close right (gallery convention) */
+.pw-top {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.4rem 2.2rem;
+  pointer-events: none;
+}
+
+.pw-top > * {
+  pointer-events: auto;
+}
+
+.pw-mark {
+  font-family: var(--font-monogram);
+  font-weight: 400;
+  font-size: 2.4rem;
+  line-height: 1;
+  color: var(--void-text);
+}
+
+.pw-label {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-mono-alt);
+  font-size: 0.72rem;
+  letter-spacing: 0.42em;
+  text-transform: uppercase;
+  color: var(--void-dim);
+  margin-right: -0.42em;
+}
+
+.pw-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  color: var(--void-dim);
+  border: 1px solid var(--void-line);
+  background: rgba(255, 255, 255, 0.02);
+  transition: color 0.25s var(--ease-soft), border-color 0.25s var(--ease-soft),
+    background-color 0.25s var(--ease-soft);
+}
+
+.pw-close:hover {
+  color: var(--void-text);
+  border-color: rgba(237, 236, 234, 0.3);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* ============ the entry ritual ============ */
+/* No card, no panel — just typography floating in the dark. Asking for the
+   camera is part of the piece, so it speaks in the piece's voice. */
+.pw-ritual {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.1rem;
+  text-align: center;
+  padding: 0 1.5rem;
+  background: rgba(3, 8, 7, 0.55);
+}
+
+.pw-ritual-title {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 500;
+  font-size: clamp(1.5rem, 3.4vw, 2.1rem);
+  letter-spacing: 0.01em;
+  color: var(--void-text);
+}
+
+.pw-ritual-sub {
+  font-family: var(--font-mono-alt);
+  font-size: 0.68rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--void-dim);
+  max-width: 34em;
+  line-height: 1.9;
+}
+
+.pw-ritual-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.4rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.pw-btn {
+  font-family: var(--font-mono-alt);
+  font-size: 0.7rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--void-text);
+  padding: 0.85rem 1.6rem;
+  border: 1px solid var(--void-line);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.02);
+  transition: color 0.25s var(--ease-soft), border-color 0.25s var(--ease-soft),
+    background-color 0.25s var(--ease-soft), box-shadow 0.25s var(--ease-soft);
+}
+
+.pw-btn:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.pw-btn--eye {
+  border-color: rgba(242, 199, 211, 0.38);
+}
+
+.pw-btn--eye:hover {
+  border-color: rgba(242, 199, 211, 0.7);
+  box-shadow: 0 0 24px rgba(242, 199, 211, 0.12);
+}
+
+.pw-btn--hide {
+  color: var(--void-dim);
+}
+
+.pw-btn--hide:hover {
+  color: var(--void-text);
+}
+
+/* ============ live captions ============ */
+/* The piece speaks in one quiet serif line above the dock. Crossfade between
+   lines is opacity-only. */
+.pw-caption {
+  position: absolute;
+  left: 50%;
+  bottom: 8.2rem;
+  transform: translateX(-50%);
+  z-index: 10;
+  width: max-content;
+  max-width: min(84vw, 40em);
+  text-align: center;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: clamp(1.02rem, 2vw, 1.28rem);
+  color: rgba(237, 236, 234, 0.82);
+  text-shadow: 0 1px 18px rgba(0, 0, 0, 0.65);
+  pointer-events: none;
+  transition: opacity 0.7s var(--ease-soft);
+}
+
+.pw-caption.is-quiet {
+  opacity: 0;
+}
+
+/* small mono footnote under the caption for secondary lines */
+.pw-caption-sub {
+  display: block;
+  margin-top: 0.5rem;
+  font-family: var(--font-mono-alt);
+  font-style: normal;
+  font-size: 0.64rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--void-dim);
+}
+
+/* ============ corners ============ */
+.pw-hint {
+  position: absolute;
+  left: 2.2rem;
+  bottom: 1.8rem;
+  z-index: 10;
+  font-family: var(--font-mono-alt);
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--void-dim);
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+/* agreements tally — quiet, mono, lights up gold when one lands */
+.pw-count {
+  position: absolute;
+  right: 2.2rem;
+  bottom: 1.9rem;
+  z-index: 10;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55em;
+  font-family: var(--font-mono-alt);
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--void-dim);
+  pointer-events: none;
+  transition: color 0.6s var(--ease-soft);
+}
+
+.pw-count.is-lit {
+  color: #ffd98a;
+}
+
+.pw-count-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.8;
+}
+
+/* sound toggle sits above the tally, clear of the dock */
+.pw-sound {
+  position: absolute;
+  right: 2.2rem;
+  bottom: 4.4rem;
+  z-index: 10;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  color: var(--void-dim);
+  border: 1px solid var(--void-line);
+  background: rgba(255, 255, 255, 0.02);
+  transition: color 0.25s var(--ease-soft), border-color 0.25s var(--ease-soft);
+}
+
+.pw-sound:hover,
+.pw-sound.is-on {
+  color: var(--void-text);
+  border-color: rgba(237, 236, 234, 0.3);
+}
+
+/* dev HUD (?hud / ?sim) — deliberately raw */
+.pw-hud {
+  position: absolute;
+  left: 2.2rem;
+  top: 5.4rem;
+  z-index: 10;
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  line-height: 1.8;
+  color: #4be58c;
+  background: rgba(3, 8, 7, 0.6);
+  padding: 0.5rem 0.7rem;
+  border: 1px solid rgba(75, 229, 141, 0.25);
+  pointer-events: none;
+  white-space: pre;
+}
+
+/* the webcam never renders on screen, but it must exist in the DOM for
+   iOS/Safari to keep decoding it */
+.pw-video {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+@media (max-width: 768px) {
+  .pw-top {
+    padding: 1.1rem 1.25rem;
+  }
+
+  .pw-mark {
+    font-size: 2rem;
+  }
+
+  .pw-hint {
+    display: none;
+  }
+
+  .pw-count {
+    right: 1.25rem;
+    bottom: 1.9rem;
+  }
+
+  .pw-sound {
+    right: 1.25rem;
+  }
+
+  .pw-caption {
+    bottom: 7.4rem;
+  }
+}
