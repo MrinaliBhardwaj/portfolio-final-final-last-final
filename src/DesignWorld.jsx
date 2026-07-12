@@ -114,8 +114,6 @@ export default function DesignWorld() {
 
   return (
     <div className="dw">
-      <div className="dw-grain" aria-hidden="true" />
-
       {/* the open-pages strip: this world and its sibling as Figma file tabs */}
       <WorldTabs world="design" />
 
@@ -219,7 +217,7 @@ export default function DesignWorld() {
             <div className="dw-tools">
               <span className="dw-tool" title="Figma">
                 <img
-                  src="https://cdn.simpleicons.org/figma/1a1815"
+                  src="https://cdn.simpleicons.org/figma/d0d0d0"
                   alt="Figma"
                   width="22"
                   height="22"

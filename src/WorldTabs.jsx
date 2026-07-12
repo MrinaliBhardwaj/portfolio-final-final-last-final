@@ -12,8 +12,9 @@ const LABELS = {
   figma: { design: "design", tech: "tech" },
 };
 
-// figma brand mark tinted to each chrome's foreground
-const FIGMA_TINT = { code: "7e8d82", figma: "1a1815" };
+// figma brand mark tinted to each chrome's foreground (both dark UIs now:
+// greenish-grey on the tech tab bar, light grey on the Figma dark toolbar)
+const FIGMA_TINT = { code: "7e8d82", figma: "d0d0d0" };
 
 export default function WorldTabs({ world }) {
   const chrome = world === "tech" ? "code" : "figma";
@@ -50,7 +51,7 @@ export default function WorldTabs({ world }) {
       {chrome === "figma" && (
         <img
           className="wt-app-mark"
-          src="https://cdn.simpleicons.org/figma/1a1815"
+          src="https://cdn.simpleicons.org/figma/d0d0d0"
           alt=""
           aria-hidden="true"
         />

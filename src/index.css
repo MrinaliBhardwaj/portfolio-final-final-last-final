@@ -8,13 +8,18 @@
   --void-accent: #2c5c88;
   --void-accent-hi: #4d8bc4;
 
-  /* design world: gallery light */
-  --dw-bg: #f4f3f0;
-  --dw-ink: #1a1815;
-  --dw-dim: #6d6962;
+  /* design world: authentic Figma dark. #1E1E1E canvas, #2C2C2C chrome,
+     #0D99FF selection — real Figma UI colours. Vermilion stays as the
+     content's own accent (the "design" living on the canvas). */
+  --dw-bg: #1e1e1e; /* Figma dark canvas */
+  --dw-ink: #ebebeb;
+  --dw-dim: #a0a0a0;
   --dw-accent: #e23a16;
-  --dw-line: rgba(26, 24, 21, 0.16);
-  --dw-slot: #eae8e3;
+  --dw-line: rgba(255, 255, 255, 0.11);
+  --dw-slot: #262626;
+  --dw-panel: #2c2c2c; /* Figma panel / toolbar surface */
+  --dw-panel-line: #1a1a1a; /* near-black divider against the canvas */
+  --dw-blue: #0d99ff; /* Figma selection blue */
 
   /* tech world: phosphor dark */
   --tw-bg: #090d0b;
@@ -55,7 +60,7 @@ html {
   scrollbar-gutter: stable;
 }
 html[data-world="design"] {
-  background: var(--dw-bg);
+  background: #1e1e1e;
 }
 html[data-world="tech"] {
   background: var(--tw-bg);

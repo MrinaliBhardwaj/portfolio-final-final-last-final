@@ -84,8 +84,8 @@
   right: 0;
   z-index: 45;
   height: 44px;
-  background: #e9e6e0;
-  border-bottom: 1px solid rgba(26, 24, 21, 0.12);
+  background: var(--dw-panel); /* Figma dark toolbar */
+  border-bottom: 1px solid #000;
   font-size: 0.8rem;
   font-weight: 600;
 }
@@ -94,27 +94,28 @@
   width: 15px;
   height: 15px;
   margin: auto 0.7rem auto 1.1rem;
-  opacity: 0.85;
+  opacity: 0.9;
 }
 
 .wt--figma .wt-tab {
-  color: rgba(26, 24, 21, 0.5);
+  color: #b3b3b3;
   transition: color 0.2s var(--ease-soft), background-color 0.2s var(--ease-soft);
 }
 
 /* active file tab reads as part of the canvas below it */
 .wt--figma .wt-tab.is-active {
   background: var(--dw-bg);
-  color: var(--dw-ink);
+  color: #ffffff;
   margin-bottom: -1px;
 }
 
 .wt--figma .wt-tab:not(.is-active):hover {
-  color: rgba(26, 24, 21, 0.78);
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .wt--figma .wt-tab-close:hover {
-  background: rgba(26, 24, 21, 0.08);
+  background: rgba(255, 255, 255, 0.12);
 }
 
 /* mobile: no tab chrome — the dock carries world switching */

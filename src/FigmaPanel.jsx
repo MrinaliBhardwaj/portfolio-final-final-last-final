@@ -163,7 +163,7 @@ export default function FigmaPanel({ frames, activeId, onSelect }) {
     <aside className="fp" aria-label="Pages and layers">
       <div className="fp-file">
         <img
-          src="https://cdn.simpleicons.org/figma/1a1815"
+          src="https://cdn.simpleicons.org/figma/d0d0d0"
           alt=""
           aria-hidden="true"
           width="13"

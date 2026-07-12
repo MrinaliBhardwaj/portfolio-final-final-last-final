@@ -34,7 +34,7 @@ const TITLES = {
 };
 
 const WIPE_BG = {
-  design: "#f4f3f0",
+  design: "#1e1e1e",
   tech: "#090d0b",
   gallery: "#05040a",
   pond: "#030807",
