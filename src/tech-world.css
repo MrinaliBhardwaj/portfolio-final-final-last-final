@@ -1,334 +1,222 @@
-/* ============ TECH WORLD: phosphor dark ============ */
+/* ============ TECH WORLD: an open VS Code buffer ============ */
+/* the page IS the editor. Activity bar + explorer + tab strip + breadcrumbs +
+   a continuous line-number gutter + Dark+ syntax + the blue status bar. Chrome
+   is Inter; the buffer is JetBrains Mono. */
 .tw {
   background: var(--tw-bg);
   color: var(--tw-text);
   min-height: 100dvh;
-  font-family: var(--font-mono);
-  overflow-x: clip;
+  font-family: var(--font-ui);
 }
 
-/* the explorer: fixed to the viewport's top-left corner, full height, always
-   visible while navigating the Tech section — VS Code's Explorer panel */
-.tw-sidebar {
+/* ---- activity bar (far-left rail) ---- */
+.tw-activity {
   position: fixed;
   top: 0;
   left: 0;
-  bottom: 0;
-  width: 250px;
+  bottom: 22px; /* sits on top of the status bar */
+  width: 48px;
+  z-index: 45;
+  background: var(--tw-activity);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 6px;
+}
+
+.tw-act {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  color: #858585;
+  position: relative;
+  transition: color 0.15s var(--ease-soft);
+}
+
+.tw-act.is-on {
+  color: #ffffff;
+}
+
+.tw-act.is-on::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 8px;
+  bottom: 8px;
+  width: 2px;
+  background: #ffffff;
+}
+
+.tw-act--end {
+  margin-top: auto;
+  margin-bottom: 6px;
+}
+
+/* ---- explorer sits between the activity bar and the editor ---- */
+.tw-sidebar {
+  position: fixed;
+  top: 0;
+  left: 48px;
+  bottom: 22px;
+  width: 240px;
   z-index: 40;
+  background: var(--tw-side);
   border-right: 1px solid var(--tw-line);
 }
 
-/* everything else shifts right by exactly the sidebar's width, so content
-   reads as an editor pane beside the explorer with no overlap */
+/* ---- the editor pane clears activity bar + explorer ---- */
 .tw-content {
-  margin-left: 250px;
+  margin-left: 288px; /* 48 activity + 240 explorer */
 }
 
-/* faint static scanlines, fixed and inert */
-.tw-scan {
-  position: fixed;
-  inset: 0;
-  z-index: 60;
-  pointer-events: none;
-  background: repeating-linear-gradient(
-    to bottom,
-    rgba(163, 255, 199, 0.03) 0px,
-    rgba(163, 255, 199, 0.03) 1px,
-    transparent 1px,
-    transparent 4px
-  );
+/* breadcrumbs bar, just under the tab strip */
+.tw-crumbs {
+  position: sticky;
+  top: 35px;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  height: 26px;
+  padding: 0 1.25rem;
+  background: var(--tw-bg);
+  border-bottom: 1px solid var(--tw-line);
+  font-size: 12px;
+  color: #a0a0a0;
 }
 
-.tw a {
-  color: inherit;
+.tw-crumbs svg {
+  color: #6a6a6a;
 }
 
-/* header */
+.tw-crumb-file {
+  color: #d4d4d4;
+}
+
+/* mobile header (mark + section nav) — desktop uses the chrome instead */
 .tw-top {
+  display: none;
+}
+
+/* ============ the buffer ============ */
+.tw-editor {
+  counter-reset: ln;
+  font-family: var(--font-mono);
+  font-size: 13.5px;
+  line-height: 1.6;
+  padding: 0.8rem 0 9rem;
+  max-width: 1000px;
+}
+
+.ed-sec {
+  scroll-margin-top: 70px;
+}
+
+.ln {
+  display: flex;
+  align-items: flex-start;
+}
+
+.ln::before {
+  counter-increment: ln;
+  content: counter(ln);
+  flex: none;
+  width: 3rem;
+  padding-right: 1.15rem;
+  text-align: right;
+  color: #6e7681;
+  font-variant-numeric: tabular-nums;
+  user-select: none;
+}
+
+/* the current section's lines get VS Code's active-line gutter brightening */
+.ed-sec:hover .ln::before {
+  color: #8b949e;
+}
+
+.ln-c {
+  flex: 1;
+  min-width: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  color: var(--tw-text);
+}
+
+.ln-c strong {
+  font-weight: 700;
+  color: #ffffff;
+}
+
+/* ---- Dark+ syntax tokens ---- */
+.tk-k { color: var(--syn-kw); }
+.tk-v { color: var(--syn-var); }
+.tk-s { color: var(--syn-str); }
+.tk-p { color: var(--syn-punc); }
+.tk-c { color: var(--syn-com); font-style: italic; }
+.tk-f { color: var(--syn-fn); }
+.tk-t { color: var(--syn-type); }
+.tk-n { color: var(--syn-num); }
+.tk-m { color: var(--syn-md); font-weight: 700; }
+
+/* clickable code (imports, repos, .env values) */
+.ln-link {
+  text-decoration: none;
+  cursor: pointer;
+  border-radius: 2px;
+}
+
+.ln-link:hover {
+  text-decoration: underline;
+}
+
+.ln-link:focus-visible {
+  outline: 1px solid var(--tw-accent);
+  outline-offset: 1px;
+}
+
+/* ============ status bar ============ */
+.tw-status {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 50;
+  height: 22px;
+  background: var(--tw-accent);
+  color: #ffffff;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1.4rem 2.2rem;
+  padding: 0 8px;
+  font-family: var(--font-ui);
+  font-size: 12px;
 }
 
-.tw-mark {
-  font-size: 1.05rem;
-  text-decoration: none;
-}
-
-.tw-nav {
-  display: flex;
-  gap: 1.5rem;
-}
-
-/* on desktop the explorer + tab strip ARE the navigation; a second row of
-   section buttons in the header would be the same nav twice */
-@media (min-width: 769px) {
-  .tw-nav {
-    display: none;
-  }
-}
-
-.tw-nav button {
-  font-family: var(--font-mono);
-  font-size: 0.8rem;
-  color: var(--tw-dim);
-  transition: color 0.2s var(--ease-soft);
-}
-
-.tw-nav button:hover {
-  color: var(--tw-accent);
-}
-
-/* intro */
-.tw-intro {
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: clamp(4rem, 14vh, 7rem) 2.2rem 4rem;
-}
-
-.tw-path {
-  color: var(--tw-dim);
-  font-size: 0.85rem;
-  margin-bottom: 1rem;
-}
-
-.tw-name {
-  font-size: clamp(2.2rem, 6vw, 4.6rem);
-  line-height: 1;
-  letter-spacing: -0.01em;
-}
-
-.tw-role {
-  margin-top: 1.3rem;
-  font-size: clamp(0.9rem, 1.5vw, 1.05rem);
-  color: var(--tw-text);
-}
-
-.tw-status {
-  margin-top: 0.9rem;
+.tw-status-l,
+.tw-status-r {
   display: flex;
   align-items: center;
-  gap: 0.55rem;
-  font-size: 0.85rem;
-  color: var(--tw-dim);
+  gap: 2px;
 }
 
-.tw-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--tw-accent);
-  box-shadow: 0 0 8px rgba(75, 229, 141, 0.7);
+.tw-st {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 22px;
+  padding: 0 7px;
 }
 
-.tw-cursor {
-  width: 8px;
-  height: 1.1em;
-  background: var(--tw-accent);
-  margin-left: 2px;
+.tw-st svg {
+  margin-top: -1px;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .tw-cursor {
-    animation: tw-blink 1.1s steps(1) infinite;
-  }
-}
-
-@keyframes tw-blink {
-  50% {
-    opacity: 0;
-  }
-}
-
-/* shared section shell */
-.tw-section {
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: clamp(2.6rem, 7vh, 4.5rem) 2.2rem;
-}
-
-.tw-h2 {
-  font-family: var(--font-mono);
-  font-weight: 600;
-  font-size: 0.95rem;
-  letter-spacing: 0.02em;
-  margin-bottom: 2rem;
-}
-
-.tw-h2 span {
-  color: var(--tw-accent);
-  margin-right: 0.4rem;
-}
-
-/* project modules */
-.tw-module {
-  border: 1px solid var(--tw-line);
-  background: var(--tw-card);
-  padding: 1.8rem 2rem;
-}
-
-.tw-module + .tw-module {
-  margin-top: 1.4rem;
-}
-
-.tw-module--todo {
-  border-style: dashed;
-  background: transparent;
-}
-
-.tw-mod-path {
-  color: var(--tw-dim);
-  font-size: 0.78rem;
-}
-
-.tw-mod-name {
-  margin-top: 0.6rem;
-  font-family: var(--font-sans);
-  font-stretch: 118%;
-  font-weight: 800;
-  font-size: clamp(1.3rem, 2.6vw, 1.8rem);
-  letter-spacing: -0.01em;
-  color: var(--tw-accent);
-}
-
-.tw-mod-blurb {
-  margin-top: 0.8rem;
-  font-size: 0.88rem;
-  line-height: 1.65;
-  max-width: 58ch;
-  color: var(--tw-text);
-}
-
-.tw-module--todo .tw-mod-blurb {
-  color: var(--tw-dim);
-}
-
-.tw-chips {
-  list-style: none;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-top: 1.2rem;
-}
-
-.tw-chips li {
-  font-size: 0.75rem;
-  padding: 0.3rem 0.65rem;
-  border: 1px solid var(--tw-line);
-  color: var(--tw-dim);
-}
-
-.tw-mod-links {
-  margin-top: 1.4rem;
-  display: flex;
-  gap: 1.6rem;
-}
-
-.tw-mod-links a {
-  font-size: 0.85rem;
-  text-decoration: none;
-  color: var(--tw-accent);
-  transition: opacity 0.2s var(--ease-soft);
-}
-
-.tw-mod-links a:hover {
-  opacity: 0.75;
-}
-
-/* stack */
-.tw-stack-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 2.5rem;
-}
-
-.tw-group {
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--tw-dim);
-  margin-bottom: 1rem;
-}
-
-.tw-stack-grid .tw-chips {
-  margin-top: 0;
-}
-
-/* log */
-.tw-log-row {
-  display: grid;
-  grid-template-columns: 180px 1fr;
-  gap: 2rem;
-  padding: 1.3rem 0;
-}
-
-.tw-log-row + .tw-log-row {
-  border-top: 1px solid var(--tw-line);
-}
-
-.tw-log-date {
-  color: var(--tw-dim);
-  font-size: 0.82rem;
-  padding-top: 0.15rem;
-}
-
-.tw-log-what {
-  font-size: 0.95rem;
-  font-weight: 600;
-}
-
-.tw-log-note {
-  margin-top: 0.4rem;
-  font-size: 0.82rem;
-  color: var(--tw-dim);
-}
-
-/* contact — extra bottom room so the last section clears the floating dock */
-.tw-foot {
-  padding-bottom: 9rem;
-}
-
-.tw-mail {
-  display: inline-block;
-  font-family: var(--font-sans);
-  font-stretch: 118%;
-  font-weight: 800;
-  font-size: clamp(1.15rem, 3.4vw, 2.4rem);
-  letter-spacing: -0.01em;
-  text-decoration: none;
-  color: var(--tw-text);
-  transition: color 0.2s var(--ease-soft);
-  overflow-wrap: anywhere;
-}
-
-.tw-mail:hover {
-  color: var(--tw-accent);
-}
-
-.tw-foot-row {
-  margin-top: 2.2rem;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1.8rem;
-}
-
-.tw-foot-row a {
-  font-size: 0.85rem;
-  color: var(--tw-dim);
-  text-decoration: none;
-  transition: color 0.2s var(--ease-soft);
-}
-
-.tw-foot-row a:hover {
-  color: var(--tw-accent);
-}
-
-/* ============ mobile ============ */
+/* ============ mobile: collapse the chrome, keep the editor feel ============ */
 @media (max-width: 768px) {
-  /* a fixed 250px explorer doesn't work on a phone-width viewport; the
-     header nav remains the navigation there instead */
-  .tw-sidebar {
+  .tw-activity,
+  .tw-sidebar,
+  .tw-crumbs {
     display: none;
   }
 
@@ -337,34 +225,47 @@
   }
 
   .tw-top {
-    padding: 1.1rem 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.1rem 1.1rem 0.6rem;
+    border-bottom: 1px solid var(--tw-line);
+  }
+
+  .tw-mark {
+    font-size: 1rem;
+    text-decoration: none;
   }
 
   .tw-nav {
-    gap: 1rem;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 0.35rem 0.9rem;
   }
 
   .tw-nav button {
-    font-size: 0.75rem;
+    font-family: var(--font-ui);
+    font-size: 0.78rem;
+    color: var(--tw-dim);
+    transition: color 0.2s var(--ease-soft);
   }
 
-  .tw-intro,
-  .tw-section {
-    padding-left: 1.25rem;
-    padding-right: 1.25rem;
+  .tw-nav button:hover {
+    color: var(--tw-text);
   }
 
-  .tw-module {
-    padding: 1.4rem 1.25rem;
+  .tw-editor {
+    font-size: 12.5px;
+    padding: 0.6rem 0.4rem 8rem;
   }
 
-  .tw-stack-grid {
-    grid-template-columns: 1fr;
-    gap: 1.8rem;
+  .ln::before {
+    width: 2.2rem;
+    padding-right: 0.7rem;
   }
 
-  .tw-log-row {
-    grid-template-columns: 1fr;
-    gap: 0.4rem;
+  .tw-st--desk {
+    display: none;
   }
 }

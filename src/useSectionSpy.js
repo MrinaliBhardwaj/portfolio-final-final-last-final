@@ -69,14 +69,22 @@ export default function useSectionSpy(sectionIds) {
     if (jumpTimeoutRef.current) clearTimeout(jumpTimeoutRef.current);
     jumpTo(id);
 
+    // release when the smooth-scroll settles — but ALWAYS keep a timeout
+    // fallback, because scrollend never fires when the click lands on the
+    // section already in view (no movement), which would otherwise freeze
+    // the spy on that section forever
+    let released = false;
     const release = () => {
+      if (released) return;
+      released = true;
       jumpingRef.current = false;
+      window.removeEventListener("scrollend", release);
+      if (jumpTimeoutRef.current) clearTimeout(jumpTimeoutRef.current);
     };
     if ("onscrollend" in window) {
       window.addEventListener("scrollend", release, { once: true });
-    } else {
-      jumpTimeoutRef.current = setTimeout(release, 900);
     }
+    jumpTimeoutRef.current = setTimeout(release, 1000);
   };
 
   return [active, select];

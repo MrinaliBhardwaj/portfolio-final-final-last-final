@@ -1,10 +1,10 @@
-/* ============ file tree (ported component) ============ */
-/* colors are drawn from the tech world's own tokens (--tw-*) so the explorer
-   reads as native to the theme, not a pasted-in card */
+/* ============ file tree (ported component, restyled to VS Code) ============ */
+/* the explorer sidebar: #252526 surface, VS Code's list hover/selection
+   colours, Inter for the UI chrome (the tree rows keep the mono editor face) */
 .ft {
-  background: var(--tw-bg);
-  font-family: var(--font-mono);
-  padding: 0.85rem 0.6rem;
+  background: var(--tw-side);
+  font-family: var(--font-ui);
+  padding: 0.25rem 0.4rem 0.85rem;
   height: 100%;
   overflow-y: auto;
 }
@@ -13,44 +13,26 @@
   user-select: none;
 }
 
-/* header: traffic-light dots + label, same shape as the source component */
+/* header: the "EXPLORER" title bar (traffic-light dots hidden for VS Code) */
 .ft-header {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  padding-bottom: 0.75rem;
-  margin-bottom: 0.5rem;
-  border-bottom: 1px solid var(--tw-line);
+  height: 35px;
+  padding: 0 0.6rem;
+  margin-bottom: 0.25rem;
 }
 
 .ft-dots {
-  display: flex;
-  gap: 0.4rem;
-}
-
-.ft-dot-lamp {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-}
-
-.ft-dot-lamp--red {
-  background: oklch(0.65 0.2 25);
-}
-
-.ft-dot-lamp--amber {
-  background: oklch(0.75 0.18 85);
-}
-
-.ft-dot-lamp--green {
-  background: oklch(0.65 0.18 150);
+  display: none;
 }
 
 .ft-header-label {
-  font-size: 0.72rem;
-  letter-spacing: 0.04em;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
   color: var(--tw-dim);
-  margin-left: 0.2rem;
 }
 
 .ft-tree {
@@ -59,33 +41,34 @@
   gap: 0.1rem;
 }
 
-/* one row */
+/* one row — VS Code list rows are full-bleed and square, not pill-shaped */
 .ft-row {
   position: relative;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.28rem 0.5rem;
-  border-radius: 5px;
+  gap: 0.4rem;
+  padding: 0.15rem 0.5rem;
+  height: 22px;
   cursor: pointer;
-  transition: background-color 0.2s var(--ease-soft);
+  transition: background-color 0.15s var(--ease-soft);
 }
 
 .ft-row--hover {
-  background: rgba(75, 229, 141, 0.08);
+  background: #2a2d2e;
 }
 
-/* the currently-viewed section's file stays highlighted, hover or not */
+/* the currently-viewed section's file stays highlighted (VS Code's focused
+   selection blue) hover or not */
 .ft-row--active {
-  background: rgba(75, 229, 141, 0.12);
+  background: #094771;
 }
 
 .ft-row--active::before {
   content: "";
   position: absolute;
   left: 0;
-  top: 3px;
-  bottom: 3px;
+  top: 0;
+  bottom: 0;
   width: 2px;
   background: var(--tw-accent);
 }
@@ -105,7 +88,7 @@
 }
 
 .ft-line--hover {
-  background: rgba(75, 229, 141, 0.4);
+  background: rgba(255, 255, 255, 0.2);
 }
 
 /* chevron / file-extension glyph slot */
@@ -129,7 +112,7 @@
 }
 
 .ft-chevron-icon--hover {
-  color: var(--tw-accent);
+  color: var(--tw-text);
 }
 
 .ft-glyph {
@@ -197,10 +180,10 @@
   color: var(--tw-dim);
 }
 
-/* name label */
+/* name label — VS Code's explorer uses the UI font at 13px */
 .ft-name {
-  font-family: var(--font-mono);
-  font-size: 0.83rem;
+  font-family: var(--font-ui);
+  font-size: 13px;
   transition: color 0.2s var(--ease-soft);
   white-space: nowrap;
   overflow: hidden;
@@ -212,7 +195,7 @@
 }
 
 .ft-name--dim {
-  color: var(--tw-dim);
+  color: #bbbbbb;
 }
 
 .ft-name--bright {
@@ -220,25 +203,16 @@
 }
 
 .ft-name--active {
-  color: var(--tw-accent);
+  color: #ffffff;
 }
 
-/* hover indicator dot, right edge */
+.ft-row--active .ft-name {
+  color: #ffffff;
+}
+
+/* the source component's right-edge hover dot has no VS Code analogue */
 .ft-dot {
-  position: absolute;
-  right: 0.5rem;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--tw-accent);
-  opacity: 0;
-  transform: scale(0);
-  transition: opacity 0.2s var(--ease-soft), transform 0.2s var(--ease-soft);
-}
-
-.ft-dot--visible {
-  opacity: 1;
-  transform: scale(1);
+  display: none;
 }
 
 /* children container, animated open/close */

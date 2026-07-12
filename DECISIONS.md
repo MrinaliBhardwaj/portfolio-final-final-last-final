@@ -2,6 +2,33 @@
 
 Decisions that survive rebuilds. Append, don't rewrite history.
 
+## 2026-07-12 — Design & tech pages rebuilt as literal Figma / VS Code
+
+Both world pages redesigned from resume content (design .docx + tech .pdf,
+both vendored to `public/resume-design.docx` + `public/resume-tech.pdf`).
+
+- **DESIGN = an open Figma FILE.** The page is the `#1E1E1E` dotted canvas;
+  content lives on light `#F6F5F2` artboard **frames** (`.cvf`), each with a
+  frame-name label. Scroll-spy / layer-click SELECTS a frame — real Figma
+  selection chrome: `#0D99FF` ring, four corner handles, a dimension pill
+  (`1440 × 640`). Left = layers panel (`FigmaPanel`), right = a NEW
+  **properties panel** (`.dwp`, ≥1100px) showing X/Y/W/H + fill of the
+  selected frame. A drifting collaborator cursor + a pinned comment sell it.
+  Two special frames: one dark (`--dark`), one vermilion (`--accent`).
+  Font: Inter (`--font-ui`) for chrome, Archivo display for the hero H1.
+- **TECH = an open VS Code BUFFER.** The page IS the editor: activity bar
+  (48px `#333`), explorer (`#252526`), editor tabs, breadcrumbs, a continuous
+  line-number **gutter**, Dark+ syntax (`--syn-*`), and the `#007ACC` status
+  bar with a **live `Ln N`** synced to the active section. Content reads as
+  code: README.md intro, `experience.ts` / `projects.ts` as typed objects,
+  `skills.json`, `education.md`, `.env` contact — links are clickable code.
+  Font: JetBrains Mono buffer, Inter chrome. The phosphor-green terminal look
+  is DEAD (tokens `--tw-*` flipped to VS Code Dark+; selection `#264F78`).
+- **Shared:** both pages use `useSectionSpy` (unchanged hook; hardened so a
+  click already-in-view can't freeze it — always-on timeout fallback beside
+  scrollend). New font `@fontsource-variable/inter`. GitHub is real now:
+  github.com/MrinaliBhardwaj.
+
 ## 2026-07-12 — Design world goes Figma DARK (light mode is dead)
 
 - **The design side is authentic Figma dark UI now**: canvas `#1E1E1E`,
