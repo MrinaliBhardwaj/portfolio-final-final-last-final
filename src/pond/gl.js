@@ -1,12 +1,15 @@
 // UNDERTOW's renderer — a TouchDesigner network transposed to raw WebGL2.
-// Two passes, like two TOPs wired together:
+// Three passes, like TOPs wired together:
 //   1. a ping-pong heightfield (the classic ripple feedback TOP), quarter-res
-//   2. one fullscreen composite that draws everything procedurally: the void,
-//      the water, and the lotus twice — soft-lit petals above the waterline,
-//      a disobedient phosphor wireframe below it.
-// No three.js: a fullscreen-quad pipeline is lighter than a scene graph and
-// this scene is one shader's worth of geometry.
+//   2. the lotus itself — a real 3D procedural plant (see lotus3d.js),
+//      rendered twice into small textures: lit, and phosphor wireframe
+//   3. one fullscreen composite: the void, the water, the flower above the
+//      waterline and its two reflections below — the faithful dim one, and
+//      the disobedient wireframe with a mind of its own.
+// No three.js: a fullscreen-quad pipeline plus one hand-rolled mesh pass is
+// lighter than a scene graph on a weak GPU.
 import { WATERLINE } from "./game.js";
+import { createLotusScene, LOTUS_FRAME } from "./lotus3d.js";
 
 const MAX_DROPS = 8;
 const MAX_MOTES = 48;
@@ -48,7 +51,7 @@ void main(){
   outColor = vec4(next, c.r, 0.0, 1.0);
 }`;
 
-// -------- pass 2: the world --------
+// -------- pass 3: the world --------
 const DRAW_FRAG = `#version 300 es
 precision highp float;
 
@@ -58,9 +61,9 @@ uniform float uAspect;
 uniform sampler2D uSim;
 uniform float uSimOn;
 uniform vec2 uSimTexel;
+uniform sampler2D uLit;   // the flower, lit
+uniform sampler2D uWire;  // the flower as the reflection renders it
 
-uniform vec3 uLotusA;   // lean, sway, bloom
-uniform vec3 uLotusB;
 uniform float uSync;
 uniform float uProgress;
 uniform float uFlash;
@@ -75,7 +78,6 @@ uniform float uFly;     // 1 = pointer mode: draw a dragonfly, not a palm-light
 uniform vec4 uMotes[${MAX_MOTES}]; // x, hue, seed, unused
 uniform int uMoteCount;
 
-uniform float uPetalTier; // 2 = full, 1 = reduced
 uniform float uGrainAmt;
 uniform float uCalm;
 
@@ -83,13 +85,14 @@ in vec2 vUv;
 out vec4 outColor;
 
 const float WL = ${WATERLINE.toFixed(4)};
-const float S = 0.30;             // petal length, as a fraction of height
 const vec3 PHOS = vec3(0.294, 0.898, 0.553);   // #4be58c — the tech world
 const vec3 GOLD = vec3(1.0, 0.78, 0.42);
+// the exact frame lotus3d renders into, in flower coords (y rel. waterline)
+const vec2 FRAME0 = vec2(${LOTUS_FRAME.x0.toFixed(4)}, ${LOTUS_FRAME.y0.toFixed(4)});
+const float FRAME_SIZE = ${LOTUS_FRAME.size.toFixed(4)};
 
 float hash1(float n){ return fract(sin(n) * 43758.5453123); }
 float hash2(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123); }
-mat2 rot(float a){ float c = cos(a), s = sin(a); return mat2(c, -s, s, c); }
 
 float vnoise(vec2 p){
   vec2 i = floor(p), f = fract(p);
@@ -99,112 +102,23 @@ float vnoise(vec2 p){
   return mix(mix(a, b, f.x), mix(c, d, f.x), f.y);
 }
 
-// iq's vesica — two arcs meeting in points; a petal, squashed right
-float sdVesica(vec2 p, float r, float d){
-  p = abs(p);
-  float b = sqrt(r * r - d * d);
-  return ((p.y - b) * d > p.x * b) ? length(p - vec2(0.0, b)) * sign(d)
-                                   : length(p - vec2(-d, 0.0)) - r;
-}
-
-float sdPetal(vec2 p, float len, float halfw){
-  float b = len * 0.5;
-  p.y -= b;
-  float r = (b * b / halfw + halfw) * 0.5;
-  float d = (b * b / halfw - halfw) * 0.5;
-  return sdVesica(p, r, d);
-}
-
-// minimum distance over one ring of petals fanned by 'spread'
-float layerDist(vec2 q, int n, float spread, float len, float halfw, float curve){
-  float dmin = 1e3;
-  for (int i = 0; i < 9; i++){
-    if (i >= n) break;
-    float f = (n == 1) ? 0.0 : (float(i) / float(n - 1)) * 2.0 - 1.0;
-    vec2 p = rot(f * spread) * q;
-    p.x -= curve * f * p.y * p.y / max(len, 1e-3);
-    dmin = min(dmin, sdPetal(p, len, halfw));
-  }
-  return dmin;
-}
-
-// layer params for a given bloom; idx 0 = outer, 2 = inner
-void layerParams(int idx, float eb, out int n, out float spread, out float len, out float halfw){
-  bool lite = uPetalTier < 1.5;
-  if (idx == 0){
-    n = lite ? 5 : 7;
-    spread = mix(0.16, 1.12, eb);
-    len = S * mix(1.0, 0.88, eb);
-    halfw = S * 0.20;
-  } else if (idx == 1){
-    n = lite ? 3 : 5;
-    spread = mix(0.11, 0.72, eb);
-    len = S * 0.78;
-    halfw = S * 0.17;
-  } else {
-    n = 3;
-    spread = mix(0.07, 0.40, eb);
-    len = S * 0.58;
-    halfw = S * 0.15;
-  }
-}
-
-// the flower, lit from within — drawn into 'col', back layer to front
-vec3 lotusFill(vec3 col, vec2 q, vec3 st, float px, float bright){
-  vec2 p = rot(st.x * 0.35 + st.y) * q;
-  float eb = smoothstep(0.0, 1.0, st.z);
-  float curve = 0.5 * eb;
-
-  vec3 baseCol[3]; vec3 tipCol[3];
-  baseCol[0] = vec3(0.78, 0.42, 0.52); tipCol[0] = vec3(0.95, 0.78, 0.83);
-  baseCol[1] = vec3(0.86, 0.60, 0.64); tipCol[1] = vec3(0.97, 0.89, 0.86);
-  baseCol[2] = vec3(0.93, 0.78, 0.68); tipCol[2] = vec3(0.99, 0.94, 0.83);
-
-  float dOuter = 1e3;
-  for (int idx = 0; idx < 3; idx++){
-    int n; float spread, len, halfw;
-    layerParams(idx, eb, n, spread, len, halfw);
-    float d = layerDist(p, n, spread, len, halfw, curve);
-    if (idx == 0) dOuter = d;
-    float m = smoothstep(px, -px, d);
-    if (m > 0.001){
-      float tt = clamp(p.y / len, 0.0, 1.0);
-      vec3 shade = mix(baseCol[idx] * 0.72, tipCol[idx], tt) * bright;
-      float rim = smoothstep(px * 3.0, 0.0, abs(d)) * 0.20 * bright;
-      col = mix(col, shade + rim * vec3(1.0, 0.95, 0.9), m);
-    }
-  }
-  // halo — the flower is the light source of its world
-  col += vec3(0.95, 0.6, 0.68) * exp(-max(dOuter, 0.0) * 26.0)
-       * (0.10 + 0.16 * eb + 0.9 * uFlash) * bright;
-  // gold heart, revealed as the inner ring opens
-  vec2 hp = p - vec2(0.0, 0.055);
-  col += GOLD * exp(-dot(hp, hp) * 1600.0) * (0.55 * smoothstep(0.35, 0.85, eb) + uFlash) * bright;
-  return col;
-}
-
-// the reflection's own mind — same flower, phosphor wireframe
-vec3 lotusWire(vec3 col, vec2 q, vec3 st, float px){
-  vec2 p = rot(st.x * 0.35 + st.y) * q;
-  float eb = smoothstep(0.0, 1.0, st.z);
-  float curve = 0.5 * eb;
-  float dAll = 1e3;
-  for (int idx = 0; idx < 3; idx++){
-    int n; float spread, len, halfw;
-    layerParams(idx, eb, n, spread, len, halfw);
-    float d = layerDist(p, n, spread, len, halfw, curve);
-    dAll = min(dAll, d);
-    float line = smoothstep(px * 1.8, 0.0, abs(d));
-    col += PHOS * line * (0.4 + 0.18 * float(idx));
-  }
-  col += PHOS * exp(-abs(dAll) * 34.0) * 0.10;
-  vec2 hp = p - vec2(0.0, 0.045);
-  col += PHOS * exp(-dot(hp, hp) * 2800.0) * 0.5;
-  return col;
-}
-
 vec2 toFlowerFrame(vec2 uv){
   return vec2((uv.x - 0.5) * uAspect, uv.y - WL);
+}
+
+// sample one of the flower textures at a flower-frame position; masked
+// outside the frame (clamped uv keeps derivatives clean at the border)
+vec4 flowerTex(sampler2D t, vec2 q){
+  vec2 quv = (q - FRAME0) / FRAME_SIZE;
+  vec2 cuv = clamp(quv, 0.0, 1.0);
+  float inside = step(abs(quv.x - 0.5), 0.5) * step(abs(quv.y - 0.5), 0.5);
+  return texture(t, cuv) * inside;
+}
+
+vec3 flowerGlow(vec2 q, float lod){
+  vec2 quv = clamp((q - FRAME0) / FRAME_SIZE, 0.02, 0.98);
+  vec4 s = textureLod(uLit, quv, lod);
+  return s.rgb * s.a;
 }
 
 // win burst — a handful of sparks leaving the heart
@@ -215,37 +129,37 @@ vec3 sparks(vec3 col, vec2 q, vec3 tint){
     float fi = float(i);
     float an = fi * 2.399963 + 0.7;
     float sp = 0.06 + 0.20 * hash1(fi + 5.0);
-    vec2 pos = vec2(0.0, 0.12) + vec2(cos(an), sin(an) * 0.85) * (0.03 + uBurst * sp);
+    vec2 pos = vec2(0.0, 0.42) + vec2(cos(an), sin(an) * 0.85) * (0.03 + uBurst * sp);
     vec2 dv = q - pos;
     col += tint * exp(-dot(dv, dv) * 30000.0) * fade * 1.3;
   }
   return col;
 }
 
-vec3 renderAbove(vec2 uv, float px){
+vec3 renderAbove(vec2 uv){
   float airT = (uv.y - WL) / (1.0 - WL);
   vec3 col = mix(vec3(0.012, 0.031, 0.027), vec3(0.004, 0.005, 0.016), smoothstep(0.0, 1.0, airT));
   // slow mist, drifting like breath over the water
   float mist = vnoise(uv * vec2(3.0 * uAspect, 2.2) + vec2(uTime * 0.016, 0.0));
   mist += 0.5 * vnoise(uv * vec2(7.0 * uAspect, 5.0) - vec2(uTime * 0.01, 0.0));
-  col += vec3(0.05, 0.085, 0.09) * mist * 0.28 * (1.0 - airT * 0.6);
+  col += vec3(0.05, 0.085, 0.09) * mist * 0.17 * (1.0 - airT * 0.6);
 
   vec2 q = toFlowerFrame(uv);
-  if (abs(q.x) < 0.6 && q.y > -0.05 && q.y < 0.55){
-    col = lotusFill(col, q, uLotusA, px, 1.0);
-    col = sparks(col, q, vec3(1.0, 0.85, 0.55));
-  }
+  // a soft halo of the flower's own light, then the flower itself
+  col += flowerGlow(q, 4.5) * (0.22 + 1.1 * uFlash);
+  vec4 fl = flowerTex(uLit, q);
+  col = mix(col, fl.rgb, fl.a);
+  col = sparks(col, q, vec3(1.0, 0.85, 0.55));
   return col;
 }
 
-vec3 renderBelow(vec2 uv, float px){
+vec3 renderBelow(vec2 uv){
   float depth = (WL - uv.y) / WL; // 0 at the line, 1 at the bottom
   vec2 suv = vec2(uv.x, uv.y / WL);
 
   // ripple field: height + gradient
-  float h = 0.0; vec2 grad = vec2(0.0);
+  vec2 grad = vec2(0.0);
   if (uSimOn > 0.5){
-    h = texture(uSim, suv).r;
     float hx = texture(uSim, suv + vec2(uSimTexel.x, 0.0)).r
              - texture(uSim, suv - vec2(uSimTexel.x, 0.0)).r;
     float hy = texture(uSim, suv + vec2(0.0, uSimTexel.y)).r
@@ -255,32 +169,29 @@ vec3 renderBelow(vec2 uv, float px){
 
   // the reflected coordinate, bent by the ripples
   vec2 ruv = vec2(uv.x, 2.0 * WL - uv.y);
-  ruv += grad * (0.6 + 0.8 * depth);
-  ruv.x += sin(uv.y * 42.0 + uTime * 0.7) * 0.0016 * depth * (1.0 - uCalm * 0.7);
+  ruv += grad * (0.25 + 0.35 * depth);
+  ruv.x += sin(uv.y * 42.0 + uTime * 0.7) * 0.0012 * depth * (1.0 - uCalm * 0.7);
 
   // water body
   vec3 col = mix(vec3(0.012, 0.045, 0.037), vec3(0.002, 0.009, 0.009), smoothstep(0.0, 1.0, depth));
   // shimmer where the surface bends — the phosphor world leaking through
-  col += PHOS * (abs(grad.x) + abs(grad.y)) * 5.0 * (0.3 + 0.7 * (1.0 - depth));
+  col += PHOS * (abs(grad.x) + abs(grad.y)) * 4.0 * (0.3 + 0.7 * (1.0 - depth));
 
   vec2 rq = toFlowerFrame(ruv);
-  bool inFlower = abs(rq.x) < 0.6 && rq.y > -0.05 && rq.y < 0.55;
 
-  // the faithful reflection: what the water *should* show, dim and soft
-  if (inFlower){
-    col = lotusFill(col, rq, uLotusA, px * 2.5, 0.22 * (1.0 - depth * 0.7));
-  }
+  // the faithful reflection: what the water *should* show, dim and fading
+  vec4 fr = flowerTex(uLit, rq);
+  col = mix(col, fr.rgb * 0.48 * (1.0 - depth * 0.4), fr.a * 0.85);
 
-  // the disobedient one: phosphor wireframe with its own state, glitching
-  // while it disagrees
+  // the disobedient one: the wireframe with its own state, glitching
+  // sideways while it disagrees
   vec2 gq = rq;
   float band = step(0.965, hash2(vec2(floor(uv.y * 90.0), floor(uTime * 8.0))));
   gq.x += (hash2(vec2(floor(uv.y * 90.0), floor(uTime * 8.0) + 40.0)) - 0.5)
-        * 0.11 * uDisagree * band * (1.0 - uCalm * 0.8);
-  if (inFlower){
-    col = lotusWire(col, gq, uLotusB, px);
-    col = sparks(col, rq, PHOS * 0.8);
-  }
+        * 0.09 * uDisagree * band * (1.0 - uCalm * 0.8);
+  vec4 fw = flowerTex(uWire, gq);
+  col += fw.rgb * fw.a * (0.85 + 0.3 * uSync);
+  col = sparks(col, rq, PHOS * 0.8);
 
   // scanlines — this world renders on a tube
   col *= 0.965 + 0.035 * sin(gl_FragCoord.y * 1.5708) * (1.0 - uCalm * 0.6);
@@ -290,7 +201,7 @@ vec3 renderBelow(vec2 uv, float px){
 void main(){
   vec2 uv = vUv;
   float px = 1.6 / uRes.y;
-  vec3 col = (uv.y > WL) ? renderAbove(uv, px) : renderBelow(uv, px);
+  vec3 col = (uv.y > WL) ? renderAbove(uv) : renderBelow(uv);
 
   // ---- the waterline: boundary, and the agreement meter itself ----
   float lineD = abs(uv.y - WL);
@@ -327,7 +238,9 @@ void main(){
       vec3 pale = vec3(0.78, 0.92, 0.94);
       for (int s = 0; s < 2; s++){
         float sg = s == 0 ? -1.0 : 1.0;
-        vec2 wq = rot(sg * flut) * (dq - vec2(sg * 0.35, 0.25));
+        vec2 wq = dq - vec2(sg * 0.35, 0.25);
+        float ca = cos(sg * flut), sa = sin(sg * flut);
+        wq = mat2(ca, -sa, sa, ca) * wq;
         float wing = length(wq * vec2(1.5, 4.4)) - 0.55;
         col += pale * 0.5 * smoothstep(0.10, 0.0, wing);
       }
@@ -386,10 +299,10 @@ function link(gl, vsSrc, fsSrc) {
 // the tier ladder: step down when frames run long; never step back up
 // (oscillation looks worse than a steady lower tier)
 const TIERS = [
-  { dpr: 1.5, petal: 2, grain: 1, simDiv: 4 },
-  { dpr: 1.15, petal: 2, grain: 1, simDiv: 4 },
-  { dpr: 1.0, petal: 1, grain: 1, simDiv: 5 },
-  { dpr: 0.8, petal: 1, grain: 0, simDiv: 6 },
+  { dpr: 1.5, lotus: 768, grain: 1, simDiv: 4 },
+  { dpr: 1.15, lotus: 640, grain: 1, simDiv: 4 },
+  { dpr: 1.0, lotus: 512, grain: 1, simDiv: 5 },
+  { dpr: 0.8, lotus: 384, grain: 0, simDiv: 6 },
 ];
 
 export function createPond(canvas, { calm = false } = {}) {
@@ -411,6 +324,7 @@ export function createPond(canvas, { calm = false } = {}) {
   let progSim = null;
   let progDraw = null;
   let vao = null;
+  let lotus = null;
   let fieldTex = [null, null];
   let fieldFbo = [null, null];
   let fieldSrc = 0;
@@ -437,6 +351,7 @@ export function createPond(canvas, { calm = false } = {}) {
 
     progSim = link(gl, VERT, SIM_FRAG);
     progDraw = link(gl, VERT, DRAW_FRAG);
+    lotus = createLotusScene(gl);
 
     vao = gl.createVertexArray();
     gl.bindVertexArray(vao);
@@ -445,12 +360,13 @@ export function createPond(canvas, { calm = false } = {}) {
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
     gl.enableVertexAttribArray(0);
     gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+    gl.bindVertexArray(null);
 
     U = uniforms(progDraw, [
-      "uRes", "uTime", "uAspect", "uSim", "uSimOn", "uSimTexel",
-      "uLotusA", "uLotusB", "uSync", "uProgress", "uFlash", "uBurst", "uDisagree",
+      "uRes", "uTime", "uAspect", "uSim", "uSimOn", "uSimTexel", "uLit", "uWire",
+      "uSync", "uProgress", "uFlash", "uBurst", "uDisagree",
       "uAbove", "uBelow", "uGhost", "uFly",
-      "uMotes[0]", "uMoteCount", "uPetalTier", "uGrainAmt", "uCalm",
+      "uMotes[0]", "uMoteCount", "uGrainAmt", "uCalm",
     ]);
     US = uniforms(progSim, [
       "uField", "uTexel", "uDamp", "uSimAspect", "uDrops[0]", "uDropCount",
@@ -490,6 +406,7 @@ export function createPond(canvas, { calm = false } = {}) {
     if (!force && canvas.width === w && canvas.height === h) return;
     canvas.width = w;
     canvas.height = h;
+    if (lotus) lotus.setRes(t.lotus);
     if (simOn) {
       simW = Math.min(420, Math.max(96, Math.round(w / t.simDiv)));
       simH = Math.max(64, Math.round(simW * ((h * WATERLINE) / w)));
@@ -502,6 +419,7 @@ export function createPond(canvas, { calm = false } = {}) {
     gl.bindFramebuffer(gl.FRAMEBUFFER, fieldFbo[dst]);
     gl.viewport(0, 0, simW, simH);
     gl.useProgram(progSim);
+    gl.bindVertexArray(vao);
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, fieldTex[fieldSrc]);
     gl.uniform1i(US.uField, 0);
@@ -524,6 +442,7 @@ export function createPond(canvas, { calm = false } = {}) {
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     gl.viewport(0, 0, canvas.width, canvas.height);
     gl.useProgram(progDraw);
+    gl.bindVertexArray(vao);
     const t = TIERS[tier];
     gl.uniform2f(U.uRes, canvas.width, canvas.height);
     gl.uniform1f(U.uTime, time);
@@ -531,11 +450,16 @@ export function createPond(canvas, { calm = false } = {}) {
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, simOn ? fieldTex[fieldSrc] : null);
     gl.uniform1i(U.uSim, 0);
+    gl.activeTexture(gl.TEXTURE1);
+    gl.bindTexture(gl.TEXTURE_2D, lotus.textures.lit);
+    gl.uniform1i(U.uLit, 1);
+    gl.activeTexture(gl.TEXTURE2);
+    gl.bindTexture(gl.TEXTURE_2D, lotus.textures.wire);
+    gl.uniform1i(U.uWire, 2);
+    gl.activeTexture(gl.TEXTURE0);
     gl.uniform1f(U.uSimOn, simOn ? 1 : 0);
     gl.uniform2f(U.uSimTexel, simOn ? 1 / simW : 0, simOn ? 1 / simH : 0);
 
-    gl.uniform3f(U.uLotusA, s.lotusA.lean, s.lotusA.sway, s.lotusA.bloom);
-    gl.uniform3f(U.uLotusB, s.lotusB.lean, s.lotusB.sway, s.lotusB.bloom);
     gl.uniform1f(U.uSync, s.sync);
     gl.uniform1f(U.uProgress, s.progress);
     gl.uniform1f(U.uFlash, s.bloomFlash);
@@ -557,7 +481,6 @@ export function createPond(canvas, { calm = false } = {}) {
     gl.uniform4fv(U["uMotes[0]"], moteBuf);
     gl.uniform1i(U.uMoteCount, mn);
 
-    gl.uniform1f(U.uPetalTier, t.petal);
     gl.uniform1f(U.uGrainAmt, t.grain);
     gl.uniform1f(U.uCalm, calm ? 1 : 0);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
@@ -580,6 +503,7 @@ export function createPond(canvas, { calm = false } = {}) {
     const state = frameCb(dt, time);
     if (!state) return;
     if (simOn) stepSim();
+    lotus.render(state.lotusA, state.lotusB, state.bloomFlash, time);
     draw(state, time);
 
     // tier watchdog: a slow machine steps down, once, calmly
@@ -613,6 +537,39 @@ export function createPond(canvas, { calm = false } = {}) {
       lastT = 0;
       raf = requestAnimationFrame(frame);
     }
+  }
+
+  // manual frame + readback for headless verification (?sim): a hidden tab
+  // never fires rAF, so the dev harness steps the world by hand
+  function stepOnce(dtSec = 1 / 60) {
+    if (!frameCb || lost) return;
+    const time = (lastT || 0) + dtSec;
+    lastT = time;
+    resize(false);
+    const state = frameCb(dtSec, time);
+    if (!state) return;
+    if (simOn) stepSim();
+    lotus.render(state.lotusA, state.lotusB, state.bloomFlash, time);
+    draw(state, time);
+  }
+
+  function snapshot() {
+    stepOnce();
+    const w = canvas.width;
+    const h = canvas.height;
+    const px = new Uint8Array(w * h * 4);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    gl.readPixels(0, 0, w, h, gl.RGBA, gl.UNSIGNED_BYTE, px);
+    const c2 = document.createElement("canvas");
+    c2.width = w;
+    c2.height = h;
+    const ctx = c2.getContext("2d");
+    const img = ctx.createImageData(w, h);
+    for (let y = 0; y < h; y++) {
+      img.data.set(px.subarray((h - 1 - y) * w * 4, (h - y) * w * 4), y * w * 4);
+    }
+    ctx.putImageData(img, 0, 0);
+    return c2.toDataURL("image/png");
   }
 
   // drops arrive in screen uv (y up); the field only covers the water
@@ -650,6 +607,8 @@ export function createPond(canvas, { calm = false } = {}) {
   return {
     start,
     addDrop,
+    stepOnce,
+    snapshot,
     stats: () => ({ fps: Math.round(fpsEma), tier, sim: simOn ? `${simW}x${simH}` : "off" }),
     dispose() {
       pause();
@@ -665,6 +624,7 @@ export function createPond(canvas, { calm = false } = {}) {
       if (progSim) gl.deleteProgram(progSim);
       if (progDraw) gl.deleteProgram(progDraw);
       if (vao) gl.deleteVertexArray(vao);
+      if (lotus) lotus.dispose();
       fieldTex = [null, null];
       fieldFbo = [null, null];
     },

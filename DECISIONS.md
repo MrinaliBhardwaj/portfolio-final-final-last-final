@@ -2,6 +2,50 @@
 
 Decisions that survive rebuilds. Append, don't rewrite history.
 
+## 2026-07-12 — The Pond (Game app): UNDERTOW
+
+- **The dock's Game icon is now The Pond**, `#/pond` (alias `#/game`) — an
+  interactive installation, not a page. Concept: *agree with your reflection*.
+  The lotus above the waterline is the design world (soft, lit); its
+  reflection below is the tech world (phosphor wireframe) and disobeys — lags,
+  wanders, glitches. One hand in each world held in true mirror symmetry
+  raises sync; the waterline fills gold from the centre (the meter IS the
+  waterline); ~4s of held agreement blooms both lotuses as one. Wins persist:
+  `pond:agreements` tally + one floating mote per win (`pond:motes`, cap 48).
+- **The lotus is 3D and fully procedural** (`src/pond/lotus3d.js`) — no asset,
+  no three.js. Petals are parametric surfaces (arc-bent spine, cupped cross
+  section, rippled edge, veins/crease/blush in the fragment shader) posed in
+  the vertex shader, so bloom/sway/lean animate as uniforms. One buffer holds
+  petals (4 rings), pod, stamens, stem, lily pad; redrawn smaller as a side
+  bud and a far bud. Rendered twice per frame to small FBOs: lit + phosphor
+  wireframe. A Sketchfab model was considered and rejected: static mesh
+  (can't bloom), Fab-store licence, photoreal-asset-in-shader-world collage
+  risk.
+- **Renderer** (`src/pond/gl.js`): raw WebGL2, three passes — ripple
+  heightfield (ping-pong RG16F, quarter-res), lotus scene, fullscreen
+  composite (void + mist above; water + faithful dim reflection + disobedient
+  wireframe below; waterline meter; persistent motes; hand/ghost reticles;
+  grain/vignette). Tier ladder steps down (dpr, lotus FBO res, sim res, grain)
+  when frame time slips; never steps back up. Pauses on hidden tab; dispose
+  releases GL objects but must NOT loseContext() (React strict-mode remounts
+  reuse the canvas).
+- **Hand tracking**: MediaPipe HandLandmarker, vendored under
+  `public/mediapipe/wasm` + `public/models/hand_landmarker.task` (no runtime
+  external URLs, same rule as the lotus video), lazy-imported only after the
+  visitor consents. The camera ask is staged as part of the piece ("the pond
+  would like to see your hands" / "let it look" / "keep them hidden");
+  decline or no camera falls back to pointer mode (cursor = dragonfly) with a
+  synthesized mirror partner. The partner rewards slow *tracing*, not
+  parking: a still hand bores it (wander grows), gentle movement lets it
+  catch up. One-handed camera visitors get the synth partner after ~12s.
+- **Dev verification**: `#/pond?sim` (+`?hud`) — no webcam needed. `w` (or
+  `window.__pond.agree(true)`) forces a perfect mirror; `window.__pond`
+  exposes `step(n)` / `snap()` because a hidden Browser-pane tab never fires
+  rAF. `snap()` POSTs to the dev-only `/__pond-shot` vite middleware which
+  writes `pond-shot.png` (gitignored) for headless screenshot review.
+- **Template-literal GLSL rule**: never use backticks inside GLSL comments —
+  they terminate the JS template string (cost two debugging rounds).
+
 ## 2026-07-12 — The Gallery app (dome)
 
 - **The dock's Gallery icon is now a real destination**, `#/gallery`, wired

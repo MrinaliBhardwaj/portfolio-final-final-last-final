@@ -213,7 +213,22 @@ export default function PondWorld() {
       return s;
     });
 
+    // headless driving surface for dev verification (?sim / ?hud)
+    if (readFlags().hud) {
+      window.__pond = {
+        step: (n = 1, dt = 1 / 60) => {
+          for (let i = 0; i < n; i++) engine.stepOnce(dt);
+        },
+        snap: () => engine.snapshot(),
+        stats: () => engine.stats(),
+        agree: (on) => {
+          agreeRef.current = on;
+        },
+      };
+    }
+
     return () => {
+      delete window.__pond;
       clearTimeout(timers.cap);
       clearTimeout(timers.lit);
       engine.dispose();

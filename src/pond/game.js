@@ -99,6 +99,7 @@ export function createGame({ calm = false } = {}) {
   // the synthesized partner (pointer mode / lonely-hand fallback)
   const follower = { x: 0.5, y: WATERLINE * 0.5, engaged: false };
   let lonelyT = 0;
+  let stillT = 0; // how long the guiding hand has been parked
   const amp = calm ? 0.3 : 1;
 
   function pushHist(dt) {
@@ -157,13 +158,18 @@ export function createGame({ calm = false } = {}) {
           follower.x = tx;
           follower.y = ty;
         } else {
-          // rubber that tightens as agreement grows — steadiness lets it
-          // catch up, which raises sync, which tightens it further
-          const rate = 1 / (0.12 + 1.05 * (1 - g.sync));
+          // the reflection wants to be LED, not waited out: a parked hand
+          // bores it (it drifts off), a slow steady trace lets it catch up
+          const speed = src.speed || 0;
+          if (speed < 0.02) stillT += dt;
+          else stillT = Math.max(0, stillT - dt * 3);
+          const bored = clamp((stillT - 2.5) * 0.5, 0, 1.6);
+          const rate = 1 / ((0.12 + 1.05 * (1 - g.sync)) * (1 + bored * 2.2));
           follower.x = damp(follower.x, tx, rate, dt);
           follower.y = damp(follower.y, ty, rate, dt);
-          follower.x += wander(t, 3) * 0.028 * (1 - g.sync) * amp * dt * 6;
-          follower.y += wander(t, 9) * 0.02 * (1 - g.sync) * amp * dt * 6;
+          const wob = (0.028 * (1 - g.sync) + 0.03 * bored) * amp * dt * 6;
+          follower.x += wander(t, 3) * wob;
+          follower.y += wander(t, 9) * wob * 0.75;
         }
         follower.engaged = true;
         const synth = {
@@ -266,10 +272,10 @@ export function createGame({ calm = false } = {}) {
     g.lotusA.lean = damp(g.lotusA.lean, leanTarget, 3, dt);
 
     let bloomTarget;
-    if (g.phase === "blooming") bloomTarget = easeInOut(clamp(g.phaseT / BLOOM_SECONDS, 0, 1)) * 0.8 + 0.2;
+    if (g.phase === "blooming") bloomTarget = easeInOut(clamp(g.phaseT / BLOOM_SECONDS, 0, 1)) * 0.65 + 0.35;
     else if (g.phase === "afterglow") bloomTarget = 1;
-    else if (g.phase === "settle") bloomTarget = 0.35;
-    else bloomTarget = 0.2 + (a ? 0.1 : 0) + 0.45 * g.progress;
+    else if (g.phase === "settle") bloomTarget = 0.5;
+    else bloomTarget = 0.34 + (a ? 0.1 : 0) + 0.45 * g.progress;
     g.lotusA.bloom = damp(g.lotusA.bloom, bloomTarget, g.phase === "blooming" ? 2.2 : 1.6, dt);
 
     pushHist(dt);
