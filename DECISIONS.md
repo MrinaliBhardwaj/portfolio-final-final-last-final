@@ -2,6 +2,23 @@
 
 Decisions that survive rebuilds. Append, don't rewrite history.
 
+## 2026-07-12 — Design world goes Figma DARK (light mode is dead)
+
+- **The design side is authentic Figma dark UI now**: canvas `#1E1E1E`,
+  panel/toolbar surfaces `#2C2C2C`, near-black panel divider `#1a1a1a`,
+  selection `#0D99FF` at 25% with white text, light greys for chrome text
+  (`#e5e5e5` / `#c4c4c4` / `#b3b3b3` / `#8c8c8c`). Tokens flipped in
+  `index.css` (`--dw-*`, plus new `--dw-panel`, `--dw-panel-line`,
+  `--dw-blue`); design entry wipe is `#1e1e1e`.
+- **The gallery-light cream palette (`#f4f3f0`) is DEAD** — do not restore.
+  The vermilion accent (`#e23a16`) survives as the *content's* accent — it's
+  the design work living on the canvas; the chrome never uses it.
+- **Canvas texture**: the paper grain overlay was removed; `.dw-content`
+  carries Figma's subtle dot grid instead (24px radial-gradient dots,
+  white @ 5%), scrolling with the content like a panning canvas.
+- All Figma brand marks on the design side retinted `d0d0d0` for dark
+  (tab bar app mark + tab icon, panel file row, Tools chip).
+
 ## 2026-07-12 — The Pond (Game app): UNDERTOW
 
 - **The dock's Game icon is now The Pond**, `#/pond` (alias `#/game`) — an
