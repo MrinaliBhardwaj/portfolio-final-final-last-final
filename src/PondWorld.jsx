@@ -39,10 +39,16 @@ function captionFor(key, mode, state) {
       return { text: "its reflection is not listening — bring a second hand below the line" };
     case "belowOnly":
       return { text: "that is the reflection's world — keep a hand above the water too" };
+    case "meet":
+      return { text: "it is waiting at the gold ring — meet it there" };
+    case "cup":
+      return { text: "a firefly has come — cup it in your upper hand" };
+    case "lead":
+      return { text: "lead it home, slowly — keep your reflection with you" };
+    case "surge":
+      return { text: "it doubts you — hold" };
     case "agree":
       return { text: "one hand in each world — now mirror yourself" };
-    case "synth":
-      return { text: "the reflection stirs — steady, let it catch you" };
     case "hold":
       return { text: "hold the agreement…" };
     case "won":
@@ -188,6 +194,9 @@ export default function PondWorld() {
         }
       }
 
+      // ---- an act completes: a small answering note ----
+      if (s.justAdvanced) hum.ding();
+
       // ---- a win lands ----
       if (s.justWon) {
         setTally(s.agreements);
@@ -205,7 +214,8 @@ export default function PondWorld() {
         const st = engine.stats();
         hudRef.current.textContent =
           `fps ${st.fps}  tier ${st.tier}  sim ${st.sim}\n` +
-          `phase ${s.phase}  sync ${s.sync.toFixed(2)}  progress ${s.progress.toFixed(2)}\n` +
+          `phase ${s.phase}  act ${s.stage} ${s.stageProg.toFixed(2)}  sync ${s.sync.toFixed(2)}  meter ${s.progress.toFixed(2)}\n` +
+          `surge ${s.surge.toFixed(2)}  firefly ${s.firefly.on ? (s.firefly.held ? "held" : "free") : "-"}  ` +
           `mode ${m || "-"}${s.belowIsSynth ? "  +synth-below" : ""}${s.aboveIsSynth ? "  +synth-above" : ""}` +
           `${forceMirror ? "  MIRROR" : ""}`;
         prev.hudAt = time + 0.3;

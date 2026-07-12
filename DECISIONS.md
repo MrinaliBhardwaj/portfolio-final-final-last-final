@@ -45,6 +45,20 @@ Decisions that survive rebuilds. Append, don't rewrite history.
   writes `pond-shot.png` (gitignored) for headless screenshot review.
 - **Template-literal GLSL rule**: never use backticks inside GLSL comments —
   they terminate the JS template string (cost two debugging rounds).
+- **The scene is a mystical lake at night** (second pass, same day): moon
+  (mottled disc + halo, upper right) laying a glitter path on the water,
+  twinkling two-depth starfield, faint nebula, low treeline silhouette on the
+  far shore (mirrored dark under the line), seven ambient fireflies, water
+  micro-waves so it never sits dead-still, and depth-blurred (mip LOD)
+  faithful reflections. All procedural in the composite shader — no textures.
+- **The game is a three-act ritual** (one mechanic — mirroring — escalating):
+  act I *meet it* (cover the pulsing gold ring below with your second self),
+  act II *lead it* (cup the guide firefly in the upper hand and carry it home
+  while staying mirrored; it settles on the lotus heart), act III *hold it*
+  (the old hold, but the reflection throws two 1.6s "doubt surges" — glitch
+  storms + trembling waterline — you hold through). The waterline meter fills
+  one third per act. Long-idle resets to act I. `?sim` + `w` still walks all
+  three acts automatically (forceMirror auto-cups the firefly).
 
 ## 2026-07-12 — The Gallery app (dome)
 

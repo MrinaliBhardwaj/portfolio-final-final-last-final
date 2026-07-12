@@ -14,8 +14,8 @@ const STORE_COUNT = "pond:agreements";
 const STORE_MOTES = "pond:motes";
 const MOTE_CAP = 48;
 
-const HOLD_SECONDS = 4.2; // full agreement held this long wins
 const SYNC_GATE = 0.7; // sync above this fills progress, below drains it
+const SURGE_SECONDS = 1.6; // how long each doubt-storm lasts
 const BLOOM_SECONDS = 3.0;
 const AFTERGLOW_SECONDS = 6.0;
 const SETTLE_SECONDS = 4.0;
@@ -68,8 +68,15 @@ export function createGame({ calm = false } = {}) {
 
   const g = {
     // phases: play | blooming | afterglow | settle
+    // and within play, three acts: 1 meet it, 2 lead it, 3 hold it
     phase: "play",
     phaseT: 0,
+    stage: 1,
+    stageProg: 0,
+    surge: 0,
+    stageGlow: 0,
+    justAdvanced: false,
+    firefly: { x: 0.62, y: WATERLINE + 0.16, on: 0, held: 0 },
     time: 0,
     sync: 0,
     progress: 0,
@@ -100,7 +107,62 @@ export function createGame({ calm = false } = {}) {
   const follower = { x: 0.5, y: WATERLINE * 0.5, engaged: false };
   let lonelyT = 0;
   let stillT = 0; // how long the guiding hand has been parked
+  let idleT = 0; // nobody here: the ritual resets to its first act
+  let surgeT = 0;
+  const surgesFired = [false, false];
   const amp = calm ? 0.3 : 1;
+
+  function resetStages() {
+    g.stage = 1;
+    g.stageProg = 0;
+    surgeT = 0;
+    g.surge = 0;
+    surgesFired[0] = false;
+    surgesFired[1] = false;
+    g.firefly.held = 0;
+  }
+
+  function advance() {
+    g.stage += 1;
+    g.stageProg = 0;
+    g.justAdvanced = true;
+    // a small answering pulse of light when an act completes
+    g.bloomFlash = Math.max(g.bloomFlash, 0.30);
+  }
+
+  // the guide firefly: free until cupped, led while held, and after the
+  // leading act it settles onto the flower's heart
+  function updateFirefly(dt, hand, force) {
+    const t = g.time;
+    const f = g.firefly;
+    const inLead = g.phase === "play" && g.stage === 2;
+    if (inLead && hand) {
+      const d = Math.hypot(hand.x - f.x, hand.y - f.y);
+      if (!f.held && (d < 0.055 || force)) f.held = 1;
+      if (f.held && d > 0.11 && !force) f.held = 0;
+    } else if (!force || g.phase !== "play") {
+      f.held = 0;
+    }
+    let tx;
+    let ty;
+    let rate = 1.4;
+    if (f.held && hand) {
+      tx = hand.x;
+      ty = hand.y - 0.012;
+      rate = 6;
+    } else if (g.phase !== "play" || g.stage >= 3) {
+      // it has been led home: it rests on the heart of the lotus
+      tx = 0.5;
+      ty = WATERLINE + 0.30;
+      rate = 2;
+    } else {
+      tx = 0.5 + 0.26 * Math.sin(t * 0.11 + 1.7) + 0.04 * wander(t, 51);
+      ty = WATERLINE + 0.11 + 0.08 * Math.sin(t * 0.17 + 4.0) + 0.015 * wander(t, 77);
+    }
+    f.x = damp(f.x, tx, rate, dt);
+    f.y = damp(f.y, ty, rate, dt);
+    f.on = g.phase !== "play" || g.stage >= 2 ? 1 : 0;
+  }
 
   function pushHist(dt) {
     // ~60Hz ring; store every frame, sampling handles variable dt roughly
@@ -226,12 +288,54 @@ export function createGame({ calm = false } = {}) {
       g.below.y = b.y;
     }
 
-    // -------- progress & phases --------
+    // -------- the ritual: three acts, then the bloom --------
+    g.justAdvanced = false;
+    updateFirefly(dt, a, !!input.forceMirror);
+    if (!a && !b) idleT += dt;
+    else idleT = 0;
+
     if (g.phase === "play") {
-      if (a && b && g.sync > SYNC_GATE) g.progress += dt / HOLD_SECONDS;
-      else g.progress -= dt / 2.6;
-      g.progress = clamp(g.progress, 0, 1);
-      if (g.progress >= 1) win();
+      const paired = !!(a && b);
+      if (idleT > 10 && (g.stage > 1 || g.stageProg > 0)) resetStages();
+
+      if (g.stage === 1) {
+        // act I — meet it: cover the calling ring with your other self
+        if (paired && g.sync > 0.8) g.stageProg += dt / 0.9;
+        else g.stageProg = Math.max(0, g.stageProg - dt * 0.8);
+        if (g.stageProg >= 1) advance();
+      } else if (g.stage === 2) {
+        // act II — lead it: cup the firefly and carry it, mirrored
+        const held = g.firefly.held === 1 || input.forceMirror;
+        if (held && paired && g.sync > 0.5) g.stageProg += dt / 5.5;
+        else g.stageProg = Math.max(0, g.stageProg - dt / 8);
+        if (g.stageProg >= 1) advance();
+      } else if (surgeT > 0) {
+        // act III, mid-storm: the reflection doubts; hold anyway
+        surgeT -= dt;
+        const x = 1 - Math.max(surgeT, 0) / SURGE_SECONDS;
+        g.surge = Math.sin(Math.min(x, 1) * Math.PI);
+        g.disagree = Math.max(g.disagree, 0.85 * g.surge);
+        if (paired && g.sync > 0.55) g.stageProg += dt / 7;
+        else g.stageProg = Math.max(0, g.stageProg - dt / 4);
+        if (g.stageProg >= 1) win();
+      } else {
+        // act III — hold the agreement
+        g.surge = damp(g.surge, 0, 6, dt);
+        if (paired && g.sync > SYNC_GATE) g.stageProg += dt / 4.5;
+        else g.stageProg = Math.max(0, g.stageProg - dt / 3);
+        if (!surgesFired[0] && g.stageProg > 0.35) {
+          surgesFired[0] = true;
+          surgeT = SURGE_SECONDS;
+        } else if (!surgesFired[1] && g.stageProg > 0.72) {
+          surgesFired[1] = true;
+          surgeT = SURGE_SECONDS;
+        }
+        if (g.stageProg >= 1) win();
+      }
+
+      // the waterline meter tells the whole ritual, a third per act
+      g.progress = clamp((g.stage - 1 + clamp(g.stageProg, 0, 1)) / 3, 0, 1);
+      g.stageGlow = damp(g.stageGlow, g.stage === 1 && g.ghost.on ? 1 : 0, 4, dt);
       g.bloomFlash = damp(g.bloomFlash, 0, 4, dt);
       g.burstT = 0;
     } else if (g.phase === "blooming") {
@@ -261,7 +365,12 @@ export function createGame({ calm = false } = {}) {
         g.phase = "play";
         g.phaseT = 0;
         g.progress = 0;
+        resetStages();
       }
+    }
+    if (g.phase !== "play") {
+      g.surge = damp(g.surge, 0, 6, dt);
+      g.stageGlow = damp(g.stageGlow, 0, 4, dt);
     }
 
     // -------- lotus A: alive, and leaning to the offered hand --------
@@ -294,8 +403,10 @@ export function createGame({ calm = false } = {}) {
     else if (!a && !b) g.captionKey = "idle";
     else if (a && !b) g.captionKey = "aboveOnly";
     else if (!a && b) g.captionKey = "belowOnly";
+    else if (g.stage === 1) g.captionKey = "meet";
+    else if (g.stage === 2) g.captionKey = g.firefly.held ? "lead" : "cup";
+    else if (g.surge > 0.15) g.captionKey = "surge";
     else if (g.sync > 0.55) g.captionKey = "hold";
-    else if (g.belowIsSynth) g.captionKey = "synth";
     else g.captionKey = "agree";
 
     return g;

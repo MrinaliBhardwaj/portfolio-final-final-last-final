@@ -49,6 +49,21 @@ export function createHum() {
       master.gain.linearRampToValueAtTime(0.045 + 0.05 * sync, ctx.currentTime + 0.4);
       filter.frequency.linearRampToValueAtTime(260 + 700 * sync, ctx.currentTime + 0.4);
     },
+    // one soft answering note when an act of the ritual completes
+    ding() {
+      if (!ctx || !on) return;
+      const t0 = ctx.currentTime;
+      const o = ctx.createOscillator();
+      o.type = "sine";
+      o.frequency.value = 523.25;
+      const g = ctx.createGain();
+      g.gain.setValueAtTime(0.05, t0);
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + 1.1);
+      o.connect(g);
+      g.connect(ctx.destination);
+      o.start(t0);
+      o.stop(t0 + 1.1);
+    },
     chime() {
       if (!ctx || !on) return;
       const t0 = ctx.currentTime;

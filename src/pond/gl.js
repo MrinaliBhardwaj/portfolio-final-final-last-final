@@ -74,6 +74,9 @@ uniform vec3 uAbove;    // x, y (uv, y up), on
 uniform vec3 uBelow;
 uniform vec3 uGhost;
 uniform float uFly;     // 1 = pointer mode: draw a dragonfly, not a palm-light
+uniform vec4 uFirefly;  // guide firefly: x, y, on, held
+uniform float uSurge;   // the reflection's doubt, 0..1
+uniform float uStageGlow; // stage 1: the meeting ring calls attention
 
 uniform vec4 uMotes[${MAX_MOTES}]; // x, hue, seed, unused
 uniform int uMoteCount;
@@ -136,13 +139,76 @@ vec3 sparks(vec3 col, vec2 q, vec3 tint){
   return col;
 }
 
+const vec2 MOON = vec2(0.76, ${(WATERLINE + 0.335).toFixed(4)});
+
+// low treeline on the far shore
+float hillH(float x){
+  float h = vnoise(vec2(x * 3.0 * uAspect, 2.3)) * 0.6
+          + vnoise(vec2(x * 7.0 * uAspect, 9.1)) * 0.4;
+  return 0.014 + 0.070 * h * h;
+}
+
+float starLayer(vec2 uv, float n){
+  vec2 g = uv * vec2(n * uAspect, n);
+  vec2 id = floor(g);
+  float h = hash2(id);
+  vec2 sp = vec2(hash2(id + 7.1), hash2(id + 3.7)) * 0.6 + 0.2;
+  float d = length(fract(g) - sp);
+  float tw = 0.5 + 0.5 * sin(uTime * (0.6 + h * 2.4) + h * 40.0);
+  tw = mix(tw, 0.7, uCalm * 0.6);
+  return smoothstep(0.09, 0.0, d) * tw * step(h, 0.24) * (0.4 + 0.6 * hash2(id + 1.3));
+}
+
 vec3 renderAbove(vec2 uv){
   float airT = (uv.y - WL) / (1.0 - WL);
-  vec3 col = mix(vec3(0.012, 0.031, 0.027), vec3(0.004, 0.005, 0.016), smoothstep(0.0, 1.0, airT));
+  // night sky: deep teal-ink, breathing faintly warm at the horizon
+  vec3 col = mix(vec3(0.014, 0.032, 0.030), vec3(0.004, 0.006, 0.020), smoothstep(0.0, 1.0, airT));
+  col += vec3(0.10, 0.15, 0.14) * exp(-airT * 6.0) * 0.5;
+
+  // a slow nebula, barely there
+  float neb = vnoise(uv * vec2(2.2 * uAspect, 2.0) + vec2(uTime * 0.004, 0.0))
+            * vnoise(uv * vec2(5.0 * uAspect, 4.5) - vec2(uTime * 0.006, 0.3));
+  float nebMask = smoothstep(0.12, 0.7, airT);
+  col += vec3(0.14, 0.22, 0.36) * neb * neb * 0.30 * nebMask;
+  col += vec3(0.26, 0.16, 0.34) * neb * 0.06 * nebMask;
+
+  // stars, two depths, fading toward the horizon
+  float starMask = smoothstep(0.08, 0.45, airT);
+  col += vec3(0.85, 0.90, 1.0) * starLayer(uv, 22.0) * 0.5 * starMask;
+  col += vec3(0.80, 0.86, 1.0) * starLayer(uv + 13.7, 45.0) * 0.22 * starMask;
+
+  // the moon, mottled and haloed
+  {
+    vec2 dv = (uv - MOON) * vec2(uAspect, 1.0);
+    float d = length(dv);
+    float mott = vnoise(dv * 34.0 + 3.7) * 0.6 + vnoise(dv * 80.0 + 9.0) * 0.4;
+    vec3 mc = vec3(0.93, 0.90, 0.80) * (0.92 - 0.13 * mott);
+    col = mix(col, mc, smoothstep(0.052, 0.048, d));
+    col += vec3(0.72, 0.70, 0.58) * exp(-d * 9.0) * 0.24;
+    col += vec3(0.55, 0.55, 0.48) * exp(-d * 30.0) * 0.30;
+  }
+
   // slow mist, drifting like breath over the water
   float mist = vnoise(uv * vec2(3.0 * uAspect, 2.2) + vec2(uTime * 0.016, 0.0));
   mist += 0.5 * vnoise(uv * vec2(7.0 * uAspect, 5.0) - vec2(uTime * 0.01, 0.0));
   col += vec3(0.05, 0.085, 0.09) * mist * 0.17 * (1.0 - airT * 0.6);
+
+  // the far shore swallows the sky at the line
+  float sil = smoothstep(hillH(uv.x) + 0.005, hillH(uv.x) - 0.003, uv.y - WL);
+  col = mix(col, vec3(0.006, 0.014, 0.013), sil * 0.92);
+
+  // fireflies over the water — small, blinking, unbothered
+  if (airT < 0.45){
+    for (int i = 0; i < 7; i++){
+      float fi = float(i);
+      vec2 fp = vec2(
+        fract(hash1(fi + 3.0) + uTime * 0.008 * (0.4 + hash1(fi)) + 0.04 * sin(uTime * 0.11 + fi * 2.1)),
+        WL + 0.05 + 0.20 * hash1(fi + 11.0) + 0.018 * sin(uTime * 0.37 + fi * 3.0));
+      vec2 dv = (uv - fp) * vec2(uAspect, 1.0);
+      float blink = pow(0.5 + 0.5 * sin(uTime * (0.5 + hash1(fi + 7.0)) + fi * 5.0), 3.0);
+      col += vec3(1.0, 0.90, 0.45) * exp(-dot(dv, dv) * 250000.0) * blink * 0.55;
+    }
+  }
 
   vec2 q = toFlowerFrame(uv);
   // a soft halo of the flower's own light, then the flower itself
@@ -150,6 +216,15 @@ vec3 renderAbove(vec2 uv){
   vec4 fl = flowerTex(uLit, q);
   col = mix(col, fl.rgb, fl.a);
   col = sparks(col, q, vec3(1.0, 0.85, 0.55));
+
+  // the guide firefly — the one that matters
+  if (uFirefly.z > 0.5){
+    vec2 dv = (uv - uFirefly.xy) * vec2(uAspect, 1.0);
+    float d2 = dot(dv, dv);
+    float breathe = 0.75 + 0.25 * sin(uTime * 3.1);
+    col += vec3(1.0, 0.86, 0.40) * exp(-d2 * 60000.0) * (0.9 + 0.9 * uFirefly.w) * breathe;
+    col += vec3(1.0, 0.95, 0.75) * exp(-d2 * 400000.0) * 1.2;
+  }
   return col;
 }
 
@@ -167,6 +242,12 @@ vec3 renderBelow(vec2 uv){
     grad = vec2(hx, hy);
   }
 
+  // the water is never dead-still: micro-waves under everything
+  grad += vec2(
+    vnoise(vec2(uv.x * 40.0 * uAspect, uv.y * 90.0 - uTime * 0.35)) - 0.5,
+    vnoise(vec2(uv.x * 34.0 * uAspect + 7.0, uv.y * 80.0 - uTime * 0.28)) - 0.5
+  ) * 0.006 * (0.35 + depth) * (1.0 - uCalm * 0.5);
+
   // the reflected coordinate, bent by the ripples
   vec2 ruv = vec2(uv.x, 2.0 * WL - uv.y);
   ruv += grad * (0.25 + 0.35 * depth);
@@ -175,26 +256,57 @@ vec3 renderBelow(vec2 uv){
   // water body
   vec3 col = mix(vec3(0.012, 0.045, 0.037), vec3(0.002, 0.009, 0.009), smoothstep(0.0, 1.0, depth));
   // shimmer where the surface bends — the phosphor world leaking through
-  col += PHOS * (abs(grad.x) + abs(grad.y)) * 4.0 * (0.3 + 0.7 * (1.0 - depth));
+  col += PHOS * (abs(grad.x) + abs(grad.y)) * 3.0 * (0.3 + 0.7 * (1.0 - depth));
+
+  // the far shore, upside down and trembling near the line
+  float hhR = hillH(ruv.x);
+  float silR = smoothstep(hhR + 0.008, hhR - 0.003, WL - uv.y);
+  col = mix(col, vec3(0.005, 0.012, 0.011), silR * 0.65 * (1.0 - depth));
+
+  // the moon lays a path of light on the water
+  {
+    float colX = exp(-pow((uv.x - MOON.x) * uAspect + grad.x * 3.0, 2.0)
+                   / (0.003 + 0.030 * depth));
+    float glint = pow(clamp(abs(grad.y) * 26.0, 0.0, 1.0), 2.0);
+    col += vec3(0.95, 0.90, 0.72)
+         * colX * (0.045 * (1.0 - depth * 0.6) + glint * 0.55 * (1.0 - depth * 0.35));
+    // and its face, dim and wavering, just under the shore
+    vec2 dvr = (uv - vec2(MOON.x, 2.0 * WL - MOON.y)) * vec2(uAspect, 1.0) + grad * 2.0;
+    col += vec3(0.45, 0.44, 0.36) * smoothstep(0.055, 0.030, length(dvr)) * 0.10 * (1.0 - depth * 0.5);
+  }
 
   vec2 rq = toFlowerFrame(ruv);
 
-  // the faithful reflection: what the water *should* show, dim and fading
-  vec4 fr = flowerTex(uLit, rq);
-  col = mix(col, fr.rgb * 0.48 * (1.0 - depth * 0.4), fr.a * 0.85);
+  // the faithful reflection: what the water *should* show — dim, and
+  // smearing softer the deeper it sinks
+  {
+    vec2 quv = (rq - FRAME0) / FRAME_SIZE;
+    vec2 cuv = clamp(quv, 0.0, 1.0);
+    float inside = step(abs(quv.x - 0.5), 0.5) * step(abs(quv.y - 0.5), 0.5);
+    vec4 fr = textureLod(uLit, cuv, depth * 3.5) * inside;
+    col = mix(col, fr.rgb * 0.48 * (1.0 - depth * 0.4), fr.a * 0.85);
+  }
 
   // the disobedient one: the wireframe with its own state, glitching
-  // sideways while it disagrees
+  // sideways while it disagrees — and storming when it doubts
   vec2 gq = rq;
-  float band = step(0.965, hash2(vec2(floor(uv.y * 90.0), floor(uTime * 8.0))));
+  float chaos = clamp(uDisagree + uSurge * 1.2, 0.0, 1.6);
+  float band = step(0.965 - uSurge * 0.10, hash2(vec2(floor(uv.y * 90.0), floor(uTime * 8.0))));
   gq.x += (hash2(vec2(floor(uv.y * 90.0), floor(uTime * 8.0) + 40.0)) - 0.5)
-        * 0.09 * uDisagree * band * (1.0 - uCalm * 0.8);
+        * 0.09 * chaos * band * (1.0 - uCalm * 0.8);
   vec4 fw = flowerTex(uWire, gq);
-  col += fw.rgb * fw.a * (0.85 + 0.3 * uSync);
+  float flicker = 1.0 - uSurge * 0.5 * step(0.5, hash1(floor(uTime * 24.0)));
+  col += fw.rgb * fw.a * (0.85 + 0.3 * uSync) * flicker;
   col = sparks(col, rq, PHOS * 0.8);
 
+  // the guide firefly's twin: a phosphor glint on the water
+  if (uFirefly.z > 0.5){
+    vec2 dv = (uv - vec2(uFirefly.x, 2.0 * WL - uFirefly.y)) * vec2(uAspect, 1.0) + grad * 2.5;
+    col += PHOS * exp(-dot(dv, dv) * 200000.0) * 0.5 * (0.75 + 0.25 * sin(uTime * 3.1));
+  }
+
   // scanlines — this world renders on a tube
-  col *= 0.965 + 0.035 * sin(gl_FragCoord.y * 1.5708) * (1.0 - uCalm * 0.6);
+  col *= 0.965 + (0.035 + 0.03 * uSurge) * sin(gl_FragCoord.y * 1.5708) * (1.0 - uCalm * 0.6);
   return col;
 }
 
@@ -209,8 +321,10 @@ void main(){
   float glow = exp(-lineD * 60.0);
   float inMeter = 1.0 - smoothstep(uProgress * 0.5 - 0.015, uProgress * 0.5 + 0.015, abs(uv.x - 0.5));
   vec3 lineCol = mix(vec3(0.14, 0.34, 0.30), GOLD, max(inMeter, uFlash));
+  // while the reflection doubts, the line itself trembles
+  float tremor = 1.0 + uSurge * 0.6 * sin(uv.x * 120.0 + uTime * 30.0) * (1.0 - uCalm);
   col += lineCol * (core * (0.45 + 0.85 * uSync + 2.4 * uFlash)
-                  + glow * (0.05 + 0.22 * uSync + 0.7 * uFlash));
+                  + glow * (0.05 + 0.22 * uSync + 0.7 * uFlash)) * tremor;
 
   // ---- remembered lights: one mote per agreement ever made here ----
   if (lineD < 0.09){
@@ -261,7 +375,10 @@ void main(){
     vec2 dv = (uv - uGhost.xy) * vec2(uAspect, 1.0);
     float dash = 0.55 + 0.45 * sin(atan(dv.y, dv.x) * 10.0 - uTime * 1.6);
     float ring = smoothstep(px * 2.2, 0.0, abs(length(dv) - 0.026));
-    col += GOLD * ring * dash * (0.2 + 0.55 * uSync);
+    // in the first act the ring calls out, pulsing wide
+    float call = uStageGlow * (0.5 + 0.5 * sin(uTime * 2.2));
+    float halo = smoothstep(px * 6.0, 0.0, abs(length(dv) - 0.026 - 0.012 * call));
+    col += GOLD * (ring * (0.2 + 0.55 * uSync + 0.5 * uStageGlow) + halo * call * 0.25);
   }
 
   // ---- finish: vignette, grain, soft rolloff ----
@@ -365,7 +482,7 @@ export function createPond(canvas, { calm = false } = {}) {
     U = uniforms(progDraw, [
       "uRes", "uTime", "uAspect", "uSim", "uSimOn", "uSimTexel", "uLit", "uWire",
       "uSync", "uProgress", "uFlash", "uBurst", "uDisagree",
-      "uAbove", "uBelow", "uGhost", "uFly",
+      "uAbove", "uBelow", "uGhost", "uFly", "uFirefly", "uSurge", "uStageGlow",
       "uMotes[0]", "uMoteCount", "uGrainAmt", "uCalm",
     ]);
     US = uniforms(progSim, [
@@ -470,6 +587,9 @@ export function createPond(canvas, { calm = false } = {}) {
     gl.uniform3f(U.uBelow, s.below.x, s.below.y, s.below.on);
     gl.uniform3f(U.uGhost, s.ghost.x, s.ghost.y, s.ghost.on);
     gl.uniform1f(U.uFly, s.pointerFly ? 1 : 0);
+    gl.uniform4f(U.uFirefly, s.firefly.x, s.firefly.y, s.firefly.on, s.firefly.held);
+    gl.uniform1f(U.uSurge, s.surge);
+    gl.uniform1f(U.uStageGlow, s.stageGlow);
 
     const mn = Math.min(s.motes.length, MAX_MOTES);
     for (let i = 0; i < mn; i++) {
