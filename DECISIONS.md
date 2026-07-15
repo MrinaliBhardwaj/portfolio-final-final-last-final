@@ -2,6 +2,42 @@
 
 Decisions that survive rebuilds. Append, don't rewrite history.
 
+## 2026-07-16 — The design world has its own cursor: you are a collaborator
+
+Her brief: replace the default cursor inside the Design section only, with
+something inspired by Figma's cursor, in soft pink (`#F472B6`).
+
+- **The conceit, not just the color.** The pointer wears the SAME arrow
+  silhouette as the drifting `mrinali` collaborator cursor already on the
+  canvas (`.dw-cur`, vermilion `--dw-accent`) — the path is literally the
+  same geometry, scaled. The visitor is soft pink; she is vermilion. Two
+  people in one Figma file, rather than a cursor plus an unrelated
+  decoration. If the collaborator's arrow ever changes, change both.
+- **Clickable things gain Figma's component diamond** — the app's own glyph
+  for "this is an instance". It's a silhouette change, so it still reads at
+  24px where a hue shift wouldn't. Deliberately not a hand: Figma's canvas
+  has no hand cursor.
+- **Prose keeps the arrow — no I-beam.** That's Figma canvas behavior and
+  it's the point of the conceit. `::selection` is already styled, so text
+  selection still gives feedback. Don't "fix" this.
+- **Scoped to `html[data-world="design"]`, not `.dw`.** The dock is an OS
+  layer rendered outside `.dw` by `App.jsx`; scoping to `.dw` would snap the
+  cursor back to the system arrow the moment you crossed onto the dock,
+  which reads as a bug. While the design world is open, you are a
+  collaborator everywhere on screen. Other worlds are untouched (verified:
+  tech/gallery/cover/pond all still `auto`/`pointer`, and the pond keeps its
+  `cursor: none`).
+- **Two inline SVG data URIs in `design-world.css`.** A cursor image can't
+  reference a CSS var, so the pink is literal inside each URI (3 occurrences
+  total) — retune there, not in a token. Each arrow is stroked TWICE: a dark
+  contour under a white-rimmed pink body, because it has to survive the
+  #1E1E1E canvas, the #F6F5F2 artboards AND the #E23A16 frame. On the light
+  artboard the white rim vanishes and the dark contour carries it; on the
+  dark canvas the reverse. Drop either stroke and it dies on one surface.
+  Hotspot is `3 2` (the arrow tip) — wrong hotspot = every click misses.
+- **Wrapped in `@media (pointer: fine)`**: touch ignores cursors anyway, and
+  this keeps hybrid devices from loading it.
+
 ## 2026-07-15 — The Game app is the frog: Lotus Pond replaces The Pond
 
 Mrinali's call: remove the existing game-section work and put the frog game
