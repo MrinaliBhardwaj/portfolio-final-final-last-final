@@ -22,13 +22,14 @@ import { createLotusScrubber } from "./lotus.js";
 // vendored locally at build time; see public/lotus-bloom.mp4
 const VIDEO_URL = "/lotus-bloom.mp4";
 
-// The clip runs a full arc: open → closes to a bud (~T5) → rotates and
-// re-blooms (~T7) → fully open (~T10). The bloom now spans the WHOLE track
-// (0 → 1) so there's no frozen held frame at the end — scrolling to the very
-// bottom keeps the lotus opening, and the fully-open flower is the resting
-// state you land on. Beat timings below are pinned to this arc: the name is
-// gone by the time the flower closes; the split text reveals only once it has
-// re-bloomed.
+// The clip is scrubbed IN REVERSE (see the `reverse` option on the scrubber).
+// The file's arc is: open → closes to a bud (~T5) → rotates and re-blooms
+// (~T7) → fully open (~T10). Played backwards across the track that becomes:
+// fully open at the top → folds closed (~progress 0.3) → the bud turns
+// (0.3–0.5) → blooms back open toward the bottom. The arc spans the WHOLE
+// track (0 → 1) so there's no frozen held frame at the end. Beat timings
+// below still hold under reversal: the name is gone while the flower is
+// closed; the split text reveals as it re-opens past progress ~0.5.
 const SCRUB_END = 1;
 
 const EASE = [0.22, 1, 0.36, 1];
@@ -84,7 +85,8 @@ export default function Cover({ onChoose, onSettledChange }) {
       canvasRef.current,
       videoRef.current,
       () => Math.min(1, progressRef.current / SCRUB_END),
-      VIDEO_URL
+      VIDEO_URL,
+      { reverse: true }
     );
     return () => scrubber.destroy();
   }, []);

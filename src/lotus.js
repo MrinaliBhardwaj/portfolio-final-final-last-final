@@ -6,7 +6,11 @@
 // visible <video> (rougher, but responsive), then swap to the canvas.
 const isMobile = () => window.matchMedia("(max-width: 719px)").matches;
 
-export function createLotusScrubber(canvas, video, getProgress, videoUrl) {
+export function createLotusScrubber(canvas, video, getProgress, videoUrl, opts = {}) {
+  // reverse: play the clip end→start across the scroll track. The frame cache
+  // makes direction free — we just mirror progress before mapping it to a
+  // frame — and the same mirror applies to the <video> fallback seeks.
+  const { reverse = false } = opts;
   const ctx = canvas.getContext("2d");
   const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -15,7 +19,7 @@ export function createLotusScrubber(canvas, video, getProgress, videoUrl) {
   let frameCount = 0;
   let ready = false;
   let destroyed = false;
-  let lastIdx = -1;
+  let lastF = -1; // fractional frame index of the last paint
 
   // nearest captured frame to idx (frames fill in progressively)
   function frameAt(idx) {
@@ -37,17 +41,32 @@ export function createLotusScrubber(canvas, video, getProgress, videoUrl) {
     canvas.height = Math.round(h * dpr);
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = "high"; // context state resets on resize
-    lastIdx = -1; // force a redraw at the new size
+    lastF = -1; // force a redraw at the new size
   }
 
-  function drawBitmap(bmp) {
+  function paint(bmp, alpha) {
     const cw = canvas.width;
     const ch = canvas.height;
     const s = Math.max(cw / bmp.width, ch / bmp.height); // object-fit: cover
     const dw = bmp.width * s;
     const dh = bmp.height * s;
-    ctx.clearRect(0, 0, cw, ch);
+    ctx.globalAlpha = alpha;
     ctx.drawImage(bmp, (cw - dw) / 2, (ch - dh) / 2, dw, dh);
+    ctx.globalAlpha = 1;
+  }
+
+  function drawBitmap(bmp) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    paint(bmp, 1);
+  }
+
+  // sub-frame smoothing: crossfade adjacent cached frames so the scrub glides
+  // between them instead of stepping — adjacent frames are visually close, so
+  // the blend reads as motion, not ghosting
+  function drawBlend(a, b, mix) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    paint(a, 1);
+    paint(b, mix);
   }
 
   async function extract() {
@@ -143,7 +162,7 @@ export function createLotusScrubber(canvas, video, getProgress, videoUrl) {
           ready = true;
           canvas.style.opacity = "1";
         }
-        lastIdx = -1; // repaint with the newly improved coverage
+        lastF = -1; // repaint with the newly improved coverage
       }
     } catch {
       /* extraction failed — the <video> fallback keeps working */
@@ -156,15 +175,27 @@ export function createLotusScrubber(canvas, video, getProgress, videoUrl) {
 
   function loop() {
     if (destroyed) return;
-    const p = Math.min(1, Math.max(0, getProgress()));
+    const raw = Math.min(1, Math.max(0, getProgress()));
+    const p = reverse ? 1 - raw : raw;
 
     if (ready) {
-      const idx = Math.round(p * (frameCount - 1));
-      if (idx !== lastIdx) {
-        const bmp = frameAt(idx);
-        if (bmp) {
-          lastIdx = idx;
-          drawBitmap(bmp);
+      const f = p * (frameCount - 1);
+      if (Math.abs(f - lastF) > 0.005) {
+        const i0 = Math.floor(f);
+        const i1 = Math.min(i0 + 1, frameCount - 1);
+        const mix = f - i0;
+        const a = frames[i0];
+        const b = frames[i1];
+        if (a && b && i1 !== i0 && mix > 0.001) {
+          lastF = f;
+          drawBlend(a, b, mix);
+        } else {
+          // neighbors not captured yet (or exactly on a frame): nearest frame
+          const bmp = frameAt(Math.round(f));
+          if (bmp) {
+            lastF = f;
+            drawBitmap(bmp);
+          }
         }
       }
     } else if (
@@ -191,9 +222,10 @@ export function createLotusScrubber(canvas, video, getProgress, videoUrl) {
 
   if (reduced) {
     // reduced motion: one static mid-bloom frame, no scrubbing or decoding
+    // (mirrored when the clip plays reversed, so the pose matches)
     const settle = () => {
       if (video && Number.isFinite(video.duration)) {
-        video.currentTime = video.duration * 0.6;
+        video.currentTime = video.duration * (reverse ? 0.4 : 0.6);
       }
     };
     if (video && video.readyState >= 1) settle();
