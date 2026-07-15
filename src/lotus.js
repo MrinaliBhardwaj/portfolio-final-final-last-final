@@ -60,6 +60,19 @@ export function createLotusScrubber(canvas, video, getProgress, videoUrl, opts =
     paint(bmp, 1);
   }
 
+  // The fallback <video> is hidden until it sits on a frame the scroll actually
+  // asked for. Revealing it earlier flashes the clip's frame 0 — which, played
+  // in reverse, is the far END of the arc: the wrong pose. Until then the stage
+  // shows the starfield and the lotus fades in already correct.
+  //
+  // `seeked` is the reliable signal (it means we landed on a frame we asked
+  // for, even if the scroll has since moved on); the loop below also reveals
+  // on position, which covers a clip that never needs a seek at all.
+  function revealVideo() {
+    if (video) video.style.opacity = "1";
+  }
+  video?.addEventListener("seeked", revealVideo, { once: true });
+
   // sub-frame smoothing: crossfade adjacent cached frames so the scrub glides
   // between them instead of stepping — adjacent frames are visually close, so
   // the blend reads as motion, not ghosting
@@ -120,13 +133,21 @@ export function createLotusScrubber(canvas, video, getProgress, videoUrl, opts =
       // stay fast on this sparse-keyframe clip.
       const order = [];
       const seen = new Set();
-      for (const s of [8, 4, 2, 1]) {
-        for (let i = 0; i < count; i += s) {
-          if (!seen.has(i)) {
-            seen.add(i);
-            order.push(i);
-          }
+      const push = (i) => {
+        if (!seen.has(i)) {
+          seen.add(i);
+          order.push(i);
         }
+      };
+      for (const s of [8, 4, 2, 1]) {
+        for (let i = 0; i < count; i += s) push(i);
+        // A strided walk from 0 never lands on the final frame (54 frames,
+        // stride 8 stops at 48), so it would be captured dead last. Reversed,
+        // that frame is the resting pose at the TOP of the page — the first
+        // thing anyone sees — so it has to exist in the first coarse pass or
+        // the canvas reveals a visibly earlier pose and pops later. Appending
+        // it per-pass keeps every pass ascending; later passes dedupe away.
+        push(count - 1);
       }
 
       let captured = 0;
@@ -200,7 +221,7 @@ export function createLotusScrubber(canvas, video, getProgress, videoUrl, opts =
       }
     } else if (
       video &&
-      video.readyState >= 2 &&
+      video.readyState >= 1 && // metadata is enough to start seeking
       !video.seeking &&
       Number.isFinite(video.duration)
     ) {
@@ -212,6 +233,11 @@ export function createLotusScrubber(canvas, video, getProgress, videoUrl, opts =
         } catch {
           /* not seekable yet */
         }
+      } else if (video.readyState >= 2) {
+        // already on the requested frame, with pixels to show it: safe to
+        // reveal. Covers a clip that never needs a seek (forward at rest),
+        // which the `seeked` listener alone would hide forever.
+        revealVideo();
       }
     }
     raf = requestAnimationFrame(loop);
@@ -222,7 +248,8 @@ export function createLotusScrubber(canvas, video, getProgress, videoUrl, opts =
 
   if (reduced) {
     // reduced motion: one static mid-bloom frame, no scrubbing or decoding
-    // (mirrored when the clip plays reversed, so the pose matches)
+    // (mirrored when the clip plays reversed, so the pose matches). The loop
+    // never runs here — the `seeked` listener above is what reveals the video.
     const settle = () => {
       if (video && Number.isFinite(video.duration)) {
         video.currentTime = video.duration * (reverse ? 0.4 : 0.6);
