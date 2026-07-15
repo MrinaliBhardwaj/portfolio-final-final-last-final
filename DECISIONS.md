@@ -2,6 +2,52 @@
 
 Decisions that survive rebuilds. Append, don't rewrite history.
 
+## 2026-07-15 — The Game app is the frog: Lotus Pond replaces The Pond
+
+Mrinali's call: remove the existing game-section work and put the frog game
+there. "The frog game" is **github.com/MrinaliBhardwaj/froggie** — *Lotus
+Pond · Mrinali's Pet Frog*, a finished 5-phase pixel-art frog diorama (night
+pond, a procedurally-drawn frog that hops lily-pad to lily-pad catching
+*programmer*-bugs — Null Pointer, Memory Leak, Merge Conflict, Syntax
+Beetle, 404, Infinite Loop — synthesised audio, no score/timer/failure).
+
+- **STILL WATER is archived, not deleted** — branch `pond-still-water`
+  (`e155dcb`) holds the parallel session's uncommitted WIP. The five Pond
+  commits stay in main's history. Nothing was destroyed.
+- **VENDORED, NOT PORTED.** froggie is 46 files / ~5k lines with **zero
+  runtime deps and zero assets** (sprites are char grids, audio is
+  synthesised). It lives at `src/froggie/`, dropped in whole. Do not rewrite
+  its engine, scene or art.
+- **TypeScript is a deliberate, scoped exception** to the no-TS decision.
+  Vite transpiles `.ts` natively via esbuild — no plugin needed. froggie's
+  own `tsconfig.json` is copied verbatim (strict, noUnusedLocals,
+  verbatimModuleSyntax) but `include`d to `src/froggie` only, so the
+  portfolio's own code stays plain JSX. `npm run typecheck` keeps the game's
+  bar. Porting 5k working lines to JS to honour the rule *was* the rebuild.
+- **The engine gained real teardown** — the one thing standalone froggie
+  never needed (it owned the whole page). Mounted on a route it must let go:
+  `Game.dispose()` (stops the loop + drops the `visibilitychange` listener,
+  which would otherwise resurrect a detached canvas), `Renderer.dispose()` /
+  `Input.dispose()` (window listeners), and `Ambience.suspend()` +
+  `uninstallUnlock()`. **Without the audio teardown the ambient bed and
+  cricket timers follow the visitor into #/tech.** This also makes the
+  StrictMode double-mount safe. Keep all of it if froggie is ever re-synced.
+- **React owns the info panel** (upstream it was static markup in froggie's
+  `index.html`; `ui/Panel.ts` is dropped). It stays in sync with the in-game
+  "m" mute key via the new `Ambience.onMuteChange` hook. Chrome follows the
+  gallery convention: monogram left, 44px close right, no centre label —
+  the panel already names the piece.
+- **Headless verification convention restored**: `Game.stepOnce(dt)` +
+  `window.__pond.step/snap` (dev-only) + the `/__pond-shot` vite middleware.
+  A hidden browser tab never fires rAF, so the pond must be stepped by hand
+  and read back. Corollary learned here: framer-motion's `AnimatePresence`
+  exit is also rAF-driven, so **routes never unmount in a hidden pane** —
+  test teardown against `dispose()` directly, not by navigating.
+- Dropped **29.5 MB** of vendored MediaPipe wasm + `hand_landmarker.task`
+  and the `@mediapipe/tasks-vision` dep. The frog needs no camera, so the
+  consent ritual is gone too. Route/title = "Lotus Pond"; wipe + `data-world`
+  bg moved to froggie's deep sky `#0b0f1e`.
+
 ## 2026-07-15 — Tech page: simulate the IDE, not the file
 
 Mrinali's call: the literal-code page prioritized authenticity over
