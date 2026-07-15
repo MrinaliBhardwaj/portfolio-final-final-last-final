@@ -2,6 +2,36 @@
 
 Decisions that survive rebuilds. Append, don't rewrite history.
 
+## 2026-07-15 — Tech page: simulate the IDE, not the file
+
+Mrinali's call: the literal-code page prioritized authenticity over
+communication — everything had the same visual weight, recruiters had to
+*parse* instead of scan. The fix keeps the VS Code fiction but uses the
+editor's own reading aids as the typographic hierarchy ("this is code, but
+it has been art-directed"):
+
+- **README renders as Markdown preview** — real Inter typography, big H1,
+  shields-style badges (gh/in/cv/@), gold blockquote CTA, and the
+  `import { craft } from "../design"` joke as a fenced code block.
+- **CodeLens headlines**: each entry gets a proportional Inter h3 on an
+  un-numbered line (`.ln--lens`, `counter-increment: none`) — role · org +
+  dim tag + date/repo right-aligned. Sticky at 61px (tabs 35 + crumbs 26)
+  like VS Code sticky scroll; top: 0 on mobile.
+- **Impact pills**: ONE gold inlay-hint chip per entry (`--tw-gold
+  #e7d391`) — the buffer's only saturated accent. Stack = quiet teal chips,
+  skills = neutral chips.
+- **Syntax LOWLIGHTED**: `--syn-*` re-tinted so color tracks importance,
+  not grammar — punctuation/quotes/keys/keywords whisper (#4b4f55 range),
+  content strings bright (#e3cdb7). Quotes render as punctuation via the
+  `Str` component. Never revert to full-salience Dark+.
+- **Real code folds**: detail/proof bullets behind `detail: [ ⋯ ],` lines —
+  gutter chevron appears on hover, ⋯ box toggles, expanded detail is a dim
+  level (`.tk-s--dim`). Whole career fits one viewport collapsed.
+- Identity lives in the lens; visible code lines carry only NEW info
+  (impact / work / detail keys). education.md folded into the README lede.
+- Status bar: `Portfolio Lens ✓` replaces Prettier — the fictional
+  extension "rendering" the page.
+
 ## 2026-07-12 — Design & tech pages rebuilt as literal Figma / VS Code
 
 Both world pages redesigned from resume content (design .docx + tech .pdf,

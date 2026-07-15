@@ -37,16 +37,20 @@
   --tw-accent: #007acc; /* status bar / focus blue */
   --tw-line: #2d2d30; /* panel borders */
   --tw-card: #252526;
-  /* Dark+ syntax */
-  --syn-kw: #c586c0;
-  --syn-str: #ce9178;
-  --syn-fn: #dcdcaa;
-  --syn-type: #4ec9b2;
-  --syn-var: #9cdcfe;
-  --syn-com: #6a9955;
-  --syn-num: #b5cea8;
-  --syn-punc: #8a8a8a;
-  --syn-md: #569cd6;
+  /* Dark+ descended syntax, LOWLIGHTED: colour tracks importance, not
+     grammar. Ceremony (keywords, keys, punctuation, quotes) whispers at
+     low contrast; content strings carry the brightness; one gold accent
+     is reserved for impact metrics (inlay-hint pills). */
+  --syn-kw: #6f5b79; /* quiet purple */
+  --syn-str: #e3cdb7; /* strings ARE the content — bright, warm */
+  --syn-fn: #a9a97e;
+  --syn-type: #579082;
+  --syn-var: #5f7d95; /* property keys — quiet blue */
+  --syn-com: #55744c;
+  --syn-num: #9db290;
+  --syn-punc: #4b4f55; /* braces, commas, quotes — near-texture */
+  --syn-md: #517394;
+  --tw-gold: #e7d391; /* the ONLY saturated accent in the buffer */
 
   --font-sans: "Archivo Variable", system-ui, -apple-system, sans-serif;
   --font-ui: "Inter Variable", "Segoe UI", system-ui, sans-serif;
