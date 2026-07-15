@@ -20,6 +20,10 @@ export function createLotusScrubber(canvas, video, getProgress, videoUrl, opts =
   let ready = false;
   let destroyed = false;
   let lastF = -1; // fractional frame index of the last paint
+  let objectUrl = null; // one blob URL feeds BOTH the extractor and the
+  // visible fallback <video>, so it must outlive extract(): revoked in destroy
+  let aborter = null; // cancels the multi-MB clip download if the scrubber
+  // dies while it's in flight (route change, StrictMode's throwaway mount)
 
   // nearest captured frame to idx (frames fill in progressively)
   function frameAt(idx) {
@@ -62,8 +66,8 @@ export function createLotusScrubber(canvas, video, getProgress, videoUrl, opts =
 
   // The fallback <video> is hidden until it sits on a frame the scroll actually
   // asked for. Revealing it earlier flashes the clip's frame 0 — which, played
-  // in reverse, is the far END of the arc: the wrong pose. Until then the stage
-  // shows the starfield and the lotus fades in already correct.
+  // in reverse, is the far END of the arc: the wrong pose. Until then the
+  // static poster (the resting pose) holds the stage, already correct.
   //
   // `seeked` is the reliable signal (it means we landed on a frame we asked
   // for, even if the scroll has since moved on); the loop below also reveals
@@ -83,7 +87,6 @@ export function createLotusScrubber(canvas, video, getProgress, videoUrl, opts =
   }
 
   async function extract() {
-    let objectUrl = null;
     const src = document.createElement("video");
     src.muted = true;
     src.playsInline = true;
@@ -95,10 +98,15 @@ export function createLotusScrubber(canvas, video, getProgress, videoUrl, opts =
       // seeks over fully-buffered data are fast (~50-170ms each), and seeking
       // is event-driven so it works even when the tab is hidden (unlike
       // requestVideoFrameCallback, which the browser throttles in background).
-      const resp = await fetch(videoUrl);
+      aborter = new AbortController();
+      const resp = await fetch(videoUrl, { signal: aborter.signal });
       const blob = await resp.blob();
       objectUrl = URL.createObjectURL(blob);
       src.src = objectUrl;
+      // The visible fallback <video> drinks from the SAME blob — the clip
+      // crosses the network exactly once, and the fallback's seeks become
+      // fully-buffered (fast) instead of crawling a cold network stream.
+      if (video && !destroyed) video.src = objectUrl;
 
       await new Promise((res, rej) => {
         src.onloadedmetadata = () => res();
@@ -190,7 +198,8 @@ export function createLotusScrubber(canvas, video, getProgress, videoUrl, opts =
     } finally {
       src.removeAttribute("src");
       src.load?.();
-      if (objectUrl) URL.revokeObjectURL(objectUrl);
+      // objectUrl stays alive: the visible fallback <video> still reads from
+      // it. destroy() revokes it.
     }
   }
 
@@ -246,21 +255,13 @@ export function createLotusScrubber(canvas, video, getProgress, videoUrl, opts =
   sizeCanvas();
   window.addEventListener("resize", sizeCanvas);
 
-  if (reduced) {
-    // reduced motion: one static mid-bloom frame, no scrubbing or decoding
-    // (mirrored when the clip plays reversed, so the pose matches). The loop
-    // never runs here — the `seeked` listener above is what reveals the video.
-    const settle = () => {
-      if (video && Number.isFinite(video.duration)) {
-        video.currentTime = video.duration * (reverse ? 0.4 : 0.6);
-      }
-    };
-    if (video && video.readyState >= 1) settle();
-    else video?.addEventListener("loadedmetadata", settle, { once: true });
-  } else {
+  if (!reduced) {
     raf = requestAnimationFrame(loop);
     extract();
   }
+  // reduced motion: do NOTHING — no clip download, no decoding, no scrubbing.
+  // The static poster (the clip's resting pose, rendered by the Cover) is the
+  // whole experience, and the visitor saves the multi-MB video entirely.
 
   return {
     destroy() {
@@ -269,9 +270,11 @@ export function createLotusScrubber(canvas, video, getProgress, videoUrl, opts =
       window.removeEventListener("resize", sizeCanvas);
       frames.forEach((f) => f.close?.());
       frames = [];
-      // fall back to the video so a StrictMode remount never shows a blank
-      // (revealed) canvas before its own frames are ready
+      // fall back to the poster/video so a StrictMode remount never shows a
+      // blank (revealed) canvas before its own frames are ready
       if (canvas) canvas.style.opacity = "0";
+      aborter?.abort();
+      if (objectUrl) URL.revokeObjectURL(objectUrl);
     },
   };
 }

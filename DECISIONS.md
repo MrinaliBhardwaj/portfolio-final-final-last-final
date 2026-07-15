@@ -355,3 +355,34 @@ both vendored to `public/resume-design.docx` + `public/resume-tech.pdf`).
 - Lotus scrubbing = pre-decoded frame cache (`lotus.js`), never live
   `video.currentTime` seeking. `overflow-x: clip` (never `hidden`) on
   html/body or the sticky stage breaks.
+
+## 2026-07-16 — The lotus plays in reverse; the cover paints in one frame
+
+Her brief: reverse the blooming-lotus scrub, make first paint instant, and
+keep it premium AND lightweight. All of it lives in the frame-cache scrubber
+(`lotus.js`) — the mp4 file itself is untouched (no ffmpeg on this machine).
+
+- **The scrub is REVERSED via the `reverse` option, not a re-encoded file.**
+  Progress is mirrored (`1 - p`) before frame mapping, fallback seeks, and
+  the reduced-motion pose. The cover now rests fully bloomed at the top,
+  folds to a bud mid-scroll, and re-blooms into the Design/Tech split. The
+  narrative beats in `Cover.jsx` survived reversal unchanged — don't retune
+  them.
+- **`public/lotus-still.webp` (50KB, 1920×1080) is the clip's FINAL frame,**
+  captured in-browser from the mp4. It's preloaded in `index.html` and is the
+  first thing painted — the lotus is on screen before a single video byte
+  arrives. If the clip is ever replaced, REGENERATE this still from the new
+  clip's last frame (seek to duration−0.05, canvas → WebP q0.85).
+- **The clip crosses the network exactly ONCE.** The visible fallback
+  `<video>` is srcless in JSX; `lotus.js` feeds it the same blob URL the
+  extractor decodes. Don't put `src`/`preload` back on the JSX element —
+  that doubles the 6.3MB download. The fetch aborts if the visitor leaves
+  the cover mid-download.
+- **The fallback video is HIDDEN until it sits on a frame that was actually
+  requested** (its natural frame 0 is, reversed, the wrong end of the arc).
+  Reveal happens only via `seeked` or an in-position check. Reduced-motion
+  visitors get the poster only — no download, no decode.
+- **Scrub smoothness = crossfade between adjacent cached frames** (two
+  drawImage calls, GPU-cheap) plus the final frame captured in the FIRST
+  strided pass (a stride walk from 0 never lands on index count−1 naturally;
+  reversed, that frame is the resting pose everyone sees first).

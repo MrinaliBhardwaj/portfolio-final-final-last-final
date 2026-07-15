@@ -21,6 +21,9 @@ import { createLotusScrubber } from "./lotus.js";
 
 // vendored locally at build time; see public/lotus-bloom.mp4
 const VIDEO_URL = "/lotus-bloom.mp4";
+// the clip's final frame as a small preloaded still — the reversed scrub's
+// resting pose, on screen from the very first paint (see index.html preload)
+const POSTER_URL = "/lotus-still.webp";
 
 // The clip is scrubbed IN REVERSE (see the `reverse` option on the scrubber).
 // The file's arc is: open → closes to a bud (~T5) → rotates and re-blooms
@@ -77,6 +80,12 @@ export default function Cover({ onChoose, onSettledChange }) {
   const designX = useTransform(scrollYProgress, [0.51, 0.74], [-40, 0]);
   const techOpacity = useTransform(scrollYProgress, [0.55, 0.71], [0, 1]);
   const techX = useTransform(scrollYProgress, [0.55, 0.78], [40, 0]);
+
+  // the poster is the resting pose (the reversed clip's start), so it is only
+  // truthful near the top; past the first few % of scroll it bows out and the
+  // scrubbed frames (canvas, or the seeked video before the cache is warm)
+  // own the stage. Once the canvas is revealed it covers the poster anyway.
+  const posterOpacity = useTransform(scrollYProgress, [0, 0.05], [1, 0]);
 
   // decode the clip to frames once, then paint the frame matching scroll
   // progress to the canvas (smooth at any scroll speed)
@@ -147,14 +156,18 @@ export default function Cover({ onChoose, onSettledChange }) {
       {/* one pinned stage carries the whole cover narrative */}
       <section className="cover-track" ref={trackRef} aria-label="Intro">
         <div className="cover-stage">
-          <video
-            ref={videoRef}
-            className="cover-video"
-            src={VIDEO_URL}
-            muted
-            playsInline
-            preload="auto"
+          {/* instant first paint: a small preloaded still of the resting pose */}
+          <motion.img
+            className="cover-poster"
+            src={POSTER_URL}
+            alt=""
+            fetchpriority="high"
+            style={{ opacity: posterOpacity }}
+            aria-hidden="true"
           />
+          {/* srcless on purpose: lotus.js feeds it the SAME blob it decodes,
+              so the clip is downloaded once, not twice */}
+          <video ref={videoRef} className="cover-video" muted playsInline />
           {/* frame-cache canvas fades in over the video once decoding is done */}
           <canvas
             ref={canvasRef}

@@ -154,6 +154,18 @@
   text-align: center;
 }
 
+/* the resting pose as a static still: painted on the very first frame, before
+   any video byte arrives. Sits at the bottom of the stage stack; the seeked
+   video and then the frame-cache canvas paint over it. */
+.cover-poster {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
 /* the fallback video starts hidden: its natural first frame is the START of
    the clip, which is the wrong pose now that the bloom is scrubbed in reverse.
    lotus.js fades it in only once it has been seeked to the right time. */
