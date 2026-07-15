@@ -15,6 +15,7 @@ import TechWorld from "./TechWorld.jsx";
 import GalleryWorld from "./GalleryWorld.jsx";
 import PondWorld from "./PondWorld.jsx";
 import Dock from "./Dock.jsx";
+import DesignCursor from "./DesignCursor.jsx";
 import "./cover.css";
 import "./dock.css";
 import "./world-tabs.css";
@@ -162,6 +163,13 @@ export default function App() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* The design world's cursor tag. It lives up here beside the dock, not
+          inside DesignWorld: the pink cursor is scoped to the whole world (the
+          dock included), so its label has to clear the dock too — and inside
+          the route wrapper it would be trapped under AnimatePresence's
+          stacking context. Keyed to the route so it remounts clean. */}
+      {route === "design" && <DesignCursor />}
 
       {/* the OS layer: present on every route, above the page, below the wipe */}
       <Dock

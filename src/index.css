@@ -15,6 +15,11 @@
   --dw-ink: #ebebeb;
   --dw-dim: #a0a0a0;
   --dw-accent: #e23a16;
+  /* the visitor's collaborator colour: their cursor, its name tag, and the
+     hero frame's accent (which rebinds --dw-accent to this). Kept in sync BY
+     HAND with the two cursor SVGs in design-world.css — a cursor image can't
+     read a CSS var, so the hex is literal in there. */
+  --dw-pink: #f472b6;
   --dw-line: rgba(255, 255, 255, 0.11);
   --dw-slot: #262626;
   --dw-panel: #2c2c2c; /* Figma panel / toolbar surface */

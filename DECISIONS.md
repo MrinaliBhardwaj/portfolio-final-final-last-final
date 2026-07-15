@@ -2,6 +2,42 @@
 
 Decisions that survive rebuilds. Append, don't rewrite history.
 
+## 2026-07-16 — The cursor gets its name tag; the hero frame turns pink
+
+Follow-up to the entry below, same day. Her brief: attach a rounded "Mrinali"
+label to the cursor, delete the orange named cursor on the first frame, and
+make that frame's accent pink instead of orange.
+
+- **The file now has exactly ONE collaborator cursor: the visitor's.** The
+  drifting vermilion `.dw-cur` on the hero is DELETED (markup, CSS, keyframes,
+  and its mobile `display:none`). Once the real pointer wore the same arrow,
+  a second one loitering nearby read as a duplicate rather than as company.
+  Don't reintroduce it — if the file needs to feel populated, that's a
+  different idea, not this one.
+- **Only the LABEL is DOM (`DesignCursor.jsx`); the arrow stays a CSS
+  cursor.** This split is the whole trick and it matters: the OS draws the
+  arrow, so it can never lag the pointer and it survives with JS off. A DOM
+  arrow would trail by a frame and feel broken. The tag is allowed to trail —
+  it eases at 0.18/frame — because a real Figma name tag does exactly that.
+  Do NOT "fix" the lag, and do NOT convert the arrow to DOM to match.
+- **The rAF loop SLEEPS when the tag catches up** (< 0.05px), waking on
+  pointermove. Her machine is slow; an always-on rAF behind an idle pointer
+  on every design-world visit is not acceptable. Verified: converges exactly,
+  43 frames, then zero queued frames.
+- **`DesignCursor` is mounted by `App` beside the `Dock`, not by
+  `DesignWorld`.** Two reasons: the cursor is world-scoped so it covers the
+  dock, and its tag must too (z-index 70 vs dock's 60); and inside the route
+  wrapper, AnimatePresence's opacity/will-change stacking context would trap
+  the tag under the dock. Gated on `pointerType === "mouse"` — touch and pen
+  leave no cursor to label.
+- **The hero frame rebinds the token: `#dw-hero { --dw-accent: var(--dw-pink) }`.**
+  Rebinding on the frame — not repainting each rule — means everything
+  accented inside the hero follows automatically (the italic "code.", the
+  comment pin's dot). Scoped to the FIRST frame only, per the brief: every
+  other frame keeps vermilion, and the leadership frame is still a solid
+  `--dw-accent` field. `--dw-pink` is a real token in `index.css` now, but the
+  cursor SVGs still can't read it (see below) — keep them in sync by hand.
+
 ## 2026-07-16 — The design world has its own cursor: you are a collaborator
 
 Her brief: replace the default cursor inside the Design section only, with

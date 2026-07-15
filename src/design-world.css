@@ -232,11 +232,13 @@
 }
 
 /* ---- the visitor's own cursor: you are a collaborator in her file ----
-   The pointer becomes Figma's multiplayer arrow in soft pink (#f472b6) —
-   the same silhouette the drifting `mrinali` collaborator below wears in
-   vermilion, so the two read as two people in one file rather than as a
-   cursor plus a decoration. Hovering anything clickable adds Figma's
-   component diamond, the app's own glyph for "this is an instance".
+   The pointer becomes Figma's multiplayer arrow in soft pink (#f472b6),
+   tagged "Mrinali" by DesignCursor.jsx — the file has exactly one
+   collaborator cursor and it's the one in your hand. (A second, drifting
+   vermilion cursor used to sit on the hero; once the real pointer wore the
+   same arrow it read as a duplicate, so it's gone.) Hovering anything
+   clickable adds Figma's component diamond, the app's own glyph for
+   "this is an instance".
 
    Both are inline SVG data URIs (a cursor image can't reference a CSS var,
    so the pink and the geometry are literal inside each one — retune the two
@@ -265,43 +267,58 @@
   }
 }
 
-/* ---- a collaborator's cursor drifting over the canvas ---- */
-.dw-cur {
-  position: absolute;
-  top: 130px;
-  left: 55%;
-  z-index: 5;
-  display: flex;
-  align-items: flex-start;
-  gap: 2px;
-  pointer-events: none;
-}
-
-.dw-cur span {
-  background: var(--dw-accent);
-  color: #fff;
-  font-size: 10.5px;
-  font-weight: 600;
+/* ---- the name tag riding that cursor ----
+   Positioned by DesignCursor.jsx, which writes a translate3d each frame and
+   sleeps once caught up. The margin — not the transform — offsets the tag to
+   the arrow's lower-right, so JS only ever deals in raw pointer coordinates.
+   z-index clears the dock (60): the tag follows you onto the OS layer, since
+   the cursor itself is world-scoped and does too. */
+.dw-tag {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 70;
+  margin: 17px 0 0 13px;
   padding: 2px 7px;
   border-radius: 10px;
-  margin-top: 10px;
+  background: var(--dw-pink);
+  color: #fff;
+  font-family: var(--font-ui);
+  font-size: 10.5px;
+  font-weight: 600;
+  line-height: 1.55;
+  white-space: nowrap;
+  pointer-events: none;
+  /* it has to read on the artboards too, where pink-on-cream is soft */
+  box-shadow: 0 2px 9px rgba(0, 0, 0, 0.28);
+  opacity: 0;
+  transition: opacity 0.2s var(--ease-soft);
+  will-change: transform;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .dw-cur {
-    animation: dw-drift 26s ease-in-out infinite alternate;
+.dw-tag.is-live {
+  opacity: 1;
+}
+
+/* the tag is a mouse conceit; touch has no cursor for it to label */
+@media (pointer: coarse) {
+  .dw-tag {
+    display: none;
   }
 }
 
-@keyframes dw-drift {
-  0% { transform: translate(0, 0); }
-  25% { transform: translate(-16vw, 22vh); }
-  50% { transform: translate(8vw, 48vh); }
-  75% { transform: translate(-24vw, 30vh); }
-  100% { transform: translate(4vw, 8vh); }
+/* ============ artboard content ============ */
+
+/* The hero frame runs on the collaborator's pink instead of the canvas
+   vermilion — so the first thing you see agrees with the cursor in your hand.
+   Rebinding the token on the frame itself (rather than repainting each rule)
+   means anything accented INSIDE the hero follows automatically: the italic
+   "code." and the pinned comment's dot. Every other frame keeps vermilion —
+   notably the leadership frame, which is a solid --dw-accent field. */
+#dw-hero {
+  --dw-accent: var(--dw-pink);
 }
 
-/* ============ artboard content ============ */
 .dw-eyebrow {
   font-size: 0.78rem;
   font-weight: 600;
@@ -694,10 +711,6 @@
 
   .cvf-body {
     padding: 1.6rem 1.3rem;
-  }
-
-  .dw-cur {
-    display: none;
   }
 
   .cvf-pin {

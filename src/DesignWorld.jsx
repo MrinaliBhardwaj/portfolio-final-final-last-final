@@ -248,20 +248,11 @@ export default function DesignWorld() {
       />
       <PropsPanel frame={activeFrame} />
 
+      {/* the file's one collaborator cursor is the VISITOR's own — a pink arrow
+          (design-world.css) tagged "Mrinali" (DesignCursor, mounted by App).
+          A second, drifting cursor used to loiter on the hero frame; with the
+          real pointer wearing the same arrow it just read as a duplicate. */}
       <div className="dw-content">
-        {/* a collaborator drifting across the canvas */}
-        <div className="dw-cur" aria-hidden="true">
-          <svg viewBox="0 0 16 16" width="15" height="15">
-            <path
-              d="M2 1l11 5.2-4.9 1.4L5.6 13z"
-              fill="#e23a16"
-              stroke="#fff"
-              strokeWidth="1"
-            />
-          </svg>
-          <span>mrinali</span>
-        </div>
-
         <header className="dw-top">
           <a className="dw-mark" href="#" aria-label="Back to the start">
             MB
