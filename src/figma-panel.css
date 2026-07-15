@@ -2,6 +2,9 @@
 /* the panel is app chrome, so it speaks Figma's own dark UI language — #2C2C2C
    panel surface, light greys, #0D99FF blue selection — against the #1E1E1E
    canvas, not the vermilion content palette */
+/* The panel itself never scrolls. Figma pins the file row and Pages and lets
+   ONLY the layers tree scroll under them — so the column is fixed sections
+   plus one flexible scroller, not one long scrolling box. */
 .fp {
   position: fixed;
   top: 44px; /* below the fixed figma tab bar */
@@ -9,11 +12,21 @@
   bottom: 0;
   width: 240px;
   z-index: 40;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
   background: var(--dw-panel);
   border-right: 1px solid var(--dw-panel-line);
-  overflow-y: auto;
   font-size: 12px;
   user-select: none;
+}
+
+/* the header stack holds its height; the tree gets whatever's left */
+.fp-file,
+.fp-label,
+.fp-pages,
+.fp-div {
+  flex: none;
 }
 
 /* file name row */
@@ -88,9 +101,60 @@
   height: 11px;
 }
 
-/* --- layers tree --- */
+/* --- layers tree: the panel's only scroller --- */
 .fp-tree {
+  flex: 1;
+  min-height: 0; /* without this a flex child refuses to scroll, it just grows */
+  overflow-y: auto;
+  overscroll-behavior: contain; /* reaching the end must not scroll the canvas */
   padding: 0 8px 16px;
+}
+
+/* Figma's scrollbar, not the OS's: petite, dark, no arrow buttons, no track
+   well — a thumb that sits quietly on the panel and firms up as you approach
+   it. The native one was light grey, full-height and stepper-capped, which
+   read as a browser artifact bolted onto the app.
+
+   WebKit's pseudo-elements are the primary path (they're the only way to get
+   a rounded thumb). Chrome ignores them the moment `scrollbar-width` or
+   `scrollbar-color` is set, so the standard properties are quarantined in an
+   @supports branch that only Firefox — which has no ::-webkit-scrollbar —
+   ever enters. */
+.fp-tree::-webkit-scrollbar {
+  width: 8px;
+}
+
+.fp-tree::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* the steppers at each end are the giveaway; Figma has none */
+.fp-tree::-webkit-scrollbar-button {
+  display: none;
+}
+
+.fp-tree::-webkit-scrollbar-thumb {
+  border: 2px solid transparent; /* insets the thumb to ~4px without moving it */
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.13);
+  background-clip: padding-box;
+}
+
+.fp:hover .fp-tree::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.22);
+  background-clip: padding-box;
+}
+
+.fp-tree::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.34);
+  background-clip: padding-box;
+}
+
+@supports not selector(::-webkit-scrollbar) {
+  .fp-tree {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.22) transparent;
+  }
 }
 
 .fp-row {
