@@ -30,18 +30,18 @@ const TITLES = {
   design: "Mrinali Bhardwaj - Design",
   tech: "Mrinali Bhardwaj - Tech",
   gallery: "Mrinali Bhardwaj - Gallery",
-  pond: "Mrinali Bhardwaj - The Pond",
+  pond: "Mrinali Bhardwaj - Lotus Pond",
 };
 
 const WIPE_BG = {
   design: "#1e1e1e",
   tech: "#090d0b",
   gallery: "#05040a",
-  pond: "#030807",
+  pond: "#0b0f1e", // froggie's deep sky, so the wipe lands on the pond's own night
 };
 
 function getRoute() {
-  // the pond takes dev flags after a "?" (#/pond?sim) — route on the path only
+  // route on the path only, ignoring any "?" query the hash may carry
   const hash = window.location.hash
     .replace(/^#\/?/, "")
     .split("?")[0]

@@ -1,12 +1,14 @@
 /* ============ THE POND: the dock's Game app ============ */
-/* An interactive installation, fixed & immersive like the gallery: the water
-   fills the viewport, the dock floats above it as the OS layer. The stage is
-   one WebGL canvas; everything else here is quiet chrome and ritual copy. */
+/* Lotus Pond — Mrinali's Pet Frog. Fixed & immersive like the gallery: the
+   pond fills the viewport, the dock floats above it as the OS layer. The stage
+   is one low-res 2D canvas the browser upscales with nearest-neighbour;
+   everything else here is quiet chrome. Game art/colour lives in
+   froggie/config/theme.ts — not here. */
 .pw {
   position: fixed;
   inset: 0;
   overflow: hidden;
-  background: #030807;
+  background: #0b0f1e; /* froggie's deep sky, so the wipe lands seamlessly */
   color: var(--void-text);
 }
 
@@ -16,14 +18,21 @@
   z-index: 0;
 }
 
-.pw-stage canvas {
+/* the tiny backing store is upscaled by CSS — nearest-neighbour keeps every
+   pixel crisp. The frog draws its own firefly cursor, so hide the real one. */
+.pw-canvas {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  cursor: none;
+  touch-action: none;
 }
 
-/* chrome: monogram left, app label centre, close right (gallery convention) */
+/* chrome: monogram left, close right (gallery convention). No centre label —
+   the panel below already names the piece. */
 .pw-top {
   position: absolute;
   top: 0;
@@ -47,18 +56,7 @@
   font-size: 2.4rem;
   line-height: 1;
   color: var(--void-text);
-}
-
-.pw-label {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  font-family: var(--font-mono-alt);
-  font-size: 0.72rem;
-  letter-spacing: 0.42em;
-  text-transform: uppercase;
-  color: var(--void-dim);
-  margin-right: -0.42em;
+  text-shadow: 0 2px 18px rgba(11, 15, 30, 0.9);
 }
 
 .pw-close {
@@ -71,6 +69,7 @@
   color: var(--void-dim);
   border: 1px solid var(--void-line);
   background: rgba(255, 255, 255, 0.02);
+  backdrop-filter: blur(6px);
   transition: color 0.25s var(--ease-soft), border-color 0.25s var(--ease-soft),
     background-color 0.25s var(--ease-soft);
 }
@@ -81,87 +80,124 @@
   background: rgba(255, 255, 255, 0.05);
 }
 
-/* ============ the entry ritual ============ */
-/* No card, no panel — just typography floating in the dark. Asking for the
-   camera is part of the piece, so it speaks in the piece's voice. */
-.pw-ritual {
+/* ============ the info panel ============ */
+/* Glass card, top-left under the monogram, never over the frog (centre-low).
+   Monospace to sit with the pixel art. Fades in once the pond is showing. */
+.pw-panel {
+  position: absolute;
+  top: 5.2rem;
+  left: 2.2rem;
+  z-index: 10;
+  width: 236px;
+  padding: 13px 15px 12px;
+  background: linear-gradient(160deg, rgba(20, 32, 46, 0.62), rgba(12, 20, 32, 0.5));
+  backdrop-filter: blur(9px) saturate(1.15);
+  -webkit-backdrop-filter: blur(9px) saturate(1.15);
+  border: 1px solid rgba(150, 205, 214, 0.2);
+  border-radius: 13px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.42), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  color: #d3e3e8;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.5;
+  user-select: none;
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: opacity 700ms var(--ease-soft), transform 700ms var(--ease-soft);
+}
+
+.pw-panel.is-ready {
+  opacity: 1;
+  transform: none;
+}
+
+.pw-p-title {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  color: #eaf5f2;
+}
+
+.pw-p-sub {
+  margin-top: 2px;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #8fb0b8;
+}
+
+.pw-p-desc {
+  margin: 9px 0 10px;
+  font-size: 11px;
+  line-height: 1.55;
+  color: #a9c4cb;
+}
+
+.pw-p-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 9px;
+  border-top: 1px solid rgba(150, 205, 214, 0.14);
+}
+
+.pw-p-bugs {
+  font-size: 11px;
+  color: #c7dbe1;
+}
+
+.pw-p-bugs b {
+  font-weight: 700;
+  color: #ffe9a3; /* the pond's warmth — matches the fireflies */
+  font-variant-numeric: tabular-nums;
+}
+
+.pw-p-mute {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 22px;
+  border-radius: 7px;
+  border: 1px solid rgba(150, 205, 214, 0.18);
+  background: rgba(255, 255, 255, 0.04);
+  color: inherit;
+  font-size: 12px;
+  line-height: 1;
+  transition: background-color 160ms var(--ease-soft), border-color 160ms var(--ease-soft);
+}
+
+.pw-p-mute:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(150, 205, 214, 0.34);
+}
+
+.pw-p-mute.is-muted {
+  opacity: 0.6;
+}
+
+/* ============ boot ============ */
+/* Quiet loading state, faded out once the first frame paints. */
+.pw-boot {
   position: absolute;
   inset: 0;
   z-index: 20;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 1.1rem;
-  text-align: center;
-  padding: 0 1.5rem;
-  background: rgba(3, 8, 7, 0.55);
+  display: grid;
+  place-items: center;
+  background: #0b0f1e;
+  color: #6b7a9c;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.6;
+  letter-spacing: 0.14em;
+  text-transform: lowercase;
+  transition: opacity 900ms ease;
 }
 
-.pw-ritual-title {
-  font-family: var(--font-serif);
-  font-style: italic;
-  font-weight: 500;
-  font-size: clamp(1.5rem, 3.4vw, 2.1rem);
-  letter-spacing: 0.01em;
-  color: var(--void-text);
+.pw-boot.is-gone {
+  opacity: 0;
+  pointer-events: none;
 }
 
-.pw-ritual-sub {
-  font-family: var(--font-mono-alt);
-  font-size: 0.68rem;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--void-dim);
-  max-width: 34em;
-  line-height: 1.9;
-}
-
-.pw-ritual-actions {
-  display: flex;
-  gap: 1rem;
-  margin-top: 1.4rem;
-  flex-wrap: wrap;
-  justify-content: center;
-}
-
-.pw-btn {
-  font-family: var(--font-mono-alt);
-  font-size: 0.7rem;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: var(--void-text);
-  padding: 0.85rem 1.6rem;
-  border: 1px solid var(--void-line);
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.02);
-  transition: color 0.25s var(--ease-soft), border-color 0.25s var(--ease-soft),
-    background-color 0.25s var(--ease-soft), box-shadow 0.25s var(--ease-soft);
-}
-
-.pw-btn:hover {
-  background: rgba(255, 255, 255, 0.05);
-}
-
-.pw-btn--eye {
-  border-color: rgba(242, 199, 211, 0.38);
-}
-
-.pw-btn--eye:hover {
-  border-color: rgba(242, 199, 211, 0.7);
-  box-shadow: 0 0 24px rgba(242, 199, 211, 0.12);
-}
-
-.pw-btn--hide {
-  color: var(--void-dim);
-}
-
-.pw-btn--hide:hover {
-  color: var(--void-text);
-}
-
-/* the piece never speaks on screen — but it introduces itself to screen
-   readers once */
 .pw-visually-hidden {
   position: absolute;
   width: 1px;
@@ -169,72 +205,6 @@
   overflow: hidden;
   clip: rect(0 0 0 0);
   white-space: nowrap;
-}
-
-/* ============ corners ============ */
-.pw-hint {
-  position: absolute;
-  left: 2.2rem;
-  bottom: 1.8rem;
-  z-index: 10;
-  font-family: var(--font-mono-alt);
-  font-size: 0.7rem;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--void-dim);
-  opacity: 0.7;
-  pointer-events: none;
-}
-
-/* sound toggle, clear of the dock */
-.pw-sound {
-  position: absolute;
-  right: 2.2rem;
-  bottom: 1.9rem;
-  z-index: 10;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  color: var(--void-dim);
-  border: 1px solid var(--void-line);
-  background: rgba(255, 255, 255, 0.02);
-  transition: color 0.25s var(--ease-soft), border-color 0.25s var(--ease-soft);
-}
-
-.pw-sound:hover,
-.pw-sound.is-on {
-  color: var(--void-text);
-  border-color: rgba(237, 236, 234, 0.3);
-}
-
-/* dev HUD (?hud / ?sim) — deliberately raw */
-.pw-hud {
-  position: absolute;
-  left: 2.2rem;
-  top: 5.4rem;
-  z-index: 10;
-  font-family: var(--font-mono);
-  font-size: 0.66rem;
-  line-height: 1.8;
-  color: #4be58c;
-  background: rgba(3, 8, 7, 0.6);
-  padding: 0.5rem 0.7rem;
-  border: 1px solid rgba(75, 229, 141, 0.25);
-  pointer-events: none;
-  white-space: pre;
-}
-
-/* the webcam never renders on screen, but it must exist in the DOM for
-   iOS/Safari to keep decoding it */
-.pw-video {
-  position: absolute;
-  width: 2px;
-  height: 2px;
-  opacity: 0;
-  pointer-events: none;
 }
 
 @media (max-width: 768px) {
@@ -246,11 +216,11 @@
     font-size: 2rem;
   }
 
-  .pw-hint {
-    display: none;
-  }
-
-  .pw-sound {
+  .pw-panel {
+    top: 4.6rem;
+    left: 1.25rem;
     right: 1.25rem;
+    width: auto;
+    max-width: 236px;
   }
 }

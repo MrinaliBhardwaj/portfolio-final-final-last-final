@@ -3,9 +3,13 @@ import { fileURLToPath } from "node:url";
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 
-// dev-only: the pond's ?sim mode POSTs a rendered frame here so the scene can
-// be verified headless (a hidden tab never fires rAF, so screenshots can't
-// see it). Writes pond-shot.png at the project root; gitignored.
+// Vite transpiles the vendored TypeScript game under src/froggie natively via
+// esbuild — no plugin needed for it. `npm run typecheck` runs tsc for real.
+//
+// dev-only: window.__pond.snap() POSTs a rendered frame here so the pond can be
+// verified visually. A hidden browser tab never fires rAF, so a screenshot of a
+// background pane sees nothing — the frame has to be stepped by hand and read
+// back out. Writes pond-shot.png at the project root; gitignored.
 function pondShot() {
   return {
     name: "pond-shot",

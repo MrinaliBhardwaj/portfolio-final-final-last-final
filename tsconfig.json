@@ -1,0 +1,21 @@
+{
+  "// note": "Only the vendored froggie game is TypeScript — the portfolio itself stays plain JSX. Settings kept verbatim from the froggie repo so the game keeps its own strictness bar. Vite transpiles the .ts natively; this is for `npm run typecheck` and editors.",
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "noEmit": true,
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+    "isolatedModules": true,
+    "verbatimModuleSyntax": true,
+    "useDefineForClassFields": true
+  },
+  "include": ["src/froggie"]
+}

@@ -10,7 +10,8 @@
 // place on its own hover (plain CSS scale, centred, no neighbor effect and no
 // lift) — matching the source component's `hover:scale-110` exactly, not a
 // pointer-distance "magnetic" simulation. Figma → design world, VS Code →
-// tech world; Gallery / Claude / Game respond but don't navigate yet.
+// tech world, Gallery → the dome, Game → the Lotus Pond; Claude is still a
+// placeholder that responds but doesn't navigate.
 import { motion } from "framer-motion";
 import { Code2, Flower2 } from "lucide-react";
 
@@ -152,7 +153,7 @@ export default function Dock({ visible, onChoose, active }) {
     },
     {
       key: "game",
-      label: "The Pond — an interactive installation",
+      label: "Lotus Pond — catch coding bugs with a pixel frog",
       world: "pond",
       action: () => onChoose("pond"),
       node: (
