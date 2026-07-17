@@ -155,8 +155,10 @@
 }
 
 /* the resting pose as a static still: painted on the very first frame, before
-   any video byte arrives. Sits at the bottom of the stage stack; the seeked
-   video and then the frame-cache canvas paint over it. */
+   any video byte arrives. The permanent base of the stage stack — it never
+   fades on scroll (that opened a blank gap while the clip was still
+   downloading); the seeked video and then the frame-cache canvas simply
+   paint over it. */
 .cover-poster {
   position: absolute;
   inset: 0;

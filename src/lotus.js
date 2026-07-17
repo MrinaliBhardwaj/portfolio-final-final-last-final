@@ -25,20 +25,34 @@ export function createLotusScrubber(canvas, video, getProgress, videoUrl, opts =
   let aborter = null; // cancels the multi-MB clip download if the scrubber
   // dies while it's in flight (route change, StrictMode's throwaway mount)
 
-  // nearest captured frame to idx (frames fill in progressively)
-  function frameAt(idx) {
-    if (frames[idx]) return frames[idx];
-    for (let d = 1; d < frameCount; d++) {
-      if (frames[idx - d]) return frames[idx - d];
-      if (frames[idx + d]) return frames[idx + d];
+  // Temporally smoothed frame position. Wheel scrolls arrive as coarse steps
+  // (a tick can jump several frames at once), so mapping scroll → frame
+  // directly makes the bloom stutter. The painted position eases toward the
+  // live target every rAF instead; time-based, so the ~quarter-second settle
+  // feels the same at any refresh rate.
+  let smoothF = -1;
+  let lastT = 0;
+
+  // nearest captured frame at-or-below / at-or-above i — the cache fills in
+  // strided passes, so early on only every 8th/4th slot exists
+  function below(i) {
+    for (let k = Math.min(i, frameCount - 1); k >= 0; k--) {
+      if (frames[k]) return k;
     }
-    return null;
+    return -1;
+  }
+  function above(i) {
+    for (let k = Math.max(i, 0); k < frameCount; k++) {
+      if (frames[k]) return k;
+    }
+    return -1;
   }
 
   function sizeCanvas() {
-    // render at the full device pixel ratio (cap 2.5) so the canvas backing
-    // store matches the screen and the lotus stays crisp on retina displays
-    const dpr = Math.min(window.devicePixelRatio || 1, 2.5);
+    // render at the device pixel ratio, capped at 2: the source clip is
+    // 1080p, so a larger backing store only inflates per-frame fill cost
+    // (two cover-fit draws per paint) without adding real detail
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
     const w = canvas.clientWidth || window.innerWidth;
     const h = canvas.clientHeight || window.innerHeight;
     canvas.width = Math.round(w * dpr);
@@ -203,29 +217,37 @@ export function createLotusScrubber(canvas, video, getProgress, videoUrl, opts =
     }
   }
 
-  function loop() {
+  function loop(now) {
     if (destroyed) return;
     const raw = Math.min(1, Math.max(0, getProgress()));
     const p = reverse ? 1 - raw : raw;
 
     if (ready) {
-      const f = p * (frameCount - 1);
-      if (Math.abs(f - lastF) > 0.005) {
-        const i0 = Math.floor(f);
-        const i1 = Math.min(i0 + 1, frameCount - 1);
-        const mix = f - i0;
-        const a = frames[i0];
-        const b = frames[i1];
-        if (a && b && i1 !== i0 && mix > 0.001) {
+      const target = p * (frameCount - 1);
+      const dt = Math.min(0.1, lastT ? (now - lastT) / 1000 : 1 / 60);
+      lastT = now;
+      if (smoothF < 0) {
+        smoothF = target; // first paint: no ease-in from a stale position
+      } else {
+        smoothF += (target - smoothF) * (1 - Math.exp(-dt * 11));
+        // snap when settled so the loop stops repainting between scrolls
+        if (Math.abs(target - smoothF) < 0.003) smoothF = target;
+      }
+      const f = smoothF;
+      if (Math.abs(f - lastF) > 0.003) {
+        // blend the two nearest CAPTURED frames around f. While the cache is
+        // still coarse the pair may span several slots — the crossfade then
+        // reads as a soft morph instead of an 8-frame pop.
+        const lo = below(Math.floor(f));
+        const hi = above(Math.ceil(f));
+        if (lo >= 0 && hi > lo) {
           lastF = f;
-          drawBlend(a, b, mix);
-        } else {
-          // neighbors not captured yet (or exactly on a frame): nearest frame
-          const bmp = frameAt(Math.round(f));
-          if (bmp) {
-            lastF = f;
-            drawBitmap(bmp);
-          }
+          const mix = Math.min(1, Math.max(0, (f - lo) / (hi - lo)));
+          drawBlend(frames[lo], frames[hi], mix);
+        } else if (lo >= 0 || hi >= 0) {
+          // only one side captured (or exactly on a frame): paint it flat
+          lastF = f;
+          drawBitmap(frames[lo >= 0 ? lo : hi]);
         }
       }
     } else if (
