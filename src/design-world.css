@@ -550,45 +550,262 @@
   color: #fff;
 }
 
-/* ---- contact ---- */
-.dw-cta {
-  display: inline-block;
-  font-size: clamp(2rem, 5.4vw, 4rem);
-  line-height: 1.05;
-  text-decoration: none;
-  transition: color 0.3s var(--ease-soft);
+/* ---- contact: the "and that's a wrap" finale ----
+   An opened pink envelope with a handwritten sign-off, wrapped by heavy
+   display type in two corners. On desktop it's a fixed-aspect POSTER: every
+   element is placed in a 1690x950 stage through --u (container-query units) so
+   the composition holds exactly like the reference at any width. Below 768px
+   the same pieces fall back to a legible vertical stack. The envelope internals
+   are %-based (with their own container for the note text), so the envelope
+   scales in either mode. */
+#dw-contact .cvf-body {
+  padding: 0;
+  /* NOT overflow:hidden — the frame's selection handles live just outside this
+     box and would be clipped. The poster clips itself via .dwc instead. */
+  background: #eae3d5;
 }
 
-.dw-cta:hover {
-  color: var(--dw-accent);
-}
-
-.dw-links {
-  margin-top: 2.4rem;
+.dwc {
+  --wrap-ink: #17150f;
+  --wrap-pink: #cf6f97; /* the muted rose of the contact rows */
+  position: relative;
+  background: #eae3d5; /* warm paper, matching the frame's fill swatch */
+  color: var(--wrap-ink);
+  font-family: var(--font-ui);
+  /* base = mobile: a simple centred stack */
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: 1.6rem;
+  padding: clamp(2rem, 7vw, 3rem) clamp(1.4rem, 5vw, 2.6rem);
 }
 
-.dw-links a {
-  font-size: 0.85rem;
-  font-weight: 550;
-  color: var(--dw-board-dim);
+.dwc-big {
+  font-family: var(--font-sans);
+  font-weight: 900;
+  font-stretch: 105%;
+  letter-spacing: -0.03em;
+  line-height: 0.84;
+  color: var(--wrap-ink);
+}
+.dwc-big--tr {
+  font-size: clamp(2.4rem, 12vw, 3.6rem);
+}
+.dwc-big--bl {
+  font-size: clamp(2.8rem, 15vw, 4.6rem);
+  order: 6; /* "a wrap." closes the mobile stack */
+}
+
+.dwc-links {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+.dwc-links a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.8rem;
+  width: fit-content;
+  font-size: clamp(0.9rem, 3.4vw, 1.02rem);
+  color: var(--wrap-pink);
   text-decoration: none;
-  border-bottom: 1px solid var(--dw-board-line);
+  transition: color 0.2s var(--ease-soft);
+}
+.dwc-links a:hover {
+  color: #ab4b74;
+}
+
+.dwc-ico {
+  flex: none;
+  width: 2.5em;
+  height: 2.5em;
+  display: grid;
+  place-items: center;
+  border: 1.5px solid currentColor;
+  border-radius: 0.6em;
+  transition: border-color 0.2s var(--ease-soft);
+}
+.dwc-ico--txt {
+  font-family: var(--font-sans);
+  font-weight: 800;
+  font-size: 0.92em;
+  letter-spacing: -0.03em;
+}
+
+.dwc-sec {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.dwc-sec a {
+  width: fit-content;
+  font-size: 0.82rem;
+  font-weight: 550;
+  color: #6b6154;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(40, 35, 25, 0.2);
   padding-bottom: 2px;
-  transition: color 0.25s var(--ease-soft), border-color 0.25s var(--ease-soft);
+  transition: color 0.2s var(--ease-soft), border-color 0.2s var(--ease-soft);
+}
+.dwc-sec a span {
+  color: var(--wrap-pink);
+}
+.dwc-sec a:hover {
+  color: var(--wrap-ink);
+  border-color: var(--wrap-ink);
+}
+.dwc-edu {
+  margin-top: 0.35rem;
+  font-size: 0.72rem;
+  color: #8a8070;
 }
 
-.dw-links a:hover {
-  color: var(--dw-accent);
-  border-color: var(--dw-accent);
+/* the opened envelope — internals are % of the envelope box, which is its own
+   query container so the handwriting scales with it */
+.dwc-env {
+  container-type: inline-size;
+  position: relative;
+  width: min(430px, 92%);
+  aspect-ratio: 900 / 670;
+  align-self: center;
+  margin-top: 0.4rem;
+}
+.dwc-env-back,
+.dwc-env-front {
+  position: absolute;
+}
+.dwc-env-back {
+  left: 3%;
+  top: 15%;
+  width: 94%;
+  height: 83%;
+  z-index: 1;
+  background: linear-gradient(#f0a0c8, #e888ba);
+  border-radius: 5px 5px 9px 9px;
+}
+.dwc-note {
+  position: absolute;
+  left: 11%;
+  top: 0;
+  width: 78%;
+  height: 80%;
+  z-index: 2;
+  transform: rotate(-1.1deg);
+  background-color: #fffdf9;
+  background-image: repeating-linear-gradient(
+    #fffdf9 0 calc(1.55em - 1px),
+    rgba(120, 132, 156, 0.22) calc(1.55em - 1px) 1.55em
+  );
+  border-radius: 2px;
+  box-shadow: 0 10px 24px rgba(70, 45, 55, 0.18);
+  padding: 6% 7% 11%;
+  overflow: hidden;
+  font-family: "Caveat", cursive;
+  font-size: 3.8cqw;
+  line-height: 1.55em;
+  color: #33302b;
+}
+.dwc-note p + p {
+  margin-top: 1.55em;
+}
+.dwc-env-front {
+  left: 3%;
+  top: 67%;
+  width: 94%;
+  height: 31%;
+  z-index: 3;
+  background: linear-gradient(155deg, #f9c0dc, #ef9ec6 72%);
+  /* the front pocket: a downward V-notch at top-centre where the note emerges */
+  clip-path: polygon(0 0, 50% 30%, 100% 0, 100% 100%, 0 100%);
+}
+/* a soft crease down the pocket's seams, and a shadow under its top edge */
+.dwc-env-front::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  clip-path: polygon(0 0, 50% 30%, 100% 0, 50% 44%);
+  background: rgba(180, 90, 130, 0.16);
 }
 
-.dw-edu {
-  margin-top: 1.6rem;
-  font-size: 0.8rem;
-  color: var(--dw-board-dim);
+/* ---- desktop: the fixed-aspect poster ---- */
+@media (min-width: 768px) {
+  .dwc {
+    --u: calc(100cqw / 1690);
+    container-type: inline-size;
+    display: block;
+    aspect-ratio: 1690 / 950;
+    padding: 0;
+    overflow: hidden; /* clip poster bleed to the artboard (handles are outside .dwc) */
+  }
+
+  .dwc-big {
+    position: absolute;
+    margin: 0;
+  }
+  .dwc-big--tr {
+    top: calc(58 * var(--u));
+    right: calc(70 * var(--u));
+    text-align: right;
+    font-size: calc(150 * var(--u));
+    z-index: 5;
+  }
+  .dwc-big--bl {
+    left: calc(54 * var(--u));
+    bottom: calc(36 * var(--u));
+    font-size: calc(190 * var(--u));
+    z-index: 5;
+  }
+
+  .dwc-links {
+    position: absolute;
+    left: calc(70 * var(--u));
+    top: calc(80 * var(--u));
+    gap: calc(24 * var(--u));
+    z-index: 6;
+  }
+  .dwc-links a {
+    gap: calc(20 * var(--u));
+    font-size: calc(26 * var(--u));
+  }
+  .dwc-ico {
+    width: calc(54 * var(--u));
+    height: calc(54 * var(--u));
+    border-width: calc(1.6 * var(--u));
+    border-radius: calc(13 * var(--u));
+  }
+  .dwc-ico svg {
+    width: calc(24 * var(--u));
+    height: calc(24 * var(--u));
+  }
+  .dwc-ico--txt {
+    font-size: calc(25 * var(--u));
+  }
+
+  .dwc-sec {
+    position: absolute;
+    left: calc(72 * var(--u));
+    top: calc(336 * var(--u));
+    gap: calc(11 * var(--u));
+    z-index: 6;
+  }
+  .dwc-sec a {
+    font-size: calc(19 * var(--u));
+    padding-bottom: calc(2 * var(--u));
+  }
+  .dwc-edu {
+    margin-top: calc(8 * var(--u));
+    font-size: calc(16 * var(--u));
+  }
+
+  .dwc-env {
+    position: absolute;
+    left: calc(372 * var(--u));
+    top: calc(236 * var(--u));
+    width: calc(1000 * var(--u));
+    height: calc(710 * var(--u));
+    aspect-ratio: auto;
+    margin: 0;
+  }
 }
 
 /* ============ the properties panel (right) ============ */

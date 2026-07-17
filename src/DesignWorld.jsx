@@ -6,6 +6,7 @@
 // Chrome speaks Inter (Figma's UI font); the hero headline keeps the wide
 // Archivo display type — the one identity thread shared across surfaces.
 import { motion } from "framer-motion";
+import { Mail } from "lucide-react";
 import FigmaPanel from "./FigmaPanel.jsx";
 import WorldTabs from "./WorldTabs.jsx";
 import useSectionSpy from "./useSectionSpy.js";
@@ -75,10 +76,11 @@ const FRAMES = [
   {
     id: "dw-contact",
     name: "contact",
-    props: { x: 0, y: 3240, w: 1440, h: 460, fill: "#F6F5F2" },
+    props: { x: 0, y: 3240, w: 1440, h: 810, fill: "#EAE3D5" },
     children: [
-      { icon: "text", name: "say-hello" },
-      { icon: "text", name: "education" },
+      { icon: "text", name: "and that's a wrap" },
+      { icon: "component", name: "envelope" },
+      { icon: "text", name: "contact-links" },
     ],
   },
 ];
@@ -378,28 +380,73 @@ export default function DesignWorld() {
             </div>
           </Frame>
 
-          {/* ============ contact ============ */}
+          {/* ============ contact — the "and that's a wrap" finale ============ */}
           <Frame frame={FRAMES[5]} active={activeSection === "dw-contact"} area="1 / span 12">
-            <a className="dw-cta display" href={EMAIL}>
-              Say hello <span aria-hidden="true">&rarr;</span>
-            </a>
-            <div className="dw-links">
-              <a href={EMAIL}>mrinalibhardwaj0705@gmail.com</a>
-              <a href={LINKEDIN} target="_blank" rel="noreferrer">
-                LinkedIn
-              </a>
-              <a href={BEHANCE} target="_blank" rel="noreferrer">
-                Behance
-              </a>
-              <a href="/resume-design.docx" download>
-                Design resume
-              </a>
-              <a href="#">Back to the start</a>
+            <div className="dwc">
+              {/* the display type wraps the envelope: top-right + bottom-left */}
+              <p className="dwc-big dwc-big--tr" aria-hidden="true">
+                and
+                <br />
+                that&rsquo;s
+              </p>
+              <h2 className="dwc-big dwc-big--bl">a wrap.</h2>
+
+              {/* channels, top-left — real destinations, not the mockup's handles */}
+              <ul className="dwc-links" aria-label="Get in touch">
+                <li>
+                  <a href={EMAIL}>
+                    <span className="dwc-ico" aria-hidden="true">
+                      <Mail size={22} strokeWidth={1.5} />
+                    </span>
+                    mrinalibhardwaj0705@gmail.com
+                  </a>
+                </li>
+                <li>
+                  <a href={LINKEDIN} target="_blank" rel="noreferrer">
+                    <span className="dwc-ico dwc-ico--txt" aria-hidden="true">
+                      in
+                    </span>
+                    LinkedIn
+                  </a>
+                </li>
+                <li>
+                  <a href={BEHANCE} target="_blank" rel="noreferrer">
+                    <span className="dwc-ico dwc-ico--txt" aria-hidden="true">
+                      Bē
+                    </span>
+                    Behance
+                  </a>
+                </li>
+              </ul>
+
+              <div className="dwc-sec">
+                <a href="/resume-design.docx" download>
+                  Design resume <span aria-hidden="true">&darr;</span>
+                </a>
+                <a href="#">Back to the start</a>
+                <p className="dwc-edu">
+                  B.Tech CSE, Vellore Institute of Technology &middot; CGPA 8.34
+                  &middot; 2023&ndash;2027
+                </p>
+              </div>
+
+              {/* the opened envelope + the handwritten sign-off */}
+              <div className="dwc-env">
+                <span className="dwc-env-back" aria-hidden="true" />
+                <div className="dwc-note">
+                  <p>
+                    Thank you so much for taking the time to look through my
+                    portfolio! I truly appreciate the opportunity to learn and
+                    grow.
+                  </p>
+                  <p>
+                    If you&rsquo;re interested in working together, I&rsquo;d
+                    love to chat.
+                  </p>
+                </div>
+                <span className="dwc-env-front" aria-hidden="true" />
+              </div>
             </div>
-            <p className="dw-edu">
-              B.Tech CSE, Vellore Institute of Technology · CGPA 8.34 · 2023 –
-              2027
-            </p>
           </Frame>
         </div>
       </div>
