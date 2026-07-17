@@ -2,6 +2,25 @@
 
 Decisions that survive rebuilds. Append, don't rewrite history.
 
+## 2026-07-18 — Two handwriting voices: Kalam (design) vs Caveat (Notes)
+
+The design world's contact envelope was rebuilt to match her reference art
+exactly (opened flap-seam peak behind the note, hand-torn top edge on the
+lined paper, wrinkle-creases, the note pulled out of a brighter front pocket).
+
+- **The note's hand is Kalam, not Caveat, on purpose.** The reference sign-off
+  is an *upright print* handwriting; Caveat (the Notes scrapbook's pencil) is a
+  looser slanted cursive and reads wrong for it. So the portfolio now runs two
+  deliberately different handwriting faces: **Kalam = the design world's ink
+  note**, **Caveat = the `#/notes` scrapbook**. Don't collapse them to one.
+- **Kalam sets ~15% wider than Caveat**, so porting text between the two hands
+  overflows — the envelope note had to grow and drop to ~3.05cqw to fit. If you
+  ever re-flow that note, re-check it doesn't clip behind the front pocket
+  (measure `scrollHeight > clientHeight`).
+- Content stayed real (her email/links) and clean (mockup typos fixed) — only
+  the drawing and the hand were copied from the reference. See the contact
+  finale entry below for the poster/`--u` mechanics.
+
 ## 2026-07-17 — The Notes app: the scrapbook comes back from the dead
 
 Her brief: a Notes app in the dock between VS Code and Photos, holding the
