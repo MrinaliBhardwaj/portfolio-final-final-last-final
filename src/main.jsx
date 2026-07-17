@@ -10,6 +10,10 @@ import "@fontsource/cormorant-garamond/400.css";
 import "@fontsource/cormorant-garamond/500.css";
 import "@fontsource/cormorant-garamond/600.css";
 import "@fontsource/space-mono/400.css";
+// the scrapbook's pencil hand (Notes). Without it every handwritten note in
+// the archive falls back to `cursive` — Comic Sans on Windows.
+import "@fontsource/caveat/400.css";
+import "@fontsource/caveat/600.css";
 import App from "./App.jsx";
 import "./index.css";
 

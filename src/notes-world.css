@@ -1,0 +1,411 @@
+/* ============ NOTES: the recovered scrapbook ============ */
+/* The scene rules below are RECOVERED CSS (scene.css + scene-two.css, written
+   25–26 June 2026, deleted before git init, reconstructed from the session
+   transcripts and verified against their full-file Read snapshots). They are
+   reproduced as-is apart from one mechanical change: every selector is scoped
+   under `.nw` — the originals were scoped under `.archive`, and `.sheet` /
+   `.scene-two` weren't scoped at all, which would leak into other worlds here.
+   Don't "tidy" the magic numbers: they're Figma-space coordinates on a fixed
+   stage, and `--u` converts them to viewport units. Change one and the collage
+   drifts. */
+
+.nw {
+  --paper: #f4f1e8;
+  --ink: #1c1c1a;
+  --pink: #ef93af;
+  --dot: #f2789f;
+  --pencil: #a39c90;
+  --notes-gold: #d9a943;
+  /* what a sheet spends on things that aren't art: toolbar 44 + top pad 24 +
+     the floating dock's strip 104. The stage caps below size the collages to
+     whatever height is left. */
+  --nw-chrome: 172px;
+  position: relative;
+  width: 100%;
+  min-height: 100dvh;
+  padding-top: 44px; /* clears the fixed toolbar */
+  background: var(--paper);
+  color: var(--ink);
+  overflow-x: clip;
+}
+
+/* ---- app chrome: monogram + name left, close right (gallery convention) ---- */
+.nw-top {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 44px;
+  z-index: 45;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding-left: 18px;
+  background: rgba(244, 241, 232, 0.86);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid rgba(60, 55, 45, 0.14);
+}
+
+.nw-mark {
+  font-family: "Pinyon Script", cursive;
+  font-size: 21px;
+  line-height: 1;
+  color: var(--ink);
+  transform: translateY(-2px);
+}
+
+.nw-app {
+  font-family: var(--font-ui);
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: #b08420; /* the Notes gold, darkened to hold contrast on paper */
+}
+
+.nw-close {
+  margin-left: auto;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  color: #6f6a61;
+  transition: color 0.2s var(--ease-soft), background-color 0.2s var(--ease-soft);
+}
+
+.nw-close:hover {
+  color: var(--ink);
+  background: rgba(60, 55, 45, 0.07);
+}
+
+.nw-coda {
+  padding: 0 24px 7rem; /* deep tail: the dock floats over the bottom */
+  text-align: center;
+  font-family: "Caveat", cursive;
+  font-size: 21px;
+  color: var(--pencil);
+}
+
+/* ---- Each page of the archive is a full-viewport sheet you scroll between.
+   The sheet fills what's left under the toolbar, and reserves the floating
+   dock's strip at the bottom: these collages are fixed-aspect, so nothing can
+   be padded out of the dock's way from the inside — the art has to be sized to
+   fit the clear space instead (see the stage caps below). ---- */
+.nw .sheet {
+  min-height: calc(100dvh - 44px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  padding: 24px 0 104px;
+  scroll-margin-top: 44px; /* land below the toolbar, not under it */
+}
+
+/* Named `nw-stage`, not the original `stage`: DomeGallery.css ships an
+   UNSCOPED `.stage { height:100%; display:grid; contain:layout paint size }`
+   which is vendored verbatim and must not be edited. Under a `.stage` here it
+   won — my rule never declared display/contain — so size containment collapsed
+   the sheet to 0×0 and paint containment clipped the whole collage away: a
+   blank sheet of paper with the art laid out invisibly inside it. */
+.nw .nw-stage {
+  container-type: inline-size;
+  width: 100%;
+  margin: 0 auto;
+}
+
+/* Each sheet is sized by WIDTH (the scene sets its own aspect-ratio), so the
+   only way to stop a collage growing taller than the clear space is to cap its
+   width at `available height x aspect`. --nw-chrome is what the sheet spends on
+   everything that isn't art: toolbar 44 + top padding 24 + dock strip 104.
+   The multipliers are the scenes' own aspect ratios — 1700/956 and 1485/1075.
+   Keep all four numbers in step or the art will dip under the dock again. */
+.nw .sheet-one .nw-stage {
+  max-width: min(1700px, calc((100dvh - var(--nw-chrome)) * 1.7782));
+}
+.nw .sheet-two .nw-stage {
+  max-width: min(1400px, calc((100dvh - var(--nw-chrome)) * 1.3814));
+}
+.nw .scene {
+  --u: calc(100cqw / 1700);
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1700 / 956;
+  background: var(--paper);
+  overflow: hidden;
+}
+.nw .lines { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+
+/* ---- Body copy ---- */
+.nw .copy {
+  position: absolute;
+  font-family: var(--font-ui);
+  font-size: calc(31 * var(--u));
+  line-height: 1.42;
+  letter-spacing: calc(0.1 * var(--u));
+  color: var(--ink);
+}
+.nw .copy-top { left: calc(92 * var(--u)); top: calc(86 * var(--u)); }
+.nw .copy-bottom {
+  right: calc(95 * var(--u));
+  top: calc(672 * var(--u));
+  width: calc(1010 * var(--u));
+  text-align: right;
+  line-height: 1.46;
+  white-space: nowrap;
+}
+.nw .copy-bottom .punch { font-weight: 700; }
+
+/* ---- Pink micro-labels ---- */
+.nw .micro {
+  position: absolute;
+  font-family: var(--font-ui);
+  font-size: calc(19 * var(--u));
+  color: var(--pink);
+  letter-spacing: calc(0.2 * var(--u));
+  text-align: center;
+}
+.nw .micro-left  { left: calc(380 * var(--u));  top: calc(300 * var(--u)); width: calc(240 * var(--u)); }
+.nw .micro-right { left: calc(1079 * var(--u)); top: calc(512 * var(--u)); width: calc(200 * var(--u)); }
+
+/* ---- Polaroids ---- */
+.nw .mount { position: absolute; }
+.nw .mount-left  { left: calc(417 * var(--u));  top: calc(347 * var(--u)); width: calc(165 * var(--u)); height: calc(252 * var(--u)); }
+.nw .mount-right { left: calc(1093 * var(--u)); top: calc(216 * var(--u)); width: calc(172 * var(--u)); height: calc(292 * var(--u)); }
+.nw .polaroid {
+  width: 100%;
+  height: 100%;
+  background: #fffdf8;
+  padding: calc(8 * var(--u)) calc(8 * var(--u)) calc(15 * var(--u));
+  box-shadow:
+    0 calc(16 * var(--u)) calc(28 * var(--u)) rgba(40, 35, 25, 0.18),
+    0 calc(2 * var(--u)) calc(5 * var(--u)) rgba(40, 35, 25, 0.12);
+}
+.nw .mount-left  .polaroid { transform: rotate(-1.5deg); }
+.nw .mount-right .polaroid { transform: rotate(2.5deg); }
+.nw .slot {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: #e9e6dc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-ui);
+  font-size: calc(15 * var(--u));
+  font-style: italic;
+  letter-spacing: calc(0.3 * var(--u));
+  color: #9a9588;
+}
+.nw .corner {
+  position: absolute;
+  width: calc(17 * var(--u));
+  height: calc(17 * var(--u));
+  background: rgba(38, 33, 24, 0.42);
+}
+.nw .corner.tl { top: 0; left: 0;  clip-path: polygon(0 0, 100% 0, 0 100%); }
+.nw .corner.tr { top: 0; right: 0; clip-path: polygon(0 0, 100% 0, 100% 100%); }
+.nw .corner.bl { bottom: 0; left: 0;  clip-path: polygon(0 0, 0 100%, 100% 100%); }
+.nw .corner.br { bottom: 0; right: 0; clip-path: polygon(100% 0, 100% 100%, 0 100%); }
+
+/* Hand-drawn pencil loop standing in for each milestone dot. */
+.nw .scrib {
+  fill: none;
+  stroke: var(--dot);
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* ---- Milestone labels ---- */
+.nw .milestone {
+  position: absolute;
+  transform: translateX(-50%);
+  font-family: var(--font-ui);
+  font-size: calc(12 * var(--u));
+  letter-spacing: calc(0.2 * var(--u));
+  color: var(--pink);
+  white-space: nowrap;
+  text-align: center;
+}
+
+/* ---- "pull for profile" pencil note (a button) ---- */
+.nw .pull {
+  position: absolute;
+  left: calc(1378 * var(--u));
+  top: calc(296 * var(--u));
+  appearance: none;
+  border: none;
+  background: none;
+  padding: 0;
+  font-family: "Caveat", cursive;
+  font-size: calc(33 * var(--u));
+  font-style: italic;
+  color: var(--pencil);
+  transform: rotate(-7deg);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color 0.25s ease;
+}
+.nw .pull:hover { color: var(--pink); }
+
+/* ---- Vertical file tab (the opener) ---- */
+.nw .archive-tab {
+  position: absolute;
+  right: 0;
+  top: calc(176 * var(--u));
+  width: calc(90 * var(--u));
+  height: calc(192 * var(--u));
+  appearance: none;
+  background: var(--paper);
+  border: calc(1 * var(--u)) solid rgba(60, 55, 45, 0.22);
+  border-right: none;
+  border-top-left-radius: calc(7 * var(--u));
+  border-bottom-left-radius: calc(7 * var(--u));
+  box-shadow: calc(-3 * var(--u)) calc(3 * var(--u)) calc(10 * var(--u)) rgba(40, 35, 25, 0.07);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.3s ease;
+}
+.nw .archive-tab:hover {
+  transform: translateX(calc(-6 * var(--u)));
+  box-shadow: calc(-8 * var(--u)) calc(4 * var(--u)) calc(18 * var(--u)) rgba(40, 35, 25, 0.12);
+}
+.nw .archive-tab span {
+  font-family: "Space Mono", "Courier New", monospace;
+  font-size: calc(13 * var(--u));
+  letter-spacing: calc(3 * var(--u));
+  color: #8d877b;
+  transform: rotate(90deg);
+  white-space: nowrap;
+}
+
+/* ---- Reveal: page one assembles itself, left to right ---- */
+@media (prefers-reduced-motion: no-preference) {
+  .nw .dot  { transform-box: fill-box; transform-origin: center; }
+  .nw .draw { stroke-dasharray: 1; }
+
+  .nw .rise { animation: nw-rise 0.9s cubic-bezier(0.16, 1, 0.3, 1) both; animation-delay: var(--d, 0s); }
+  .nw .fade { animation: nw-fade 1s ease both; animation-delay: var(--d, 0s); }
+  .nw .dot  { animation: nw-pop 0.55s cubic-bezier(0.22, 1, 0.36, 1) both; animation-delay: var(--d, 0s); }
+  .nw .draw { animation: nw-draw 1.3s ease both; animation-delay: var(--d, 0s); }
+
+  @keyframes nw-rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes nw-fade { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes nw-pop  { from { opacity: 0; transform: scale(0); } to { opacity: 1; transform: scale(1); } }
+  @keyframes nw-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+}
+
+/* ============ page two: the tech desk collage ============ */
+.nw .scene-two {
+  --u: calc(100cqw / 1485);
+  --t-ink: #2c2823;
+  --t-grey: #6f6a61;
+  --t-pencil: #514c44;
+  --t-blue: #828aa6;
+  --t-pink: #c98ca0;
+  --t-dot: #e2a0b4;
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1485 / 1075;
+}
+
+/* ---- Narrative copy (same system as page one) ---- */
+.nw .scene-two .t-copy {
+  position: absolute;
+  z-index: 5;
+  font-family: var(--font-ui);
+  font-size: calc(27 * var(--u));
+  line-height: 1.5;
+  letter-spacing: calc(0.1 * var(--u));
+  color: var(--t-ink);
+}
+
+/* ---- Tape ---- */
+.nw .scene-two .tape {
+  position: absolute;
+  z-index: 4;
+  background: rgba(207, 197, 176, 0.4);
+  border-left: 1px solid rgba(150, 140, 120, 0.14);
+  border-right: 1px solid rgba(150, 140, 120, 0.14);
+  box-shadow: 0 calc(2 * var(--u)) calc(5 * var(--u)) rgba(60, 50, 30, 0.05);
+}
+.nw .scene-two .tape::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.16) 0, rgba(255, 255, 255, 0.16) 2px, transparent 2px, transparent 7px);
+}
+
+/* ---- Pencil margin work around the centerpiece ---- */
+.nw .scene-two .t2-note {
+  position: absolute;
+  z-index: 4;
+  font-family: "Caveat", cursive;
+  color: #514c44;
+  white-space: nowrap;
+  line-height: 1.3;
+}
+.nw .scene-two .t2-note .t2-mut { color: #8a8478; }
+.nw .scene-two .t2-head { position: relative; display: inline-block; }
+.nw .scene-two .t2-uline {
+  position: absolute;
+  left: 0;
+  bottom: calc(-6 * var(--u));
+  width: 100%;
+  height: calc(8 * var(--u));
+  overflow: visible;
+}
+.nw .scene-two .t2-arrow { position: absolute; z-index: 4; overflow: visible; }
+.nw .scene-two .t2-spark { color: var(--t-pink); }
+
+.nw .scene-two .t2-card { position: absolute; z-index: 4; }
+.nw .scene-two .t2-box {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.nw .scene-two .t2-card-body {
+  position: relative;
+  z-index: 1;
+  padding: calc(18 * var(--u)) calc(20 * var(--u));
+  font-family: "Caveat", cursive;
+  font-size: calc(24 * var(--u));
+  color: #514c44;
+  white-space: nowrap;
+  line-height: 1.3;
+}
+
+/* ---- Centerpiece reference image ---- */
+.nw .scene-two .t2-ref {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  z-index: 2;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.nw .scene-two .archive-tab,
+.nw .scene-two .pull { z-index: 6; }
+
+/* ---- Mobile: the collages are fixed-aspect wide compositions. Below ~700px
+   they'd be postage stamps, so the sheets stop filling the viewport and the
+   pages simply stack at whatever width is left. ---- */
+@media (max-width: 700px) {
+  .nw .sheet {
+    min-height: 0;
+    padding: 28px 0;
+  }
+  /* let width drive the art here: capping by height on a short phone viewport
+     would shrink these wide collages to postage stamps. They stack and the
+     page scrolls instead. */
+  .nw .sheet-one .nw-stage,
+  .nw .sheet-two .nw-stage {
+    max-width: none;
+  }
+}

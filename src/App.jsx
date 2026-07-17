@@ -13,6 +13,7 @@ import Cover from "./Cover.jsx";
 import DesignWorld from "./DesignWorld.jsx";
 import TechWorld from "./TechWorld.jsx";
 import GalleryWorld from "./GalleryWorld.jsx";
+import NotesWorld from "./NotesWorld.jsx";
 import PondWorld from "./PondWorld.jsx";
 import Dock from "./Dock.jsx";
 import DesignCursor from "./DesignCursor.jsx";
@@ -24,6 +25,7 @@ import "./figma-panel.css";
 import "./file-tree.css";
 import "./tech-world.css";
 import "./gallery-world.css";
+import "./notes-world.css";
 import "./pond-world.css";
 
 const TITLES = {
@@ -31,6 +33,7 @@ const TITLES = {
   design: "Mrinali Bhardwaj - Design",
   tech: "Mrinali Bhardwaj - Tech",
   gallery: "Mrinali Bhardwaj - Gallery",
+  notes: "Mrinali Bhardwaj - Notes",
   pond: "Mrinali Bhardwaj - Lotus Pond",
 };
 
@@ -38,6 +41,7 @@ const WIPE_BG = {
   design: "#1e1e1e",
   tech: "#090d0b",
   gallery: "#05040a",
+  notes: "#f4f1e8", // the scrapbook's paper — the one light world
   pond: "#0b0f1e", // froggie's deep sky, so the wipe lands on the pond's own night
 };
 
@@ -51,6 +55,8 @@ function getRoute() {
   // "engineering" kept as an alias for links already in circulation
   if (hash === "tech" || hash === "engineering") return "tech";
   if (hash === "gallery") return "gallery";
+  // the dock calls it Notes; it holds the archived first draft of the site
+  if (hash === "notes") return "notes";
   // the dock calls it the Game; the piece calls itself the pond
   if (hash === "pond" || hash === "game") return "pond";
   return "";
@@ -148,6 +154,18 @@ export default function App() {
             transition={{ duration: 0.32 }}
           >
             <GalleryWorld />
+          </motion.div>
+        )}
+
+        {route === "notes" && (
+          <motion.div
+            key="notes"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.32 }}
+          >
+            <NotesWorld />
           </motion.div>
         )}
 

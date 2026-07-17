@@ -97,6 +97,9 @@ html[data-world="tech"] {
 html[data-world="gallery"] {
   background: #05040a;
 }
+html[data-world="notes"] {
+  background: #f4f1e8;
+}
 html[data-world="pond"] {
   background: #0b0f1e;
 }

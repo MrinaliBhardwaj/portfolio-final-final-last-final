@@ -42,4 +42,7 @@ function pondShot() {
 
 export default defineConfig({
   plugins: [react(), pondShot()],
+  // honor a harness-assigned port (Claude's preview pane sets PORT when 5173
+  // is taken by another session); otherwise vite's own default applies
+  server: process.env.PORT ? { port: Number(process.env.PORT) } : undefined,
 });

@@ -2,6 +2,56 @@
 
 Decisions that survive rebuilds. Append, don't rewrite history.
 
+## 2026-07-17 — The Notes app: the scrapbook comes back from the dead
+
+Her brief: a Notes app in the dock between VS Code and Photos, holding the
+first-draft story — design side first, scrolling into the tech side.
+
+- **What the content actually is.** My first pass filled Notes with
+  `_archive/`'s `DesignSide.jsx`/`EngineeringSide.jsx` and she rejected it:
+  she meant the **"meet mini mri" scrapbook** — page one, the design origin
+  story (eleven years old, a camera, two polaroids, milestones from "first
+  video" to "600 followers"); page two, the tech story desk collage. Different,
+  earlier draft. `_archive/` never held it.
+- **It was recovered from session transcripts, not rewritten.** `Scene.jsx`,
+  `SceneTwo.jsx` + their CSS were written 25–26 June 2026 and deleted in the
+  lotus rebuild BEFORE `git init` (9 July) — they appear in **no commit**;
+  `git log --all` for those paths is empty. They were reconstructed by parsing
+  `~/.claude/projects/**/*.jsonl`, replaying each file's Write→Edit chain in
+  timestamp order, and checking the result against the full-file **Read
+  snapshots** taken 1 July. Four of the files replayed byte-identical to their
+  snapshot, which is why this is a restoration and not a guess. **The
+  transcripts are the only copy — treat `Scene.jsx`/`SceneTwo.jsx` as
+  artifacts.** Don't "improve" the art; the magic numbers are Figma-space
+  coordinates on a fixed stage (`--u` converts them) and moving one drifts the
+  collage. The recovery script pattern is worth repeating if anything else
+  pre-git is ever wanted back.
+- **`public/tech-discovery.png` survived on disk** and is page two's
+  centerpiece (the pencil wireframe flow). `public/hero/` textures survived too.
+- **Notes is the portfolio's one LIGHT world**, paper `#f4f1e8`. Every other
+  world is dark; the scrapbook is paper and Apple Notes is paper, so the app
+  and its contents agree rather than fight. Its wipe + `data-world` bg match.
+- **The PROFILE tabs became real navigation.** `onOpen` used to open the
+  retired `ArchivePanel` drawer. That profile is a real destination now, so
+  page one's `PROFILE.TXT` + "pull for profile" open `#/design` and page two's
+  `PROFILE.DOC` opens `#/tech` — the same gesture, and each story hands off to
+  the world it grew into. The drawer itself was NOT restored.
+- **GOTCHA — `DomeGallery.css` ships an UNSCOPED `.stage`** (`height:100%;
+  display:grid; contain:layout paint size`). It is vendored verbatim and must
+  not be edited, and it silently won here: my `.stage` rule never declared
+  `display`/`contain`, so size containment collapsed the sheet to 0×0 and paint
+  containment clipped the collage away — **a blank sheet of paper with the art
+  laid out invisibly inside it**. Fixed by renaming mine to `.nw-stage`. Any
+  future world must avoid the bare class names DomeGallery exports.
+- **The dock forced the art's size.** These collages are fixed-aspect, so
+  nothing can be padded clear of the floating dock from the inside — at rest
+  the dock sat on the closing line of BOTH stories. Each stage is therefore
+  capped at `available height x aspect` via `--nw-chrome: 172px` (toolbar 44 +
+  pad 24 + dock strip 104). Keep `--nw-chrome`, the two aspect multipliers
+  (1.7782 = 1700/956, 1.3814 = 1485/1075) and the sheet padding in step.
+- **`@fontsource/caveat` added** — the whole scrapbook is handwriting, and
+  without it `cursive` falls back to **Comic Sans** on Windows.
+
 ## 2026-07-16 — The cursor gets its name tag; the hero frame turns pink
 
 Follow-up to the entry below, same day. Her brief: attach a rounded "Mrinali"

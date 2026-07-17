@@ -10,10 +10,11 @@
 // place on its own hover (plain CSS scale, centred, no neighbor effect and no
 // lift) — matching the source component's `hover:scale-110` exactly, not a
 // pointer-distance "magnetic" simulation. Figma → design world, VS Code →
-// tech world, Gallery → the dome, Game → the Lotus Pond; Claude is still a
-// placeholder that responds but doesn't navigate.
+// tech world, Notes → the archived first drafts, Gallery → the dome, Game →
+// the Lotus Pond; Claude is still a placeholder that responds but doesn't
+// navigate.
 import { motion } from "framer-motion";
-import { Code2, Flower2 } from "lucide-react";
+import { Code2, Flower2, NotebookPen } from "lucide-react";
 
 const EASE = [0.22, 1, 0.36, 1];
 
@@ -123,6 +124,22 @@ export default function Dock({ visible, onChoose, active }) {
       world: "tech",
       action: () => onChoose("tech"),
       node: <Code2 className="dock-item-icon dock-item-icon--glyph" strokeWidth={1.4} aria-hidden="true" />,
+    },
+    {
+      // Apple Notes has no Simple Icons mark either, so like VS Code it
+      // keeps a line glyph — a notebook mid-write, since what it holds is
+      // the site's own first draft
+      key: "notes",
+      label: "Notes — the archived first drafts",
+      world: "notes",
+      action: () => onChoose("notes"),
+      node: (
+        <NotebookPen
+          className="dock-item-icon dock-item-icon--glyph"
+          strokeWidth={1.4}
+          aria-hidden="true"
+        />
+      ),
     },
     {
       key: "gallery",
