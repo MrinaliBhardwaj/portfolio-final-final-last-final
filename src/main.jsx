@@ -14,6 +14,10 @@ import "@fontsource/space-mono/400.css";
 // the archive falls back to `cursive` — Comic Sans on Windows.
 import "@fontsource/caveat/400.css";
 import "@fontsource/caveat/600.css";
+// the design world's sign-off note — upright print handwriting, the reference's
+// hand. Distinct from Caveat's looser cursive (which stays the Notes scrapbook).
+import "@fontsource/kalam/400.css";
+import "@fontsource/kalam/700.css";
 import App from "./App.jsx";
 import "./index.css";
 
