@@ -2,6 +2,32 @@
 
 Decisions that survive rebuilds. Append, don't rewrite history.
 
+## 2026-07-18 — Contact envelope: one true-transparent PNG, bottom-centre
+
+Final form of the contact art, superseding the two-cutout + 3-layer-tuck build
+in the entry below. She supplied a single combined image (envelope + letter
+already tucked) as a **true transparent PNG** — `public/contact-envelope.png`
+(1351×902 after bbox-crop). No more separate letter, no CSS tuck, no keying:
+it's one `<img class="dwc-env-photo">` floating on the cream.
+
+- **`public/contact-letter.png` is deleted**; the `.dwc-letter` /
+  `.dwc-envelope--front` layers and their front-pocket clip are gone. The note
+  text is baked into the image → it lives in the `<img alt>`.
+- **Positioned bottom-centre** (desktop poster): `left 452u / bottom 20u /
+  width 786u` in the 1690×950 stage — horizontally centred, anchored to the
+  floor, clearing the top-left contact cluster and "and that's", overlapping
+  only "a wrap." (black type reads fine over the pink). Mobile: just an item in
+  the stack.
+- **GOTCHA that cost a round-trip: an earlier export of this image was a
+  flattened transparency *preview*** — fully opaque with the grey/white
+  checkerboard baked in as pixels. It's unkeyable: the white letter and the
+  white/grey checker are the same brightness with no edge between, so any flood
+  threshold that clears the checker also eats the letter's exposed top. The fix
+  was to get a **real** transparent PNG (alpha 0 background), not a screenshot
+  of the checkerboard preview. If a future asset shows a checker, check
+  `getbbox`/alpha before trying to key — ask for a true-transparent or
+  solid-non-white-background export instead.
+
 ## 2026-07-18 — Contact envelope is now REAL photo assets, not CSS
 
 She supplied two of her own images — a pink opened envelope and a torn,

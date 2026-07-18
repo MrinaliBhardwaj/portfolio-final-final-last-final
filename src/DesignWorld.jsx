@@ -432,31 +432,15 @@ export default function DesignWorld() {
                 </p>
               </div>
 
-              {/* the opened envelope + handwritten sign-off — her own photo
-                  assets (white backgrounds keyed out to transparent). The note
-                  text is baked into the letter image, so it lives in the alt. */}
+              {/* the opened envelope + handwritten sign-off — her own photo,
+                  a single true-transparent PNG (envelope and note already
+                  composited and tucked). The note text is baked into the image,
+                  so it lives in the alt. */}
               <div className="dwc-env">
                 <img
-                  className="dwc-envelope"
+                  className="dwc-env-photo"
                   src="/contact-envelope.png"
-                  alt=""
-                  aria-hidden="true"
-                  draggable="false"
-                />
-                <img
-                  className="dwc-letter"
-                  src="/contact-letter.png"
-                  alt="A handwritten note: Thank you so much for taking the time to look through my portfolio! I truly appreciate new opportunities to learn and grow. If you're interested in working together, I'd love to chat."
-                  draggable="false"
-                />
-                {/* the same envelope again, clipped to just its front pocket and
-                    laid over the letter's foot, so the note tucks INTO the
-                    envelope instead of resting on top of it */}
-                <img
-                  className="dwc-envelope dwc-envelope--front"
-                  src="/contact-envelope.png"
-                  alt=""
-                  aria-hidden="true"
+                  alt="A handwritten note tucked in a pink envelope: Thank you so much for taking the time to look through my portfolio! I truly appreciate new opportunities to learn and grow. If you're interested in working together, I'd love to chat!"
                   draggable="false"
                 />
               </div>

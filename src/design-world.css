@@ -662,49 +662,23 @@
   color: #8a8070;
 }
 
-/* the opened envelope + letter — her own photo assets (white keyed out to
-   transparent). Two layers in this box: the envelope on the floor, the letter
-   rising out of the opening in front of it and tilted. Each image keeps its
-   own aspect via width%/height:auto; the box's aspect-ratio just frames the
-   pair, so the whole thing scales with --u on desktop and with the column on
-   mobile. */
+/* the opened envelope + handwritten letter — a single true-transparent PNG of
+   her own, floating directly on the cream (no card, no keying artefacts). The
+   box just carries the image's aspect; a soft drop-shadow grounds it. */
 .dwc-env {
-  position: relative;
   width: min(430px, 94%);
-  aspect-ratio: 1200 / 1010;
+  aspect-ratio: 1351 / 902;
   align-self: center;
   margin-top: 0.4rem;
 }
-.dwc-envelope,
-.dwc-letter {
-  position: absolute;
-  height: auto;
+.dwc-env-photo {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 16px 26px rgba(150, 70, 105, 0.2));
   user-select: none;
   -webkit-user-drag: none;
-}
-.dwc-envelope {
-  left: 4%;
-  bottom: 0;
-  width: 92%;
-  z-index: 1;
-  filter: drop-shadow(0 14px 24px rgba(150, 70, 105, 0.18));
-}
-.dwc-letter {
-  left: 10%;
-  top: 6%;
-  width: 80%;
-  z-index: 2;
-  transform: rotate(-2.5deg);
-  filter: drop-shadow(0 10px 18px rgba(70, 45, 55, 0.22));
-}
-/* a second copy of the envelope, same box, clipped to its front pocket only and
-   raised above the letter — the note appears to sit down inside the envelope.
-   Below the clip line it's identical pixels over the base envelope, so the cut
-   is seamless. */
-.dwc-envelope--front {
-  z-index: 3;
-  clip-path: inset(54% 0 0 0);
-  filter: none;
 }
 
 /* ---- desktop: the fixed-aspect poster ---- */
@@ -777,13 +751,16 @@
     font-size: calc(16 * var(--u));
   }
 
+  /* bottom-centre of the poster: horizontally centred (786 wide in a 1690
+     stage → 452 each side), anchored ~20 off the floor. Clears the top-left
+     contact cluster and "and that's"; overlaps only "a wrap." at the bottom,
+     where black type reads fine over the pink envelope. */
   .dwc-env {
     position: absolute;
-    left: calc(370 * var(--u));
-    top: calc(148 * var(--u));
-    width: calc(950 * var(--u));
-    height: calc(800 * var(--u));
-    aspect-ratio: auto;
+    left: calc(452 * var(--u));
+    bottom: calc(20 * var(--u));
+    width: calc(786 * var(--u));
+    aspect-ratio: 1351 / 902;
     margin: 0;
   }
 }
