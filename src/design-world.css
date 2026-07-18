@@ -751,15 +751,15 @@
     font-size: calc(16 * var(--u));
   }
 
-  /* bottom-centre of the poster: horizontally centred (786 wide in a 1690
-     stage → 452 each side), anchored ~20 off the floor. Clears the top-left
-     contact cluster and "and that's"; overlaps only "a wrap." at the bottom,
-     where black type reads fine over the pink envelope. */
+  /* bottom-centre of the poster: horizontally centred (920 wide in a 1690
+     stage → 385 each side), sitting flush on the poster floor. Clears the
+     top-left contact cluster and "and that's"; overlaps only "a wrap." at the
+     bottom, where black type reads fine over the pink envelope. */
   .dwc-env {
     position: absolute;
-    left: calc(452 * var(--u));
-    bottom: calc(20 * var(--u));
-    width: calc(786 * var(--u));
+    left: calc(385 * var(--u));
+    bottom: 0;
+    width: calc(920 * var(--u));
     aspect-ratio: 1351 / 902;
     margin: 0;
   }
