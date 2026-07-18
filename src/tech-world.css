@@ -116,6 +116,15 @@
 .ln {
   display: flex;
   align-items: flex-start;
+  /* .tw-editor has NO horizontal padding (it runs the gutter flush to the
+     buffer's edge, like a real editor) — but that means right-aligned content
+     (the CodeLens date/repo link, via margin-left:auto on .lens-r) sat flush
+     against the viewport/scrollbar edge with zero buffer, reading as "too far
+     right" and clipping on realistic window widths. This right padding is
+     scoped to the line row only (not .tw-editor itself), so it doesn't also
+     shift .mdp's independent README layout, which is nested inside
+     .tw-editor and keeps its own padding. */
+  padding-right: 1.25rem;
 }
 
 .ln::before {
@@ -168,7 +177,12 @@
   top: 61px; /* 35px tab strip + 26px breadcrumbs */
   z-index: 8;
   background: var(--tw-bg);
+  /* this shorthand used to reset .ln's padding-right back to 0 (its 2nd
+     value applies to both left+right), silently cancelling the buffer-edge
+     fix below — CodeLens lines are exactly where that fix mattered, since
+     the right-aligned date/repo-link lives on them. */
   padding: 0.55rem 0 0.4rem;
+  padding-right: 1.25rem;
 }
 
 .ln--lens::before {
