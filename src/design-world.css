@@ -311,13 +311,14 @@
 
 /* ============ artboard content ============ */
 
-/* The hero frame runs on the collaborator's pink instead of the canvas
-   vermilion — so the first thing you see agrees with the cursor in your hand.
-   Rebinding the token on the frame itself (rather than repainting each rule)
-   means anything accented INSIDE the hero follows automatically: the italic
-   "code." and the pinned comment's dot. Every other frame keeps vermilion —
-   notably the leadership frame, which is a solid --dw-accent field. */
-#dw-hero {
+/* The hero and leadership frames both run on the collaborator's pink instead
+   of the canvas vermilion — so the first thing you see, and the leadership
+   field, agree with the cursor in your hand. Rebinding the token on each
+   frame (rather than repainting individual rules) means anything accented
+   INSIDE follows automatically: the hero's italic "code." and pinned-comment
+   dot, and the leadership frame's own solid --dw-accent field. */
+#dw-hero,
+#dw-lead {
   --dw-accent: var(--dw-pink);
 }
 

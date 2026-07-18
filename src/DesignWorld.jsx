@@ -67,7 +67,7 @@ const FRAMES = [
   {
     id: "dw-lead",
     name: "leadership",
-    props: { x: 600, y: 2720, w: 840, h: 400, fill: "#E23A16" },
+    props: { x: 600, y: 2720, w: 840, h: 400, fill: "#F472B6" },
     children: [
       { icon: "image", name: "Riviera'26" },
       { icon: "image", name: "E-Cell" },
