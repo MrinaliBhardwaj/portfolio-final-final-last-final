@@ -42,6 +42,13 @@
   line-height: 1;
   color: var(--void-text);
   text-decoration: none;
+  cursor: pointer;
+  transition: opacity 0.25s var(--ease-soft);
+}
+
+.gw-mark:hover,
+.gw-mark:focus-visible {
+  opacity: 0.72;
 }
 
 .gw-label {

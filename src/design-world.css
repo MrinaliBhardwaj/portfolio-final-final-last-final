@@ -57,6 +57,7 @@
 }
 
 .dw-mark {
+  display: none; /* desktop home is the title-bar badge; this is the mobile one */
   font-family: var(--font-sans);
   font-stretch: 125%;
   font-weight: 900;
@@ -66,6 +67,7 @@
 }
 
 .dw-hello {
+  margin-left: auto; /* holds the right edge whether or not the mark is shown */
   font-size: 0.82rem;
   font-weight: 550;
   text-decoration: none;
@@ -660,102 +662,49 @@
   color: #8a8070;
 }
 
-/* the opened envelope — internals are % of the envelope box, which is its own
-   query container so the handwriting scales with it */
+/* the opened envelope + letter — her own photo assets (white keyed out to
+   transparent). Two layers in this box: the envelope on the floor, the letter
+   rising out of the opening in front of it and tilted. Each image keeps its
+   own aspect via width%/height:auto; the box's aspect-ratio just frames the
+   pair, so the whole thing scales with --u on desktop and with the column on
+   mobile. */
 .dwc-env {
-  container-type: inline-size;
   position: relative;
-  width: min(430px, 92%);
-  aspect-ratio: 900 / 670;
+  width: min(430px, 94%);
+  aspect-ratio: 1200 / 1010;
   align-self: center;
   margin-top: 0.4rem;
 }
-.dwc-env-back,
-.dwc-env-front {
+.dwc-envelope,
+.dwc-letter {
   position: absolute;
+  height: auto;
+  user-select: none;
+  -webkit-user-drag: none;
 }
-/* envelope back — the flap opened behind the note, a seam peak at top-centre */
-.dwc-env-back {
+.dwc-envelope {
   left: 4%;
-  top: 5%;
+  bottom: 0;
   width: 92%;
-  height: 93%;
   z-index: 1;
-  background: linear-gradient(#f1a3cb, #ea8dc0 58%, #e483bb);
-  clip-path: polygon(0% 22%, 50% 0%, 100% 22%, 100% 100%, 0% 100%);
+  filter: drop-shadow(0 14px 24px rgba(150, 70, 105, 0.18));
 }
-/* the note — torn-top lined paper, lightly crumpled, pulled up out of the pocket */
-.dwc-note {
-  position: absolute;
-  left: 11%;
-  top: 10%;
-  width: 78%;
-  height: 72%;
+.dwc-letter {
+  left: 10%;
+  top: 6%;
+  width: 80%;
   z-index: 2;
-  transform: rotate(-1.6deg);
-  background-color: #fdfbf5;
-  background-image:
-    /* faint side-shadows, a corner highlight, and two diagonal wrinkle-creases,
-       all riding over the ruled lines */
-    linear-gradient(
-      118deg,
-      rgba(60, 40, 30, 0.055) 0%,
-      transparent 15%,
-      transparent 85%,
-      rgba(60, 40, 30, 0.05) 100%
-    ),
-    linear-gradient(196deg, rgba(255, 255, 255, 0.5) 0%, transparent 24%),
-    linear-gradient(72deg, transparent 40%, rgba(72, 52, 42, 0.04) 52%, transparent 61%),
-    linear-gradient(-58deg, transparent 54%, rgba(72, 52, 42, 0.035) 66%, transparent 75%),
-    repeating-linear-gradient(
-      #fdfbf5 0 calc(1.5em - 1px),
-      rgba(96, 120, 150, 0.28) calc(1.5em - 1px) 1.5em
-    );
-  /* torn top edge — irregular tooth spacing and depth so it reads as hand-torn */
-  clip-path: polygon(
-    0% 2.4%, 4% 0.9%, 9% 3.8%, 13% 1.4%, 17% 4.3%, 23% 1.9%, 28% 4.4%,
-    33% 1.1%, 39% 3.4%, 43% 0.7%, 49% 3%, 54% 1.5%, 59% 4.2%, 64% 1.8%,
-    70% 3.7%, 75% 0.9%, 80% 3.4%, 86% 1.5%, 91% 4%, 96% 1.4%, 100% 2.8%,
-    100% 100%, 0% 100%
-  );
-  filter: drop-shadow(0 9px 15px rgba(70, 45, 55, 0.22));
-  padding: 7% 7% 13%;
-  overflow: hidden;
-  font-family: "Kalam", "Caveat", cursive;
-  font-size: 3.05cqw;
-  line-height: 1.5em;
-  color: #1c1a17;
+  transform: rotate(-2.5deg);
+  filter: drop-shadow(0 10px 18px rgba(70, 45, 55, 0.22));
 }
-.dwc-note p + p {
-  margin-top: 1.5em;
-}
-/* front pocket — the brighter face of the envelope, the note emerging from it */
-.dwc-env-front {
-  left: 4%;
-  top: 70%;
-  width: 92%;
-  height: 28%;
+/* a second copy of the envelope, same box, clipped to its front pocket only and
+   raised above the letter — the note appears to sit down inside the envelope.
+   Below the clip line it's identical pixels over the base envelope, so the cut
+   is seamless. */
+.dwc-envelope--front {
   z-index: 3;
-  background: linear-gradient(161deg, #f9bcda 0%, #f2a2cb 55%, #ec95c3 100%);
-  border-radius: 0 0 7px 7px;
-}
-/* the tucked front flap: a soft downward triangle from the pocket's top edge */
-.dwc-env-front::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  clip-path: polygon(0 0, 100% 0, 50% 32%);
-  background: linear-gradient(rgba(188, 94, 140, 0.24), rgba(188, 94, 140, 0.03));
-}
-/* a slim highlight riding the pocket's top edge */
-.dwc-env-front::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 0;
-  height: 2.5%;
-  background: rgba(255, 255, 255, 0.32);
+  clip-path: inset(54% 0 0 0);
+  filter: none;
 }
 
 /* ---- desktop: the fixed-aspect poster ---- */
@@ -830,10 +779,10 @@
 
   .dwc-env {
     position: absolute;
-    left: calc(372 * var(--u));
-    top: calc(236 * var(--u));
-    width: calc(1000 * var(--u));
-    height: calc(710 * var(--u));
+    left: calc(370 * var(--u));
+    top: calc(148 * var(--u));
+    width: calc(950 * var(--u));
+    height: calc(800 * var(--u));
     aspect-ratio: auto;
     margin: 0;
   }
@@ -945,6 +894,11 @@
 @media (max-width: 768px) {
   .dw-top {
     padding: 1.1rem 1.25rem 0;
+  }
+
+  /* the tab strip is gone here, so the in-content badge carries home */
+  .dw-mark {
+    display: inline-flex;
   }
 
   .dw-canvas {

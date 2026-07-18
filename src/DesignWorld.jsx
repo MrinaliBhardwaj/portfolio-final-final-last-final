@@ -255,8 +255,11 @@ export default function DesignWorld() {
           A second, drifting cursor used to loiter on the hero frame; with the
           real pointer wearing the same arrow it just read as a duplicate. */}
       <div className="dw-content">
+        {/* the mobile home badge: on desktop the title-bar "mb" (WorldTabs)
+            owns home, so this one only shows once the tab strip is gone (≤768).
+            "Say hello" stays on both. */}
         <header className="dw-top">
-          <a className="dw-mark" href="#" aria-label="Back to the start">
+          <a className="dw-mark" href="#/" aria-label="Mrinali Bhardwaj — home">
             MB
           </a>
           <a className="dw-hello" href={EMAIL}>
@@ -423,28 +426,39 @@ export default function DesignWorld() {
                 <a href="/resume-design.docx" download>
                   Design resume <span aria-hidden="true">&darr;</span>
                 </a>
-                <a href="#">Back to the start</a>
                 <p className="dwc-edu">
                   B.Tech CSE, Vellore Institute of Technology &middot; CGPA 8.34
                   &middot; 2023&ndash;2027
                 </p>
               </div>
 
-              {/* the opened envelope + the handwritten sign-off */}
+              {/* the opened envelope + handwritten sign-off — her own photo
+                  assets (white backgrounds keyed out to transparent). The note
+                  text is baked into the letter image, so it lives in the alt. */}
               <div className="dwc-env">
-                <span className="dwc-env-back" aria-hidden="true" />
-                <div className="dwc-note">
-                  <p>
-                    Thank you so much for taking the time to look through my
-                    portfolio! I truly appreciate the opportunity to learn and
-                    grow.
-                  </p>
-                  <p>
-                    If you&rsquo;re interested in working together, I&rsquo;d
-                    love to chat.
-                  </p>
-                </div>
-                <span className="dwc-env-front" aria-hidden="true" />
+                <img
+                  className="dwc-envelope"
+                  src="/contact-envelope.png"
+                  alt=""
+                  aria-hidden="true"
+                  draggable="false"
+                />
+                <img
+                  className="dwc-letter"
+                  src="/contact-letter.png"
+                  alt="A handwritten note: Thank you so much for taking the time to look through my portfolio! I truly appreciate new opportunities to learn and grow. If you're interested in working together, I'd love to chat."
+                  draggable="false"
+                />
+                {/* the same envelope again, clipped to just its front pocket and
+                    laid over the letter's foot, so the note tucks INTO the
+                    envelope instead of resting on top of it */}
+                <img
+                  className="dwc-envelope dwc-envelope--front"
+                  src="/contact-envelope.png"
+                  alt=""
+                  aria-hidden="true"
+                  draggable="false"
+                />
               </div>
             </div>
           </Frame>

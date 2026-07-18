@@ -1,20 +1,34 @@
 /* ============ the open-pages tab strip (desktop world chrome) ============ */
+/* also the worlds' shared title bar: [ mb home ] [ tabs ] ........ [ × close ] */
 .wt {
   display: flex;
   align-items: stretch;
   user-select: none;
 }
 
-.wt-tab {
-  display: flex;
-  align-items: stretch;
+/* the home badge — skinned to each app's UI type, but same letters, same
+   corner, same destination (the void) in every world */
+.wt-home {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 0.85rem;
+  font-family: var(--font-ui);
+  font-weight: 700;
+  font-size: 0.82rem;
+  letter-spacing: 0.02em;
+  text-transform: lowercase;
+  text-decoration: none;
+  transition: color 0.2s var(--ease-soft), background-color 0.2s var(--ease-soft);
 }
 
-.wt-tab-main {
+.wt-tab {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
   padding: 0 0.9rem;
+  border: 0;
+  cursor: pointer;
+  font: inherit;
 }
 
 .wt-tab-icon {
@@ -24,20 +38,22 @@
   object-fit: contain;
 }
 
-/* the close affordance only exists on the active tab */
-.wt-tab-close {
+/* the single app-close, pushed to the far right of the title bar */
+.wt-close {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 24px;
-  height: 24px;
-  margin: auto 6px auto -4px;
-  border-radius: 4px;
-  opacity: 0.55;
+  width: 34px;
+  margin-left: auto;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  opacity: 0.6;
   transition: opacity 0.2s var(--ease-soft), background-color 0.2s var(--ease-soft);
 }
 
-.wt-tab-close:hover {
+.wt-close:hover,
+.wt-close:focus-visible {
   opacity: 1;
 }
 
@@ -50,6 +66,16 @@
   background: #252526; /* tab bar */
   font-family: var(--font-ui);
   font-size: 13px;
+}
+
+.wt--code .wt-home {
+  color: #c8d2cb;
+}
+
+.wt--code .wt-home:hover,
+.wt--code .wt-home:focus-visible {
+  color: #ffffff;
+  background: #333334;
 }
 
 .wt--code .wt-tab {
@@ -71,7 +97,12 @@
   background: #333334;
 }
 
-.wt--code .wt-tab-close:hover {
+.wt--code .wt-close {
+  color: #c8d2cb;
+}
+
+.wt--code .wt-close:hover,
+.wt--code .wt-close:focus-visible {
   background: rgba(255, 255, 255, 0.1);
 }
 
@@ -90,11 +121,14 @@
   font-weight: 600;
 }
 
-.wt-app-mark {
-  width: 15px;
-  height: 15px;
-  margin: auto 0.7rem auto 1.1rem;
-  opacity: 0.9;
+.wt--figma .wt-home {
+  color: #d0d0d0;
+}
+
+.wt--figma .wt-home:hover,
+.wt--figma .wt-home:focus-visible {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.06);
 }
 
 .wt--figma .wt-tab {
@@ -114,11 +148,17 @@
   background: rgba(255, 255, 255, 0.05);
 }
 
-.wt--figma .wt-tab-close:hover {
+.wt--figma .wt-close {
+  color: #b3b3b3;
+}
+
+.wt--figma .wt-close:hover,
+.wt--figma .wt-close:focus-visible {
   background: rgba(255, 255, 255, 0.12);
 }
 
-/* mobile: no tab chrome — the dock carries world switching */
+/* mobile: no tab chrome — the dock carries world switching, and each world's
+   own mobile header (dw-top / tw-top) carries the home badge */
 @media (max-width: 768px) {
   .wt {
     display: none;

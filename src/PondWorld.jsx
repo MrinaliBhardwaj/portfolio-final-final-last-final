@@ -71,9 +71,9 @@ export default function PondWorld() {
       </div>
 
       <header className="pw-top">
-        <span className="pw-mark" aria-label="Mrinali Bhardwaj">
+        <a className="pw-mark" href="#/" aria-label="Mrinali Bhardwaj — home">
           mb
-        </span>
+        </a>
         <button
           type="button"
           className="pw-close"

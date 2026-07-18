@@ -40,9 +40,9 @@ export default function GalleryWorld() {
       </div>
 
       <header className="gw-top">
-        <span className="gw-mark" aria-label="Mrinali Bhardwaj">
+        <a className="gw-mark" href="#/" aria-label="Mrinali Bhardwaj — home">
           mb
-        </span>
+        </a>
         <span className="gw-label">Gallery</span>
         <button
           type="button"

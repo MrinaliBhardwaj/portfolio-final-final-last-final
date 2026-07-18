@@ -33,9 +33,9 @@ export default function NotesWorld() {
   return (
     <div className="nw">
       <header className="nw-top">
-        <span className="nw-mark" aria-label="Mrinali Bhardwaj">
+        <a className="nw-mark" href="#/" aria-label="Mrinali Bhardwaj — home">
           mb
-        </span>
+        </a>
         <span className="nw-app">Notes</span>
         <button
           type="button"

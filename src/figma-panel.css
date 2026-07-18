@@ -66,6 +66,8 @@
   padding: 0 8px;
 }
 
+/* display-only rows now (see FigmaPanel.jsx): no hover, no pointer — the tabs
+   switch, the panel just names the two pages of the file */
 .fp-page {
   display: flex;
   align-items: center;
@@ -76,11 +78,6 @@
   text-align: left;
   font-size: 12px;
   color: #c4c4c4;
-  transition: background-color 0.15s var(--ease-soft);
-}
-
-.fp-page:hover {
-  background: rgba(255, 255, 255, 0.06);
 }
 
 .fp-page.is-current {

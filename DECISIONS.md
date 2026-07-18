@@ -2,6 +2,47 @@
 
 Decisions that survive rebuilds. Append, don't rewrite history.
 
+## 2026-07-18 — One navigation system: monogram = home, × = close, tabs only switch
+
+An IA/UX audit (register: brand; snapshot in `.impeccable/critique/`) found the
+worlds were strong but the connective tissue was fragmented — the site's real
+weakness was wayfinding, not looks. Fixed the three P1s into ONE contract, the
+same gesture-per-meaning in every world:
+
+- **The `mb` monogram is home, everywhere.** Top-left, always a live control
+  linking `#/` (on the cover it's a button that lifts you back to the top).
+  It's SKINNED per world but never restyled at random: script Pinyon on the
+  void/paper surfaces (cover, gallery, pond, notes), a plain UI `mb` in the two
+  IDE title bars. Same letters, same corner, same destination. The satellites'
+  monograms were decorative `<span>`s — now `<a href="#/">`. Don't turn any of
+  them back into dead text; the logo-as-home is the through-line.
+- **One `×` = close the app → the void.** `WorldTabs` gained a single close at
+  the far right of the title bar, and the **per-tab `×` is gone**: closing a
+  document shouldn't eject you from the editor. Satellites keep their own close.
+- **Tabs only switch design ↔ tech.** `WorldTabs` is now the shared title bar
+  in both flagship worlds: `[ mb ] [ design.fig ][ tech.jsx ] ...... [ × ]`.
+  Labels are `design.fig` / `tech.jsx` in BOTH chromes now (the Figma bar used
+  to say plain "design"/"tech") — the filenames are the charm, and matching
+  them killed the "positioning of design.fig/tech.jsx changes between sections"
+  complaint.
+- **One switcher, not three.** `FigmaPanel`'s Pages list is **display-only**
+  now (rendered as `<div>`s, no hover, no nav) — it says "one file, two pages"
+  but doesn't compete with the tabs. Design → tech has a single in-fiction path
+  (the tabs) plus the global dock. Don't re-wire the Pages list to navigate.
+- **The cover has exactly two entry systems.** The redundant top-nav
+  design/tech text links are **deleted**; the Explore CTAs are the narrative
+  primary, the dock is the system layer. Also fixed the dead cover GitHub link
+  (`href="#"` → github.com/MrinaliBhardwaj).
+- **Desktop vs mobile home split (flagship worlds).** `WorldTabs` hides ≤768px,
+  so on mobile each flagship's in-content header (`dw-top` / `tw-top`) carries
+  the monogram home; on desktop the title-bar `mb` does, and `dw-mark` is
+  `display:none` above 768 so there's never a double home. Keep the 768/769
+  boundary aligned with the tab strip's.
+- Removed the design world's THIRD home path (the footer "Back to the start").
+- NOT done here (deferred P2/P3): the Claude dock icon still renders but does
+  nothing (remove or wire it), no dock hover name-tags yet, gallery images are
+  still Unsplash placeholders.
+
 ## 2026-07-18 — Two handwriting voices: Kalam (design) vs Caveat (Notes)
 
 The design world's contact envelope was rebuilt to match her reference art

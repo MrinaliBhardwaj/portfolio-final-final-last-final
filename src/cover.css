@@ -38,67 +38,25 @@
    script name below can own the full-name identity without duplication.
    Pinyon Script (a single-weight display script, distinct from the Ballet
    name) keeps the mark legible at small nav size. */
+/* the home badge: a button now, not a decorative span, so the monogram is a
+   live "back to top" affordance here just as it's "back to the void" in the
+   worlds — one gesture, one meaning, everywhere */
 .cover-mark {
   font-family: var(--font-monogram);
   font-weight: 400;
   font-size: 2.4rem;
   line-height: 1;
   color: var(--void-text);
+  border: 0;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  transition: opacity 0.25s var(--ease-soft);
 }
 
-.cover-links {
-  display: flex;
-  gap: 0.6rem;
-}
-
-/* links carry a 44px-tall tap target (padding), with negative inline margin so
-   the text still reads flush next to the mark */
-/* links carry a 44px-tall tap target (padding), with negative inline margin so
-   the text still reads flush next to the mark. Colour transitions slowly so
-   the split reveal (is-split) brightens them gradually to their side tints. */
-.cover-links a {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  min-height: 44px;
-  padding: 0 0.5rem;
-  font-family: var(--font-mono);
-  font-size: 0.8rem;
-  color: var(--void-dim);
-  text-decoration: none;
-  transition: color 1.4s var(--ease-soft);
-}
-
-.cover-links a:first-child {
-  margin-left: -0.5rem;
-}
-
-/* animated underline affordance (snappy on hover) */
-.cover-links a::after {
-  content: "";
-  position: absolute;
-  left: 0.5rem;
-  right: 0.5rem;
-  bottom: calc(50% - 0.7em);
-  height: 1px;
-  background: currentColor;
-  transform: scaleX(0);
-  transform-origin: left;
-  transition: transform 0.28s var(--ease-soft);
-}
-
-.cover-links a:hover::after,
-.cover-links a:focus-visible::after {
-  transform: scaleX(1);
-}
-
-/* once the identity has diverged, the labels glow in their discipline's tint */
-.cover-nav.is-split .cover-link--design {
-  color: var(--design-tint);
-}
-
-.cover-nav.is-split .cover-link--tech {
-  color: var(--tech-tint);
+.cover-mark:hover,
+.cover-mark:focus-visible {
+  opacity: 0.72;
 }
 
 .cover-social {

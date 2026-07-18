@@ -140,23 +140,12 @@ function FrameLayer({ frame, activeId, onSelect }) {
 }
 
 export default function FigmaPanel({ frames, activeId, onSelect }) {
-  const reduced =
-    typeof window !== "undefined" &&
-    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
+  // Pages is display-only: it says "one portfolio file, two pages," but it is
+  // NOT a switcher. Switching worlds has a single home — the file tabs in the
+  // title bar (WorldTabs) — so the panel doesn't offer a competing second one.
   const pages = [
-    {
-      name: "design",
-      current: true,
-      go: () => window.scrollTo({ top: 0, behavior: reduced ? "auto" : "smooth" }),
-    },
-    {
-      name: "tech",
-      current: false,
-      go: () => {
-        window.location.hash = "/tech";
-      },
-    },
+    { name: "design", current: true },
+    { name: "tech", current: false },
   ];
 
   return (
@@ -175,16 +164,14 @@ export default function FigmaPanel({ frames, activeId, onSelect }) {
       <p className="fp-label">Pages</p>
       <div className="fp-pages">
         {pages.map((p) => (
-          <button
-            type="button"
+          <div
             key={p.name}
             className={cx("fp-page", p.current && "is-current")}
-            onClick={p.go}
             aria-current={p.current ? "page" : undefined}
           >
             <span className="fp-page-check">{p.current && ICONS.check}</span>
             {p.name}
-          </button>
+          </div>
         ))}
       </div>
 

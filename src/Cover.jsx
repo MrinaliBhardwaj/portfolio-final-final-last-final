@@ -106,33 +106,35 @@ export default function Cover({ onChoose, onSettledChange }) {
 
       <header className={`cover-nav${split ? " is-split" : ""}`}>
         <div className="cover-nav-left">
-          <span className="cover-mark" aria-label="Mrinali Bhardwaj">
+          {/* the monogram is the one home gesture, shared with every world:
+              on the cover (already home) it lifts you back to the top. The
+              world links that used to sit here were a third path into the
+              disciplines — the Explore CTAs below and the dock already carry
+              that, so they're gone. */}
+          <button
+            type="button"
+            className="cover-mark"
+            onClick={() =>
+              window.scrollTo({
+                top: 0,
+                behavior: window.matchMedia("(prefers-reduced-motion: reduce)")
+                  .matches
+                  ? "auto"
+                  : "smooth",
+              })
+            }
+            aria-label="Mrinali Bhardwaj — back to top"
+          >
             mb
-          </span>
-          <nav className="cover-links" aria-label="Worlds">
-            <a
-              className="cover-link cover-link--design"
-              href="#/design"
-              onClick={choose("design")}
-            >
-              design
-            </a>
-            <a
-              className="cover-link cover-link--tech"
-              href="#/tech"
-              onClick={choose("tech")}
-            >
-              tech
-            </a>
-          </nav>
+          </button>
         </div>
         <div className="cover-social">
-          {/* TODO: real GitHub profile URL */}
           <a
             className="cover-social-logo"
-            href="#"
+            href="https://github.com/MrinaliBhardwaj"
+            target="_blank"
+            rel="noreferrer"
             aria-label="GitHub"
-            onClick={(e) => e.preventDefault()}
           >
             <img
               src="https://cdn.simpleicons.org/github/ffffff"
