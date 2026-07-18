@@ -568,8 +568,9 @@
 }
 
 .dwc {
-  --wrap-ink: #17150f;
-  --wrap-pink: #cf6f97; /* the muted rose of the contact rows */
+  --wrap-ink: #4a4a58;
+  --wrap-pink: #4a4a58;
+  --wrap-hover: #2e2e38; /* darker shade of the same ink, for hover only */
   position: relative;
   background: #eae3d5; /* warm paper, matching the frame's fill swatch */
   color: var(--wrap-ink);
@@ -608,13 +609,13 @@
   align-items: center;
   gap: 0.8rem;
   width: fit-content;
-  font-size: clamp(0.9rem, 3.4vw, 1.02rem);
+  font-size: clamp(0.76rem, 2.8vw, 0.85rem);
   color: var(--wrap-pink);
   text-decoration: none;
   transition: color 0.2s var(--ease-soft);
 }
 .dwc-links a:hover {
-  color: #ab4b74;
+  color: var(--wrap-hover);
 }
 
 .dwc-ico {
@@ -643,23 +644,18 @@
   width: fit-content;
   font-size: 0.82rem;
   font-weight: 550;
-  color: #6b6154;
+  color: var(--wrap-ink);
   text-decoration: none;
-  border-bottom: 1px solid rgba(40, 35, 25, 0.2);
+  border-bottom: 1px solid rgba(74, 74, 88, 0.3);
   padding-bottom: 2px;
   transition: color 0.2s var(--ease-soft), border-color 0.2s var(--ease-soft);
 }
 .dwc-sec a span {
-  color: var(--wrap-pink);
+  color: var(--wrap-ink);
 }
 .dwc-sec a:hover {
-  color: var(--wrap-ink);
-  border-color: var(--wrap-ink);
-}
-.dwc-edu {
-  margin-top: 0.35rem;
-  font-size: 0.72rem;
-  color: #8a8070;
+  color: var(--wrap-hover);
+  border-color: var(--wrap-hover);
 }
 
 /* the opened envelope + handwritten letter — a single true-transparent PNG of
@@ -718,21 +714,21 @@
     z-index: 6;
   }
   .dwc-links a {
-    gap: calc(20 * var(--u));
-    font-size: calc(26 * var(--u));
+    gap: calc(17 * var(--u));
+    font-size: calc(21 * var(--u));
   }
   .dwc-ico {
-    width: calc(54 * var(--u));
-    height: calc(54 * var(--u));
-    border-width: calc(1.6 * var(--u));
-    border-radius: calc(13 * var(--u));
+    width: calc(45 * var(--u));
+    height: calc(45 * var(--u));
+    border-width: calc(1.4 * var(--u));
+    border-radius: calc(11 * var(--u));
   }
   .dwc-ico svg {
-    width: calc(24 * var(--u));
-    height: calc(24 * var(--u));
+    width: calc(20 * var(--u));
+    height: calc(20 * var(--u));
   }
   .dwc-ico--txt {
-    font-size: calc(25 * var(--u));
+    font-size: calc(20 * var(--u));
   }
 
   .dwc-sec {
@@ -746,20 +742,19 @@
     font-size: calc(19 * var(--u));
     padding-bottom: calc(2 * var(--u));
   }
-  .dwc-edu {
-    margin-top: calc(8 * var(--u));
-    font-size: calc(16 * var(--u));
-  }
 
-  /* bottom-centre of the poster: horizontally centred (920 wide in a 1690
-     stage → 385 each side), sitting flush on the poster floor. Clears the
-     top-left contact cluster and "and that's"; overlaps only "a wrap." at the
-     bottom, where black type reads fine over the pink envelope. */
+  /* bottom-centre of the poster. Sized in --u (poster-local units), NOT vw —
+     vw ties it to the raw browser width, which drifts out of step with the
+     frame the moment the frame stops growing (it caps at 1280px + padding)
+     while vw keeps climbing, so the envelope grew or shrank relative to the
+     rest of the poster as the window resized. --u scales 1:1 with everything
+     else in the frame (text, links, icons all already use it), so this now
+     holds a fixed proportion — ~56% of the frame width — at every size. */
   .dwc-env {
     position: absolute;
-    left: calc(385 * var(--u));
+    left: calc(375 * var(--u));
     bottom: 0;
-    width: calc(920 * var(--u));
+    width: calc(940 * var(--u));
     aspect-ratio: 1351 / 902;
     margin: 0;
   }

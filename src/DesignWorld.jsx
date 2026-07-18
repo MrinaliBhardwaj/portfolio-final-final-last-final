@@ -426,10 +426,6 @@ export default function DesignWorld() {
                 <a href="/resume-design.docx" download>
                   Design resume <span aria-hidden="true">&darr;</span>
                 </a>
-                <p className="dwc-edu">
-                  B.Tech CSE, Vellore Institute of Technology &middot; CGPA 8.34
-                  &middot; 2023&ndash;2027
-                </p>
               </div>
 
               {/* the opened envelope + handwritten sign-off — her own photo,
