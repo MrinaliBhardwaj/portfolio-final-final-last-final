@@ -2,6 +2,38 @@
 
 Decisions that survive rebuilds. Append, don't rewrite history.
 
+## 2026-07-18 — Contact envelope is now REAL photo assets, not CSS
+
+She supplied two of her own images — a pink opened envelope and a torn,
+crumpled, ruled note with the sign-off already handwritten on it — and said
+"use exactly these assets." So the whole CSS-drawn envelope + note (flap-seam
+peak, torn-edge clip-path, Kalam ink) is **removed and superseded**; this
+supersedes the Kalam half of the "Two handwriting voices" entry below —
+**Kalam is uninstalled**; Caveat still stands alone for the `#/notes`
+scrapbook. Details:
+
+- **Assets live in `public/contact-envelope.png` + `public/contact-letter.png`**,
+  keyed out of their solid-white backgrounds to transparent so they float on
+  the cream. The keyer is `scratchpad/keyout.py` (Pillow, border-connected
+  flood-fill only, sentinel-magenta → alpha 0, then bbox-crop) — envelope
+  thresh 90, letter thresh 30 (white bg vs warm paper is a tiny delta; the
+  torn-edge shadow stops the fill). Sources were the two newest
+  `Downloads/ChatGPT Image Jul 18 …` PNGs. Re-run the script if she sends new
+  versions; don't hand-edit the PNGs.
+- **The letter tucks INTO the envelope via a 3rd layer**: the envelope image is
+  drawn twice — full behind the letter (z1), and again `clip-path: inset(54% 0
+  0 0)` above the letter (z3) so only its front pocket overlays the note's foot.
+  Same image at the same box position, so the clip line is a seamless cut. The
+  letter sits between (z2), tilted −2.5°.
+- **The note text is baked into the image**, so it can't be selected — it lives
+  in the letter `<img alt>` for accessibility/SEO. If the copy changes she must
+  regenerate the image.
+- **KNOWN, flagged to her: the letter image reads "Thanke you" (typo)** and
+  "appreciate new opportunities". Baked into her asset; can't fix in code —
+  awaiting a corrected image if she wants it.
+- Layout mechanics unchanged: still the `--u` poster ≥768px / stacked <768px,
+  `.dwc-env` just frames the two images (width%/height:auto keeps each aspect).
+
 ## 2026-07-18 — One navigation system: monogram = home, × = close, tabs only switch
 
 An IA/UX audit (register: brand; snapshot in `.impeccable/critique/`) found the

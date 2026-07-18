@@ -16,7 +16,6 @@
     "@fontsource-variable/jetbrains-mono": "^5.2.8",
     "@fontsource/caveat": "^5.2.8",
     "@fontsource/cormorant-garamond": "^5.2.11",
-    "@fontsource/kalam": "^5.2.8",
     "@fontsource/pinyon-script": "^5.2.8",
     "@fontsource/space-mono": "^5.2.9",
     "@use-gesture/react": "^10.3.1",
