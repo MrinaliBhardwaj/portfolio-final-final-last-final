@@ -752,9 +752,9 @@
      holds a fixed proportion — ~56% of the frame width — at every size. */
   .dwc-env {
     position: absolute;
-    left: calc(375 * var(--u));
+    left: calc(195 * var(--u));
     bottom: 0;
-    width: calc(940 * var(--u));
+    width: calc(1300 * var(--u));
     aspect-ratio: 1351 / 902;
     margin: 0;
   }
