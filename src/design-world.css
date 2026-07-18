@@ -180,6 +180,194 @@
   color: #fff5f2;
 }
 
+/* ============ the PROFILE.DOC poster (hero) ============ */
+/* An exact reproduction of her Figma frame (1316×741). The body becomes a
+   fixed-aspect stage and a query container; everything inside is positioned in
+   Figma-space pixels scaled by --u. See DesignHero.jsx. */
+.cvf--poster .cvf-body {
+  padding: 0;
+  aspect-ratio: 1316 / 741;
+  container-type: inline-size; /* --u below resolves 100cqw against this width */
+  background: #4a4a58;
+  overflow: visible; /* selection handles/dims sit just outside the body */
+}
+
+.dwh {
+  --u: calc(100cqw / 1316);
+  --hv: Helvetica, "Helvetica Neue", Arial, sans-serif;
+  position: absolute;
+  inset: 0;
+  overflow: hidden; /* the painting/photo/tiger bleed; the frame clips them */
+  background: #4a4a58;
+  color: #4a4a58;
+  font-family: var(--font-ui);
+}
+
+/* everything in the poster is absolutely placed */
+.dwh img,
+.dwh > span,
+.dwh > p,
+.dwh > a,
+.dwh-sheet,
+.dwh-group,
+.dwh-group > span,
+.dwh-xp,
+.dwh-xp > span,
+.dwh-rule,
+.dwh-soft,
+.dwh-soft > span,
+.dwh-skill-label,
+.dwh-edu,
+.dwh-edu > span {
+  position: absolute;
+}
+
+/* ---- art layers ---- */
+.dwh-bg {
+  object-fit: cover;
+  z-index: 0;
+}
+.dwh-sheet {
+  background: #f6f5f2;
+  z-index: 1;
+}
+.dwh-tab {
+  object-fit: fill;
+  z-index: 4;
+}
+.dwh-photo {
+  object-fit: contain;
+  object-position: bottom left;
+  z-index: 5;
+}
+.dwh-tiger {
+  object-fit: cover;
+  object-position: bottom center;
+  z-index: 2;
+}
+.dwh-flourish {
+  object-fit: contain;
+  z-index: 3;
+}
+
+/* text sits above the sheet */
+.dwh-meet,
+.dwh-name,
+.dwh-intro,
+.dwh-download,
+.dwh-group {
+  z-index: 6;
+}
+
+/* ---- headline ---- */
+.dwh-meet {
+  font-weight: 200;
+  line-height: 1;
+  white-space: nowrap;
+}
+.dwh-name {
+  font-family: "Pinyon Script", cursive;
+  line-height: 1;
+  white-space: nowrap;
+}
+.dwh-intro {
+  margin: 0;
+  font-weight: 300;
+  line-height: 1.35;
+}
+
+.dwh-download {
+  display: inline-flex;
+  align-items: baseline;
+  gap: calc(6 * var(--u));
+  font-weight: 500;
+  text-decoration: none;
+  color: #4a4a58;
+  white-space: nowrap;
+  transition: opacity 0.25s var(--ease-soft);
+}
+.dwh-download:hover {
+  opacity: 0.6;
+}
+.dwh-download-arrow {
+  font-size: 0.95em;
+}
+
+/* ---- section headings (Experience / Skill Set / Softwares / Education) ---- */
+.dwh-head {
+  font-weight: 300;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+/* ---- experience 2×2 ---- */
+.dwh-xp > span {
+  white-space: nowrap;
+  line-height: 1.2;
+  font-family: var(--hv);
+}
+.dwh-xp-kind,
+.dwh-xp-org {
+  font-weight: 300;
+}
+.dwh-xp-role {
+  font-weight: 700;
+}
+.dwh-xp-date {
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-weight: 300;
+}
+
+.dwh-rule {
+  height: 1px;
+  background: #4a4a58;
+  opacity: 0.5;
+}
+.dwh-rule--v {
+  width: 1px;
+}
+
+/* ---- softwares ---- */
+.dwh-soft-img {
+  left: 0;
+  object-fit: cover;
+}
+
+/* ---- skill folders ---- */
+.dwh-folder {
+  object-fit: contain;
+  z-index: 2;
+}
+.dwh-skill-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  font-weight: 400;
+  line-height: 1.15;
+}
+
+/* ---- education ---- */
+.dwh-edu {
+  left: 0;
+  right: 0;
+}
+.dwh-edu > span {
+  left: 0;
+  white-space: nowrap;
+  line-height: 1.2;
+  font-family: var(--hv);
+}
+.dwh-edu-title {
+  top: 0;
+  font-weight: 700;
+}
+.dwh-edu-sub {
+  font-weight: 300;
+}
+
 /* ---- the pinned Figma comment on the hero ---- */
 .cvf-pin {
   position: absolute;

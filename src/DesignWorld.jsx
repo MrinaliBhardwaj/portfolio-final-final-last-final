@@ -9,6 +9,7 @@ import { motion } from "framer-motion";
 import { Mail } from "lucide-react";
 import FigmaPanel from "./FigmaPanel.jsx";
 import WorldTabs from "./WorldTabs.jsx";
+import DesignHero from "./DesignHero.jsx";
 import useSectionSpy from "./useSectionSpy.js";
 
 const EASE = [0.22, 1, 0.36, 1];
@@ -27,12 +28,15 @@ const reveal = {
 const FRAMES = [
   {
     id: "dw-hero",
-    name: "hero / cover",
-    props: { x: 0, y: 0, w: 1440, h: 640, fill: "#F6F5F2" },
+    name: "profile",
+    props: { x: 0, y: 0, w: 1316, h: 741, fill: "#4A4A58" },
     children: [
-      { icon: "text", name: "Mrinali Bhardwaj" },
-      { icon: "text", name: "statement" },
-      { icon: "component", name: "stat-chips" },
+      { icon: "image", name: "PROFILE.DOC" },
+      { icon: "text", name: "Meet Mrinali Bhardwaj" },
+      { icon: "component", name: "experience" },
+      { icon: "component", name: "skill-set" },
+      { icon: "image", name: "softwares" },
+      { icon: "text", name: "education" },
     ],
   },
   {
@@ -268,33 +272,14 @@ export default function DesignWorld() {
         </header>
 
         <div className="dw-canvas">
-          {/* ============ hero ============ */}
-          <Frame frame={FRAMES[0]} active={activeSection === "dw-hero"} area="1 / span 12">
-            {/* a Figma comment pinned to the artboard */}
-            <a className="cvf-pin" href={EMAIL}>
-              <span className="cvf-pin-dot">1</span>
-              <span className="cvf-pin-note">
-                Open to design internships — say hello
-              </span>
-            </a>
-
-            <p className="dw-eyebrow">Mrinali Bhardwaj — design engineer</p>
-            <h1 className="dw-h1 display">
-              Designs it in Figma.
-              <br />
-              Ships it in <em>code.</em>
-            </h1>
-            <p className="dw-sub">
-              End-to-end product experiences — design systems to hi-fi
-              prototypes — built on a computer-science foundation that knows
-              exactly how they ship.
-            </p>
-            <ul className="dw-chips" aria-label="Highlights">
-              <li>10,000+ users in 4 days</li>
-              <li>40+ hi-fi screens</li>
-              <li>GDG Design-a-thon · 3rd</li>
-              <li>SIH national finalist</li>
-            </ul>
+          {/* ============ hero: her real Figma "PROFILE.DOC" frame ============ */}
+          <Frame
+            frame={FRAMES[0]}
+            active={activeSection === "dw-hero"}
+            area="1 / span 12"
+            tone="poster"
+          >
+            <DesignHero />
           </Frame>
 
           {/* ============ experience ============ */}

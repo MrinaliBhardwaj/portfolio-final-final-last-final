@@ -2,6 +2,61 @@
 
 Decisions that survive rebuilds. Append, don't rewrite history.
 
+## 2026-07-19 — The design hero IS her real Figma frame (PROFILE.DOC)
+
+Her brief: copy the Figma "profile" frame EXACTLY into code, and make it replace
+the design world's old hero ("Designs it in Figma. Ships it in code."). The
+fiction tightens — the design world is "her portfolio as an open Figma file,"
+so the hero is now literally one of her frames.
+
+- **Source:** file `drda7TnqoM3fEpbibCDIc2`, node `208:260` ("Frame 19"), a
+  fixed **1316×741** poster. Pulled via the Figma MCP (`get_design_context` +
+  `get_metadata`). NOTE: her first link pointed at node `4:3`, which is a
+  moodboard screenshot of *someone else's* portfolio ("Rasyad Alfin") on the
+  file's one page ("inspo") — not her design. The real frame is `208:260`.
+- **Figma connector auth:** she's on a **student Full seat** (her own team
+  `mrinali.bhardwaj2023's team`); `whoami` confirms it. Code Connect is gated
+  (needs org/enterprise) but `get_design_context` / `download_assets` work.
+- **Exact repro via `--u`, same as the scrapbook scenes.** `DesignHero.jsx`
+  places every element at its real Figma-space pixel through `U(n) = calc(n *
+  var(--u))`, `--u = 100cqw/1316` set on `.dwh`; the hero artboard
+  (`.cvf--poster .cvf-body`) is a fixed-aspect query container. Verified in
+  browser: sheet 55,67 1206×607, name 210,106, tab 7,0, tiger 922,318, etc. all
+  land pixel-exact. DON'T hand-tune these numbers.
+- **Assets vendored under `public/design-hero/`** (downloaded from the Figma
+  asset API — the URLs expire in ~7 days, so the bytes are committed, never
+  hot-linked): `bg-pond.png` (painted lotus-pond bg, bleeds + is clipped by the
+  frame), `mini-mri.png` (childhood photo, bleeds off the sheet's lower-left),
+  `tiger.png`, `flourish.png`, `softwares.png` (the four-tile strip, ONE image),
+  `folder.png` (macOS folder, ONE export reused ×3), `profile-tab.png`.
+  Re-fetch from the frame if she changes the design.
+- **Two assets were re-exported "as placed" (nodes 208:267, 208:307)**, not as
+  raw uploads: the tab's raw source is a 1024×683 image whose visible tab is a
+  ~396×70 crop — placing the raw at the 396×109 node box distorted it. The
+  placed-node export is already the trimmed 396×70 tab, bottom-aligned so it
+  rests flush at the frame top (top ≈ 0). Softwares likewise re-exported to its
+  exact 286×191 box. `softwares.png` was also downscaled (raw was 1536×1024,
+  2.2MB → 91KB) for her slow machine.
+- **KNOWN, flag to her: the tab reads "PROFTLE.DOC"** — a typo for
+  "PROFILE.DOC", baked into her asset (same class as the "Thanke you" letter
+  typo). Can't fix in code; alt text says the correct "PROFILE.DOC". Awaiting a
+  corrected export if she wants it.
+- **Fonts:** Inter (`--font-ui`, already loaded) for Meet/intro/headings/labels/
+  download; **Pinyon Script** (already vendored) for the script name; a
+  Helvetica→Arial stack for the experience/education entries (Helvetica renders
+  as Arial on Windows anyway). No new font package needed.
+- **The pinned Figma comment was removed from the hero** — it collided with the
+  new "Download Resume" at the top-right, and "copy exactly" means her frame's
+  content only. The Figma-file selection chrome (label/ring/handles/dims pill)
+  still wraps the frame, and `FRAMES[0]` now reports 1316×741 / fill #4A4A58
+  with layer children PROFILE.DOC / experience / skill-set / softwares /
+  education — the layers + properties panels track the new hero automatically.
+- **Old hero copy retired** (the Archivo "Designs it in Figma…" headline + stat
+  chips). "Download Resume ↓" → `/resume-design.docx`.
+- **NOT done (follow-up): true mobile reflow.** <768px the poster just scales
+  down proportionally (via `--u`), so text gets small but nothing breaks or
+  overflows. The planned stacked-column mobile layout is still open.
+
 ## 2026-07-18 — Contact envelope: one true-transparent PNG, bottom-centre
 
 Final form of the contact art, superseding the two-cutout + 3-layer-tuck build
