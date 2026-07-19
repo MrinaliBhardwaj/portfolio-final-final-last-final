@@ -601,21 +601,24 @@
   position: relative;
 }
 
-/* one dot per role, sitting on the thread */
+/* one Figma VECTOR ANCHOR per role, sitting on the thread — the timeline as a
+   pen-tool path in her own file. Unselected anchors are white squares with a
+   slate stroke; the newest role is the selected one, filled pink. */
 .dw-exp::before {
   content: "";
   position: absolute;
-  top: calc(-1.9rem + 0.5rem - 3.5px);
+  top: calc(-1.9rem + 0.5rem - 4px);
   left: 0;
   width: 8px;
   height: 8px;
-  border-radius: 50%;
-  background: #4a4a58;
+  border-radius: 1px;
+  background: #fff;
+  border: 1.5px solid #4a4a58;
 }
 
-/* the newest role's dot is the one pink note */
 .dw-exp:first-child::before {
   background: var(--dw-pink);
+  border-color: #b0447c;
 }
 
 .dw-exp-when {
@@ -690,26 +693,87 @@
   outline-offset: 4px;
 }
 
+/* The field is layered, not flat: a soft pink glow in one corner (position
+   varies per card for rhythm), the canvas's own dot grid, and a diagonal
+   slate gradient. Hover deepens via an overlay (multi-backgrounds can't
+   transition) so the glow and ghosts dim with it. */
 .dw-card-visual {
+  --glow-x: 82%;
+  --glow-y: 18%;
   position: relative;
   aspect-ratio: 16 / 9;
-  background: #4a4a58;
+  background:
+    radial-gradient(
+      46% 62% at var(--glow-x) var(--glow-y),
+      rgba(244, 114, 182, 0.17),
+      transparent 72%
+    ),
+    radial-gradient(circle, rgba(246, 245, 242, 0.06) 1px, transparent 1.4px)
+      0 0 / 22px 22px,
+    linear-gradient(135deg, #50505e, #43434f 55%, #3b3b47);
   overflow: hidden;
-  transition: background-color 0.35s var(--ease-soft);
+}
+
+.dw-card--sm .dw-card-visual {
+  --glow-x: 16%;
+  --glow-y: 80%;
 }
 
 .dw-card--wide .dw-card-visual {
+  --glow-x: 76%;
+  --glow-y: 72%;
   aspect-ratio: 21 / 6;
 }
 
-.dw-card:hover .dw-card-visual,
-.dw-card:focus-visible .dw-card-visual {
-  background: #3a3a46;
+.dw-card-visual::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1; /* dims the field + ghosts; chip/name/arrow sit above at 2 */
+  background: rgba(16, 16, 22, 0);
+  transition: background-color 0.35s var(--ease-soft);
+  pointer-events: none;
+}
+
+.dw-card:hover .dw-card-visual::after,
+.dw-card:focus-visible .dw-card-visual::after {
+  background: rgba(16, 16, 22, 0.18);
+}
+
+/* the wireframe ghosts — project-as-work-in-progress, drifting on hover */
+.dw-card-sketch {
+  position: absolute;
+  right: 2%;
+  top: 4%;
+  width: 58%;
+  transition: transform 0.5s var(--ease-soft);
+}
+
+.dw-card--sm .dw-card-sketch {
+  width: 72%;
+}
+
+.dw-card--wide .dw-card-sketch {
+  right: 4%;
+  top: 50%;
+  width: 30%;
+  transform: translateY(-50%);
+}
+
+.dw-card:hover .dw-card-sketch,
+.dw-card:focus-visible .dw-card-sketch {
+  transform: translate(-5px, -3px);
+}
+
+.dw-card--wide:hover .dw-card-sketch,
+.dw-card--wide:focus-visible .dw-card-sketch {
+  transform: translateY(-50%) translate(-5px, -3px);
 }
 
 /* the pink note, pinned to the field's top-left */
 .dw-card-tag {
   position: absolute;
+  z-index: 2;
   top: 1rem;
   left: 1.1rem;
   font-size: 0.68rem;
@@ -724,6 +788,7 @@
 /* the project name as display type — the contact card's "a wrap." voice */
 .dw-card-display {
   position: absolute;
+  z-index: 2;
   left: 1.1rem;
   right: 1.1rem;
   bottom: 0.75rem;
@@ -745,6 +810,7 @@
 
 .dw-card-arrow {
   position: absolute;
+  z-index: 2;
   top: 1rem;
   right: 1rem;
   color: #f6f5f2;

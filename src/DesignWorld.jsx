@@ -91,6 +91,55 @@ const FRAMES = [
 
 const SECTION_IDS = FRAMES.map((f) => f.id);
 
+/* Faint wireframe ghosts for the work panels — each project rendered as
+   design-work-in-progress (cream strokes at ~13% on the slate field). Three
+   hand-tuned arrangements, matched to what each project actually was:
+   "screens" = web + mobile pair, "app" = a phone with a component beside it,
+   "brand" = mark + wordmark lines + Figma's component diamond. Decorative
+   only (aria-hidden); the real case-study shots replace nothing here — they
+   join the panel later and these ghosts bow out. */
+function PanelSketch({ kind }) {
+  const s = {
+    fill: "none",
+    stroke: "rgba(246, 245, 242, 0.14)",
+    strokeWidth: 1.3,
+  };
+  if (kind === "screens") {
+    return (
+      <svg className="dw-card-sketch" viewBox="0 0 220 132" aria-hidden="true">
+        <rect x="8" y="14" width="128" height="86" rx="3" {...s} />
+        <path d="M8 30h128" {...s} />
+        <circle cx="16" cy="22" r="2.5" {...s} />
+        <circle cx="25" cy="22" r="2.5" {...s} />
+        <rect x="20" y="44" width="52" height="30" rx="2" {...s} />
+        <path d="M20 84h64M20 92h44" {...s} />
+        <rect x="152" y="34" width="56" height="92" rx="8" {...s} />
+        <path d="M152 50h56M172 118h16" {...s} />
+      </svg>
+    );
+  }
+  if (kind === "app") {
+    return (
+      <svg className="dw-card-sketch" viewBox="0 0 220 132" aria-hidden="true">
+        <rect x="78" y="6" width="62" height="120" rx="9" {...s} />
+        <path d="M78 26h62M78 106h62" {...s} />
+        <circle cx="109" cy="52" r="14" {...s} />
+        <path d="M91 76h36M91 86h24" {...s} />
+        <rect x="156" y="32" width="42" height="42" rx="4" {...s} />
+        <path d="M156 46h42" {...s} />
+      </svg>
+    );
+  }
+  // brand
+  return (
+    <svg className="dw-card-sketch" viewBox="0 0 220 132" aria-hidden="true">
+      <circle cx="58" cy="64" r="32" {...s} />
+      <path d="M106 48h76M106 62h56M106 76h66" {...s} />
+      <path d="M172 92l11 11-11 11-11-11Z" {...s} />
+    </svg>
+  );
+}
+
 /* one artboard on the canvas. When it's the active section it wears Figma's
    selection: blue ring, four corner handles, a dimension pill below. */
 function Frame({ frame, active, tone, area, children }) {
@@ -206,6 +255,7 @@ const work = [
       "End-to-end product design for citizen-reported civic issues — capture, feeds, voting — shortlisted for the Smart India Hackathon finals.",
     size: "lg",
     href: BEHANCE,
+    sketch: "screens",
   },
   {
     name: "Meal Maestro",
@@ -216,6 +266,7 @@ const work = [
       "A smart meal-planning app: personalized recipes and grocery lists from user preferences.",
     size: "sm",
     href: BEHANCE,
+    sketch: "app",
   },
   {
     name: "Futurepreneurs 10.0",
@@ -226,6 +277,7 @@ const work = [
       "Full identity and digital assets — website, social, reels, brochures — driving 10,000+ views.",
     size: "wide",
     href: BEHANCE,
+    sketch: "brand",
   },
 ];
 
@@ -296,8 +348,15 @@ export default function DesignWorld() {
           <Frame frame={FRAMES[1]} active={activeSection === "dw-exp"} area="1 / span 12">
             <h2 className="dw-h2">Experience</h2>
             <div className="dw-exp-grid">
-              {experience.map((e) => (
-                <article className="dw-exp" key={e.org}>
+              {experience.map((e, i) => (
+                <motion.article
+                  className="dw-exp"
+                  key={e.org}
+                  initial={{ opacity: 0, y: 14 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-40px" }}
+                  transition={{ duration: 0.5, ease: EASE, delay: i * 0.06 }}
+                >
                   <p className="dw-exp-when">{e.when}</p>
                   <h3 className="dw-exp-org">{e.org}</h3>
                   <p className="dw-exp-role">{e.role}</p>
@@ -307,7 +366,7 @@ export default function DesignWorld() {
                       {pt}
                     </p>
                   ))}
-                </article>
+                </motion.article>
               ))}
             </div>
           </Frame>
@@ -322,16 +381,21 @@ export default function DesignWorld() {
           <Frame frame={FRAMES[2]} active={activeSection === "dw-work"} area="3 / span 10">
             <h2 className="dw-h2">Selected work</h2>
             <div className="dw-work-grid">
-              {work.map((w) => (
-                <a
+              {work.map((w, i) => (
+                <motion.a
                   className={`dw-card dw-card--${w.size}`}
                   key={w.name}
                   href={w.href}
                   target="_blank"
                   rel="noreferrer"
                   aria-label={`${w.name} — open the project`}
+                  initial={{ opacity: 0, y: 16 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-40px" }}
+                  transition={{ duration: 0.55, ease: EASE, delay: i * 0.06 }}
                 >
                   <div className="dw-card-visual">
+                    <PanelSketch kind={w.sketch} />
                     <span className="dw-card-tag">{w.tag}</span>
                     <span className="dw-card-display" aria-hidden="true">
                       {w.name.toLowerCase()}
@@ -349,7 +413,7 @@ export default function DesignWorld() {
                   </p>
                   <p className="dw-card-blurb">{w.blurb}</p>
                   <p className="dw-card-open">View project</p>
-                </a>
+                </motion.a>
               ))}
             </div>
           </Frame>

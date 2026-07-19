@@ -2,6 +2,32 @@
 
 Decisions that survive rebuilds. Append, don't rewrite history.
 
+## 2026-07-19 — Engagement pass on experience/work (follow-up, same day)
+
+She asked for more visual life in the two frames (via /ui-ux-pro-max; its CLI
+database isn't installed, so its inline rules were applied: 60ms stagger,
+transform/opacity-only motion, hover as enhancement). All inside the approved
+slate/cream/pink system — no new colors, no new type:
+
+- **The thread's dots are now Figma VECTOR ANCHORS** — 8px white squares with a
+  slate stroke, the newest role pink-filled (the "selected" anchor). The
+  timeline literally reads as a pen-tool path in her file.
+- **Work panels are layered fields, not flat slate**: diagonal slate gradient +
+  the canvas's dot-grid motif + a soft pink corner glow (corner varies per card
+  for rhythm). Hover deepens via a `::after` overlay at z1 (multi-backgrounds
+  can't transition); chip/name/arrow sit at z2 so they stay crisp.
+- **Each panel carries a faint wireframe GHOST** (`PanelSketch` in
+  DesignWorld.jsx, cream strokes at 14%): web+mobile pair for Public Pulse, a
+  phone for Meal Maestro, mark+wordmark+component-diamond for Futurepreneurs.
+  Ghosts drift ~5px on hover. When real case-study shots arrive they replace
+  the ghosts, not the chip/name/arrow.
+- Entries and cards stagger in at 60ms via whileInView (matches the codebase's
+  existing Frame reveal; MotionConfig reducedMotion="user" covers it).
+- VERIFICATION GOTCHA (pane, not code): the hidden Browser pane suspends
+  IntersectionObserver entirely — whileInView content stays at opacity 0 there.
+  Force `style.opacity=1` on `.dw-card/.dw-exp` to screenshot these frames
+  headlessly.
+
 ## 2026-07-19 — Experience/work rebuilt in the approved voice; one type system
 
 Her brief: she's satisfied with the DESIGN of profile, skills, leadership and
