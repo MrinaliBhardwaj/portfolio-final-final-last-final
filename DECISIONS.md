@@ -730,3 +730,18 @@ The replacement leans all the way into the file fiction:
   relaxes to 16/10.
 - Meta text under each board is the "annotation next to a frame" voice:
   Helvetica bold name, light meta, dim ink on canvas, "View project â†—".
+
+### Refinement: selected work is a SECTION, comment pins expand on hover only
+
+- **Selected-work is no longer a frame** â€” it's a bare `<section class="dw-work-section">`
+  (transparent, `min-width:0`), so the three project artboards float directly
+  on the page's own #1E1E1E canvas + dot grid. The outer artboard box, its
+  frame-name label, and its own blue selection ring are gone. In Figma terms
+  it's now a SECTION grouping three frames, not a frame-inside-a-frame. It
+  keeps `id="dw-work"` so scroll-spy / nav / the layers + props panels still
+  track it; only the on-canvas chrome was dropped.
+- **Comment pins collapse by default** â€” only the numbered pink dot shows;
+  the white note (`.dw-board-pin-note`, the award) expands on
+  `.dw-board:hover/:focus-visible`, same reveal gesture as the hero `.cvf-pin`.
+  Previously the notes were always-open; that read as permanent captions and
+  cluttered the resting state.

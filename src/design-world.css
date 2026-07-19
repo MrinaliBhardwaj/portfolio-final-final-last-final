@@ -664,19 +664,14 @@
   color: rgba(74, 74, 88, 0.92);
 }
 
-/* ---- selected work: artboards on the canvas ---- */
-/* The frame's body is a WINDOW OF CANVAS — same #1E1E1E and dot grid as the
-   page itself — and each project sits on it as its own light artboard with
-   its own frame-name label (her file-naming voice: v12, final, FINAL(2)),
-   tilted like work-in-progress. A numbered Figma comment pin carries the
-   award. Hover = selecting the board: it straightens, wears the blue ring,
-   corner handles and dims pill; the label turns selection-blue. */
-#dw-work .cvf-body {
-  background:
-    radial-gradient(circle, rgba(255, 255, 255, 0.05) 1px, transparent 1.5px)
-      0 0 / 24px 24px,
-    var(--dw-bg);
-  color: var(--dw-ink);
+/* ---- selected work: a SECTION on the canvas, not a frame ---- */
+/* No artboard box of its own — the section is transparent, so the three
+   project artboards float directly on the page's own #1E1E1E canvas + dot
+   grid (.dw-content). Each board is the frame now: its own light artboard,
+   file-naming-joke label, tilt, numbered comment pin, and hover-to-select
+   chrome (blue ring, corner handles, dims pill, blue label). */
+.dw-work-section {
+  min-width: 0; /* same grid-safety the .cvf frames get */
 }
 
 .dw-work-canvas {
@@ -825,6 +820,9 @@
   transform: scale(1.1);
 }
 
+/* the comment body stays COLLAPSED (just the pin dot shows) and expands only
+   when the board is hovered/focused — a real Figma comment pin, not a
+   permanent caption. Same reveal gesture as the hero's .cvf-pin note. */
 .dw-board-pin-note {
   background: #fff;
   color: #1c1b19;
@@ -835,6 +833,17 @@
   border-radius: 3px 10px 10px 10px;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
   max-width: 180px;
+  opacity: 0;
+  transform: translateX(-4px);
+  transform-origin: left center;
+  pointer-events: none;
+  transition: opacity 0.25s var(--ease-soft), transform 0.25s var(--ease-soft);
+}
+
+.dw-board:hover .dw-board-pin-note,
+.dw-board:focus-visible .dw-board-pin-note {
+  opacity: 1;
+  transform: translateX(0);
 }
 
 /* selection chrome — the same handles + dims pill the section frames wear,

@@ -391,18 +391,22 @@ export default function DesignWorld() {
             </div>
           </Frame>
 
-          {/* ============ selected work — artboards on the canvas ============ */}
-          {/* The frame's body IS a window of Figma canvas (#1E1E1E + dot
-              grid); each project sits on it as its own light artboard —
-              labelled in her real file-naming voice (v12, final, FINAL(2) —
-              the repo-name joke), tilted like work-in-progress, wearing a
-              numbered comment pin that carries the award as an unresolved
-              Figma comment. Hovering a board SELECTS it: it straightens and
-              gains the blue ring, corner handles and dims pill, exactly like
-              the section frames themselves. Each board is one big link.
+          {/* ============ selected work — a SECTION on the canvas ============ */}
+          {/* Not a frame: a labelled Figma SECTION — a loose region of the
+              open canvas that GROUPS the three project artboards, with no
+              artboard box or selection ring of its own. The boards are the
+              frames now (each its own light artboard, file-naming-joke label,
+              tilt, numbered comment pin, hover-to-select chrome); this wrapper
+              just holds them so they float directly on the #1E1E1E canvas.
               TODO: real case-study shots later replace the sketch inside
               .dw-board-art; everything else stays. */}
-          <Frame frame={FRAMES[2]} active={activeSection === "dw-work"} area="1 / span 12">
+          <motion.section
+            className="dw-work-section"
+            id="dw-work"
+            aria-label="selected work"
+            style={{ gridColumn: "1 / span 12" }}
+            {...reveal}
+          >
             <h2 className="dw-h2">Selected work</h2>
             <div className="dw-work-canvas">
               {work.map((w, i) => (
@@ -454,7 +458,7 @@ export default function DesignWorld() {
                 </motion.a>
               ))}
             </div>
-          </Frame>
+          </motion.section>
 
           {/* ============ skills (a dark frame on the canvas) ============ */}
           <Frame
