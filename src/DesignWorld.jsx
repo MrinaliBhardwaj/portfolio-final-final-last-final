@@ -52,7 +52,7 @@ const FRAMES = [
   {
     id: "dw-work",
     name: "selected-work",
-    props: { x: 240, y: 1440, w: 1200, h: 720, fill: "#1E1E1E" },
+    props: { x: 240, y: 1440, w: 1200, h: 720, fill: "transparent" },
     children: [
       { icon: "frame", name: "publicpulse-v12" },
       { icon: "frame", name: "meal-maestro-final" },
@@ -209,9 +209,18 @@ function PropsPanel({ frame }) {
       <div className="dwp-sec">
         <p className="dwp-label">Fill</p>
         <div className="dwp-fill">
-          <span className="dwp-swatch" style={{ background: p.fill }} />
-          <span className="dwp-v">{p.fill.replace("#", "")}</span>
-          <span className="dwp-k">100%</span>
+          {p.fill === "transparent" ? (
+            <>
+              <span className="dwp-swatch dwp-swatch--none" />
+              <span className="dwp-v">Transparent</span>
+            </>
+          ) : (
+            <>
+              <span className="dwp-swatch" style={{ background: p.fill }} />
+              <span className="dwp-v">{p.fill.replace("#", "")}</span>
+              <span className="dwp-k">100%</span>
+            </>
+          )}
         </div>
       </div>
       <div className="dwp-sec">
