@@ -6,7 +6,7 @@
 // Chrome speaks Inter (Figma's UI font); the hero headline keeps the wide
 // Archivo display type — the one identity thread shared across surfaces.
 import { motion } from "framer-motion";
-import { Mail } from "lucide-react";
+import { ArrowUpRight, Mail } from "lucide-react";
 import FigmaPanel from "./FigmaPanel.jsx";
 import WorldTabs from "./WorldTabs.jsx";
 import DesignHero from "./DesignHero.jsx";
@@ -193,6 +193,9 @@ const experience = [
   },
 ];
 
+// Every work is a LINK. TODO: she supplies the real per-project URLs
+// (Behance case studies / live sites); until then each opens her Behance
+// profile so the affordance is honest, never dead.
 const work = [
   {
     name: "Public Pulse",
@@ -202,6 +205,7 @@ const work = [
     blurb:
       "End-to-end product design for citizen-reported civic issues — capture, feeds, voting — shortlisted for the Smart India Hackathon finals.",
     size: "lg",
+    href: BEHANCE,
   },
   {
     name: "Meal Maestro",
@@ -211,6 +215,7 @@ const work = [
     blurb:
       "A smart meal-planning app: personalized recipes and grocery lists from user preferences.",
     size: "sm",
+    href: BEHANCE,
   },
   {
     name: "Futurepreneurs 10.0",
@@ -220,6 +225,7 @@ const work = [
     blurb:
       "Full identity and digital assets — website, social, reels, brochures — driving 10,000+ views.",
     size: "wide",
+    href: BEHANCE,
   },
 ];
 
@@ -282,7 +288,11 @@ export default function DesignWorld() {
             <DesignHero />
           </Frame>
 
-          {/* ============ experience ============ */}
+          {/* ============ experience — the thread ============ */}
+          {/* Reverse-chronological timeline: one hairline across the frame with
+              a dot per role (the newest dot is pink) — the profile poster's
+              rule-connector motif, scaled up. Type follows the profile card:
+              Helvetica bold orgs, light meta, Inter-light body, slate ink. */}
           <Frame frame={FRAMES[1]} active={activeSection === "dw-exp"} area="1 / span 12">
             <h2 className="dw-h2">Experience</h2>
             <div className="dw-exp-grid">
@@ -302,23 +312,44 @@ export default function DesignWorld() {
             </div>
           </Frame>
 
-          {/* ============ selected work ============ */}
+          {/* ============ selected work — clickable artboards ============ */}
+          {/* Each work is one big link. The visual is a slate #4a4a58 panel
+              (the profile's ink as a field) carrying the project name in the
+              contact card's display voice (Archivo 900, lowercase); the pink
+              tag chip sits on the panel; hovering deepens the panel and slides
+              in the ↗. TODO: swap the name-panels for real case-study shots
+              when she supplies them — the panel div stays and gains an image. */}
           <Frame frame={FRAMES[2]} active={activeSection === "dw-work"} area="3 / span 10">
             <h2 className="dw-h2">Selected work</h2>
             <div className="dw-work-grid">
               {work.map((w) => (
-                <article className={`dw-card dw-card--${w.size}`} key={w.name}>
+                <a
+                  className={`dw-card dw-card--${w.size}`}
+                  key={w.name}
+                  href={w.href}
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label={`${w.name} — open the project`}
+                >
                   <div className="dw-card-visual">
-                    {/* TODO: real case-study visuals */}
-                    <span>{w.name}</span>
+                    <span className="dw-card-tag">{w.tag}</span>
+                    <span className="dw-card-display" aria-hidden="true">
+                      {w.name.toLowerCase()}
+                    </span>
+                    <ArrowUpRight
+                      className="dw-card-arrow"
+                      size={20}
+                      strokeWidth={1.6}
+                      aria-hidden="true"
+                    />
                   </div>
-                  <p className="dw-card-tag">{w.tag}</p>
                   <h3 className="dw-card-name">{w.name}</h3>
                   <p className="dw-card-what">
                     {w.what} · {w.when}
                   </p>
                   <p className="dw-card-blurb">{w.blurb}</p>
-                </article>
+                  <p className="dw-card-open">View project</p>
+                </a>
               ))}
             </div>
           </Frame>

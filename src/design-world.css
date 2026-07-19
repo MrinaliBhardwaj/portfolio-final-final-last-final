@@ -3,6 +3,9 @@
    frames scattered across it. Chrome + body speak Inter (Figma's UI font);
    the hero headline keeps the wide Archivo display — the shared thread. */
 .dw {
+  /* the profile card's entry hand, shared by every frame (Helvetica renders
+     as Arial on Windows; same stack the hero poster uses) */
+  --hv: Helvetica, "Helvetica Neue", Arial, sans-serif;
   background: var(--dw-bg);
   color: var(--dw-ink);
   min-height: 100dvh;
@@ -194,7 +197,6 @@
 
 .dwh {
   --u: calc(100cqw / 1316);
-  --hv: Helvetica, "Helvetica Neue", Arial, sans-serif;
   position: absolute;
   inset: 0;
   overflow: hidden; /* the painting/photo/tiger bleed; the frame clips them */
@@ -557,130 +559,281 @@
   background: #fff;
 }
 
-/* section heading inside frames */
+/* Frame headings, unified to the PROFILE card's voice: Inter Light, sentence
+   case, quiet — the poster's "Experience" / "Skill Set" heads scaled up.
+   Colour inherits so the dark and pink frames keep their own ink. */
 .dw-h2 {
-  font-family: var(--font-sans);
-  font-stretch: 120%;
-  font-weight: 850;
-  text-transform: uppercase;
+  font-family: var(--font-ui);
+  font-weight: 300;
+  font-size: clamp(1.35rem, 2.2vw, 1.7rem);
   letter-spacing: 0.01em;
-  font-size: clamp(1.15rem, 2vw, 1.5rem);
-  margin-bottom: 2rem;
+  line-height: 1;
+  margin-bottom: 2.2rem;
 }
 
-/* ---- experience: three columns on one artboard ---- */
+/* ---- experience: the thread ---- */
+/* Three roles, newest first, hung off one hairline — the profile poster's
+   rule-connector motif at frame scale. Slate ink like the profile/contact. */
+#dw-exp .cvf-body {
+  color: #4a4a58;
+}
+
 .dw-exp-grid {
+  position: relative;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 2.4rem;
+  gap: 2.6rem;
+  padding-top: 1.9rem; /* room for the thread + dots above the columns */
+}
+
+/* the thread itself */
+.dw-exp-grid::before {
+  content: "";
+  position: absolute;
+  top: 0.5rem;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: rgba(74, 74, 88, 0.35);
+}
+
+.dw-exp {
+  position: relative;
+}
+
+/* one dot per role, sitting on the thread */
+.dw-exp::before {
+  content: "";
+  position: absolute;
+  top: calc(-1.9rem + 0.5rem - 3.5px);
+  left: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #4a4a58;
+}
+
+/* the newest role's dot is the one pink note */
+.dw-exp:first-child::before {
+  background: var(--dw-pink);
 }
 
 .dw-exp-when {
+  font-family: var(--hv);
   font-size: 0.74rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--dw-board-dim);
+  font-weight: 300;
+  letter-spacing: 0.02em;
+  color: rgba(74, 74, 88, 0.75);
 }
 
 .dw-exp-org {
   margin-top: 0.5rem;
-  font-size: 1.18rem;
-  font-weight: 750;
-  letter-spacing: -0.01em;
+  font-family: var(--hv);
+  font-size: 1.14rem;
+  font-weight: 700;
+  letter-spacing: 0;
 }
 
 .dw-exp-role {
-  margin-top: 0.15rem;
-  font-size: 0.86rem;
-  font-weight: 550;
-  color: var(--dw-board-dim);
+  margin-top: 0.2rem;
+  font-family: var(--hv);
+  font-size: 0.85rem;
+  font-weight: 300;
+  color: rgba(74, 74, 88, 0.8);
 }
 
 .dw-exp-kpi {
   display: inline-block;
   margin-top: 0.9rem;
-  font-size: 0.78rem;
-  font-weight: 700;
-  color: var(--dw-accent);
-  border: 1px solid rgba(226, 58, 22, 0.35);
+  font-size: 0.74rem;
+  font-weight: 500;
+  color: #b0447c; /* the pink, deepened to hold AA on the cream board */
+  border: 1px solid rgba(244, 114, 182, 0.5);
   border-radius: 999px;
   padding: 0.3rem 0.7rem;
 }
 
 .dw-exp-point {
   margin-top: 0.85rem;
-  font-size: 0.87rem;
-  line-height: 1.6;
-  color: #3d3a35;
+  font-size: 0.86rem;
+  font-weight: 380;
+  line-height: 1.62;
+  color: rgba(74, 74, 88, 0.92);
 }
 
-/* ---- selected work ---- */
+/* ---- selected work: clickable artboards ---- */
+/* Each card is one link. The visual is a slate field (the profile's ink as a
+   surface) with the project name in the contact card's display voice; hover
+   deepens the field and slides the ↗ in. Slate ink everywhere else. */
+#dw-work .cvf-body {
+  color: #4a4a58;
+}
+
 .dw-work-grid {
   display: grid;
   grid-template-columns: repeat(12, 1fr);
-  gap: 2.2rem;
+  gap: 2.4rem;
 }
 
 .dw-card--lg { grid-column: span 7; }
 .dw-card--sm { grid-column: span 5; }
 .dw-card--wide { grid-column: span 12; }
 
+.dw-card {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+
+.dw-card:focus-visible {
+  outline: 2px solid var(--dw-blue); /* Figma's selection blue — on-fiction */
+  outline-offset: 4px;
+}
+
 .dw-card-visual {
-  display: grid;
-  place-items: center;
+  position: relative;
   aspect-ratio: 16 / 9;
-  background: linear-gradient(
-      150deg,
-      rgba(226, 58, 22, 0.1),
-      rgba(226, 58, 22, 0.02) 60%
-    ),
-    #eceae5;
-  border: 1px solid var(--dw-board-line);
+  background: #4a4a58;
+  overflow: hidden;
+  transition: background-color 0.35s var(--ease-soft);
 }
 
 .dw-card--wide .dw-card-visual {
   aspect-ratio: 21 / 6;
 }
 
-.dw-card-visual span {
-  font-family: var(--font-sans);
-  font-stretch: 120%;
-  font-weight: 850;
-  text-transform: uppercase;
-  font-size: clamp(1rem, 2vw, 1.5rem);
-  color: rgba(28, 27, 25, 0.35);
-  letter-spacing: 0.02em;
+.dw-card:hover .dw-card-visual,
+.dw-card:focus-visible .dw-card-visual {
+  background: #3a3a46;
 }
 
+/* the pink note, pinned to the field's top-left */
 .dw-card-tag {
-  margin-top: 1rem;
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--dw-accent);
+  position: absolute;
+  top: 1rem;
+  left: 1.1rem;
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: #2e2e38;
+  background: var(--dw-pink);
+  border-radius: 999px;
+  padding: 0.28rem 0.65rem;
+}
+
+/* the project name as display type — the contact card's "a wrap." voice */
+.dw-card-display {
+  position: absolute;
+  left: 1.1rem;
+  right: 1.1rem;
+  bottom: 0.75rem;
+  font-family: var(--font-sans);
+  font-weight: 900;
+  font-stretch: 105%;
+  letter-spacing: -0.03em;
+  line-height: 0.9;
+  font-size: clamp(1.7rem, 3.4vw, 2.9rem);
+  color: #f6f5f2;
+  text-wrap: balance;
+  transition: transform 0.35s var(--ease-soft);
+}
+
+.dw-card:hover .dw-card-display,
+.dw-card:focus-visible .dw-card-display {
+  transform: translateY(-3px);
+}
+
+.dw-card-arrow {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  color: #f6f5f2;
+  opacity: 0;
+  transform: translate(-5px, 5px);
+  transition: opacity 0.3s var(--ease-soft), transform 0.3s var(--ease-soft);
+}
+
+.dw-card:hover .dw-card-arrow,
+.dw-card:focus-visible .dw-card-arrow {
+  opacity: 1;
+  transform: translate(0, 0);
 }
 
 .dw-card-name {
-  margin-top: 0.3rem;
-  font-size: 1.25rem;
-  font-weight: 750;
-  letter-spacing: -0.01em;
+  margin-top: 1.05rem;
+  font-family: var(--hv);
+  font-size: 1.14rem;
+  font-weight: 700;
+  letter-spacing: 0;
 }
 
 .dw-card-what {
-  margin-top: 0.15rem;
+  margin-top: 0.2rem;
+  font-family: var(--hv);
   font-size: 0.82rem;
-  color: var(--dw-board-dim);
+  font-weight: 300;
+  color: rgba(74, 74, 88, 0.8);
 }
 
 .dw-card-blurb {
   margin-top: 0.6rem;
-  font-size: 0.88rem;
-  line-height: 1.6;
-  color: #3d3a35;
+  font-size: 0.86rem;
+  font-weight: 380;
+  line-height: 1.62;
+  color: rgba(74, 74, 88, 0.92);
   max-width: 52ch;
+}
+
+/* the quiet "View project" line — same hairline-underline gesture as the
+   contact card's resume link */
+.dw-card-open {
+  width: fit-content;
+  margin-top: 0.8rem;
+  font-size: 0.78rem;
+  font-weight: 500;
+  border-bottom: 1px solid rgba(74, 74, 88, 0.3);
+  padding-bottom: 2px;
+  transition: color 0.2s var(--ease-soft), border-color 0.2s var(--ease-soft);
+}
+
+.dw-card:hover .dw-card-open,
+.dw-card:focus-visible .dw-card-open {
+  color: #2e2e38;
+  border-color: #2e2e38;
+}
+
+/* mobile: the thread turns vertical down the left margin; work cards stack */
+@media (max-width: 768px) {
+  .dw-exp-grid {
+    grid-template-columns: 1fr;
+    gap: 2.4rem;
+    padding-top: 0;
+    padding-left: 1.5rem;
+  }
+
+  .dw-exp-grid::before {
+    top: 0.4rem;
+    bottom: 0.4rem;
+    left: 3.5px;
+    right: auto;
+    width: 1px;
+    height: auto;
+  }
+
+  .dw-exp::before {
+    top: 0.35rem;
+    left: -1.5rem;
+  }
+
+  .dw-card--lg,
+  .dw-card--sm,
+  .dw-card--wide {
+    grid-column: span 12;
+  }
+
+  .dw-card--wide .dw-card-visual {
+    aspect-ratio: 16 / 9; /* the 21:6 letterbox is too shallow at phone width */
+  }
 }
 
 /* ---- skills (dark frame) ---- */
@@ -693,7 +846,7 @@
 
 .dw-skill-chips li {
   font-size: 0.8rem;
-  font-weight: 550;
+  font-weight: 400; /* aligned to the profile's light entry hand */
   padding: 0.45rem 0.85rem;
   border-radius: 999px;
   border: 1px solid rgba(255, 255, 255, 0.16);
@@ -725,9 +878,10 @@
 }
 
 .dw-lead-grid h3 {
+  font-family: var(--hv); /* the profile card's bold entry hand */
   font-size: 1.05rem;
-  font-weight: 750;
-  letter-spacing: -0.01em;
+  font-weight: 700;
+  letter-spacing: 0;
 }
 
 .dw-lead-grid p {

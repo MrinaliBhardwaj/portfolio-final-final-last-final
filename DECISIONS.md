@@ -2,6 +2,43 @@
 
 Decisions that survive rebuilds. Append, don't rewrite history.
 
+## 2026-07-19 — Experience/work rebuilt in the approved voice; one type system
+
+Her brief: she's satisfied with the DESIGN of profile, skills, leadership and
+contact, and the TYPOGRAPHY of profile + contact. Align experience +
+selected-work to those, make them engaging, unify type everywhere, and make
+every work clickable.
+
+**The shared type system** (anchor: the profile poster + contact card):
+- Frame headings (`.dw-h2`): **Inter Light 300, sentence case** — the poster's
+  "Experience"/"Skill Set" heads scaled up. The Archivo-850-UPPERCASE heads are
+  DEAD; don't bring back uppercase tracking.
+- Entries: **Helvetica stack (`--hv`, now defined on `.dw`** — moved up from
+  `.dwh` so every frame shares it): bold 700 titles, light 300 metadata.
+- Body: Inter ~380 at 0.86rem/1.62.
+- Ink on light frames: the profile's **slate `#4a4a58`** (scoped via
+  `#dw-exp/#dw-work .cvf-body`), not the near-black board ink.
+- Accent: **pink only** (`--dw-pink`); the kpi chip text is `#b0447c` (pink
+  deepened to hold AA on cream). Vermilion no longer appears in these frames.
+- Skills/leadership DESIGNS untouched — only their type aligned (chips → 400,
+  leadership h3 → Helvetica 700).
+
+**Experience = "the thread":** one hairline across the frame with a dot per
+role, newest first, the newest dot pink — the profile poster's rule-connector
+motif at frame scale. On mobile the thread turns vertical down the left margin
+(dots beside entries). Pure CSS (`::before` on grid + entries).
+
+**Selected work = clickable artboards:** each card is ONE `<a>`
+(`target=_blank`): slate `#4a4a58` visual panel with the project name in the
+contact card's display voice (Archivo 900, lowercase), pink tag chip pinned
+top-left, hover deepens the panel + slides in the ↗ + lifts the name 3px;
+below, Helvetica name/meta + Inter blurb + a "View project" hairline-underline
+row (the contact card's link gesture). Focus ring is Figma selection blue
+(on-fiction). **All three hrefs are her Behance PROFILE as placeholders — she
+still owes the real per-project URLs** (swap them in the `work` array's `href`
+field in `DesignWorld.jsx`). When real case-study shots arrive, the name-panel
+keeps the tag/arrow and gains the image.
+
 ## 2026-07-19 — Design hero asset-extraction gotchas (fixing the first pass)
 
 The first hero pass shipped three wrong assets; she caught them. All three were
