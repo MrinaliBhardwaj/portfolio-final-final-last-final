@@ -173,7 +173,10 @@ export default function DesignHero() {
         {/* the connector rules */}
         <span className="dwh-rule" style={{ left: U(147.44), top: U(99.98), width: U(102.34) }} />
         <span className="dwh-rule" style={{ left: U(166.57), top: U(223.27), width: U(85.19) }} />
-        <span className="dwh-rule dwh-rule--v" style={{ left: U(390.92), top: U(174.21), height: U(25.36) }} />
+        {/* vertical divider between the Moon Finance and LUMA boxes. It's a
+            ROTATED line node — metadata reports y=174.21 (post-rotation bbox),
+            but its true visual top is 148.85, centring it in the gap. */}
+        <span className="dwh-rule dwh-rule--v" style={{ left: U(390.92), top: U(148.85), height: U(25.36) }} />
 
         {/* softwares — "Softwares" label + the four grey tiles, cropped from
             the render (correctly composited over cream, so it drops onto the
