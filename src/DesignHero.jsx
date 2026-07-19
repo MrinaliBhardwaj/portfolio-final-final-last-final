@@ -86,26 +86,26 @@ function ExperienceEntry({ e }) {
 export default function DesignHero() {
   return (
     <div className="dwh">
-      {/* painted lotus-pond background — bleeds past every edge, clipped by the frame */}
+      {/* painted lotus-pond background (her real bg, exported frame-clipped) */}
       <img
         className="dwh-bg"
         src={`${A}/bg-pond.png`}
         alt=""
         aria-hidden="true"
-        style={{ left: U(-372), top: U(0), width: U(1696.43), height: U(950) }}
+        style={{ left: U(0), top: U(0), width: U(1316), height: U(741) }}
       />
 
       {/* the cream sheet */}
       <div className="dwh-sheet" style={{ left: U(55), top: U(67), width: U(1206), height: U(607) }} />
 
-      {/* the manila PROFTLE.DOC folder tab (her typo, baked in). The export is
-          trimmed to the tab's visible bounds (396×70), which sit bottom-aligned
-          in the original -39..69.77 slot — so it rests flush at the frame top. */}
+      {/* the manila PROFTLE.DOC folder tab (her typo, baked in). Cropped from
+          the rendered frame at its exact spot, so the painting behind it in the
+          crop realigns with the real painting — seamless. */}
       <img
         className="dwh-tab"
         src={`${A}/profile-tab.png`}
         alt="PROFILE.DOC"
-        style={{ left: U(7), top: U(-0.23), width: U(396), height: U(70) }}
+        style={{ left: U(4), top: U(0), width: U(400), height: U(72) }}
       />
 
       {/* childhood photo — blue bucket hat, bleeds off the sheet's lower-left */}
@@ -173,17 +173,17 @@ export default function DesignHero() {
         <span className="dwh-rule" style={{ left: U(166.57), top: U(223.27), width: U(85.19) }} />
         <span className="dwh-rule dwh-rule--v" style={{ left: U(390.92), top: U(174.21), height: U(25.36) }} />
 
-        {/* softwares — the four-tile strip + its label */}
+        {/* softwares — "Softwares" label + the four grey tiles, cropped from
+            the render (correctly composited over cream, so it drops onto the
+            sheet seamlessly; the semi-transparent tiles can't be a clean
+            standalone PNG). The label is part of the crop. */}
         <div className="dwh-soft" style={{ left: U(-13), top: U(244.45), width: U(286), height: U(190.67) }}>
           <img
             className="dwh-soft-img"
             src={`${A}/softwares.png`}
-            alt="Figma, Photoshop, Illustrator, VS Code"
-            style={{ top: U(5.56), width: U(286), height: U(190.67) }}
+            alt="Softwares: Figma, Photoshop, Illustrator, VS Code"
+            style={{ left: U(9), top: U(17.55), width: U(264), height: U(108) }}
           />
-          <span className="dwh-head" style={{ left: U(15.67), top: U(21.47), fontSize: U(20) }}>
-            Softwares
-          </span>
         </div>
       </div>
 

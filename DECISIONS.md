@@ -2,6 +2,33 @@
 
 Decisions that survive rebuilds. Append, don't rewrite history.
 
+## 2026-07-19 — Design hero asset-extraction gotchas (fixing the first pass)
+
+The first hero pass shipped three wrong assets; she caught them. All three were
+extraction mistakes, not layout mistakes (the `--u` geometry was already exact).
+Recorded so the next Figma port doesn't repeat them:
+
+- **The background was the WRONG IMAGE** — I pasted the bg asset URL from my
+  FIRST `get_design_context` call (node `4:3`, the "Rasyad Alfin" moodboard
+  screenshot) instead of the one from the real frame's call. The correct bg is
+  node `208:259` (the painterly water-lily pond). Lesson: never carry an asset
+  URL across `get_design_context` calls; each call's URLs belong to THAT node.
+  `download_assets` on `208:259` returns it frame-clipped to 1316×741, so it's
+  placed at `(0,0,1316,741)`, not the node's raw `(-372,0,1696,950)`.
+- **`download_assets` composites node exports over the frame's fill (#4A4A58).**
+  So the "as placed" exports of the folder icon and the software strip came back
+  with an opaque dark-slate background — the "logos have a background" bug. Two
+  fixes by asset type: the **folder** is opaque, so key out the slate by colour
+  distance and re-composite over the sheet cream (`out = P + (cream−slate)·(1−α)`,
+  α = dist/85) → sharp 257px folder-on-cream, reused ×3, seamless on the sheet.
+  The **software tiles are semi-transparent** (they pick up the backdrop), so
+  keying can't reconstruct them — instead crop them straight from the full-frame
+  render (`get_screenshot` of 208:260), where Figma already composited them over
+  cream. Same trick for the **tab** (crop at its exact spot; the painting baked
+  into the crop realigns with the real painting). Anything sitting on a known
+  flat backdrop can be cropped-in-place from the render and dropped back
+  seamlessly. The "Softwares" label is part of that crop now (no separate span).
+
 ## 2026-07-19 — The design hero IS her real Figma frame (PROFILE.DOC)
 
 Her brief: copy the Figma "profile" frame EXACTLY into code, and make it replace
