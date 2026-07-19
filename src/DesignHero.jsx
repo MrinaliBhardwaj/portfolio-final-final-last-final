@@ -125,13 +125,15 @@ export default function DesignHero() {
         style={{ left: U(922), top: U(318), width: U(593), height: U(593) }}
       />
 
-      {/* lotus flourish, bottom-centre */}
+      {/* lotus flourish, bottom-centre. Her node crop-fills a tall image down to
+          a wide band; cropped from the render at the exact node box so it shows
+          the full-width flourish (not the whole image shrunk into a sliver). */}
       <img
         className="dwh-flourish"
         src={`${A}/flourish.png`}
         alt=""
         aria-hidden="true"
-        style={{ left: U(727), top: U(603), width: U(112.84), height: U(34.14) }}
+        style={{ left: U(726), top: U(602), width: U(115), height: U(37) }}
       />
 
       {/* headline */}

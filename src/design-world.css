@@ -246,7 +246,7 @@
   z-index: 2;
 }
 .dwh-flourish {
-  object-fit: contain;
+  object-fit: fill;
   z-index: 3;
 }
 
