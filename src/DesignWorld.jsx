@@ -366,6 +366,14 @@ export default function DesignWorld() {
             area="1 / span 12"
             tone="poster"
           >
+            {/* a Figma comment pinned to the artboard */}
+            <a className="cvf-pin" href={EMAIL}>
+              <span className="cvf-pin-dot">1</span>
+              <span className="cvf-pin-note">
+                Open to design internships — say hello
+              </span>
+            </a>
+
             <DesignHero />
           </Frame>
 
