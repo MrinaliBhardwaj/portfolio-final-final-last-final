@@ -52,11 +52,11 @@ const FRAMES = [
   {
     id: "dw-work",
     name: "selected-work",
-    props: { x: 240, y: 1440, w: 1200, h: 620, fill: "#F6F5F2" },
+    props: { x: 240, y: 1440, w: 1200, h: 720, fill: "#1E1E1E" },
     children: [
-      { icon: "image", name: "Public Pulse" },
-      { icon: "image", name: "Meal Maestro" },
-      { icon: "image", name: "Futurepreneurs 10.0" },
+      { icon: "frame", name: "publicpulse-v12" },
+      { icon: "frame", name: "meal-maestro-final" },
+      { icon: "frame", name: "futurepreneurs-final-FINAL(2)" },
     ],
   },
   {
@@ -91,51 +91,65 @@ const FRAMES = [
 
 const SECTION_IDS = FRAMES.map((f) => f.id);
 
-/* Faint wireframe ghosts for the work panels — each project rendered as
-   design-work-in-progress (cream strokes at ~13% on the slate field). Three
-   hand-tuned arrangements, matched to what each project actually was:
-   "screens" = web + mobile pair, "app" = a phone with a component beside it,
-   "brand" = mark + wordmark lines + Figma's component diamond. Decorative
-   only (aria-hidden); the real case-study shots replace nothing here — they
-   join the panel later and these ghosts bow out. */
+/* The work-in-progress drawn ON each project's artboard — no longer ghosts:
+   slate wireframe strokes on the cream board, one pink element each (a CTA,
+   a card, the component diamond) so every board carries the brand accent.
+   Matched to what each project actually was: "screens" = web + phone pair,
+   "app" = two app screens, "brand" = mark + wordmark + colour chips +
+   Figma's component diamond. Decorative (aria-hidden); real case-study
+   shots replace these when she supplies them. */
 function PanelSketch({ kind }) {
   const s = {
     fill: "none",
-    stroke: "rgba(246, 245, 242, 0.14)",
-    strokeWidth: 1.3,
+    stroke: "rgba(74, 74, 88, 0.5)",
+    strokeWidth: 1.5,
   };
+  const pink = { fill: "#f472b6", stroke: "none" };
   if (kind === "screens") {
     return (
-      <svg className="dw-card-sketch" viewBox="0 0 220 132" aria-hidden="true">
-        <rect x="8" y="14" width="128" height="86" rx="3" {...s} />
-        <path d="M8 30h128" {...s} />
-        <circle cx="16" cy="22" r="2.5" {...s} />
-        <circle cx="25" cy="22" r="2.5" {...s} />
-        <rect x="20" y="44" width="52" height="30" rx="2" {...s} />
-        <path d="M20 84h64M20 92h44" {...s} />
-        <rect x="152" y="34" width="56" height="92" rx="8" {...s} />
-        <path d="M152 50h56M172 118h16" {...s} />
+      <svg className="dw-board-sketch" viewBox="0 0 320 200" aria-hidden="true">
+        <rect x="16" y="22" width="192" height="140" rx="4" {...s} />
+        <path d="M16 44h192" {...s} />
+        <circle cx="27" cy="33" r="3" {...s} />
+        <circle cx="38" cy="33" r="3" {...s} />
+        <rect x="32" y="58" width="82" height="46" rx="2" {...s} />
+        <rect x="32" y="114" width="44" height="13" rx="6.5" {...pink} />
+        <path d="M128 64h64M128 76h46M128 88h56" {...s} />
+        <path d="M32 140h160M32 150h118" {...s} />
+        <rect x="234" y="34" width="70" height="132" rx="10" {...s} />
+        <path d="M234 58h70" {...s} />
+        <rect x="246" y="72" width="46" height="32" rx="3" {...pink} />
+        <path d="M246 118h46M246 128h32" {...s} />
       </svg>
     );
   }
   if (kind === "app") {
     return (
-      <svg className="dw-card-sketch" viewBox="0 0 220 132" aria-hidden="true">
-        <rect x="78" y="6" width="62" height="120" rx="9" {...s} />
-        <path d="M78 26h62M78 106h62" {...s} />
-        <circle cx="109" cy="52" r="14" {...s} />
-        <path d="M91 76h36M91 86h24" {...s} />
-        <rect x="156" y="32" width="42" height="42" rx="4" {...s} />
-        <path d="M156 46h42" {...s} />
+      <svg className="dw-board-sketch" viewBox="0 0 240 300" aria-hidden="true">
+        <rect x="30" y="46" width="86" height="174" rx="11" {...s} />
+        <path d="M30 74h86" {...s} />
+        <circle cx="73" cy="118" r="21" {...s} />
+        <rect x="45" y="156" width="56" height="13" rx="6.5" {...pink} />
+        <path d="M45 184h56M45 195h40" {...s} />
+        <rect x="128" y="86" width="86" height="174" rx="11" {...s} />
+        <path d="M128 114h86" {...s} />
+        <rect x="140" y="128" width="62" height="20" rx="2" {...s} />
+        <rect x="140" y="158" width="62" height="20" rx="2" {...s} />
+        <rect x="140" y="188" width="62" height="20" rx="2" {...s} />
+        <circle cx="202" cy="238" r="7" {...pink} />
       </svg>
     );
   }
   // brand
   return (
-    <svg className="dw-card-sketch" viewBox="0 0 220 132" aria-hidden="true">
-      <circle cx="58" cy="64" r="32" {...s} />
-      <path d="M106 48h76M106 62h56M106 76h66" {...s} />
-      <path d="M172 92l11 11-11 11-11-11Z" {...s} />
+    <svg className="dw-board-sketch" viewBox="0 0 480 180" aria-hidden="true">
+      <circle cx="82" cy="88" r="42" {...s} />
+      <circle cx="82" cy="88" r="20" {...s} />
+      <path d="M154 62h150M154 84h110M154 106h132" {...s} />
+      <rect x="154" y="128" width="16" height="16" {...s} />
+      <rect x="178" y="128" width="16" height="16" {...pink} />
+      <rect x="202" y="128" width="16" height="16" {...s} />
+      <path d="M404 70l18 18-18 18-18-18Z" {...pink} />
     </svg>
   );
 }
@@ -256,6 +270,8 @@ const work = [
     size: "lg",
     href: BEHANCE,
     sketch: "screens",
+    file: "publicpulse-v12",
+    dims: "1440 × 900",
   },
   {
     name: "Meal Maestro",
@@ -267,6 +283,8 @@ const work = [
     size: "sm",
     href: BEHANCE,
     sketch: "app",
+    file: "meal-maestro-final",
+    dims: "1080 × 1350",
   },
   {
     name: "Futurepreneurs 10.0",
@@ -278,6 +296,8 @@ const work = [
     size: "wide",
     href: BEHANCE,
     sketch: "brand",
+    file: "futurepreneurs-final-FINAL(2)",
+    dims: "1920 × 720",
   },
 ];
 
@@ -371,48 +391,66 @@ export default function DesignWorld() {
             </div>
           </Frame>
 
-          {/* ============ selected work — clickable artboards ============ */}
-          {/* Each work is one big link. The visual is a slate #4a4a58 panel
-              (the profile's ink as a field) carrying the project name in the
-              contact card's display voice (Archivo 900, lowercase); the pink
-              tag chip sits on the panel; hovering deepens the panel and slides
-              in the ↗. TODO: swap the name-panels for real case-study shots
-              when she supplies them — the panel div stays and gains an image. */}
-          <Frame frame={FRAMES[2]} active={activeSection === "dw-work"} area="3 / span 10">
+          {/* ============ selected work — artboards on the canvas ============ */}
+          {/* The frame's body IS a window of Figma canvas (#1E1E1E + dot
+              grid); each project sits on it as its own light artboard —
+              labelled in her real file-naming voice (v12, final, FINAL(2) —
+              the repo-name joke), tilted like work-in-progress, wearing a
+              numbered comment pin that carries the award as an unresolved
+              Figma comment. Hovering a board SELECTS it: it straightens and
+              gains the blue ring, corner handles and dims pill, exactly like
+              the section frames themselves. Each board is one big link.
+              TODO: real case-study shots later replace the sketch inside
+              .dw-board-art; everything else stays. */}
+          <Frame frame={FRAMES[2]} active={activeSection === "dw-work"} area="1 / span 12">
             <h2 className="dw-h2">Selected work</h2>
-            <div className="dw-work-grid">
+            <div className="dw-work-canvas">
               {work.map((w, i) => (
                 <motion.a
-                  className={`dw-card dw-card--${w.size}`}
+                  className={`dw-board dw-board--${w.size}`}
                   key={w.name}
                   href={w.href}
                   target="_blank"
                   rel="noreferrer"
                   aria-label={`${w.name} — open the project`}
-                  initial={{ opacity: 0, y: 16 }}
+                  initial={{ opacity: 0, y: 18 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: "-40px" }}
-                  transition={{ duration: 0.55, ease: EASE, delay: i * 0.06 }}
+                  transition={{ duration: 0.55, ease: EASE, delay: i * 0.08 }}
                 >
-                  <div className="dw-card-visual">
+                  <p className="dw-board-label" aria-hidden="true">
+                    {w.file}
+                  </p>
+                  <div className="dw-board-art">
                     <PanelSketch kind={w.sketch} />
-                    <span className="dw-card-tag">{w.tag}</span>
-                    <span className="dw-card-display" aria-hidden="true">
+                    <span className="dw-board-display" aria-hidden="true">
                       {w.name.toLowerCase()}
                     </span>
-                    <ArrowUpRight
-                      className="dw-card-arrow"
-                      size={20}
-                      strokeWidth={1.6}
-                      aria-hidden="true"
-                    />
+                    <span className="dw-board-pin">
+                      <span className="dw-board-pin-dot" aria-hidden="true">
+                        {i + 1}
+                      </span>
+                      <span className="dw-board-pin-note">{w.tag}</span>
+                    </span>
+                    <span className="dw-board-handle dw-board-handle--tl" aria-hidden="true" />
+                    <span className="dw-board-handle dw-board-handle--tr" aria-hidden="true" />
+                    <span className="dw-board-handle dw-board-handle--bl" aria-hidden="true" />
+                    <span className="dw-board-handle dw-board-handle--br" aria-hidden="true" />
+                    <span className="dw-board-dims" aria-hidden="true">
+                      {w.dims}
+                    </span>
                   </div>
-                  <h3 className="dw-card-name">{w.name}</h3>
-                  <p className="dw-card-what">
-                    {w.what} · {w.when}
-                  </p>
-                  <p className="dw-card-blurb">{w.blurb}</p>
-                  <p className="dw-card-open">View project</p>
+                  <div className="dw-board-meta">
+                    <h3 className="dw-board-name">{w.name}</h3>
+                    <p className="dw-board-what">
+                      {w.what} · {w.when}
+                    </p>
+                    <p className="dw-board-blurb">{w.blurb}</p>
+                    <p className="dw-board-open">
+                      View project
+                      <ArrowUpRight size={13} strokeWidth={2} aria-hidden="true" />
+                    </p>
+                  </div>
                 </motion.a>
               ))}
             </div>

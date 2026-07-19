@@ -664,208 +664,270 @@
   color: rgba(74, 74, 88, 0.92);
 }
 
-/* ---- selected work: clickable artboards ---- */
-/* Each card is one link. The visual is a slate field (the profile's ink as a
-   surface) with the project name in the contact card's display voice; hover
-   deepens the field and slides the ↗ in. Slate ink everywhere else. */
+/* ---- selected work: artboards on the canvas ---- */
+/* The frame's body is a WINDOW OF CANVAS — same #1E1E1E and dot grid as the
+   page itself — and each project sits on it as its own light artboard with
+   its own frame-name label (her file-naming voice: v12, final, FINAL(2)),
+   tilted like work-in-progress. A numbered Figma comment pin carries the
+   award. Hover = selecting the board: it straightens, wears the blue ring,
+   corner handles and dims pill; the label turns selection-blue. */
 #dw-work .cvf-body {
-  color: #4a4a58;
+  background:
+    radial-gradient(circle, rgba(255, 255, 255, 0.05) 1px, transparent 1.5px)
+      0 0 / 24px 24px,
+    var(--dw-bg);
+  color: var(--dw-ink);
 }
 
-.dw-work-grid {
+.dw-work-canvas {
   display: grid;
   grid-template-columns: repeat(12, 1fr);
-  gap: 2.4rem;
+  gap: 3.4rem 2rem;
+  align-items: start;
 }
 
-.dw-card--lg { grid-column: span 7; }
-.dw-card--sm { grid-column: span 5; }
-.dw-card--wide { grid-column: span 12; }
+/* scattered, not stacked: the sm board starts lower and a column of canvas
+   stays empty between the two — a working file, not a card grid */
+.dw-board--lg { grid-column: 1 / span 7; }
+.dw-board--sm { grid-column: 9 / span 4; margin-top: 3.5rem; }
+.dw-board--wide { grid-column: 2 / span 10; }
 
-.dw-card {
+.dw-board {
   display: block;
   color: inherit;
   text-decoration: none;
 }
 
-.dw-card:focus-visible {
-  outline: 2px solid var(--dw-blue); /* Figma's selection blue — on-fiction */
-  outline-offset: 4px;
-}
-
-/* The field is layered, not flat: a soft pink glow in one corner (position
-   varies per card for rhythm), the canvas's own dot grid, and a diagonal
-   slate gradient. Hover deepens via an overlay (multi-backgrounds can't
-   transition) so the glow and ghosts dim with it. */
-.dw-card-visual {
-  --glow-x: 82%;
-  --glow-y: 18%;
-  position: relative;
-  aspect-ratio: 16 / 9;
-  background:
-    radial-gradient(
-      46% 62% at var(--glow-x) var(--glow-y),
-      rgba(244, 114, 182, 0.17),
-      transparent 72%
-    ),
-    radial-gradient(circle, rgba(246, 245, 242, 0.06) 1px, transparent 1.4px)
-      0 0 / 22px 22px,
-    linear-gradient(135deg, #50505e, #43434f 55%, #3b3b47);
-  overflow: hidden;
-}
-
-.dw-card--sm .dw-card-visual {
-  --glow-x: 16%;
-  --glow-y: 80%;
-}
-
-.dw-card--wide .dw-card-visual {
-  --glow-x: 76%;
-  --glow-y: 72%;
-  aspect-ratio: 21 / 6;
-}
-
-.dw-card-visual::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: 1; /* dims the field + ghosts; chip/name/arrow sit above at 2 */
-  background: rgba(16, 16, 22, 0);
-  transition: background-color 0.35s var(--ease-soft);
-  pointer-events: none;
-}
-
-.dw-card:hover .dw-card-visual::after,
-.dw-card:focus-visible .dw-card-visual::after {
-  background: rgba(16, 16, 22, 0.18);
-}
-
-/* the wireframe ghosts — project-as-work-in-progress, drifting on hover */
-.dw-card-sketch {
-  position: absolute;
-  right: 2%;
-  top: 4%;
-  width: 58%;
-  transition: transform 0.5s var(--ease-soft);
-}
-
-.dw-card--sm .dw-card-sketch {
-  width: 72%;
-}
-
-.dw-card--wide .dw-card-sketch {
-  right: 4%;
-  top: 50%;
-  width: 30%;
-  transform: translateY(-50%);
-}
-
-.dw-card:hover .dw-card-sketch,
-.dw-card:focus-visible .dw-card-sketch {
-  transform: translate(-5px, -3px);
-}
-
-.dw-card--wide:hover .dw-card-sketch,
-.dw-card--wide:focus-visible .dw-card-sketch {
-  transform: translateY(-50%) translate(-5px, -3px);
-}
-
-/* the pink note, pinned to the field's top-left */
-.dw-card-tag {
-  position: absolute;
-  z-index: 2;
-  top: 1rem;
-  left: 1.1rem;
-  font-size: 0.68rem;
+/* the board's own frame-name label — same 11px grey as the section labels */
+.dw-board-label {
+  font-size: 11px;
   font-weight: 500;
-  letter-spacing: 0.02em;
-  color: #2e2e38;
-  background: var(--dw-pink);
-  border-radius: 999px;
-  padding: 0.28rem 0.65rem;
+  color: #9b9b9b;
+  margin-bottom: 7px;
+  user-select: none;
+  transition: color 0.25s var(--ease-soft);
 }
 
-/* the project name as display type — the contact card's "a wrap." voice */
-.dw-card-display {
+.dw-board:hover .dw-board-label,
+.dw-board:focus-visible .dw-board-label {
+  color: var(--dw-blue);
+}
+
+/* per-board tilt lives here (the motion wrapper owns the <a>'s transform);
+   hover straightens it — picking the board up off the desk */
+.dw-board-art {
+  position: relative;
+  background: var(--dw-board);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.45), 0 14px 44px rgba(0, 0, 0, 0.35);
+  transition: transform 0.45s var(--ease-soft), box-shadow 0.3s var(--ease-soft);
+}
+
+.dw-board--lg .dw-board-art {
+  aspect-ratio: 16 / 10;
+  transform: rotate(-1.1deg);
+}
+
+.dw-board--sm .dw-board-art {
+  aspect-ratio: 4 / 5;
+  transform: rotate(1.6deg);
+}
+
+.dw-board--wide .dw-board-art {
+  aspect-ratio: 8 / 3;
+  transform: rotate(-0.6deg);
+}
+
+.dw-board:hover .dw-board-art,
+.dw-board:focus-visible .dw-board-art {
+  transform: rotate(0deg);
+  box-shadow: 0 0 0 1.5px var(--dw-blue), 0 14px 44px rgba(0, 0, 0, 0.35);
+}
+
+.dw-board:focus-visible {
+  outline: none; /* the selection ring + blue label are the focus indicator */
+}
+
+/* the wireframe work drawn on the board */
+.dw-board-sketch {
   position: absolute;
-  z-index: 2;
-  left: 1.1rem;
-  right: 1.1rem;
-  bottom: 0.75rem;
+  right: 3%;
+  top: 7%;
+  width: 66%;
+}
+
+.dw-board--sm .dw-board-sketch {
+  left: 50%;
+  right: auto;
+  transform: translateX(-50%);
+  top: 5%;
+  width: 68%; /* leaves the bottom band clear for the display name */
+}
+
+.dw-board--wide .dw-board-sketch {
+  left: 4%;
+  right: auto;
+  top: 44%; /* sits a touch high so the right-aligned name clears it */
+  transform: translateY(-50%);
+  width: 56%;
+}
+
+/* the project name in the display voice — slate on cream now, the same
+   Archivo lowercase as the contact card's "a wrap." */
+.dw-board-display {
+  position: absolute;
+  left: 1rem;
+  bottom: 0.65rem;
+  right: 1rem;
   font-family: var(--font-sans);
   font-weight: 900;
   font-stretch: 105%;
   letter-spacing: -0.03em;
   line-height: 0.9;
-  font-size: clamp(1.7rem, 3.4vw, 2.9rem);
-  color: #f6f5f2;
+  font-size: clamp(1.5rem, 2.8vw, 2.5rem);
+  color: #4a4a58;
   text-wrap: balance;
-  transition: transform 0.35s var(--ease-soft);
 }
 
-.dw-card:hover .dw-card-display,
-.dw-card:focus-visible .dw-card-display {
-  transform: translateY(-3px);
+.dw-board--wide .dw-board-display {
+  left: auto;
+  text-align: right;
 }
 
-.dw-card-arrow {
+/* the award as a numbered Figma comment, pinned to the board's top edge —
+   note always open (it's the social proof, not a hover surprise) */
+.dw-board-pin {
   position: absolute;
+  top: -12px;
+  left: 16px;
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
   z-index: 2;
-  top: 1rem;
-  right: 1rem;
-  color: #f6f5f2;
+}
+
+.dw-board-pin-dot {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  background: var(--dw-pink);
+  color: #2e2e38;
+  font-size: 11.5px;
+  font-weight: 700;
+  border-radius: 50% 50% 50% 4px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45), 0 0 0 2px #fff;
+  transition: transform 0.25s var(--ease-soft);
+}
+
+.dw-board:hover .dw-board-pin-dot,
+.dw-board:focus-visible .dw-board-pin-dot {
+  transform: scale(1.1);
+}
+
+.dw-board-pin-note {
+  background: #fff;
+  color: #1c1b19;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.4;
+  padding: 6px 9px;
+  border-radius: 3px 10px 10px 10px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+  max-width: 180px;
+}
+
+/* selection chrome — the same handles + dims pill the section frames wear,
+   shown while the board is hovered/focused */
+.dw-board-handle {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: #fff;
+  border: 1.5px solid var(--dw-blue);
   opacity: 0;
-  transform: translate(-5px, 5px);
-  transition: opacity 0.3s var(--ease-soft), transform 0.3s var(--ease-soft);
+  transition: opacity 0.25s var(--ease-soft);
+  pointer-events: none;
 }
 
-.dw-card:hover .dw-card-arrow,
-.dw-card:focus-visible .dw-card-arrow {
+.dw-board-handle--tl { top: -4px; left: -4px; }
+.dw-board-handle--tr { top: -4px; right: -4px; }
+.dw-board-handle--bl { bottom: -4px; left: -4px; }
+.dw-board-handle--br { bottom: -4px; right: -4px; }
+
+.dw-board-dims {
+  position: absolute;
+  left: 50%;
+  bottom: -22px;
+  transform: translateX(-50%);
+  background: var(--dw-blue);
+  color: #fff;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  padding: 2px 7px;
+  border-radius: 3px;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.25s var(--ease-soft);
+  pointer-events: none;
+}
+
+.dw-board:hover .dw-board-handle,
+.dw-board:focus-visible .dw-board-handle,
+.dw-board:hover .dw-board-dims,
+.dw-board:focus-visible .dw-board-dims {
   opacity: 1;
-  transform: translate(0, 0);
 }
 
-.dw-card-name {
-  margin-top: 1.05rem;
+/* the annotation text a designer leaves next to a frame — light on canvas */
+.dw-board-meta {
+  margin-top: 1.4rem;
+}
+
+.dw-board-name {
   font-family: var(--hv);
-  font-size: 1.14rem;
+  font-size: 1.08rem;
   font-weight: 700;
   letter-spacing: 0;
 }
 
-.dw-card-what {
+.dw-board-what {
   margin-top: 0.2rem;
   font-family: var(--hv);
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   font-weight: 300;
-  color: rgba(74, 74, 88, 0.8);
+  color: var(--dw-dim);
 }
 
-.dw-card-blurb {
-  margin-top: 0.6rem;
-  font-size: 0.86rem;
+.dw-board-blurb {
+  margin-top: 0.55rem;
+  font-size: 0.85rem;
   font-weight: 380;
-  line-height: 1.62;
-  color: rgba(74, 74, 88, 0.92);
-  max-width: 52ch;
+  line-height: 1.6;
+  color: var(--dw-dim);
+  max-width: 46ch;
 }
 
-/* the quiet "View project" line — same hairline-underline gesture as the
-   contact card's resume link */
-.dw-card-open {
+/* the quiet "View project ↗" — the contact card's hairline-underline gesture */
+.dw-board-open {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   width: fit-content;
-  margin-top: 0.8rem;
+  margin-top: 0.75rem;
   font-size: 0.78rem;
   font-weight: 500;
-  border-bottom: 1px solid rgba(74, 74, 88, 0.3);
+  color: var(--dw-dim);
+  border-bottom: 1px solid var(--dw-line);
   padding-bottom: 2px;
   transition: color 0.2s var(--ease-soft), border-color 0.2s var(--ease-soft);
 }
 
-.dw-card:hover .dw-card-open,
-.dw-card:focus-visible .dw-card-open {
-  color: #2e2e38;
-  border-color: #2e2e38;
+.dw-board:hover .dw-board-open,
+.dw-board:focus-visible .dw-board-open {
+  color: var(--dw-ink);
+  border-color: var(--dw-ink);
 }
 
 /* mobile: the thread turns vertical down the left margin; work cards stack */
@@ -891,14 +953,19 @@
     left: -1.5rem;
   }
 
-  .dw-card--lg,
-  .dw-card--sm,
-  .dw-card--wide {
-    grid-column: span 12;
+  .dw-board--lg,
+  .dw-board--sm,
+  .dw-board--wide {
+    grid-column: 1 / -1;
+    margin-top: 0;
   }
 
-  .dw-card--wide .dw-card-visual {
-    aspect-ratio: 16 / 9; /* the 21:6 letterbox is too shallow at phone width */
+  .dw-board--wide .dw-board-art {
+    aspect-ratio: 16 / 10; /* the 8:3 letterbox is too shallow at phone width */
+  }
+
+  .dw-board--wide .dw-board-sketch {
+    width: 78%;
   }
 }
 
@@ -1312,9 +1379,10 @@
     gap: 2rem;
   }
 
-  .dw-card--lg,
-  .dw-card--sm,
-  .dw-card--wide {
-    grid-column: span 12;
+  .dw-board--lg,
+  .dw-board--sm,
+  .dw-board--wide {
+    grid-column: 1 / -1;
+    margin-top: 0;
   }
 }

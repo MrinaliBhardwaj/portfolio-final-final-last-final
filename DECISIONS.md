@@ -699,3 +699,34 @@ keep it premium AND lightweight. All of it lives in the frame-cache scrubber
   drawImage calls, GPU-cheap) plus the final frame captured in the FIRST
   strided pass (a stride walk from 0 never lands on index count−1 naturally;
   reversed, that frame is the resting pose everyone sees first).
+
+## Design world: selected work is artboards ON the canvas (replaces the slate-panel cards)
+
+She rejected the slate-panel card grid ("i dont like the design â€” be creative").
+The replacement leans all the way into the file fiction:
+
+- **The selected-work frame's body IS a window of Figma canvas** â€” same
+  `#1E1E1E` + dot grid as the page (`#dw-work .cvf-body`). Each project sits
+  on it as its own light `--dw-board` artboard, not a card.
+- **Boards are labelled in her real file-naming voice** â€” `publicpulse-v12`,
+  `meal-maestro-final`, `futurepreneurs-final-FINAL(2)` â€” the repo-name joke
+  (`portfolio-final-final-last-final`) made canon. The layers panel lists the
+  same filenames (FRAMES[2].children, icon "frame"; fill now #1E1E1E).
+- **Awards are numbered Figma comment pins** (pink dot 1/2/3, sharp corner
+  bottom-left, white note ALWAYS open â€” social proof is not a hover surprise).
+  The old pink tag chip is gone.
+- **Hover = selecting the board**: tilt (âˆ’1.1Â° / 1.6Â° / âˆ’0.6Â°, applied to
+  `.dw-board-art` so framer-motion's transform on the <a> never conflicts)
+  straightens to 0Â°, blue ring + corner handles + dims pill appear, label
+  turns selection blue â€” identical chrome to the section frames.
+- **Dims pills carry believable per-board dims** matching the real aspect:
+  1440Ã—900 (16/10 lg), 1080Ã—1350 (4/5 sm portrait), 1920Ã—720 (8/3 wide).
+- **Sketches are the artboard content now, not ghosts**: slate strokes at
+  0.5 on cream, one pink element per board (CTA / card / component diamond +
+  colour chips). Display name is Archivo 900 lowercase in slate; on the wide
+  board it right-aligns to clear the left-side sketch.
+- **Scatter, not grid**: lg cols 1-7, sm cols 9-12 dropped 3.5rem (col 8 of
+  canvas stays empty), wide cols 2-11. Mobile: full-width stack, wide board
+  relaxes to 16/10.
+- Meta text under each board is the "annotation next to a frame" voice:
+  Helvetica bold name, light meta, dim ink on canvas, "View project â†—".
