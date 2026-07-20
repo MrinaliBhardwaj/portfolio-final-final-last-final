@@ -207,16 +207,17 @@ export default function Cover({ onChoose, onSettledChange }) {
             className="cover-hero-inner"
             style={{ opacity: nameOpacity, y: nameLift }}
           >
-            {/* "design engineer" — flat mono-ish label in Inter, sitting on
-                the M's swash. Positioned in % of the name-hugging hero block
-                so it tracks the script at any viewport width. */}
+            {/* "a design engineer" — small Helvetica oblique caption sitting
+                just below the name, under "rinali" at the edge of the M.
+                Positioned in % of the name-hugging hero block so it tracks
+                the script at any width. */}
             <motion.p
               className="cover-eyebrow-arc"
               initial={{ opacity: 0 }}
               animate={fontReady ? { opacity: 1 } : {}}
               transition={{ duration: 0.9, ease: EASE, delay: 1.3 }}
             >
-              design engineer
+              a design engineer
             </motion.p>
             <h1 className={`cover-name-script${fontReady ? " is-inked" : ""}`}>
               Mrinali Bhardwaj

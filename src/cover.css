@@ -195,22 +195,21 @@
   pointer-events: none;
 }
 
-/* "design engineer" — flat horizontal label in Inter, sitting on the M's
-   swash. Absolutely positioned in % of the name-hugging hero block so it
-   tracks the script at any width. */
+/* "a design engineer" — small Helvetica oblique caption sitting just below
+   the name, under "rinali" at the edge of the M. Absolutely positioned in %
+   of the name-hugging hero block so it tracks the script at any width. */
 .cover-eyebrow-arc {
   position: absolute;
-  left: 7%;
-  top: -2%;
+  left: 26.5%; /* under "rinali", flush to the M's right edge */
+  top: 110%; /* just below rinali's baseline (which overruns the line box) */
   z-index: 5;
   pointer-events: none;
-  font-family: var(--font-ui);
-  font-size: clamp(0.6rem, 0.82vw, 0.82rem);
-  font-weight: 450;
-  letter-spacing: 0.46em;
-  text-transform: uppercase;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 10px;
+  font-style: oblique;
+  letter-spacing: 0.02em;
   white-space: nowrap;
-  color: rgba(237, 236, 234, 0.72);
+  color: rgba(237, 236, 234, 0.66);
 }
 
 /* the name, set in Ballet script, spanning the lower width of the stage.
@@ -473,13 +472,11 @@
     line-height: 1.6;
   }
 
-  /* wrapped name: the centred "Mrinali" line sits further in, so the label
-     needs its own anchor and a slightly larger size to stay legible */
+  /* wrapped name runs to the fold, so tuck the caption just under the first
+     line's "rinali" (in the inter-line space) where it stays in view */
   .cover-eyebrow-arc {
-    left: 14%;
-    top: 0;
-    font-size: 0.62rem;
-    letter-spacing: 0.4em;
+    left: 52%;
+    top: 52.5%;
   }
 
   /* the split stacks: Design near the top, Tech near the bottom, flower
