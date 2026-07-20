@@ -80,9 +80,20 @@ export default function Cover({ onChoose, onSettledChange }) {
       range.setEnd(name.firstChild, 7); // "rinali"
       const g = range.getBoundingClientRect();
       const h = hero.getBoundingClientRect();
-      const gap = parseFloat(getComputedStyle(name).fontSize) * 0.015;
+      // Vertical anchor is the BASELINE of rinali's line, not the glyph
+      // run's ink bottom — Ballet's swash tails descend far below the
+      // baseline, which pushed the caption under the viewport fold (the
+      // stage clips overflow). Baseline = line-box top + half-leading +
+      // ascent, with Ballet's font-box ratios (measured via canvas
+      // TextMetrics: ascent 1.134em, descent 0.768em).
+      const cs = getComputedStyle(name);
+      const fs = parseFloat(cs.fontSize);
+      const lh = parseFloat(cs.lineHeight);
+      const halfLeading = (lh - (1.134 + 0.768) * fs) / 2;
+      const nameBox = name.getBoundingClientRect();
+      const baseline = nameBox.top + halfLeading + 1.134 * fs;
       hero.style.setProperty("--cap-x", `${g.left - h.left}px`);
-      hero.style.setProperty("--cap-y", `${g.bottom - h.top + gap}px`);
+      hero.style.setProperty("--cap-y", `${baseline - h.top + fs * 0.06}px`);
     };
     place();
     // Two re-measure paths, both needed:

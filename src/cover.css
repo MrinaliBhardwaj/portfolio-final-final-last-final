@@ -206,11 +206,11 @@
   z-index: 5;
   pointer-events: none;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: 10px;
+  font-size: 13px;
   font-style: oblique;
   letter-spacing: 0.02em;
   white-space: nowrap;
-  color: rgba(237, 236, 234, 0.66);
+  color: #fff;
 }
 
 /* the name, set in Ballet script, spanning the lower width of the stage.
