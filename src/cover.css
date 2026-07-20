@@ -195,19 +195,21 @@
   pointer-events: none;
 }
 
-/* mono eyebrow — the two disciplines split to the FAR ends, flanking the
-   name (no separator). A full-width space-between row does the flanking;
-   the words fade in after the script has written on. */
+/* mono eyebrow — the two disciplines split left/right (no separator) to sit
+   on either SIDE OF THE LOTUS, not at the name's outer corners. A narrower
+   centred space-between row (~46vw) lands them at ~27%/73% of the width,
+   flanking the bloom; the words fade in after the script has written on. */
 .cover-eyebrow {
   display: flex;
   justify-content: space-between;
-  width: 100%;
+  width: clamp(18rem, 46vw, 44rem);
+  max-width: 100%;
+  margin: 0 auto 1.5rem;
   font-family: var(--font-mono-alt);
   font-size: 0.72rem;
   letter-spacing: 0.5em;
   text-transform: uppercase;
   color: rgba(237, 236, 234, 0.66);
-  margin-bottom: 1.5rem;
 }
 
 .cover-eyebrow-word {
