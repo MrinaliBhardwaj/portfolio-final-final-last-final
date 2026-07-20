@@ -195,13 +195,14 @@
   pointer-events: none;
 }
 
-/* "a design engineer" — small Helvetica oblique caption sitting just below
-   the name, under "rinali" at the edge of the M. Absolutely positioned in %
-   of the name-hugging hero block so it tracks the script at any width. */
+/* "a design engineer" — small Helvetica oblique caption pinned under
+   "rinali" at the edge of the M. --cap-x/--cap-y are measured off the real
+   rendered glyphs in Cover.jsx (and re-measured on resize), so the pin holds
+   at any dimension; the % values are only a pre-measure fallback. */
 .cover-eyebrow-arc {
   position: absolute;
-  left: 26.5%; /* under "rinali", flush to the M's right edge */
-  top: 110%; /* just below rinali's baseline (which overruns the line box) */
+  left: var(--cap-x, 26.5%);
+  top: var(--cap-y, 110%);
   z-index: 5;
   pointer-events: none;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -472,12 +473,8 @@
     line-height: 1.6;
   }
 
-  /* wrapped name runs to the fold, so tuck the caption just under the first
-     line's "rinali" (in the inter-line space) where it stays in view */
-  .cover-eyebrow-arc {
-    left: 52%;
-    top: 52.5%;
-  }
+  /* wrapped name: the glyph-measured pin (--cap-x/--cap-y) already lands
+     under the first line's "rinali", so no override is needed here */
 
   /* the split stacks: Design near the top, Tech near the bottom, flower
      centred behind — the two disciplines still frame the bloom */

@@ -48,6 +48,8 @@ export default function Cover({ onChoose, onSettledChange }) {
   // (Segoe Script) is close enough in metrics that font-display:swap flashed
   // the wrong script on every cold load. The timeout covers a hung font fetch.
   const [fontReady, setFontReady] = useState(false);
+  const heroRef = useRef(null);
+  const nameRef = useRef(null);
 
   useEffect(() => {
     let alive = true;
@@ -61,6 +63,50 @@ export default function Cover({ onChoose, onSettledChange }) {
       clearTimeout(t);
     };
   }, []);
+
+  // Pin the "a design engineer" caption under "rinali": CSS % anchors drift
+  // with viewport size (the hero's fixed padding doesn't scale with the
+  // script), so measure the ACTUAL rendered glyph run — chars 1–7 of the
+  // name's text node — and drop the caption at its left edge, just below its
+  // baseline. Re-measured on resize; exact at any dimension by construction.
+  useEffect(() => {
+    if (!fontReady) return;
+    const hero = heroRef.current;
+    const name = nameRef.current;
+    if (!hero || !name || !name.firstChild) return;
+    const place = () => {
+      const range = document.createRange();
+      range.setStart(name.firstChild, 1);
+      range.setEnd(name.firstChild, 7); // "rinali"
+      const g = range.getBoundingClientRect();
+      const h = hero.getBoundingClientRect();
+      const gap = parseFloat(getComputedStyle(name).fontSize) * 0.015;
+      hero.style.setProperty("--cap-x", `${g.left - h.left}px`);
+      hero.style.setProperty("--cap-y", `${g.bottom - h.top + gap}px`);
+    };
+    place();
+    // Two re-measure paths, both needed:
+    // - ResizeObserver fires after layout settles, catching the 719px
+    //   media-query rewrap and any other reflow of the name's box.
+    // - The resize listener's deferred second pass covers environments where
+    //   RO callbacks (paint-coupled) are throttled, and the immediate call
+    //   can race the media-query relayout.
+    let tid = 0;
+    const onResize = () => {
+      place();
+      clearTimeout(tid);
+      tid = setTimeout(place, 120);
+    };
+    const ro = new ResizeObserver(place);
+    ro.observe(name);
+    ro.observe(hero);
+    window.addEventListener("resize", onResize);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("resize", onResize);
+      clearTimeout(tid);
+    };
+  }, [fontReady]);
 
   useEffect(() => {
     const p = createParticles(particlesRef.current);
@@ -205,12 +251,13 @@ export default function Cover({ onChoose, onSettledChange }) {
               mask wipe (see .is-inked) and the eyebrow settles in above it. */}
           <motion.div
             className="cover-hero-inner"
+            ref={heroRef}
             style={{ opacity: nameOpacity, y: nameLift }}
           >
-            {/* "a design engineer" — small Helvetica oblique caption sitting
-                just below the name, under "rinali" at the edge of the M.
-                Positioned in % of the name-hugging hero block so it tracks
-                the script at any width. */}
+            {/* "a design engineer" — small Helvetica oblique caption pinned
+                just below the name, under "rinali" at the edge of the M. Its
+                position (--cap-x/--cap-y) is measured off the real glyphs in
+                the effect above, so it holds at any dimension. */}
             <motion.p
               className="cover-eyebrow-arc"
               initial={{ opacity: 0 }}
@@ -219,7 +266,10 @@ export default function Cover({ onChoose, onSettledChange }) {
             >
               a design engineer
             </motion.p>
-            <h1 className={`cover-name-script${fontReady ? " is-inked" : ""}`}>
+            <h1
+              ref={nameRef}
+              className={`cover-name-script${fontReady ? " is-inked" : ""}`}
+            >
               Mrinali Bhardwaj
             </h1>
           </motion.div>
