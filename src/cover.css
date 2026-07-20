@@ -195,32 +195,26 @@
   pointer-events: none;
 }
 
-/* mono eyebrow — the two disciplines split left/right (no separator) to sit
-   on either SIDE OF THE LOTUS, not at the name's outer corners. A narrower
-   centred space-between row (~46vw) lands them at ~27%/73% of the width,
-   flanking the bloom; the words fade in after the script has written on. */
-.cover-eyebrow {
-  display: flex;
-  justify-content: space-between;
-  width: clamp(18rem, 46vw, 44rem);
-  max-width: 100%;
-  margin: 0 auto 1.5rem;
-  font-family: var(--font-mono-alt);
-  font-size: 0.72rem;
-  letter-spacing: 0.5em;
+/* "design engineer" on the curve of the M's opening swash. The svg is
+   absolutely positioned in % of the hero block, which hugs the name, so the
+   arc rides the flourish at any width; text is Inter on an SVG textPath. */
+.cover-eyebrow-arc {
+  position: absolute;
+  left: 7%;
+  top: -11%;
+  width: 19%;
+  overflow: visible;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.cover-eyebrow-text {
+  font-family: var(--font-ui);
+  font-size: 15px; /* viewBox units — scales with the svg's width */
+  font-weight: 450;
+  letter-spacing: 0.34em;
   text-transform: uppercase;
-  color: rgba(237, 236, 234, 0.66);
-}
-
-.cover-eyebrow-word {
-  padding-left: 0.5em; /* balance the leading edge against the tracking */
-}
-
-/* the trailing word's letter-spacing adds phantom space past its last
-   glyph — pull it back so the word ends flush at the right edge */
-.cover-eyebrow-word:last-child {
-  padding-left: 0;
-  margin-right: -0.5em;
+  fill: rgba(237, 236, 234, 0.72);
 }
 
 /* the name, set in Ballet script, spanning the lower width of the stage.
@@ -481,6 +475,15 @@
     white-space: normal;
     font-size: clamp(3.6rem, 22vw, 7rem);
     line-height: 1.6;
+  }
+
+  /* wrapped name: the M of the centred "Mrinali" line sits further in and
+     the glyphs are smaller, so the arc needs its own anchor and more width
+     to stay legible */
+  .cover-eyebrow-arc {
+    left: 12%;
+    top: -8%;
+    width: 34%;
   }
 
   /* the split stacks: Design near the top, Tech near the bottom, flower
