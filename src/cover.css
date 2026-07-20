@@ -213,8 +213,10 @@
   font-size: clamp(3.4rem, 13.5vw, 17rem);
   /* Ballet's capital swashes (M, B) overshoot a tight line box — harmless
      with plain overflow:visible, but the .is-inked mask below clips
-     rendering to this box, so it must be tall enough to contain them */
-  line-height: 1.3;
+     rendering to this box, so it must be tall enough to contain them.
+     Measured via canvas fontBoundingBox metrics: needs >= ~1.55 to stop
+     clipping the M's peak; 1.3 still cut it by ~14px at 112px font-size. */
+  line-height: 1.6;
   letter-spacing: 0.01em;
   color: #fff;
   white-space: nowrap;
@@ -455,7 +457,7 @@
   .cover-name-script {
     white-space: normal;
     font-size: clamp(3.6rem, 22vw, 7rem);
-    line-height: 1.3;
+    line-height: 1.6;
   }
 
   /* the split stacks: Design near the top, Tech near the bottom, flower
