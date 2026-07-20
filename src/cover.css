@@ -211,7 +211,10 @@
   font-optical-sizing: auto;
   font-variation-settings: "opsz" 72;
   font-size: clamp(3.4rem, 13.5vw, 17rem);
-  line-height: 0.9;
+  /* Ballet's capital swashes (M, B) overshoot a tight line box — harmless
+     with plain overflow:visible, but the .is-inked mask below clips
+     rendering to this box, so it must be tall enough to contain them */
+  line-height: 1.3;
   letter-spacing: 0.01em;
   color: #fff;
   white-space: nowrap;
@@ -452,7 +455,7 @@
   .cover-name-script {
     white-space: normal;
     font-size: clamp(3.6rem, 22vw, 7rem);
-    line-height: 0.86;
+    line-height: 1.3;
   }
 
   /* the split stacks: Design near the top, Tech near the bottom, flower
