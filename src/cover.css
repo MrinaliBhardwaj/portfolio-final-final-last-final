@@ -166,9 +166,13 @@
 .cover-hero-inner {
   position: relative;
   z-index: 4;
-  width: 100%;
+  /* hug the name's width (its widest child) so the eyebrow, a full-width
+     space-between row, aligns DESIGN/ENGINEER to the name's own corners
+     — not the screen's */
+  width: fit-content;
+  max-width: 100%;
   padding: 0 1.25rem 0;
-  margin-bottom: -1.5vh;
+  margin: 0 auto -1.5vh;
   text-align: center;
 }
 

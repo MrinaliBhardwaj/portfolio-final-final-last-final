@@ -214,7 +214,7 @@ export default function Cover({ onChoose, onSettledChange }) {
               transition={{ duration: 0.9, ease: EASE, delay: 1.3 }}
             >
               <span className="cover-eyebrow-word">design</span>
-              <span className="cover-eyebrow-word">engineering</span>
+              <span className="cover-eyebrow-word">engineer</span>
             </motion.p>
             <h1 className={`cover-name-script${fontReady ? " is-inked" : ""}`}>
               Mrinali Bhardwaj
