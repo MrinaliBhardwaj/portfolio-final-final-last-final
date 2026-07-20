@@ -190,7 +190,21 @@
   pointer-events: none;
 }
 
-/* the name, set in Ballet script, spanning the lower width of the stage */
+/* mono eyebrow above the name — fades in after the script has written on */
+.cover-eyebrow {
+  font-family: var(--font-mono-alt);
+  font-size: 0.72rem;
+  letter-spacing: 0.5em;
+  text-indent: 0.5em; /* re-centre against the trailing tracking */
+  text-transform: uppercase;
+  color: rgba(237, 236, 234, 0.66);
+  margin-bottom: 1.5rem;
+}
+
+/* the name, set in Ballet script, spanning the lower width of the stage.
+   Hidden until Cover.jsx confirms the font is loaded (kills the
+   fallback-script flash), then .is-inked writes it on left→right with an
+   animated gradient mask — the script draws itself like ink. */
 .cover-name-script {
   font-family: var(--font-script);
   font-weight: 400;
@@ -202,6 +216,39 @@
   color: #fff;
   white-space: nowrap;
   text-shadow: 0 2px 40px rgba(0, 0, 0, 0.55);
+  opacity: 0;
+}
+
+.cover-name-script.is-inked {
+  /* left ~46% of the (220%-wide) mask is opaque; sliding its position from
+     100% to 0% sweeps the opaque edge across the text left→right */
+  -webkit-mask-image: linear-gradient(105deg, #000 46%, transparent 54%);
+  mask-image: linear-gradient(105deg, #000 46%, transparent 54%);
+  -webkit-mask-size: 220% 100%;
+  mask-size: 220% 100%;
+  animation: cover-ink 1.8s var(--ease-soft) 0.25s both;
+}
+
+@keyframes cover-ink {
+  from {
+    opacity: 1;
+    -webkit-mask-position: 100% 0;
+    mask-position: 100% 0;
+  }
+  to {
+    opacity: 1;
+    -webkit-mask-position: 0% 0;
+    mask-position: 0% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cover-name-script.is-inked {
+    animation: none;
+    opacity: 1;
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
 }
 
 /* scroll indicator */

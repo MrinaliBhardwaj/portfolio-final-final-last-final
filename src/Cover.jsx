@@ -44,6 +44,23 @@ export default function Cover({ onChoose, onSettledChange }) {
   const canvasRef = useRef(null);
   const progressRef = useRef(0);
   const [split, setSplit] = useState(false);
+  // hold the name invisible until Ballet has actually loaded — its fallback
+  // (Segoe Script) is close enough in metrics that font-display:swap flashed
+  // the wrong script on every cold load. The timeout covers a hung font fetch.
+  const [fontReady, setFontReady] = useState(false);
+
+  useEffect(() => {
+    let alive = true;
+    document.fonts
+      .load('400 1em "Ballet Variable"')
+      .then(() => alive && setFontReady(true))
+      .catch(() => alive && setFontReady(true));
+    const t = setTimeout(() => alive && setFontReady(true), 2500);
+    return () => {
+      alive = false;
+      clearTimeout(t);
+    };
+  }, []);
 
   useEffect(() => {
     const p = createParticles(particlesRef.current);
@@ -64,11 +81,11 @@ export default function Cover({ onChoose, onSettledChange }) {
     onSettledChange?.(v > 0.77);
   });
 
-  // beat 1: the name rises and is gone by the time the flower closes (~T5,
-  // progress ~0.5 now that the bloom spans the whole track)
+  // beat 1: the name rises and is fully gone by the time it reaches
+  // mid-screen (~30vh into its 55vh rise), leaving the flower alone early
   const rise =
     typeof window !== "undefined" ? window.innerHeight * 0.55 : 440;
-  const nameOpacity = useTransform(scrollYProgress, [0.06, 0.47], [1, 0]);
+  const nameOpacity = useTransform(scrollYProgress, [0.05, 0.26], [1, 0]);
   const nameLift = useTransform(scrollYProgress, [0, 0.47], [0, -rise]);
   const chevronOpacity = useTransform(scrollYProgress, [0, 0.12], [1, 0]);
 
@@ -87,7 +104,14 @@ export default function Cover({ onChoose, onSettledChange }) {
     const scrubber = createLotusScrubber(
       canvasRef.current,
       videoRef.current,
-      () => Math.min(1, progressRef.current / SCRUB_END),
+      () => {
+        // ease-out the scrub: the reversed clip's head is the video's static
+        // "fully open, holding" tail, so a linear map left the flower frozen
+        // for the first stretch of scroll. Doubling the initial rate makes it
+        // start folding the moment the scroll starts; endpoints unchanged.
+        const r = Math.min(1, progressRef.current / SCRUB_END);
+        return r * (2 - r);
+      },
       VIDEO_URL,
       { reverse: true }
     );
@@ -176,19 +200,24 @@ export default function Cover({ onChoose, onSettledChange }) {
           />
           <div className="cover-video-overlay" />
 
-          {/* beat 1: the name */}
+          {/* beat 1: the name. Nothing renders until Ballet has loaded (no
+              fallback-font flash); then the script writes itself on via a
+              mask wipe (see .is-inked) and the eyebrow settles in above it. */}
           <motion.div
             className="cover-hero-inner"
             style={{ opacity: nameOpacity, y: nameLift }}
           >
-            <motion.h1
-              className="cover-name-script"
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 1.2, ease: EASE, delay: 0.35 }}
+            <motion.p
+              className="cover-eyebrow"
+              initial={{ opacity: 0, y: 10 }}
+              animate={fontReady ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.9, ease: EASE, delay: 1.3 }}
             >
+              design × engineering
+            </motion.p>
+            <h1 className={`cover-name-script${fontReady ? " is-inked" : ""}`}>
               Mrinali Bhardwaj
-            </motion.h1>
+            </h1>
           </motion.div>
 
           {/* beat 3: the split — one identity diverging into two disciplines */}

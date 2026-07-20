@@ -91,15 +91,6 @@ export function createLotusScrubber(canvas, video, getProgress, videoUrl, opts =
   }
   video?.addEventListener("seeked", revealVideo, { once: true });
 
-  // sub-frame smoothing: crossfade adjacent cached frames so the scrub glides
-  // between them instead of stepping — adjacent frames are visually close, so
-  // the blend reads as motion, not ghosting
-  function drawBlend(a, b, mix) {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    paint(a, 1);
-    paint(b, mix);
-  }
-
   async function extract() {
     const src = document.createElement("video");
     src.muted = true;
@@ -235,19 +226,18 @@ export function createLotusScrubber(canvas, video, getProgress, videoUrl, opts =
       }
       const f = smoothF;
       if (Math.abs(f - lastF) > 0.003) {
-        // blend the two nearest CAPTURED frames around f. While the cache is
-        // still coarse the pair may span several slots — the crossfade then
-        // reads as a soft morph instead of an 8-frame pop.
+        // paint the single nearest CAPTURED frame, flat. We used to crossfade
+        // the two neighbours for sub-frame glide, but blending two frames of
+        // a moving flower reads as motion blur — the scrub looked soft the
+        // whole way down. Crisp frames + the temporal ease above is enough.
         const lo = below(Math.floor(f));
         const hi = above(Math.ceil(f));
-        if (lo >= 0 && hi > lo) {
+        let pick = -1;
+        if (lo >= 0 && hi >= 0) pick = f - lo <= hi - f ? lo : hi;
+        else if (lo >= 0 || hi >= 0) pick = lo >= 0 ? lo : hi;
+        if (pick >= 0) {
           lastF = f;
-          const mix = Math.min(1, Math.max(0, (f - lo) / (hi - lo)));
-          drawBlend(frames[lo], frames[hi], mix);
-        } else if (lo >= 0 || hi >= 0) {
-          // only one side captured (or exactly on a frame): paint it flat
-          lastF = f;
-          drawBitmap(frames[lo >= 0 ? lo : hi]);
+          drawBitmap(frames[pick]);
         }
       }
     } else if (
