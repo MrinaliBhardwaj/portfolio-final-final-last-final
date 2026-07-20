@@ -191,15 +191,30 @@
   pointer-events: none;
 }
 
-/* mono eyebrow above the name — fades in after the script has written on */
+/* mono eyebrow — the two disciplines split to the FAR ends, flanking the
+   name (no separator). A full-width space-between row does the flanking;
+   the words fade in after the script has written on. */
 .cover-eyebrow {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
   font-family: var(--font-mono-alt);
   font-size: 0.72rem;
   letter-spacing: 0.5em;
-  text-indent: 0.5em; /* re-centre against the trailing tracking */
   text-transform: uppercase;
   color: rgba(237, 236, 234, 0.66);
   margin-bottom: 1.5rem;
+}
+
+.cover-eyebrow-word {
+  padding-left: 0.5em; /* balance the leading edge against the tracking */
+}
+
+/* the trailing word's letter-spacing adds phantom space past its last
+   glyph — pull it back so the word ends flush at the right edge */
+.cover-eyebrow-word:last-child {
+  padding-left: 0;
+  margin-right: -0.5em;
 }
 
 /* the name, set in Ballet script, spanning the lower width of the stage.
