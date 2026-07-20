@@ -167,7 +167,7 @@
   position: relative;
   z-index: 4;
   width: 100%;
-  padding: 0 1.25rem 3vh;
+  padding: 0 1.25rem 0.5vh;
   text-align: center;
 }
 
@@ -449,7 +449,7 @@
   }
 
   .cover-hero-inner {
-    padding-bottom: 8vh;
+    padding-bottom: 3vh;
   }
 
   /* wrap the name to two lines on narrow screens so it stays large and legible
