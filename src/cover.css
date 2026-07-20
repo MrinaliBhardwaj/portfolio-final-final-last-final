@@ -195,26 +195,22 @@
   pointer-events: none;
 }
 
-/* "design engineer" on the curve of the M's opening swash. The svg is
-   absolutely positioned in % of the hero block, which hugs the name, so the
-   arc rides the flourish at any width; text is Inter on an SVG textPath. */
+/* "design engineer" — flat horizontal label in Inter, sitting on the M's
+   swash. Absolutely positioned in % of the name-hugging hero block so it
+   tracks the script at any width. */
 .cover-eyebrow-arc {
   position: absolute;
   left: 7%;
-  top: -11%;
-  width: 19%;
-  overflow: visible;
+  top: -2%;
   z-index: 5;
   pointer-events: none;
-}
-
-.cover-eyebrow-text {
   font-family: var(--font-ui);
-  font-size: 15px; /* viewBox units — scales with the svg's width */
+  font-size: clamp(0.6rem, 0.82vw, 0.82rem);
   font-weight: 450;
-  letter-spacing: 0.34em;
+  letter-spacing: 0.46em;
   text-transform: uppercase;
-  fill: rgba(237, 236, 234, 0.72);
+  white-space: nowrap;
+  color: rgba(237, 236, 234, 0.72);
 }
 
 /* the name, set in Ballet script, spanning the lower width of the stage.
@@ -477,13 +473,13 @@
     line-height: 1.6;
   }
 
-  /* wrapped name: the M of the centred "Mrinali" line sits further in and
-     the glyphs are smaller, so the arc needs its own anchor and more width
-     to stay legible */
+  /* wrapped name: the centred "Mrinali" line sits further in, so the label
+     needs its own anchor and a slightly larger size to stay legible */
   .cover-eyebrow-arc {
-    left: 12%;
-    top: -8%;
-    width: 34%;
+    left: 14%;
+    top: 0;
+    font-size: 0.62rem;
+    letter-spacing: 0.4em;
   }
 
   /* the split stacks: Design near the top, Tech near the bottom, flower

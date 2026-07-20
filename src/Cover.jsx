@@ -207,32 +207,17 @@ export default function Cover({ onChoose, onSettledChange }) {
             className="cover-hero-inner"
             style={{ opacity: nameOpacity, y: nameLift }}
           >
-            {/* "design engineer" rides the M's opening swash: Inter on an
-                SVG textPath whose arc mirrors the flourish's curve. The svg
-                is sized/positioned in % of the name box so it tracks the
-                script at any viewport width. */}
-            <motion.svg
+            {/* "design engineer" — flat mono-ish label in Inter, sitting on
+                the M's swash. Positioned in % of the name-hugging hero block
+                so it tracks the script at any viewport width. */}
+            <motion.p
               className="cover-eyebrow-arc"
-              viewBox="0 0 300 90"
               initial={{ opacity: 0 }}
               animate={fontReady ? { opacity: 1 } : {}}
               transition={{ duration: 0.9, ease: EASE, delay: 1.3 }}
             >
-              <path
-                id="cover-eyebrow-path"
-                d="M6,68 Q150,4 294,60"
-                fill="none"
-              />
-              <text className="cover-eyebrow-text">
-                <textPath
-                  href="#cover-eyebrow-path"
-                  startOffset="50%"
-                  textAnchor="middle"
-                >
-                  design engineer
-                </textPath>
-              </text>
-            </motion.svg>
+              design engineer
+            </motion.p>
             <h1 className={`cover-name-script${fontReady ? " is-inked" : ""}`}>
               Mrinali Bhardwaj
             </h1>
