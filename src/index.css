@@ -162,6 +162,32 @@ html[data-world="tech"] ::selection {
   z-index: 100;
 }
 
+/* ============ world windows ============ */
+/* A world zooms open like a macOS app window (see WorldWindow in App.jsx).
+   While the zoom runs the wrapper is pinned to the viewport, so the worlds'
+   position: fixed chrome resolves against the viewport box and scales with
+   the window instead of against the full document box.
+   `clip` not `hidden`: it contains the overflow without creating a scroll
+   container, so any position: sticky inside a world keeps working. */
+.world-window.is-opening {
+  position: fixed;
+  inset: 0;
+  overflow: clip;
+}
+
+/* The settled state, forced rather than animated into. Two jobs:
+   1. Nothing may remain that makes this a containing block for fixed
+      descendants — even a transform of scale(1) or a lingering will-change
+      would silently break every fixed element in the world.
+   2. The world must be VISIBLE even if the zoom never ran (a background tab
+      or headless renderer never fires rAF, so framer's inline opacity: 0
+      would otherwise stick and the world would ship blank). */
+.world-window:not(.is-opening) {
+  opacity: 1 !important;
+  transform: none !important;
+  will-change: auto !important;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

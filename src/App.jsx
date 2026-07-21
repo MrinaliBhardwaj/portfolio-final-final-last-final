@@ -62,6 +62,57 @@ function getRoute() {
   return "";
 }
 
+// A world opens the way a Mac app window opens: it zooms up from slightly
+// small as it fades in, while the dock stays put behind it.
+//
+// The pin is load-bearing, not decoration. Every world's chrome is
+// `position: fixed` — the tab bar, the tech sidebars and status bar, and the
+// gallery/pond stages themselves — and a transformed ancestor becomes the
+// containing block for fixed descendants. Pinned to the viewport, that block
+// IS the viewport, so the chrome scales with the window like real glass.
+// Unpinned, it would resolve against the full document box instead: bottom-
+// anchored bars would fly off and the fixed-position worlds would collapse
+// to zero height. The pin releases the instant the zoom lands, handing
+// scrolling back to the document.
+function WorldWindow({ children }) {
+  const [opening, setOpening] = useState(true);
+  const ref = useRef(null);
+  const settled = useRef(false);
+
+  const settle = () => {
+    if (settled.current) return;
+    settled.current = true;
+    setOpening(false);
+  };
+
+  // Safety net. The zoom is driven by requestAnimationFrame, which a
+  // background tab or a headless renderer may never run — and the opening
+  // state is opacity: 0, pinned and clipped. Left stuck there the world
+  // ships blank and unscrollable. Dropping `is-opening` after the zoom was
+  // due hands the world to the CSS below, which forces the finished state:
+  // being *there* must never depend on an animation having run.
+  useEffect(() => {
+    const t = setTimeout(settle, 700);
+    return () => clearTimeout(t);
+  }, []);
+
+  return (
+    <motion.div
+      ref={ref}
+      className={`world-window${opening ? " is-opening" : ""}`}
+      initial={{ opacity: 0, scale: 0.93 }}
+      animate={{ opacity: 1, scale: 1 }}
+      // No exit animation, deliberately. Switching apps on a Mac is a cut,
+      // not a crossfade — the incoming zoom carries the motion. It also lets
+      // the settled state below force opacity without fighting a fade-out.
+      transition={{ duration: 0.36, ease: [0.16, 1, 0.3, 1] }}
+      onAnimationComplete={settle}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
 export default function App() {
   const [route, setRoute] = useState(getRoute);
   const [entering, setEntering] = useState(null);
@@ -122,63 +173,33 @@ export default function App() {
         )}
 
         {route === "design" && (
-          <motion.div
-            key="design"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.32 }}
-          >
+          <WorldWindow key="design">
             <DesignWorld />
-          </motion.div>
+          </WorldWindow>
         )}
 
         {route === "tech" && (
-          <motion.div
-            key="tech"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.28 }}
-          >
+          <WorldWindow key="tech">
             <TechWorld />
-          </motion.div>
+          </WorldWindow>
         )}
 
         {route === "gallery" && (
-          <motion.div
-            key="gallery"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.32 }}
-          >
+          <WorldWindow key="gallery">
             <GalleryWorld />
-          </motion.div>
+          </WorldWindow>
         )}
 
         {route === "notes" && (
-          <motion.div
-            key="notes"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.32 }}
-          >
+          <WorldWindow key="notes">
             <NotesWorld />
-          </motion.div>
+          </WorldWindow>
         )}
 
         {route === "pond" && (
-          <motion.div
-            key="pond"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.32 }}
-          >
+          <WorldWindow key="pond">
             <PondWorld />
-          </motion.div>
+          </WorldWindow>
         )}
       </AnimatePresence>
 
