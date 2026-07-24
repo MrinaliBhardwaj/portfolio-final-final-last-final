@@ -18,6 +18,7 @@ import {
   Settings,
 } from "lucide-react";
 import FileTree from "./FileTree.jsx";
+import TechLanyard from "./TechLanyard.jsx";
 import WorldTabs from "./WorldTabs.jsx";
 import useSectionSpy from "./useSectionSpy.js";
 
@@ -283,6 +284,10 @@ export default function TechWorld() {
 
   return (
     <div className="tw">
+      {/* her access badge, hooked over the top-right of the editor chrome and
+          swinging on a real rope sim. Desktop-only — see TechLanyard.jsx. */}
+      <TechLanyard />
+
       {/* activity bar — pure chrome, like the app's left rail */}
       <div className="tw-activity" aria-hidden="true">
         <span className="tw-act is-on"><Files size={20} strokeWidth={1.5} /></span>

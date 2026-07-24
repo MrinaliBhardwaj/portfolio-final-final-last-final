@@ -94,6 +94,24 @@
   color: #d4d4d4;
 }
 
+/* ---- the ID badge hanging in the editor's right gutter ----
+   Fixed to the viewport's top-right so it hangs from the top edge and stays
+   there while the buffer scrolls under it. z-index puts it UNDER the tab strip
+   (35) and over the breadcrumbs (30): the band runs up off the top of frame and
+   disappears behind the chrome, so it reads as hooked over the editor rather
+   than floating — and the tab strip's × stays clickable at the corner.
+   Mounted only above 1280px (TechLanyard.jsx), where the 1000px buffer leaves
+   this gutter empty; the canvas takes pointer events across its box, which is
+   why it must not sit over the code. */
+.tw-lanyard {
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: 31;
+  width: 300px;
+  height: min(700px, 88vh);
+}
+
 /* mobile header (mark + section nav) — desktop uses the chrome instead */
 .tw-top {
   display: none;

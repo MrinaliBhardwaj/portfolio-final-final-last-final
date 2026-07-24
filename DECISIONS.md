@@ -819,3 +819,43 @@ The replacement leans all the way into the file fiction:
   ("MB") — Archivo is the DISPLAY type, which belongs to the content, not the
   chrome. This world's monogram is the one on its own title bar
   (`.wt-home`): Inter, 700, lowercase "mb". Same badge either way now.
+
+## The tech world wears her ID badge (vendored Lanyard)
+
+- The `lanyard` project (Downloads/lanyard, and on her GitHub) — rope physics
+  in rapier + a meshline band + a GLB card — is vendored into the tech world
+  per its own HANDOVER.md, NOT rebuilt. The physics tuning and the sizing math
+  are the artifact: the card face is 1.6 x 2.25 world units and drei maps px to
+  world as `px * distanceFactor / 400`, so the 320x450 overlay at
+  `distanceFactor={2}` gives 320*2/400 = 1.6. Don't change one of those numbers
+  without the other.
+- **Placement**: fixed to the viewport's top-right, `z-index: 31` — UNDER the
+  editor tab strip (35) and OVER the breadcrumbs (30). The band runs up off the
+  top of frame and vanishes behind the chrome, so the badge reads as hooked
+  over the editor rather than floating, and the tab strip's × stays clickable
+  in the corner.
+- **Pointer passthrough (the load-bearing bit).** A `<canvas>` eats every click
+  in its box, and this box hangs over the buffer's right gutter — measured, it
+  covered 9 real interactive elements at 1440px (the CodeLens `repo` links and
+  the `detail:`/`proof:` expanders scrolling under it). So the canvas is
+  `pointer-events: none` by default and the frame loop projects the card to
+  screen space each frame, promoting it to `auto` ONLY while the cursor is
+  actually over the card. Drag/fling are untouched; the rest of the gutter
+  stays clickable. Do not "simplify" this away.
+- **Gated hard** (TechLanyard.jsx): desktop only
+  (`min-width:1280px and pointer:fine`), off under `prefers-reduced-motion` (a
+  badge that never stops swaying is the exact thing that setting asks us not to
+  do), lazy-loaded via `React.lazy` so the ~1MB-gzip three/rapier/drei chunk
+  stays out of the entry bundle, and `frameloop="never"` while the tab is
+  backgrounded so the rope sim isn't burning a core behind another window.
+- **No webcam.** The source's ReflectiveCard mirrored a live `getUserMedia`
+  feed through an feTurbulence/feDisplacementMap filter. On a public portfolio
+  that fires a camera-permission prompt at a stranger on page load, and the
+  filter is the single most expensive thing in the scene. The sheen/noise/rim
+  layers carry the metal on their own. To restore it: HANDOVER.md §6.
+- **Class names namespaced.** The source card used bare `.label`, `.value`,
+  `.card-header`, `.card-body` — global names this project would collide with
+  eventually (the DomeGallery `.stage` lesson). All `dvb-` prefixed now.
+- Copy is her real tech identity ("SOFTWARE ENGINEER", matching README.md in
+  the buffer behind it). The source card said "JUNIOR DEVELOPER", which
+  contradicted her own page, and carried a fabricated ID number — both gone.

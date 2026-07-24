@@ -1,0 +1,187 @@
+/* ============ the hanging lanyard badge ============ */
+/* Two layers: the R3F canvas wrapper (.lanyard-wrapper, from the source
+   project) and the DOM card mounted on the 3D card's front face (.dvb). */
+
+/* The wrapper never takes pointer events; the canvas inside it is switched to
+   `auto` per-frame ONLY while the cursor is over the card (see the pointer
+   passthrough note in Lanyard.jsx). Without this, the badge's box would eat
+   every click in the editor gutter it hangs over. */
+.lanyard-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.lanyard-wrapper canvas {
+  pointer-events: none; /* the frame loop promotes this to `auto` on the card */
+}
+
+/* The DOM card overlaid on the 3D face must never intercept pointer events —
+   the drag happens on the canvas underneath it. */
+.card-front-html,
+.card-front-html * {
+  pointer-events: none !important;
+}
+
+.card-front-html .dvb {
+  width: 100%;
+  height: 100%;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.1) inset; /* the 3D scene owns the depth */
+}
+
+/* ---- the badge face ---- */
+/* Sized to the overlay node the Lanyard mounts it in (320x450). The 3D card
+   face is 1.6 x 2.25 world units and drei maps px -> world as
+   px * distanceFactor / 400 — so this box's ratio is load-bearing, not taste.
+   See the sizing note in Lanyard.jsx before changing it. */
+.dvb {
+  position: relative;
+  width: 320px;
+  height: 450px;
+  border-radius: 20px;
+  overflow: hidden;
+  isolation: isolate;
+  background: #16181a;
+  font-family: var(--font-ui);
+}
+
+.dvb-noise {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  opacity: 0.4;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* the metal: a raking highlight across the face, the thing the webcam feed
+   used to sit under */
+.dvb-sheen {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  mix-blend-mode: overlay;
+  opacity: 0.8;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.4) 0%,
+    rgba(255, 255, 255, 0.1) 40%,
+    rgba(255, 255, 255, 0) 50%,
+    rgba(255, 255, 255, 0.1) 60%,
+    rgba(255, 255, 255, 0.3) 100%
+  );
+}
+
+/* a 1px gradient rim, drawn as a masked ring so it follows the radius */
+.dvb-border {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  border-radius: 20px;
+  padding: 1px;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.8) 0%,
+    rgba(255, 255, 255, 0.2) 50%,
+    rgba(255, 255, 255, 0.6) 100%
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+}
+
+.dvb-content {
+  position: relative;
+  z-index: 10;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 28px;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.dvb-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.dvb-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+
+/* the one spot of the tech world's own blue, so the badge belongs to the
+   editor it hangs in front of */
+.dvb-status {
+  color: var(--tw-accent, #0078d4);
+}
+
+.dvb-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  text-align: center;
+  margin-bottom: 1.6em;
+}
+
+.dvb-name {
+  margin: 0 0 8px;
+  font-size: 23px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.dvb-role {
+  margin: 0;
+  font-size: 12px;
+  letter-spacing: 0.2em;
+  opacity: 0.7;
+}
+
+.dvb-foot {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.dvb-id {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.dvb-k {
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  opacity: 0.6;
+}
+
+.dvb-v {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 0.05em;
+}
+
+.dvb-print {
+  opacity: 0.4;
+}
