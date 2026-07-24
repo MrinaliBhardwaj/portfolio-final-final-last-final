@@ -37,13 +37,28 @@ const TITLES = {
   pond: "Mrinali Bhardwaj - Lotus Pond",
 };
 
-const WIPE_BG = {
-  design: "#1e1e1e",
-  tech: "#090d0b",
-  gallery: "#05040a",
-  notes: "#f4f1e8", // the scrapbook's paper — the one light world
-  pond: "#0b0f1e", // froggie's deep sky, so the wipe lands on the pond's own night
-};
+// Where the last click landed. A world grows open FROM this point (see
+// WorldWindow), so clicking a dock icon makes the window unfold out of that
+// icon — the way a Mac app opens from its dock tile. Captured on the capture
+// phase so it's already set by the time the click navigates. Defaults to the
+// dock's home (bottom centre) before any pointer touches the page.
+let launchPoint = null;
+if (typeof window !== "undefined") {
+  window.addEventListener(
+    "pointerdown",
+    (e) => {
+      launchPoint = { x: e.clientX, y: e.clientY };
+    },
+    { capture: true }
+  );
+}
+function launchOrigin() {
+  // the wrapper is pinned to the viewport while opening, so client coords map
+  // straight to its own box; px, not %, so the origin sits on the real icon
+  return launchPoint
+    ? `${launchPoint.x}px ${launchPoint.y}px`
+    : "50% 100%";
+}
 
 function getRoute() {
   // route on the path only, ignoring any "?" query the hash may carry
@@ -62,8 +77,11 @@ function getRoute() {
   return "";
 }
 
-// A world opens the way a Mac app window opens: it zooms up from slightly
-// small as it fades in, while the dock stays put behind it.
+// A world opens the way a Mac app window opens: it unfolds out of the dock
+// icon that launched it, scaling up from that point to fill the screen while
+// the dock stays put in front. The transform-origin is the clicked icon (see
+// launchOrigin); scaling from ~0.3 there makes the window grow up and out of
+// the tile rather than fading in place.
 //
 // The pin is load-bearing, not decoration. Every world's chrome is
 // `position: fixed` — the tab bar, the tech sidebars and status bar, and the
@@ -78,6 +96,9 @@ function WorldWindow({ children }) {
   const [opening, setOpening] = useState(true);
   const ref = useRef(null);
   const settled = useRef(false);
+  // frozen at mount so a later click (which moves launchPoint) can't shift
+  // this window's origin mid-open
+  const origin = useRef(launchOrigin());
 
   const settle = () => {
     if (settled.current) return;
@@ -100,12 +121,18 @@ function WorldWindow({ children }) {
     <motion.div
       ref={ref}
       className={`world-window${opening ? " is-opening" : ""}`}
-      initial={{ opacity: 0, scale: 0.93 }}
+      style={{ transformOrigin: origin.current }}
+      initial={{ opacity: 0, scale: 0.3 }}
       animate={{ opacity: 1, scale: 1 }}
       // No exit animation, deliberately. Switching apps on a Mac is a cut,
-      // not a crossfade — the incoming zoom carries the motion. It also lets
+      // not a crossfade — the incoming grow carries the motion. It also lets
       // the settled state below force opacity without fighting a fade-out.
-      transition={{ duration: 0.36, ease: [0.16, 1, 0.3, 1] }}
+      // Opacity resolves fast so it reads as a growing window, not a fade.
+      transition={{
+        duration: 0.42,
+        ease: [0.16, 1, 0.3, 1],
+        opacity: { duration: 0.18, ease: "easeOut" },
+      }}
       onAnimationComplete={settle}
     >
       {children}
@@ -115,9 +142,7 @@ function WorldWindow({ children }) {
 
 export default function App() {
   const [route, setRoute] = useState(getRoute);
-  const [entering, setEntering] = useState(null);
   const [coverSettled, setCoverSettled] = useState(false);
-  const navigated = useRef(false);
 
   useEffect(() => {
     const onHash = () => setRoute(getRoute());
@@ -133,15 +158,16 @@ export default function App() {
     if (route === "") setCoverSettled(false);
   }, [route]);
 
+  // launching a world is just navigation now — no slide-wipe. The world's
+  // own grow-open (WorldWindow) carries the transition, unfolding from
+  // whatever the visitor clicked (a dock icon, a cover CTA).
   const choose = (world) => {
-    if (entering) return;
-    navigated.current = false;
-    setEntering(world);
+    window.location.hash = "/" + world;
   };
 
   // the dock's click semantics depend on where you are: from the cover it
-  // launches a world with the wipe; on a world it switches like a tab, and
-  // clicking the already-open app just returns you to its top
+  // launches a world; on a world it switches like a tab, and clicking the
+  // already-open app just returns you to its top
   const dockChoose = (world) => {
     if (route === "") {
       choose(world);
@@ -210,34 +236,13 @@ export default function App() {
           stacking context. Keyed to the route so it remounts clean. */}
       {route === "design" && <DesignCursor />}
 
-      {/* the OS layer: present on every route, above the page, below the wipe */}
+      {/* the OS layer: present on every route, above the page. The world
+          grows up from behind it, so the dock reads as the launch surface. */}
       <Dock
         visible={route === "" ? coverSettled : true}
         onChoose={dockChoose}
         active={route || null}
       />
-
-      <AnimatePresence>
-        {entering && (
-          <motion.div
-            className="wipe"
-            style={{ background: WIPE_BG[entering] }}
-            initial={{ x: entering === "design" ? "-101%" : "101%" }}
-            animate={{ x: "0%" }}
-            exit={{
-              opacity: 0,
-              transition: { duration: 0.5, delay: 0.15, ease: "easeOut" },
-            }}
-            transition={{ duration: 0.55, ease: [0.76, 0, 0.24, 1] }}
-            onAnimationComplete={() => {
-              if (navigated.current) return;
-              navigated.current = true;
-              window.location.hash = "/" + entering;
-              window.setTimeout(() => setEntering(null), 160);
-            }}
-          />
-        )}
-      </AnimatePresence>
     </MotionConfig>
   );
 }

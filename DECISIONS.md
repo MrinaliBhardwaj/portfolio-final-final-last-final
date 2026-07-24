@@ -745,3 +745,27 @@ The replacement leans all the way into the file fiction:
   `.dw-board:hover/:focus-visible`, same reveal gesture as the hero `.cvf-pin`.
   Previously the notes were always-open; that read as permanent captions and
   cluttered the resting state.
+
+## Worlds open like macOS app windows (retires the slide-wipe)
+
+- Launching a world no longer plays the sliding colored **wipe** slab. That
+  read as "sliding in," which isn't how an app opens. Instead each world
+  **grows out of the dock icon that launched it**, macOS-style: it scales up
+  from ~0.3 with its `transform-origin` set to the exact clicked point
+  (captured on a capture-phase `pointerdown`), opacity resolving fast so it
+  reads as a growing window, not a fade. Duration 0.42s, ease-out-expo.
+- `choose()` is now plain navigation; the `entering`/`navigated`/`WIPE_BG`
+  wipe machinery is gone. Cover CTAs and dock icons both just set the hash and
+  let `WorldWindow`'s grow-open carry the transition.
+- **The grow's pin is load-bearing.** While opening, `.world-window` is
+  `position: fixed; inset: 0` so the worlds' `position: fixed` chrome (tab
+  bar, tech sidebars/status bar, the fully-fixed gallery/pond stages) resolves
+  against the viewport and scales as one pane. A transformed ancestor is the
+  containing block for fixed descendants; unpinned they'd resolve against the
+  document box and collapse. The pin (and any transform/will-change) is force-
+  cleared in CSS the instant it settles — nothing that creates a containing
+  block may survive, or every fixed element in the world breaks.
+- **Never gate visibility on the animation.** The settled state is forced in
+  CSS (`opacity:1 !important`) with a 700ms timeout fallback, so a tab that
+  never fires rAF (backgrounded / headless) can't strand a world blank,
+  pinned and unscrollable. Dock stays at `z-index:60`, in front of the grow.
