@@ -385,42 +385,76 @@
 .cvf-pin-dot {
   display: grid;
   place-items: center;
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   background: var(--dw-accent);
   color: #fff;
-  font-size: 12px;
+  font-family: var(--font-ui);
+  font-size: 13px;
   font-weight: 700;
-  border-radius: 50% 50% 50% 4px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45), 0 0 0 2px #fff;
-  transition: transform 0.25s var(--ease-soft);
+  border-radius: 50% 50% 50% 3px;
+  /* grounded, not a floating sticker: a tight contact shadow + a lifted
+     ambient one, a crisp white ring, and a top inner-highlight for volume */
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 5px 14px rgba(0, 0, 0, 0.5),
+    0 0 0 2.5px #fff, inset 0 1.5px 0 rgba(255, 255, 255, 0.35);
+  transition: transform 0.2s var(--ease-soft), box-shadow 0.2s var(--ease-soft);
 }
 
 .cvf-pin:hover .cvf-pin-dot,
 .cvf-pin:focus-visible .cvf-pin-dot {
-  transform: scale(1.12);
+  transform: scale(1.08) translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4), 0 9px 22px rgba(0, 0, 0, 0.55),
+    0 0 0 2.5px #fff, inset 0 1.5px 0 rgba(255, 255, 255, 0.35);
 }
 
 .cvf-pin-note {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
   background: #fff;
   color: #1c1b19;
-  font-size: 11.5px;
-  font-weight: 500;
+  font-size: 12.5px;
+  font-weight: 450;
   line-height: 1.45;
-  padding: 8px 11px;
-  border-radius: 3px 10px 10px 10px;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
-  max-width: 200px;
+  padding: 10px 13px 11px;
+  border-radius: 3px 12px 12px 12px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.22), 0 14px 34px rgba(0, 0, 0, 0.5);
+  max-width: 216px;
   opacity: 0;
-  transform: translateY(4px);
-  transition: opacity 0.25s var(--ease-soft), transform 0.25s var(--ease-soft);
+  transform: translateY(4px) scale(0.96);
+  transform-origin: top left;
+  transition: opacity 0.2s var(--ease-soft), transform 0.2s var(--ease-soft);
   pointer-events: none;
+}
+
+/* author row — an avatar chip + name, so the note reads as a real comment
+   thread in her file rather than a bare tooltip */
+.cvf-pin-author {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 600;
+  color: #5b5960;
+}
+
+.cvf-pin-avatar {
+  display: grid;
+  place-items: center;
+  width: 17px;
+  height: 17px;
+  border-radius: 50%;
+  background: var(--dw-accent);
+  color: #fff;
+  font-size: 9.5px;
+  font-weight: 700;
 }
 
 .cvf-pin:hover .cvf-pin-note,
 .cvf-pin:focus-visible .cvf-pin-note {
   opacity: 1;
-  transform: translateY(0);
+  transform: translateY(0) scale(1);
 }
 
 /* ---- the visitor's own cursor: you are a collaborator in her file ----
@@ -804,46 +838,78 @@
   display: grid;
   place-items: center;
   flex-shrink: 0;
-  width: 26px;
-  height: 26px;
+  width: 30px;
+  height: 30px;
   background: var(--dw-pink);
   color: #2e2e38;
-  font-size: 11.5px;
+  font-family: var(--font-ui);
+  font-size: 12.5px;
   font-weight: 700;
-  border-radius: 50% 50% 50% 4px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45), 0 0 0 2px #fff;
-  transition: transform 0.25s var(--ease-soft);
+  border-radius: 50% 50% 50% 3px;
+  /* grounded like the hero pin: contact + ambient shadow, crisp white ring,
+     top inner highlight for volume — not a flat floating chip */
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 5px 14px rgba(0, 0, 0, 0.5),
+    0 0 0 2.5px #fff, inset 0 1.5px 0 rgba(255, 255, 255, 0.4);
+  transition: transform 0.2s var(--ease-soft), box-shadow 0.2s var(--ease-soft);
 }
 
-.dw-board:hover .dw-board-pin-dot,
+/* The comment stays COLLAPSED (just the pin) and opens when the PIN itself is
+   hovered/focused — the real Figma gesture: point at the marker to read the
+   thread. Scoped to the pin, not the whole board, so the note isn't tangled
+   up with the board's selection chrome. */
+.dw-board-pin:hover .dw-board-pin-dot,
 .dw-board:focus-visible .dw-board-pin-dot {
-  transform: scale(1.1);
+  transform: scale(1.08) translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4), 0 9px 22px rgba(0, 0, 0, 0.55),
+    0 0 0 2.5px #fff, inset 0 1.5px 0 rgba(255, 255, 255, 0.4);
 }
 
-/* the comment body stays COLLAPSED (just the pin dot shows) and expands only
-   when the board is hovered/focused — a real Figma comment pin, not a
-   permanent caption. Same reveal gesture as the hero's .cvf-pin note. */
 .dw-board-pin-note {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
   background: #fff;
   color: #1c1b19;
-  font-size: 11px;
-  font-weight: 500;
-  line-height: 1.4;
-  padding: 6px 9px;
-  border-radius: 3px 10px 10px 10px;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
-  max-width: 180px;
+  font-size: 12.5px;
+  font-weight: 450;
+  line-height: 1.45;
+  padding: 10px 13px 11px;
+  border-radius: 3px 12px 12px 12px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.22), 0 14px 34px rgba(0, 0, 0, 0.5);
+  max-width: 214px;
   opacity: 0;
-  transform: translateX(-4px);
-  transform-origin: left center;
+  transform: translateX(-4px) scale(0.96);
+  transform-origin: top left;
   pointer-events: none;
-  transition: opacity 0.25s var(--ease-soft), transform 0.25s var(--ease-soft);
+  transition: opacity 0.2s var(--ease-soft), transform 0.2s var(--ease-soft);
 }
 
-.dw-board:hover .dw-board-pin-note,
+.dw-board-pin-author {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 600;
+  color: #5b5960;
+}
+
+.dw-board-pin-avatar {
+  display: grid;
+  place-items: center;
+  width: 17px;
+  height: 17px;
+  border-radius: 50%;
+  background: var(--dw-pink);
+  color: #2e2e38;
+  font-size: 9.5px;
+  font-weight: 700;
+}
+
+.dw-board-pin:hover .dw-board-pin-note,
 .dw-board:focus-visible .dw-board-pin-note {
   opacity: 1;
-  transform: translateX(0);
+  transform: translateX(0) scale(1);
 }
 
 /* selection chrome — the same handles + dims pill the section frames wear,

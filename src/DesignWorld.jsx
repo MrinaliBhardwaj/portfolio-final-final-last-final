@@ -366,10 +366,14 @@ export default function DesignWorld() {
             area="1 / span 12"
             tone="poster"
           >
-            {/* a Figma comment pinned to the artboard */}
+            {/* a Figma comment pinned to the artboard — thread #1 of the file */}
             <a className="cvf-pin" href={EMAIL}>
               <span className="cvf-pin-dot">1</span>
               <span className="cvf-pin-note">
+                <span className="cvf-pin-author">
+                  <span className="cvf-pin-avatar" aria-hidden="true">M</span>
+                  Mrinali
+                </span>
                 Open to design internships — say hello
               </span>
             </a>
@@ -447,11 +451,21 @@ export default function DesignWorld() {
                     <span className="dw-board-display" aria-hidden="true">
                       {w.name.toLowerCase()}
                     </span>
+                    {/* comment threads continue the file's numbering: the
+                        hero pin is #1, so the boards start at #2 */}
                     <span className="dw-board-pin">
                       <span className="dw-board-pin-dot" aria-hidden="true">
-                        {i + 1}
+                        {i + 2}
                       </span>
-                      <span className="dw-board-pin-note">{w.tag}</span>
+                      <span className="dw-board-pin-note">
+                        <span className="dw-board-pin-author">
+                          <span className="dw-board-pin-avatar" aria-hidden="true">
+                            M
+                          </span>
+                          Mrinali
+                        </span>
+                        {w.tag}
+                      </span>
                     </span>
                     <span className="dw-board-handle dw-board-handle--tl" aria-hidden="true" />
                     <span className="dw-board-handle dw-board-handle--tr" aria-hidden="true" />
