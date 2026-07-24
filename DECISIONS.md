@@ -769,3 +769,21 @@ The replacement leans all the way into the file fiction:
   CSS (`opacity:1 !important`) with a 700ms timeout fallback, so a tab that
   never fires rAF (backgrounded / headless) can't strand a world blank,
   pinned and unscrollable. Dock stays at `z-index:60`, in front of the grow.
+
+## Design hero reflows on mobile (the poster only shrank)
+
+- The profile hero is an exact 1316×741 Figma artboard placed in Figma-space
+  coordinates via `--u` (= 100cqw/1316). Scaled to a phone that made every
+  layer shrink together — body text rendered at ~4px, unreadable. A mobile
+  audit of all six routes found this was the ONLY genuinely broken surface;
+  cover / tech / gallery / notes / pond already adapt with no overflow.
+- Fix: below 768px the CSS hides every poster layer (`.dwh > :not(.dwh-m)`)
+  and shows `.dwh-m`, a flowed, readable version of the SAME content (shared
+  `INTRO` const + the existing EXPERIENCE/EDUCATION/SKILLS arrays) on the
+  poster's own cream sheet — photo, script name, intro, resume, then stacked
+  Experience / Skill-set chips / Softwares crop / Education. The desktop
+  poster is untouched; the two are a hard 768px swap, same pattern as the
+  contact frame.
+- Gotcha baked in: the poster's base rule `.dwh img { position:absolute }`
+  also caught the reflow's images and pulled them out of flow — the mobile
+  block resets `.dwh-m img { position: static }`.

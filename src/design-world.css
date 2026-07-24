@@ -205,6 +205,12 @@
   font-family: var(--font-ui);
 }
 
+/* the mobile reflow (DesignHero.jsx) — the poster is the desktop truth; this
+   flowed version only appears below 768px (rules in the mobile block) */
+.dwh-m {
+  display: none;
+}
+
 /* everything in the poster is absolutely placed */
 .dwh img,
 .dwh > span,
@@ -1474,5 +1480,163 @@
   .dw-board--wide {
     grid-column: 1 / -1;
     margin-top: 0;
+  }
+
+  /* ---- design hero: swap the fixed poster for the flowed mobile profile ---- */
+  /* release the poster's fixed artboard so the body grows to the content */
+  .cvf--poster .cvf-body {
+    aspect-ratio: auto;
+    background: #f6f5f2;
+    padding: 0;
+  }
+  .dwh {
+    position: static;
+    overflow: visible;
+    height: auto;
+    background: transparent;
+  }
+  /* hide every poster layer; the reflow takes over */
+  .dwh > :not(.dwh-m) {
+    display: none;
+  }
+  /* the poster rule `.dwh img { position: absolute }` also catches the reflow's
+     images (photo, softwares), pulling them out of flow — put them back */
+  .dwh-m img {
+    position: static;
+  }
+  .dwh-m {
+    display: block;
+    background: #f6f5f2;
+    color: #33323a;
+    padding: 1.5rem 1.4rem 2rem;
+    font-family: var(--font-ui);
+  }
+
+  /* header: the childhood photo above the script name, which needs the full
+     column width (side-by-side, the wide Pinyon script overran the photo) */
+  .dwh-m-hero {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.7rem;
+    margin-bottom: 1.4rem;
+  }
+  .dwh-m-photo {
+    width: 92px;
+    height: 92px;
+    flex-shrink: 0;
+    object-fit: cover;
+    object-position: top center;
+    border-radius: 14px;
+  }
+  .dwh-m-headline {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+  }
+  .dwh-m-meet {
+    font-weight: 300;
+    font-size: 1rem;
+    color: #6a6873;
+  }
+  .dwh-m-name {
+    font-family: "Pinyon Script", cursive;
+    font-size: 2.4rem;
+    line-height: 1.05;
+    color: #2e2d35;
+  }
+
+  .dwh-m-intro {
+    margin: 0 0 1.5rem;
+    font-weight: 300;
+    font-size: 0.95rem;
+    line-height: 1.55;
+    color: #4a4a58;
+  }
+
+  .dwh-m-download {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.7rem 1.15rem;
+    margin-bottom: 2.2rem;
+    background: #2e2d35;
+    color: #f6f5f2;
+    font-size: 0.85rem;
+    font-weight: 500;
+    text-decoration: none;
+    border-radius: 8px;
+  }
+
+  .dwh-m-sec {
+    margin-bottom: 1.9rem;
+  }
+  .dwh-m-h {
+    margin: 0 0 0.9rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #2e2d35;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid rgba(46, 45, 53, 0.14);
+  }
+  .dwh-m-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+  }
+
+  /* experience & education entries */
+  .dwh-m-xp-kind {
+    display: inline-block;
+    margin-bottom: 0.25rem;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--dw-pink);
+  }
+  .dwh-m-xp-role,
+  .dwh-m-edu-title {
+    margin: 0;
+    font-size: 0.98rem;
+    font-weight: 700;
+    color: #2e2d35;
+  }
+  .dwh-m-xp-org {
+    margin: 0.1rem 0 0;
+    font-size: 0.9rem;
+    font-weight: 400;
+    color: #4a4a58;
+  }
+  .dwh-m-xp-date,
+  .dwh-m-edu-sub {
+    margin: 0.15rem 0 0;
+    font-size: 0.82rem;
+    font-weight: 300;
+    color: #6a6873;
+  }
+
+  .dwh-m-skills {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem;
+  }
+  .dwh-m-skills li {
+    padding: 0.42rem 0.85rem;
+    background: #eceae4;
+    border: 1px solid rgba(46, 45, 53, 0.12);
+    border-radius: 999px;
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: #33323a;
+  }
+
+  .dwh-m-soft {
+    width: 100%;
+    max-width: 280px;
+    height: auto;
   }
 }

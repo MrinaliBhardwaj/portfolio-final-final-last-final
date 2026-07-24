@@ -16,6 +16,10 @@
 const U = (n) => `calc(${n} * var(--u))`;
 const A = "/design-hero";
 
+// the intro copy, shared by the fixed poster and the mobile reflow below
+const INTRO =
+  "I am an aspiring design engineer based in India, currently pursuing a bachelors degree in computer science at VIT University. My academic background allows me to work at the intersection of tech and design";
+
 // four experience entries — {block x,y, alignment, and the four lines}
 const EXPERIENCE = [
   {
@@ -146,9 +150,7 @@ export default function DesignHero() {
 
       {/* intro */}
       <p className="dwh-intro" style={{ left: U(205), top: U(190), width: U(989), fontSize: U(16.778) }}>
-        I am an aspiring design engineer based in India, currently pursuing a
-        bachelors degree in computer science at VIT University. My academic
-        background allows me to work at the intersection of tech and design
+        {INTRO}
       </p>
 
       {/* download resume */}
@@ -231,6 +233,77 @@ export default function DesignHero() {
             <span className="dwh-edu-sub" style={{ top: U(18.07), fontSize: U(12.411) }}>{ed.sub}</span>
           </div>
         ))}
+      </div>
+
+      {/* ============ MOBILE REFLOW ============ */}
+      {/* The poster above is a fixed 1316×741 artboard; scaled to a phone it
+          collapses to ~4px text. Below 768px the CSS hides every poster layer
+          and shows this flowed, readable version of the very same content —
+          on the poster's own cream sheet, so it still reads as her document. */}
+      <div className="dwh-m">
+        <div className="dwh-m-hero">
+          <img
+            className="dwh-m-photo"
+            src={`${A}/mini-mri.png`}
+            alt="Mrinali as a child in a blue bucket hat"
+          />
+          <div className="dwh-m-headline">
+            <span className="dwh-m-meet">Meet</span>
+            <span className="dwh-m-name">Mrinali Bhardwaj!</span>
+          </div>
+        </div>
+
+        <p className="dwh-m-intro">{INTRO}</p>
+
+        <a className="dwh-m-download" href="/resume-design.docx" download>
+          Download Resume
+          <span aria-hidden="true">↓</span>
+        </a>
+
+        <section className="dwh-m-sec">
+          <h3 className="dwh-m-h">Experience</h3>
+          <div className="dwh-m-list">
+            {EXPERIENCE.map((e) => (
+              <div className="dwh-m-xp" key={e.role + e.org}>
+                <span className="dwh-m-xp-kind">{e.kind}</span>
+                <p className="dwh-m-xp-role">{e.role}</p>
+                <p className="dwh-m-xp-org">{e.org}</p>
+                <p className="dwh-m-xp-date">{e.date}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section className="dwh-m-sec">
+          <h3 className="dwh-m-h">Skill Set</h3>
+          <ul className="dwh-m-skills">
+            {SKILLS.map((s, i) => (
+              <li key={i}>{s.label.join(" ")}</li>
+            ))}
+          </ul>
+        </section>
+
+        {/* the softwares crop carries its own "Softwares" label + tiles,
+            composited over cream so it drops onto this sheet seamlessly */}
+        <section className="dwh-m-sec">
+          <img
+            className="dwh-m-soft"
+            src={`${A}/softwares.png`}
+            alt="Softwares: Figma, Photoshop, Illustrator, VS Code"
+          />
+        </section>
+
+        <section className="dwh-m-sec">
+          <h3 className="dwh-m-h">Education</h3>
+          <div className="dwh-m-list">
+            {EDUCATION.map((ed) => (
+              <div className="dwh-m-edu" key={ed.title}>
+                <p className="dwh-m-edu-title">{ed.title}</p>
+                <p className="dwh-m-edu-sub">{ed.sub}</p>
+              </div>
+            ))}
+          </div>
+        </section>
       </div>
     </div>
   );
