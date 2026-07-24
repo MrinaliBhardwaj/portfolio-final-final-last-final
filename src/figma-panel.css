@@ -256,9 +256,73 @@
   height: 0;
 }
 
-/* mobile: the panel steps aside entirely */
+/* the grab handle: sheet-only, so it's absent from the desktop sidebar */
+.fp-grab {
+  display: none;
+}
+
+/* ---- mobile: the sidebar becomes a bottom SHEET ----
+   Figma mobile has no room for a permanent panel, so the layers tree lives
+   behind the toolbar's Layers button and slides up over the canvas. Same tree,
+   same scroll-spy, same tap-to-jump — picking a layer dismisses the sheet
+   (FigmaPanel's `pick`) so the tree never covers the frame you just chose. */
 @media (max-width: 768px) {
   .fp {
-    display: none;
+    top: auto;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: auto;
+    max-height: 70dvh;
+    z-index: 70; /* over the scrim (65) and the dock (60) */
+    border-right: 0;
+    border-top: 1px solid var(--dw-panel-line);
+    border-radius: 14px 14px 0 0;
+    box-shadow: 0 -18px 44px rgba(0, 0, 0, 0.55);
+    padding-bottom: env(safe-area-inset-bottom);
+    transform: translateY(101%);
+    visibility: hidden;
+    transition: transform 0.28s var(--ease-soft), visibility 0.28s linear;
+  }
+
+  .fp.is-open {
+    transform: none;
+    visibility: visible;
+  }
+
+  .fp-grab {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: none;
+    width: 100%;
+    height: 26px;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+  }
+
+  /* the pill you'd drag; it's also the sheet's close button */
+  .fp-grab span {
+    width: 38px;
+    height: 4px;
+    border-radius: 999px;
+    background: #5a5a5a;
+  }
+
+  /* rows get a comfortable touch height inside the sheet */
+  .fp-row {
+    height: 40px;
+  }
+
+  .fp-row--child {
+    height: 36px;
+  }
+}
+
+@media (max-width: 768px) and (prefers-reduced-motion: reduce) {
+  .fp {
+    transition: none;
   }
 }

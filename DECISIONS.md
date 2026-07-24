@@ -787,3 +787,35 @@ The replacement leans all the way into the file fiction:
 - Gotcha baked in: the poster's base rule `.dwh img { position:absolute }`
   also caught the reflow's images and pulled them out of flow — the mobile
   block resets `.dwh-m img { position: static }`.
+
+## Phone view of the design world IS Figma mobile
+
+- Below 768px the desktop chrome (fixed Figma tab bar, layers panel,
+  properties panel) all disappeared, leaving the world's own header as two
+  floating links — the world stopped reading as an app. It now reads as the
+  Figma MOBILE app instead: `.dw-top` becomes a sticky 48px `--dw-panel`
+  toolbar with the same hairline the panels use, carrying home ("mb"), the
+  open file ("design.fig" behind the Figma glyph), a **Layers** button, and
+  Say hello as an envelope icon. Desktop is untouched — every mobile part is
+  `display:none` above 768 and the toolbar falls back to static/transparent.
+- **The layers panel is now reachable on a phone.** Instead of
+  `.fp { display:none }`, the same panel becomes a bottom SHEET: it slides up
+  from the toolbar's Layers button over a scrim, with a grab-pill that doubles
+  as its close button. Same tree, same scroll-spy, same tap-to-jump — and
+  picking a layer dismisses the sheet (`pick` in FigmaPanel) so the tree never
+  covers the frame you just chose. Escape and the scrim both close it.
+  z-index: scrim 65, sheet 70 — over the dock (60).
+- **Comment threads open on TAP.** They were hover-only, so on a phone the
+  notes were simply `display:none` — the pins were decoration you couldn't
+  read. `useTapNote` (DesignWorld) toggles an `.is-open` class, which is the
+  tap twin of every `:hover` rule the pins already had. First tap opens and
+  swallows the click; second tap follows the hero pin's mailto (its note says
+  "say hello") but only CLOSES a board pin, since the board's own link would
+  otherwise fling you to Behance mid-read. A pointerdown anywhere else closes.
+  Both pins anchor to the frame's LEFT edge on mobile and the card is capped
+  to `min(230px, 100vw - 6.5rem)` so it can't hang off the screen. Dots draw
+  at 30–32px but take taps at 44 via an inset `::after`.
+- **The monogram was in the wrong face.** `.dw-mark` was heavy Archivo caps
+  ("MB") — Archivo is the DISPLAY type, which belongs to the content, not the
+  chrome. This world's monogram is the one on its own title bar
+  (`.wt-home`): Inter, 700, lowercase "mb". Same badge either way now.

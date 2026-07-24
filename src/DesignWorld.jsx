@@ -5,8 +5,9 @@
 // Figma, and the layers panel + properties panel track the selection.
 // Chrome speaks Inter (Figma's UI font); the hero headline keeps the wide
 // Archivo display type — the one identity thread shared across surfaces.
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowUpRight, Mail } from "lucide-react";
+import { ArrowUpRight, Layers, Mail } from "lucide-react";
 import FigmaPanel from "./FigmaPanel.jsx";
 import WorldTabs from "./WorldTabs.jsx";
 import DesignHero from "./DesignHero.jsx";
@@ -160,6 +161,47 @@ function PanelSketch({ kind }) {
       <path d="M404 70l18 18-18 18-18-18Z" {...pink} />
     </svg>
   );
+}
+
+/* Comment threads open on HOVER, which a phone doesn't have — so on a coarse
+   pointer they open on TAP instead. `useTapNote` gives every pin an open flag
+   plus the handler: the first tap opens the note (swallowing the click so it
+   doesn't fire the board's link or the hero's mailto), the second lets the
+   click through to that destination. A pointerdown anywhere else closes it. */
+const isCoarse = () =>
+  typeof window !== "undefined" && window.matchMedia("(hover: none)").matches;
+
+function useTapNote() {
+  const [openId, setOpenId] = useState(null);
+
+  useEffect(() => {
+    if (openId === null) return;
+    const away = (e) => {
+      if (!e.target.closest?.(".cvf-pin, .dw-board-pin")) setOpenId(null);
+    };
+    document.addEventListener("pointerdown", away);
+    return () => document.removeEventListener("pointerdown", away);
+  }, [openId]);
+
+  // `follow`: on a second tap, does the click go through to the pin's own link
+  // (the hero's mailto — its note says "say hello", so tapping through is the
+  // point) or just close the note (the board pins, whose parent link would
+  // otherwise fling you to Behance mid-read)?
+  const tap = (id, follow) => (e) => {
+    if (!isCoarse()) return;
+    if (openId === id) {
+      if (follow) return;
+      e.preventDefault();
+      e.stopPropagation();
+      setOpenId(null);
+      return;
+    }
+    e.preventDefault();
+    e.stopPropagation();
+    setOpenId(id);
+  };
+
+  return [openId, tap];
 }
 
 /* one artboard on the canvas. When it's the active section it wears Figma's
@@ -344,6 +386,16 @@ export default function DesignWorld() {
   const [activeSection, selectFrame] = useSectionSpy(SECTION_IDS);
   const activeFrame =
     FRAMES.find((f) => f.id === activeSection) || FRAMES[0];
+  // phone only: the layers panel is a dismissible bottom sheet
+  const [layersOpen, setLayersOpen] = useState(false);
+  const [openPin, tapPin] = useTapNote();
+
+  useEffect(() => {
+    if (!layersOpen) return;
+    const esc = (e) => e.key === "Escape" && setLayersOpen(false);
+    document.addEventListener("keydown", esc);
+    return () => document.removeEventListener("keydown", esc);
+  }, [layersOpen]);
 
   return (
     <div className="dw">
@@ -355,23 +407,62 @@ export default function DesignWorld() {
         frames={FRAMES}
         activeId={activeSection}
         onSelect={selectFrame}
+        open={layersOpen}
+        onClose={() => setLayersOpen(false)}
       />
       <PropsPanel frame={activeFrame} />
+
+      {/* the sheet's dismiss surface (mobile only — nothing opens it above 768) */}
+      {layersOpen && (
+        <div
+          className="dw-scrim"
+          onClick={() => setLayersOpen(false)}
+          aria-hidden="true"
+        />
+      )}
 
       {/* the file's one collaborator cursor is the VISITOR's own — a pink arrow
           (design-world.css) tagged "Mrinali" (DesignCursor, mounted by App).
           A second, drifting cursor used to loiter on the hero frame; with the
           real pointer wearing the same arrow it just read as a duplicate. */}
       <div className="dw-content">
-        {/* the mobile home badge: on desktop the title-bar "mb" (WorldTabs)
-            owns home, so this one only shows once the tab strip is gone (≤768).
-            "Say hello" stays on both. */}
+        {/* On desktop this header is just "Say hello" — the fixed Figma tab bar
+            above (WorldTabs) already carries home, the file name and the panels.
+            Below 768px that bar is gone, so this becomes the FIGMA MOBILE
+            TOOLBAR: home badge, the open file, a Layers button that pulls the
+            layers panel up as a bottom sheet, and Say hello as a mail icon.
+            The badge wears the same Inter lowercase "mb" as the desktop tab bar
+            — this world's monogram is set in the app's own UI type. */}
         <header className="dw-top">
           <a className="dw-mark" href="#/" aria-label="Mrinali Bhardwaj — home">
-            MB
+            mb
           </a>
-          <a className="dw-hello" href={EMAIL}>
-            Say hello
+
+          <span className="dw-mfile">
+            <img
+              src="https://cdn.simpleicons.org/figma/d0d0d0"
+              alt=""
+              aria-hidden="true"
+              width="12"
+              height="12"
+            />
+            design.fig
+          </span>
+
+          <button
+            type="button"
+            className={`dw-mlayers${layersOpen ? " is-on" : ""}`}
+            onClick={() => setLayersOpen((v) => !v)}
+            aria-expanded={layersOpen}
+            aria-controls="dw-layers"
+          >
+            <Layers size={15} strokeWidth={1.7} aria-hidden="true" />
+            Layers
+          </button>
+
+          <a className="dw-hello" href={EMAIL} aria-label="Say hello by email">
+            <Mail className="dw-hello-ico" size={16} strokeWidth={1.7} aria-hidden="true" />
+            <span>Say hello</span>
           </a>
         </header>
 
@@ -384,7 +475,11 @@ export default function DesignWorld() {
             tone="poster"
           >
             {/* a Figma comment pinned to the artboard — thread #1 of the file */}
-            <a className="cvf-pin" href={EMAIL}>
+            <a
+              className={`cvf-pin${openPin === "hero" ? " is-open" : ""}`}
+              href={EMAIL}
+              onClick={tapPin("hero", true)}
+            >
               <span className="cvf-pin-dot">1</span>
               <span className="cvf-pin-note">
                 <span className="cvf-pin-author">
@@ -470,7 +565,15 @@ export default function DesignWorld() {
                     </span>
                     {/* comment threads continue the file's numbering: the
                         hero pin is #1, so the boards start at #2 */}
-                    <span className="dw-board-pin">
+                    <span
+                      className={`dw-board-pin${
+                        openPin === w.name ? " is-open" : ""
+                      }`}
+                      role="button"
+                      tabIndex={0}
+                      aria-label={`Comment on ${w.name}: ${w.tag}`}
+                      onClick={tapPin(w.name, false)}
+                    >
                       <span className="dw-board-pin-dot" aria-hidden="true">
                         {i + 2}
                       </span>

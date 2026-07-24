@@ -59,18 +59,31 @@
   padding: 1.3rem clamp(1.25rem, 4vw, 3rem) 0;
 }
 
+/* the home badge. It used to be heavy Archivo caps — the display face, which
+   belongs to the CONTENT, not the chrome. This world's monogram is the one on
+   its own title bar (WorldTabs .wt-home): Inter, lowercase, letter-for-letter
+   the same badge whether the tab bar or this toolbar is carrying home. */
 .dw-mark {
   display: none; /* desktop home is the title-bar badge; this is the mobile one */
-  font-family: var(--font-sans);
-  font-stretch: 125%;
-  font-weight: 900;
-  font-size: 1rem;
+  font-family: var(--font-ui);
+  font-weight: 700;
+  font-size: 0.82rem;
   letter-spacing: 0.02em;
+  text-transform: lowercase;
   text-decoration: none;
+}
+
+/* the open file + Layers button: mobile toolbar only (see the ≤768 block) */
+.dw-mfile,
+.dw-mlayers {
+  display: none;
 }
 
 .dw-hello {
   margin-left: auto; /* holds the right edge whether or not the mark is shown */
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
   font-size: 0.82rem;
   font-weight: 550;
   text-decoration: none;
@@ -78,6 +91,12 @@
   border-bottom: 1px solid var(--dw-line);
   padding-bottom: 2px;
   transition: color 0.3s var(--ease-soft), border-color 0.3s var(--ease-soft);
+}
+
+/* the envelope is the mobile toolbar's icon-only form; on desktop the words
+   carry it and the icon would just be noise */
+.dw-hello-ico {
+  display: none;
 }
 
 .dw-hello:hover {
@@ -457,10 +476,34 @@
   font-weight: 700;
 }
 
+/* .is-open is the TAP equivalent of :hover — a phone has no pointer to rest on
+   the pin, so DesignWorld toggles this class on tap (useTapNote) */
 .cvf-pin:hover .cvf-pin-note,
-.cvf-pin:focus-visible .cvf-pin-note {
+.cvf-pin:focus-visible .cvf-pin-note,
+.cvf-pin.is-open .cvf-pin-note {
   opacity: 1;
   transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+
+.cvf-pin.is-open .cvf-pin-dot,
+.dw-board-pin.is-open .dw-board-pin-dot {
+  transform: scale(1.08) translateY(-1px);
+}
+
+/* the dots are 30–32px of ink; this pushes the TAP TARGET out to 44px without
+   moving the art or the note beside it */
+.cvf-pin-dot,
+.dw-board-pin-dot {
+  position: relative;
+}
+
+.cvf-pin-dot::after,
+.dw-board-pin-dot::after {
+  content: "";
+  position: absolute;
+  inset: -7px;
+  border-radius: 50%;
 }
 
 /* ---- the visitor's own cursor: you are a collaborator in her file ----
@@ -913,9 +956,12 @@
 }
 
 .dw-board-pin:hover .dw-board-pin-note,
-.dw-board:focus-visible .dw-board-pin-note {
+.dw-board:focus-visible .dw-board-pin-note,
+.dw-board-pin:focus-visible .dw-board-pin-note,
+.dw-board-pin.is-open .dw-board-pin-note {
   opacity: 1;
   transform: translateX(0) scale(1);
+  pointer-events: auto;
 }
 
 /* selection chrome — the same handles + dims pill the section frames wear,
@@ -1436,13 +1482,109 @@
 
 /* ============ mobile ============ */
 @media (max-width: 768px) {
+  /* ---- the FIGMA MOBILE TOOLBAR ----
+     The desktop tab bar and both side panels are gone at this width, so the
+     header stops being a floating pair of links and becomes the app's real
+     chrome: a sticky #2C2C2C bar carrying home, the open file, Layers, and
+     Say hello — the same surface + hairline the panels use. */
   .dw-top {
-    padding: 1.1rem 1.25rem 0;
+    position: sticky;
+    top: 0;
+    z-index: 45;
+    gap: 0.5rem;
+    padding: 0 0.75rem;
+    height: 48px;
+    background: var(--dw-panel);
+    border-bottom: 1px solid var(--dw-panel-line);
   }
 
   /* the tab strip is gone here, so the in-content badge carries home */
   .dw-mark {
     display: inline-flex;
+    align-items: center;
+    align-self: stretch;
+    padding: 0 0.5rem;
+    color: #d0d0d0;
+  }
+
+  .dw-mfile {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    min-width: 0;
+    font-size: 12px;
+    font-weight: 500;
+    color: #b6b6b6;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .dw-mlayers {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    position: relative;
+    margin-left: auto;
+    height: 40px;
+    padding: 0 0.75rem;
+    border: 1px solid var(--dw-panel-line);
+    border-radius: 7px;
+    background: transparent;
+    color: #d0d0d0;
+    font-family: var(--font-ui);
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s var(--ease-soft),
+      color 0.2s var(--ease-soft), border-color 0.2s var(--ease-soft);
+  }
+
+  /* pressed state = Figma's active tool: selection blue, the same blue the
+     panel and the frame rings use — not the content's vermilion */
+  .dw-mlayers.is-on {
+    background: var(--dw-blue);
+    border-color: var(--dw-blue);
+    color: #fff;
+  }
+
+  /* icon-only here — the bar has no room for the words, and the envelope
+     reads as "mail her" faster than a label would at this size */
+  .dw-hello {
+    position: relative;
+    margin-left: 0;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border: 1px solid var(--dw-panel-line);
+    border-radius: 7px;
+    color: #d0d0d0;
+  }
+
+  /* both toolbar controls draw at 40px but take taps at the full 44 */
+  .dw-mlayers::after,
+  .dw-hello::after {
+    content: "";
+    position: absolute;
+    inset: -2px;
+  }
+
+  .dw-hello-ico {
+    display: block;
+  }
+
+  .dw-hello span {
+    display: none;
+  }
+
+  /* the sheet's dismiss surface, under the panel and over everything else */
+  .dw-scrim {
+    position: fixed;
+    inset: 0;
+    z-index: 65;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(1.5px);
   }
 
   .dw-canvas {
@@ -1459,14 +1601,20 @@
     padding: 1.6rem 1.3rem;
   }
 
+  /* ---- comment threads on a phone ----
+     They used to be pin-only here (the note was display:none), because it
+     opened on hover and hung off the right edge. Now a TAP opens it, so the
+     note has to fit: both pins anchor to the frame's LEFT edge and the card
+     grows rightward, capped to the viewport. */
   .cvf-pin {
     top: -12px;
-    right: 14px;
+    left: 16px;
+    right: auto;
   }
 
-  /* the note would overflow small screens on hover; keep the pin only */
-  .cvf-pin-note {
-    display: none;
+  .cvf-pin-note,
+  .dw-board-pin-note {
+    max-width: min(230px, calc(100vw - 6.5rem));
   }
 
   .dw-exp-grid,

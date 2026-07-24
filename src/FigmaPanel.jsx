@@ -139,7 +139,13 @@ function FrameLayer({ frame, activeId, onSelect }) {
   );
 }
 
-export default function FigmaPanel({ frames, activeId, onSelect }) {
+export default function FigmaPanel({
+  frames,
+  activeId,
+  onSelect,
+  open = false,
+  onClose,
+}) {
   // Pages is display-only: it says "one portfolio file, two pages," but it is
   // NOT a switcher. Switching worlds has a single home — the file tabs in the
   // title bar (WorldTabs) — so the panel doesn't offer a competing second one.
@@ -148,8 +154,30 @@ export default function FigmaPanel({ frames, activeId, onSelect }) {
     { name: "tech", current: false },
   ];
 
+  // On phones the panel is a bottom SHEET pulled up from the toolbar's Layers
+  // button (Figma mobile's own gesture). Picking a layer jumps to the frame and
+  // dismisses the sheet, so the tree never sits on top of what you just chose.
+  const pick = (id) => {
+    onSelect(id);
+    onClose?.();
+  };
+
   return (
-    <aside className="fp" aria-label="Pages and layers">
+    <aside
+      className={cx("fp", open && "is-open")}
+      id="dw-layers"
+      aria-label="Pages and layers"
+    >
+      {/* sheet affordances — hidden on desktop, where .fp is a fixed sidebar */}
+      <button
+        type="button"
+        className="fp-grab"
+        onClick={onClose}
+        aria-label="Close layers"
+      >
+        <span aria-hidden="true" />
+      </button>
+
       <div className="fp-file">
         <img
           src="https://cdn.simpleicons.org/figma/d0d0d0"
@@ -184,7 +212,7 @@ export default function FigmaPanel({ frames, activeId, onSelect }) {
             key={f.id}
             frame={f}
             activeId={activeId}
-            onSelect={onSelect}
+            onSelect={pick}
           />
         ))}
       </div>
