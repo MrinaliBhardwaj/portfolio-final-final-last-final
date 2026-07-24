@@ -1416,6 +1416,13 @@
     #fff;
 }
 
+/* an image fill: a thumbnail of the painting, the way Figma previews it */
+.dwp-swatch--img {
+  background-size: cover;
+  background-position: center;
+  border-color: rgba(255, 255, 255, 0.28);
+}
+
 .dwp-export {
   color: #c4c4c4;
   padding-bottom: 14px;

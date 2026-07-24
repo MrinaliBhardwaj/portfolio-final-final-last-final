@@ -29,7 +29,15 @@ const FRAMES = [
   {
     id: "dw-hero",
     name: "profile",
-    props: { x: 0, y: 0, w: 1316, h: 741, fill: "#4A4A58" },
+    // the poster's fill is her painted lotus-pond image, not a flat colour —
+    // so the properties panel shows an image fill (thumbnail + "Image")
+    props: {
+      x: 0,
+      y: 0,
+      w: 1316,
+      h: 741,
+      fill: { type: "image", src: "/design-hero/bg-pond.png" },
+    },
     children: [
       { icon: "image", name: "PROFILE.DOC" },
       { icon: "text", name: "Meet Mrinali Bhardwaj" },
@@ -209,7 +217,16 @@ function PropsPanel({ frame }) {
       <div className="dwp-sec">
         <p className="dwp-label">Fill</p>
         <div className="dwp-fill">
-          {p.fill === "transparent" ? (
+          {p.fill?.type === "image" ? (
+            <>
+              <span
+                className="dwp-swatch dwp-swatch--img"
+                style={{ backgroundImage: `url(${p.fill.src})` }}
+              />
+              <span className="dwp-v">Image</span>
+              <span className="dwp-k">Fill</span>
+            </>
+          ) : p.fill === "transparent" ? (
             <>
               <span className="dwp-swatch dwp-swatch--none" />
               <span className="dwp-v">Transparent</span>
