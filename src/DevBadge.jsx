@@ -4,14 +4,14 @@
 // reason for the <Html transform> overlay (these gradients, the noise layer and
 // the mask-composite border can't run inside a WebGL texture).
 //
-// Adapted from the standalone project's ReflectiveCard with two changes:
+// Adapted from the standalone project's ReflectiveCard:
 //
-//   · NO WEBCAM. The original mirrored a live getUserMedia feed into the card
-//     through an feTurbulence/feDisplacementMap filter. On a public portfolio
-//     that fires a camera-permission prompt at a stranger on page load, and the
-//     filter is the single most expensive thing in the scene. The metallic
-//     sheen/noise/border layers carry the look on their own over the dark base.
-//     (To bring it back, see HANDOVER.md §6 in the lanyard project.)
+//   · THE WEBCAM IS THE POINT. A live getUserMedia feed is pushed through an
+//     feTurbulence/feDisplacementMap filter so the badge mirrors whoever is
+//     reading it — a laminated card catching the room. It is requested only
+//     here, which means only on #/tech above 1280px (see TechLanyard.jsx), and
+//     a refusal costs nothing: the feed simply never arrives and the card sits
+//     on its dark base with the sheen and noise doing the work.
 //
 //   · Every class is `dvb-` prefixed. The source used bare `.label`, `.value`,
 //     `.card-header`, `.card-body` — global names this project would collide
@@ -19,11 +19,82 @@
 //
 // The copy is her real tech identity, matching README.md in the buffer behind
 // it — the original card said "JUNIOR DEVELOPER", which contradicts it.
+import { useEffect, useRef } from "react";
 import { Activity, Fingerprint, Terminal } from "lucide-react";
 
 export default function DevBadge() {
+  const video = useRef(null);
+
+  useEffect(() => {
+    const media = navigator.mediaDevices;
+    if (!media?.getUserMedia) return;
+
+    let stream = null;
+    let gone = false;
+
+    // 320x240 is plenty: it lands under a 12px blur and a displacement map, so
+    // the extra pixels of the source's 640x480 are spent purely on decode.
+    media
+      .getUserMedia({
+        video: { width: { ideal: 320 }, height: { ideal: 240 }, facingMode: "user" },
+      })
+      .then((s) => {
+        // a visitor can sit on the permission prompt for a while — by the time
+        // they answer, this badge may be long unmounted
+        if (gone) {
+          s.getTracks().forEach((t) => t.stop());
+          return;
+        }
+        stream = s;
+        if (video.current) video.current.srcObject = s;
+      })
+      .catch(() => {
+        /* declined, blocked, or no camera. The metal look stands on its own. */
+      });
+
+    return () => {
+      gone = true;
+      stream?.getTracks().forEach((t) => t.stop());
+    };
+  }, []);
+
   return (
     <div className="dvb">
+      {/* the reflection: turbulence displaces the feed, then a specular pass is
+          screened back over it so the ripples catch a highlight. The source's
+          `glassDistortion` tail (erode → blur → a second displacement) is cut —
+          it ran at scale 0, so five filter primitives produced no pixels. */}
+      <svg className="dvb-filters" aria-hidden="true">
+        <defs>
+          <filter id="dvb-metal" x="-20%" y="-20%" width="140%" height="140%">
+            <feTurbulence type="turbulence" baseFrequency="0.03" numOctaves="2" result="noise" />
+            <feColorMatrix in="noise" type="luminanceToAlpha" result="noiseAlpha" />
+            <feDisplacementMap
+              in="SourceGraphic"
+              in2="noise"
+              scale="20"
+              xChannelSelector="R"
+              yChannelSelector="G"
+              result="rippled"
+            />
+            <feSpecularLighting
+              in="noiseAlpha"
+              surfaceScale="20"
+              specularConstant="1.2"
+              specularExponent="20"
+              lightingColor="#ffffff"
+              result="light"
+            >
+              <fePointLight x="0" y="0" z="300" />
+            </feSpecularLighting>
+            <feComposite in="light" in2="rippled" operator="in" result="lit" />
+            <feBlend in="lit" in2="rippled" mode="screen" />
+          </filter>
+        </defs>
+      </svg>
+
+      <video ref={video} className="dvb-video" autoPlay playsInline muted />
+
       <div className="dvb-noise" aria-hidden="true" />
       <div className="dvb-sheen" aria-hidden="true" />
       <div className="dvb-border" aria-hidden="true" />

@@ -94,22 +94,27 @@
   color: #d4d4d4;
 }
 
-/* ---- the ID badge hanging in the editor's right gutter ----
-   Fixed to the viewport's top-right so it hangs from the top edge and stays
-   there while the buffer scrolls under it. z-index puts it UNDER the tab strip
-   (35) and over the breadcrumbs (30): the band runs up off the top of frame and
-   disappears behind the chrome, so it reads as hooked over the editor rather
-   than floating — and the tab strip's × stays clickable at the corner.
-   Mounted only above 1280px (TechLanyard.jsx), where the 1000px buffer leaves
-   this gutter empty; the canvas takes pointer events across its box, which is
-   why it must not sit over the code. */
+/* ---- the ID badge hooked over the top-right of the page ----
+   This box is the whole viewport ON PURPOSE. A canvas clips at its own edge, so
+   any corner-sized box would have amputated the card the moment you flung it
+   past the edge — the badge has to stay visible however far it is stretched.
+   Where it hangs is decided in world units inside the scene instead (see `home`
+   in Lanyard.jsx), and the hook is pinned to the document, so it scrolls away
+   with the buffer rather than hovering over it.
+
+   Because it now covers everything, z-index is above all the editor chrome —
+   tab strip (35), sidebar and activity bar (45), status bar (50) — so a fling
+   never disappears behind the furniture. It stays under the dock (60), which is
+   the site's own nav and should always win.
+
+   It takes NO pointer events: the canvas is promoted to `auto` for the card's
+   own box only, per frame (see the passthrough note in Lanyard.jsx). Without
+   that this element would eat every click on the page. */
 .tw-lanyard {
   position: fixed;
-  top: 0;
-  right: 0;
-  z-index: 31;
-  width: 300px;
-  height: min(700px, 88vh);
+  inset: 0;
+  z-index: 55;
+  pointer-events: none;
 }
 
 /* mobile header (mark + section nav) — desktop uses the chrome instead */

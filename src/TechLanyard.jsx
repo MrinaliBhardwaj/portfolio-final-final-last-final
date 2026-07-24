@@ -12,6 +12,10 @@
 //     they open #/tech on a wide screen.
 //   · FROZEN WHEN HIDDEN — `frameloop="never"` while the tab is backgrounded,
 //     so the rope sim isn't burning a core behind another window.
+//
+// This gate is also what keeps the badge's webcam request narrow: DevBadge asks
+// for the camera on mount, and it only ever mounts here — #/tech, wide screen,
+// motion allowed. Refusal is harmless (see DevBadge.jsx).
 import { Suspense, lazy, useEffect, useState } from "react";
 import DevBadge from "./DevBadge.jsx";
 
@@ -48,7 +52,7 @@ export default function TechLanyard() {
     <div className="tw-lanyard">
       <Suspense fallback={null}>
         <Lanyard
-          position={[0, 0, 20]}
+          position={[0, 0, 25]}
           gravity={[0, -40, 0]}
           frameloop={live ? "always" : "never"}
           cardFront={<DevBadge />}

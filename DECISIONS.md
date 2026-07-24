@@ -848,14 +848,53 @@ The replacement leans all the way into the file fiction:
   do), lazy-loaded via `React.lazy` so the ~1MB-gzip three/rapier/drei chunk
   stays out of the entry bundle, and `frameloop="never"` while the tab is
   backgrounded so the rope sim isn't burning a core behind another window.
-- **No webcam.** The source's ReflectiveCard mirrored a live `getUserMedia`
-  feed through an feTurbulence/feDisplacementMap filter. On a public portfolio
-  that fires a camera-permission prompt at a stranger on page load, and the
-  filter is the single most expensive thing in the scene. The sheen/noise/rim
-  layers carry the metal on their own. To restore it: HANDOVER.md §6.
+- ~~**No webcam.**~~ **Reversed 2026-07-25 — see the entry below.** (Original
+  reasoning, kept for the record: a public portfolio firing a camera-permission
+  prompt at a stranger is a bad first impression, and the filter is the single
+  most expensive thing in the scene.)
 - **Class names namespaced.** The source card used bare `.label`, `.value`,
   `.card-header`, `.card-body` — global names this project would collide with
   eventually (the DomeGallery `.stage` lesson). All `dvb-` prefixed now.
 - Copy is her real tech identity ("SOFTWARE ENGINEER", matching README.md in
   the buffer behind it). The source card said "JUNIOR DEVELOPER", which
   contradicted her own page, and carried a fabricated ID number — both gone.
+
+## The badge reflects you, and it's nailed to the page, not the screen (2026-07-25)
+
+Three corrections to the lanyard, all hers.
+
+- **The webcam is back on, and it's the point.** `DevBadge` requests
+  `getUserMedia` on mount and pushes the feed through the
+  feTurbulence/feDisplacementMap filter, so the card mirrors whoever is reading
+  it. My earlier call to cut it was overruled. What keeps it defensible: the
+  request only ever fires where `TechLanyard` mounts (`#/tech`, ≥1280px,
+  motion allowed), refusal is a no-op (the dark base *is* the fallback), the
+  capture is 320×240 because it lands under a 12px blur anyway, and the
+  source's `glassDistortion` tail — erode → blur → a second displacement —
+  is deleted, since it ran at `scale: 0` and produced no pixels for five
+  filter primitives of cost.
+- **The hook is pinned to the DOCUMENT, not the viewport.** Every frame the
+  anchor is lifted by however far the page has scrolled
+  (`scrolled / viewport.factor`), so the badge rides up and away with the
+  buffer instead of hovering over it. The step is clamped to 0.8 world units
+  per frame: a jump-to-top would otherwise hand rapier a velocity of several
+  screens per frame and crack the card like a whip. The anchor is
+  `kinematicPosition` rather than `fixed` so it can be driven — and rapier
+  reading its implied velocity through the rope is *why the badge sways when
+  you scroll*. That sway is a feature; don't damp it out.
+- **The canvas is the whole viewport.** A canvas clips at its own edge, so the
+  old 300×700 corner box amputated the card the moment you flung it. Where it
+  hangs is now decided in world units inside the scene (`home` in Lanyard.jsx),
+  not by CSS. Camera z went 20 → 25 to hold the rendered card at ~230px, since
+  going full-screen would otherwise have doubled its size.
+- **`pointer-events` needs `!important` and it needs the `*`.** This one bit.
+  `pointer-events: none` on an ancestor does NOT protect a descendant that sets
+  `auto` on itself — and `<Canvas>` renders two wrapper divs of its own, the
+  outer one with `pointer-events: auto` written INLINE. Styling only
+  `.lanyard-wrapper` left them live: measured, **27 of 33 interactive elements
+  on the tech world were unclickable**. Fix is
+  `.lanyard-wrapper, .lanyard-wrapper *:not(canvas) { pointer-events: none !important }`
+  — the `:not(canvas)` is deliberate, so the frame loop's inline `auto` can
+  still promote the canvas alone over the card. Verified: 20/20 on-screen
+  targets clickable, 0 blocked. This was latent in the corner-box version too;
+  full-screen just made it total. **Do not relax this rule.**

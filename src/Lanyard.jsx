@@ -4,12 +4,17 @@
 // here rather than rebuilt: the physics tuning and the sizing math are the
 // artifact.
 //
-// Two changes from the source, both deliberate:
+// Three changes from the source, all deliberate:
 //   · assets load from /public by string path instead of being imported, so
 //     vite needs no `assetsInclude` rule for .glb (HANDOVER §5)
 //   · `frameloop` is driven from outside, so the caller can freeze the whole
 //     simulation when the badge isn't on screen — this runs on the tech world
 //     permanently and her machine is slow
+//   * the canvas fills the VIEWPORT and the hook is placed in world units
+//     inside it (see `home` in Band), rather than the canvas being a small box
+//     parked in a corner. A corner box clips: fling the card and it vanishes at
+//     the box edge. The hook is then pinned to the DOCUMENT, so the badge
+//     scrolls away with the buffer instead of hovering over it.
 //
 // The integration contract is unchanged: `cardFront` is any React node, mounted
 // on the card's FRONT FACE via drei <Html transform occlude> inside the card's
@@ -38,7 +43,11 @@ const CARD_GLB = "/lanyard/card.glb";
 const BAND_TEX = "/lanyard/lanyard.png";
 
 export default function Lanyard({
-  position = [0, 0, 30],
+  // z=25 is not arbitrary. Rendered height of the card is
+  // 2.25 / (2 * z * tan(fov/2)) * canvasHeightPx — at 25 that lands ~230px on a
+  // 900px viewport, which is the size the badge had back when it lived in a
+  // 300x700 box. Moving the canvas to full-screen would otherwise have doubled it.
+  position = [0, 0, 25],
   gravity = [0, -40, 0],
   fov = 20,
   transparent = true,
@@ -104,7 +113,10 @@ export default function Lanyard({
   );
 }
 
-function Band({ maxSpeed = 50, minSpeed = 0, cardFront = null }) {
+// `rightInset` / `topLift` are world units in from the top-right of the frame:
+// the card's half-width is 0.8, so 1.7 leaves ~0.9 of clearance at the right
+// edge, and 0.5 puts the hook just past the top edge so the band runs off screen.
+function Band({ maxSpeed = 50, minSpeed = 0, cardFront = null, rightInset = 1.7, topLift = 0.5 }) {
   const band = useRef(),
     fixed = useRef(),
     j1 = useRef(),
@@ -146,7 +158,7 @@ function Band({ maxSpeed = 50, minSpeed = 0, cardFront = null }) {
   // cursor is actually over the card. By the time a pointerdown arrives the
   // canvas is already live, so drag/fling work untouched; everywhere else in
   // the gutter, clicks fall straight through to the buffer.
-  const { gl, camera, size } = useThree();
+  const { gl, camera, size, viewport } = useThree();
   const mouse = useRef({ x: -1e4, y: -1e4 });
   const rect = useRef(null);
   const ndc = useRef([new THREE.Vector3(), new THREE.Vector3()]);
@@ -172,6 +184,36 @@ function Band({ maxSpeed = 50, minSpeed = 0, cardFront = null }) {
     // component mounts, so measuring only once would cache the pre-layout box
     // and the hit test would miss the card entirely.
   }, [gl, size]);
+
+  // ---- where the lanyard is nailed to the page ----
+  // The canvas is the whole viewport now, so the hook can't be placed with CSS
+  // any more; it's placed in world units, measured in from the frame's
+  // top-right corner. Computed once and held: rapier reads a RigidBody's
+  // `position` only when it creates the body, so re-rendering with a new value
+  // (on resize) would silently do nothing — the anchor is moved imperatively in
+  // useFrame instead, which handles resize and scroll with the same code.
+  // The `> 0` guard matters because this value is locked in forever: if a first
+  // render ever slipped through before the canvas was measured, an unguarded
+  // version would nail the lanyard to a phantom origin permanently. Falling back
+  // to 0,0 is self-healing instead — the anchor walk below drags it home over a
+  // few frames and the rope brings the rest.
+  const home = useRef(null);
+  if (!home.current && viewport.width > 0) {
+    home.current = [viewport.width / 2 - rightInset, viewport.height / 2 + topLift];
+  }
+  const [hx, hy] = home.current ?? [0, 0];
+
+  // Cached rather than read in useFrame: window.scrollY can force a style/layout
+  // flush, and this runs 60x a second.
+  const scrolled = useRef(0);
+  useEffect(() => {
+    const read = () => {
+      scrolled.current = window.scrollY;
+    };
+    read();
+    window.addEventListener("scroll", read, { passive: true });
+    return () => window.removeEventListener("scroll", read);
+  }, []);
 
   useRopeJoint(fixed, j1, [[0, 0, 0], [0, 0, 0], 1]);
   useRopeJoint(j1, j2, [[0, 0, 0], [0, 0, 0], 1]);
@@ -201,6 +243,27 @@ function Band({ maxSpeed = 50, minSpeed = 0, cardFront = null }) {
       });
     }
     if (fixed.current) {
+      // Walk the hook to wherever the top-right of the PAGE is now. It is
+      // pinned to the document, not the viewport, so scrolling down lifts it by
+      // exactly the distance scrolled (viewport.factor is px per world unit) —
+      // the badge rides up and off with the buffer. Rapier reads the implied
+      // velocity through the rope, which is why it sways when you scroll rather
+      // than sliding rigidly. The same line re-seats the hook after a resize.
+      const target = {
+        x: state.viewport.width / 2 - rightInset,
+        y: state.viewport.height / 2 + topLift + scrolled.current / state.viewport.factor,
+      };
+      const at = fixed.current.translation();
+      // Clamped per frame: a jump-to-top on a long page would otherwise hand
+      // rapier a velocity of several screens per frame and crack the card like
+      // a whip. The hook itself is off-screen, so nobody sees it lag.
+      const dx = THREE.MathUtils.clamp(target.x - at.x, -0.8, 0.8);
+      const dy = THREE.MathUtils.clamp(target.y - at.y, -0.8, 0.8);
+      if (dx !== 0 || dy !== 0) {
+        [card, j1, j2, j3].forEach((ref) => ref.current?.wakeUp());
+        fixed.current.setNextKinematicTranslation({ x: at.x + dx, y: at.y + dy, z: 0 });
+      }
+
       [j1, j2].forEach((ref) => {
         if (!ref.current.lerped)
           ref.current.lerped = new THREE.Vector3().copy(ref.current.translation());
@@ -251,65 +314,67 @@ function Band({ maxSpeed = 50, minSpeed = 0, cardFront = null }) {
 
   return (
     <>
-      {/* the anchor sits ABOVE the top of frame, so the band runs off the top
-          edge — the badge reads as hooked over the chrome, not floating */}
-      <group position={[0, 4, 0]}>
-        <RigidBody ref={fixed} {...segmentProps} type="fixed" />
-        <RigidBody position={[0.5, 0, 0]} ref={j1} {...segmentProps}>
-          <BallCollider args={[0.1]} />
-        </RigidBody>
-        <RigidBody position={[1, 0, 0]} ref={j2} {...segmentProps}>
-          <BallCollider args={[0.1]} />
-        </RigidBody>
-        <RigidBody position={[1.5, 0, 0]} ref={j3} {...segmentProps}>
-          <BallCollider args={[0.1]} />
-        </RigidBody>
-        <RigidBody
-          position={[2, 0, 0]}
-          ref={card}
-          {...segmentProps}
-          type={dragged ? "kinematicPosition" : "dynamic"}
-        >
-          <CuboidCollider args={[0.8, 1.125, 0.01]} />
-          <group
-            scale={2.25}
-            position={[0, -1.2, -0.05]}
-            onPointerOver={() => hover(true)}
-            onPointerOut={() => hover(false)}
-            onPointerUp={(e) => (e.target.releasePointerCapture(e.pointerId), drag(false))}
-            onPointerDown={(e) => (
-              e.target.setPointerCapture(e.pointerId),
-              drag(new THREE.Vector3().copy(e.point).sub(vec.copy(card.current.translation())))
-            )}
-          >
-            <mesh ref={cardMesh} geometry={nodes.card.geometry}>
-              <meshPhysicalMaterial
-                map={materials.base.map}
-                map-anisotropy={16}
-                clearcoat={1}
-                clearcoatRoughness={0.15}
-                roughness={0.9}
-                metalness={0.8}
-              />
-            </mesh>
-            <mesh geometry={nodes.clip.geometry} material={materials.metal} material-roughness={0.3} />
-            <mesh geometry={nodes.clamp.geometry} material={materials.metal} />
-          </group>
-          {cardFront && (
-            <group position={[0, 0, 0.04]}>
-              <Html
-                transform
-                distanceFactor={2}
-                occlude={[cardMesh]}
-                wrapperClass="card-front-html"
-                style={{ pointerEvents: "none" }}
-              >
-                <div style={{ width: 320, height: 450, pointerEvents: "none" }}>{cardFront}</div>
-              </Html>
-            </group>
+      {/* No wrapping <group>: the hook is moved imperatively every frame, and a
+          parent transform would be applied on top of the body's own world
+          transform — the rope would render offset from where it physically is.
+          Absolute world positions instead, seeded from `home`.
+          The hook is `kinematicPosition` rather than `fixed` so it can be
+          driven; both are infinite-mass as far as the joints care. */}
+      <RigidBody ref={fixed} position={[hx, hy, 0]} {...segmentProps} type="kinematicPosition" />
+      <RigidBody position={[hx + 0.5, hy, 0]} ref={j1} {...segmentProps}>
+        <BallCollider args={[0.1]} />
+      </RigidBody>
+      <RigidBody position={[hx + 1, hy, 0]} ref={j2} {...segmentProps}>
+        <BallCollider args={[0.1]} />
+      </RigidBody>
+      <RigidBody position={[hx + 1.5, hy, 0]} ref={j3} {...segmentProps}>
+        <BallCollider args={[0.1]} />
+      </RigidBody>
+      <RigidBody
+        position={[hx + 2, hy, 0]}
+        ref={card}
+        {...segmentProps}
+        type={dragged ? "kinematicPosition" : "dynamic"}
+      >
+        <CuboidCollider args={[0.8, 1.125, 0.01]} />
+        <group
+          scale={2.25}
+          position={[0, -1.2, -0.05]}
+          onPointerOver={() => hover(true)}
+          onPointerOut={() => hover(false)}
+          onPointerUp={(e) => (e.target.releasePointerCapture(e.pointerId), drag(false))}
+          onPointerDown={(e) => (
+            e.target.setPointerCapture(e.pointerId),
+            drag(new THREE.Vector3().copy(e.point).sub(vec.copy(card.current.translation())))
           )}
-        </RigidBody>
-      </group>
+        >
+          <mesh ref={cardMesh} geometry={nodes.card.geometry}>
+            <meshPhysicalMaterial
+              map={materials.base.map}
+              map-anisotropy={16}
+              clearcoat={1}
+              clearcoatRoughness={0.15}
+              roughness={0.9}
+              metalness={0.8}
+            />
+          </mesh>
+          <mesh geometry={nodes.clip.geometry} material={materials.metal} material-roughness={0.3} />
+          <mesh geometry={nodes.clamp.geometry} material={materials.metal} />
+        </group>
+        {cardFront && (
+          <group position={[0, 0, 0.04]}>
+            <Html
+              transform
+              distanceFactor={2}
+              occlude={[cardMesh]}
+              wrapperClass="card-front-html"
+              style={{ pointerEvents: "none" }}
+            >
+              <div style={{ width: 320, height: 450, pointerEvents: "none" }}>{cardFront}</div>
+            </Html>
+          </group>
+        )}
+      </RigidBody>
       <mesh ref={band}>
         <meshLineGeometry />
         <meshLineMaterial
