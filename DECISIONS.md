@@ -928,3 +928,25 @@ Three corrections to the lanyard, all hers.
   while the window keeps 88% of the feed. `.dvb-role` 0.7 → 0.82 and `.dvb-k`
   0.6 → 0.76 are the *minimum* dimming that still passes at their sizes and
   positions. **If you move `.dvb-body`, move the gradient stops with it.**
+
+## Notes runs full-bleed, and the scrapbook stops asking you to pull a tab (2026-07-27)
+
+- **The collages fill the page width.** They were capped twice over — by their
+  native size *and* by `available height x aspect`, so each sheet would fit in
+  exactly one viewport. Height won every time, because a fixed-aspect collage
+  can only obey one master. Measured at 1425x900: page one rendered 1295px and
+  page two **1006px, wasting 210px of page on each side**. The height term is
+  gone; the px caps are now each scene's native size (1700 / 1485) so the art
+  goes edge to edge on any normal screen and never upscales past 1:1.
+  A sheet taller than the viewport just scrolls — which is what you were already
+  doing between the two pages. The 104px bottom padding still clears the dock.
+- **The PROFILE.TXT / PROFILE.DOC file tabs and both "pull for profile" pencil
+  notes are removed.** This retires the hand-off recorded above (the scrapbook's
+  tabs opening #/design and #/tech): the scrapbook is something you read now,
+  and the dock is the way out of it. `onOpen` went with them — they were its
+  only callers — as did `useTapNote`-style click plumbing in the scenes.
+- **This edits `Scene.jsx` / `SceneTwo.jsx`, which are RECOVERED artifacts.**
+  The standing rule is not to touch them; this was an explicit request, so it is
+  logged here rather than done quietly. **Only the two openers were removed — no
+  Figma-space coordinate was touched**, so the collage art is still the
+  reconstructed original.

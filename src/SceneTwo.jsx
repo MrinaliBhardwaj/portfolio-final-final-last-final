@@ -6,9 +6,11 @@
 // snapshot of 1 July 2026. The centerpiece art it points at,
 // public/tech-discovery.png, survived the rebuild on disk.
 //
-// Only restoration edit: `onOpen` used to open the retired ArchivePanel
-// drawer; the PROFILE.DOC tab and "pull for profile" note now navigate to
-// #/tech — this page's story, continued in the present tense.
+// Two deliberate edits since restoration, both by request: `onOpen` was
+// rewired off the retired ArchivePanel drawer to #/tech, and then the
+// PROFILE.DOC tab and "pull for profile" note were REMOVED (27 July 2026),
+// taking the `onOpen` prop with them — they were its only callers. The desk
+// collage itself is untouched.
 //
 // Stage is 1485x1075 with `--u = 100cqw/1485`; U(n) below is Figma space.
 const U = (n) => `calc(${n} * var(--u))`;
@@ -37,7 +39,7 @@ function Underline({ w = 70 }) {
   );
 }
 
-export default function SceneTwo({ onOpen }) {
+export default function SceneTwo() {
   return (
     <section className="sheet sheet-two">
       <div className="nw-stage">
@@ -125,14 +127,6 @@ export default function SceneTwo({ onOpen }) {
               v1.2 shipped <span className="t2-spark">&#10003;</span>
             </div>
           </div>
-
-          {/* ============ Reused tab + pull note ============ */}
-          <button className="pull" onClick={onOpen} style={{ left: U(1232), top: U(70), fontSize: U(30), transform: "rotate(-8deg)" }}>
-            pull for profile
-          </button>
-          <button className="archive-tab" onClick={onOpen} aria-label="Open the engineering portfolio" style={{ top: U(40) }}>
-            <span>PROFILE.DOC</span>
-          </button>
         </div>
       </div>
     </section>

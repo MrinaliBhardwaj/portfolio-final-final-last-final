@@ -16,10 +16,6 @@
   --dot: #f2789f;
   --pencil: #a39c90;
   --notes-gold: #d9a943;
-  /* what a sheet spends on things that aren't art: toolbar 44 + top pad 24 +
-     the floating dock's strip 104. The stage caps below size the collages to
-     whatever height is left. */
-  --nw-chrome: 172px;
   position: relative;
   width: 100%;
   min-height: 100dvh;
@@ -93,11 +89,10 @@
   color: var(--pencil);
 }
 
-/* ---- Each page of the archive is a full-viewport sheet you scroll between.
-   The sheet fills what's left under the toolbar, and reserves the floating
-   dock's strip at the bottom: these collages are fixed-aspect, so nothing can
-   be padded out of the dock's way from the inside — the art has to be sized to
-   fit the clear space instead (see the stage caps below). ---- */
+/* ---- Each page of the archive is a sheet you scroll between. It fills at
+   least what's left under the toolbar, and reserves the floating dock's strip
+   at the bottom. A sheet is free to grow TALLER than the viewport now that the
+   collages are sized by width (see the stage caps below) — it just scrolls. ---- */
 .nw .sheet {
   min-height: calc(100dvh - 44px);
   display: flex;
@@ -120,17 +115,22 @@
   margin: 0 auto;
 }
 
-/* Each sheet is sized by WIDTH (the scene sets its own aspect-ratio), so the
-   only way to stop a collage growing taller than the clear space is to cap its
-   width at `available height x aspect`. --nw-chrome is what the sheet spends on
-   everything that isn't art: toolbar 44 + top padding 24 + dock strip 104.
-   The multipliers are the scenes' own aspect ratios — 1700/956 and 1485/1075.
-   Keep all four numbers in step or the art will dip under the dock again. */
+/* THE COLLAGES RUN THE FULL WIDTH OF THE PAGE. They used to be capped at
+   `available height x aspect` as well, so that each sheet fitted in exactly one
+   viewport with nothing under the dock — but a fixed-aspect collage can only
+   obey one of those two masters, and height won every time. Measured at
+   1425x900: page one rendered 1295px wide and page two only 1006px, throwing
+   away 210px of page on each side, while the art sat smaller than the room it
+   had. Width wins now; a sheet taller than the viewport simply scrolls, which
+   is what you were already doing between the two pages.
+   The px caps are each scene's NATIVE size (1700 and 1485), so the art fills
+   any normal screen edge to edge and never upscales past 1:1 on a huge one.
+   The sheet's 104px bottom padding still keeps the collage clear of the dock. */
 .nw .sheet-one .nw-stage {
-  max-width: min(1700px, calc((100dvh - var(--nw-chrome)) * 1.7782));
+  max-width: 1700px;
 }
 .nw .sheet-two .nw-stage {
-  max-width: min(1400px, calc((100dvh - var(--nw-chrome)) * 1.3814));
+  max-width: 1485px;
 }
 .nw .scene {
   --u: calc(100cqw / 1700);
@@ -235,58 +235,10 @@
   text-align: center;
 }
 
-/* ---- "pull for profile" pencil note (a button) ---- */
-.nw .pull {
-  position: absolute;
-  left: calc(1378 * var(--u));
-  top: calc(296 * var(--u));
-  appearance: none;
-  border: none;
-  background: none;
-  padding: 0;
-  font-family: "Caveat", cursive;
-  font-size: calc(33 * var(--u));
-  font-style: italic;
-  color: var(--pencil);
-  transform: rotate(-7deg);
-  white-space: nowrap;
-  cursor: pointer;
-  transition: color 0.25s ease;
-}
-.nw .pull:hover { color: var(--pink); }
-
-/* ---- Vertical file tab (the opener) ---- */
-.nw .archive-tab {
-  position: absolute;
-  right: 0;
-  top: calc(176 * var(--u));
-  width: calc(90 * var(--u));
-  height: calc(192 * var(--u));
-  appearance: none;
-  background: var(--paper);
-  border: calc(1 * var(--u)) solid rgba(60, 55, 45, 0.22);
-  border-right: none;
-  border-top-left-radius: calc(7 * var(--u));
-  border-bottom-left-radius: calc(7 * var(--u));
-  box-shadow: calc(-3 * var(--u)) calc(3 * var(--u)) calc(10 * var(--u)) rgba(40, 35, 25, 0.07);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.3s ease;
-}
-.nw .archive-tab:hover {
-  transform: translateX(calc(-6 * var(--u)));
-  box-shadow: calc(-8 * var(--u)) calc(4 * var(--u)) calc(18 * var(--u)) rgba(40, 35, 25, 0.12);
-}
-.nw .archive-tab span {
-  font-family: "Space Mono", "Courier New", monospace;
-  font-size: calc(13 * var(--u));
-  letter-spacing: calc(3 * var(--u));
-  color: #8d877b;
-  transform: rotate(90deg);
-  white-space: nowrap;
-}
+/* The "pull for profile" pencil note and the vertical PROFILE.TXT / PROFILE.DOC
+   file tabs used to live here. Both were removed on 27 July 2026 by request,
+   along with their rules — the scrapbook is something you read now, and the
+   dock is the way out of it. See Scene.jsx / SceneTwo.jsx. */
 
 /* ---- Reveal: page one assembles itself, left to right ---- */
 @media (prefers-reduced-motion: no-preference) {
@@ -397,9 +349,6 @@
   user-select: none;
   -webkit-user-drag: none;
 }
-
-.nw .scene-two .archive-tab,
-.nw .scene-two .pull { z-index: 6; }
 
 /* ---- Mobile: the collages are fixed-aspect wide compositions. Below ~700px
    they'd be postage stamps, so the sheets stop filling the viewport and the

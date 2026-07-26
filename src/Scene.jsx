@@ -7,13 +7,16 @@
 // snapshot taken 1 July. Treat it as an artifact: if you change the art,
 // change it deliberately.
 //
-// The only edit made during restoration: `onOpen` used to open the retired
-// ArchivePanel drawer. The profile it promised is now a real place, so the
-// PROFILE.TXT tab and the "pull for profile" note navigate to #/design.
+// Two deliberate edits since restoration, both by request:
+//   1. `onOpen` originally opened the retired ArchivePanel drawer, and was
+//      rewired to navigate to #/design.
+//   2. The PROFILE.TXT file tab and the "pull for profile" pencil note are
+//      REMOVED (27 July 2026) — with them went the `onOpen` prop, since they
+//      were its only callers. The collage art itself is untouched.
 //
 // The stage is 1700x956 with `--u = 100cqw/1700`, so every Figma-space
 // coordinate below scales to the viewport untouched.
-export default function Scene({ onOpen }) {
+export default function Scene() {
   return (
     <section className="sheet sheet-one">
       <div className="nw-stage">
@@ -80,18 +83,12 @@ export default function Scene({ onOpen }) {
           <div className="milestone fade" style={{ left: "calc(944 * var(--u))", top: "calc(344 * var(--u))", "--d": "2.04s" }}>aesthetic era</div>
           <div className="milestone fade" style={{ left: "calc(1042 * var(--u))", top: "calc(364 * var(--u))", "--d": "2.21s" }}>600 followers</div>
 
-          <button className="pull fade" style={{ "--d": "2.45s" }} onClick={onOpen}>pull for profile</button>
-
           <div className="copy copy-bottom rise" style={{ "--d": ".9s" }}>
             After mastering the art of growing an audience<br />
             with just a little flair, she probably thought<br />
             she&rsquo;d cracked it.<br />
             <span className="punch">That&rsquo;s when it clicked, maybe this was half the game.</span>
           </div>
-
-          <button className="archive-tab rise" style={{ "--d": ".6s" }} onClick={onOpen} aria-label="Open the design portfolio">
-            <span>PROFILE.TXT</span>
-          </button>
         </div>
       </div>
     </section>

@@ -18,14 +18,10 @@ import Scene from "./Scene.jsx";
 import SceneTwo from "./SceneTwo.jsx";
 
 export default function NotesWorld() {
-  // The scrapbook's PROFILE tabs promised a profile drawer (the retired
-  // ArchivePanel). That profile is a real destination now, so each story hands
-  // off to the world it grew into: the design page opens #/design, the tech
-  // page #/tech. Same gesture, real payoff.
-  const open = (world) => () => {
-    window.location.hash = "/" + world;
-  };
-
+  // The PROFILE.TXT / PROFILE.DOC file tabs and their "pull for profile"
+  // pencil notes are gone (27 July 2026, by request), so the scenes no longer
+  // take an `onOpen` — the scrapbook is now purely something you read, and the
+  // dock is the way out of it.
   const back = () => {
     window.location.hash = "/";
   };
@@ -47,8 +43,8 @@ export default function NotesWorld() {
         </button>
       </header>
 
-      <Scene onOpen={open("design")} />
-      <SceneTwo onOpen={open("tech")} />
+      <Scene />
+      <SceneTwo />
 
       <p className="nw-coda">
         drawn june 2026 &mdash; the first draft of this site, kept.
