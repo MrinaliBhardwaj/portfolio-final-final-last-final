@@ -898,3 +898,33 @@ Three corrections to the lanyard, all hers.
   still promote the canvas alone over the card. Verified: 20/20 on-screen
   targets clickable, 0 blocked. This was latent in the corner-box version too;
   full-screen just made it total. **Do not relax this rule.**
+
+## The badge's camera survives StrictMode, and its veil is shaped, not flat (2026-07-27)
+
+- **One camera, refcounted at module scope.** `<React.StrictMode>` runs every
+  effect twice in dev (mount → cleanup → mount), so a per-component
+  `getUserMedia` fires two calls whose tracks share one physical camera — and
+  call one's cleanup stops a track call two is still displaying. Black card, dev
+  only, nothing on screen explaining it. `CAM` in `DevBadge.jsx` is one shared
+  promise with a refcount and a **500ms deferred release**, so the instant
+  remount reuses the stream but leaving `#/tech` really does hand the camera
+  back. Holding a webcam open after you navigate away is the creepy behaviour
+  this feature exists to avoid. Proven against the shipped source: one prompt
+  for a double-mount, track still live, released 500ms after real unmount.
+- **`autoplay` is not enough.** It's unreliable when `srcObject` is attached
+  *after* the element already ran its autoplay algorithm against no source. Call
+  `play()` explicitly; muted playback needs no gesture.
+- **Never swallow the camera error.** An empty `.catch()` makes a denied
+  permission look identical to a bug. Dev logs `err.name`, which *is* the
+  diagnosis: `NotAllowedError` = blocked (sticky per origin), `NotFoundError` =
+  no camera, `NotReadableError` = another app holds it.
+- **The veil over the feed is a gradient, and its stops are measured.** Flat
+  alpha can't serve both jobs: white text over a bright-room feed needs alpha
+  ≥ 0.55 for WCAG AA, but 0.55 crushes the reflection back to invisible — while
+  the 0.1 that makes the mirror sing drops the text to **1.43:1**. So the scrim
+  is dark only where text lives (header 6–14%, name/role 65–76%, footer 82–94%
+  of the 450px card) and 0.12 across the open 26–52% band, which is where the
+  reflection reads anyway. Every layer now measures ≥ 4.5:1 in a bright room
+  while the window keeps 88% of the feed. `.dvb-role` 0.7 → 0.82 and `.dvb-k`
+  0.6 → 0.76 are the *minimum* dimming that still passes at their sizes and
+  positions. **If you move `.dvb-body`, move the gradient stops with it.**
