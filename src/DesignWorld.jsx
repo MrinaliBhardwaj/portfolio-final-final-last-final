@@ -163,46 +163,12 @@ function PanelSketch({ kind }) {
   );
 }
 
-/* Comment threads open on HOVER, which a phone doesn't have — so on a coarse
-   pointer they open on TAP instead. `useTapNote` gives every pin an open flag
-   plus the handler: the first tap opens the note (swallowing the click so it
-   doesn't fire the board's link or the hero's mailto), the second lets the
-   click through to that destination. A pointerdown anywhere else closes it. */
-const isCoarse = () =>
-  typeof window !== "undefined" && window.matchMedia("(hover: none)").matches;
-
-function useTapNote() {
-  const [openId, setOpenId] = useState(null);
-
-  useEffect(() => {
-    if (openId === null) return;
-    const away = (e) => {
-      if (!e.target.closest?.(".cvf-pin, .dw-board-pin")) setOpenId(null);
-    };
-    document.addEventListener("pointerdown", away);
-    return () => document.removeEventListener("pointerdown", away);
-  }, [openId]);
-
-  // `follow`: on a second tap, does the click go through to the pin's own link
-  // (the hero's mailto — its note says "say hello", so tapping through is the
-  // point) or just close the note (the board pins, whose parent link would
-  // otherwise fling you to Behance mid-read)?
-  const tap = (id, follow) => (e) => {
-    if (!isCoarse()) return;
-    if (openId === id) {
-      if (follow) return;
-      e.preventDefault();
-      e.stopPropagation();
-      setOpenId(null);
-      return;
-    }
-    e.preventDefault();
-    e.stopPropagation();
-    setOpenId(id);
-  };
-
-  return [openId, tap];
-}
+/* The comment threads used to be hover-to-open, with a `useTapNote` hook
+   standing in for hover on a phone: the first tap opened the note and
+   SWALLOWED the click, the second let it through. All of that is gone — the
+   notes are always open now (see design-world.css), so there is nothing to
+   reveal, and a phone tap goes straight to the link on the first try instead
+   of being eaten by a disclosure nobody asked for. */
 
 /* one artboard on the canvas. When it's the active section it wears Figma's
    selection: blue ring, four corner handles, a dimension pill below. */
@@ -388,7 +354,6 @@ export default function DesignWorld() {
     FRAMES.find((f) => f.id === activeSection) || FRAMES[0];
   // phone only: the layers panel is a dismissible bottom sheet
   const [layersOpen, setLayersOpen] = useState(false);
-  const [openPin, tapPin] = useTapNote();
 
   useEffect(() => {
     if (!layersOpen) return;
@@ -475,11 +440,7 @@ export default function DesignWorld() {
             tone="poster"
           >
             {/* a Figma comment pinned to the artboard — thread #1 of the file */}
-            <a
-              className={`cvf-pin${openPin === "hero" ? " is-open" : ""}`}
-              href={EMAIL}
-              onClick={tapPin("hero", true)}
-            >
+            <a className="cvf-pin" href={EMAIL}>
               <span className="cvf-pin-dot">1</span>
               <span className="cvf-pin-note">
                 <span className="cvf-pin-author">
@@ -565,15 +526,12 @@ export default function DesignWorld() {
                     </span>
                     {/* comment threads continue the file's numbering: the
                         hero pin is #1, so the boards start at #2 */}
-                    <span
-                      className={`dw-board-pin${
-                        openPin === w.name ? " is-open" : ""
-                      }`}
-                      role="button"
-                      tabIndex={0}
-                      aria-label={`Comment on ${w.name}: ${w.tag}`}
-                      onClick={tapPin(w.name, false)}
-                    >
+                    {/* a plain span, not a button: with the note always open
+                        there is nothing to toggle, and a role="button" nested
+                        inside the board's own <a> was a fake control sitting
+                        on top of a real link. The note's text carries itself
+                        to a screen reader now. */}
+                    <span className="dw-board-pin">
                       <span className="dw-board-pin-dot" aria-hidden="true">
                         {i + 2}
                       </span>

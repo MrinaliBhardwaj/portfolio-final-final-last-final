@@ -445,11 +445,12 @@
   border-radius: 3px 12px 12px 12px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.22), 0 14px 34px rgba(0, 0, 0, 0.5);
   max-width: 216px;
-  opacity: 0;
-  transform: translateY(4px) scale(0.96);
   transform-origin: top left;
-  transition: opacity 0.2s var(--ease-soft), transform 0.2s var(--ease-soft);
-  pointer-events: none;
+  /* ALWAYS OPEN. This used to be opacity 0 until you hovered or tapped the
+     dot, which hid the one line on the page that says she's available. A
+     resolved Figma thread sits open in the file; you don't click a marker to
+     find out a comment exists. The note is what matters — the dot is just its
+     anchor. */
 }
 
 /* author row — an avatar chip + name, so the note reads as a real comment
@@ -474,21 +475,6 @@
   color: #fff;
   font-size: 9.5px;
   font-weight: 700;
-}
-
-/* .is-open is the TAP equivalent of :hover — a phone has no pointer to rest on
-   the pin, so DesignWorld toggles this class on tap (useTapNote) */
-.cvf-pin:hover .cvf-pin-note,
-.cvf-pin:focus-visible .cvf-pin-note,
-.cvf-pin.is-open .cvf-pin-note {
-  opacity: 1;
-  transform: translateY(0) scale(1);
-  pointer-events: auto;
-}
-
-.cvf-pin.is-open .cvf-pin-dot,
-.dw-board-pin.is-open .dw-board-pin-dot {
-  transform: scale(1.08) translateY(-1px);
 }
 
 /* the dots are 30–32px of ink; this pushes the TAP TARGET out to 44px without
@@ -902,10 +888,9 @@
   transition: transform 0.2s var(--ease-soft), box-shadow 0.2s var(--ease-soft);
 }
 
-/* The comment stays COLLAPSED (just the pin) and opens when the PIN itself is
-   hovered/focused — the real Figma gesture: point at the marker to read the
-   thread. Scoped to the pin, not the whole board, so the note isn't tangled
-   up with the board's selection chrome. */
+/* Hover only LIFTS the dot now — the note beside it is always open (see
+   .dw-board-pin-note). Scoped to the pin, not the whole board, so it isn't
+   tangled up with the board's selection chrome. */
 .dw-board-pin:hover .dw-board-pin-dot,
 .dw-board:focus-visible .dw-board-pin-dot {
   transform: scale(1.08) translateY(-1px);
@@ -926,11 +911,10 @@
   border-radius: 3px 12px 12px 12px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.22), 0 14px 34px rgba(0, 0, 0, 0.5);
   max-width: 214px;
-  opacity: 0;
-  transform: translateX(-4px) scale(0.96);
   transform-origin: top left;
-  pointer-events: none;
-  transition: opacity 0.2s var(--ease-soft), transform 0.2s var(--ease-soft);
+  /* ALWAYS OPEN — which is what the rule above this block always claimed
+     ("the social proof, not a hover surprise") and never actually did: it was
+     opacity 0 until hover. The awards are the reason to look at the boards. */
 }
 
 .dw-board-pin-author {
@@ -953,15 +937,6 @@
   color: #2e2e38;
   font-size: 9.5px;
   font-weight: 700;
-}
-
-.dw-board-pin:hover .dw-board-pin-note,
-.dw-board:focus-visible .dw-board-pin-note,
-.dw-board-pin:focus-visible .dw-board-pin-note,
-.dw-board-pin.is-open .dw-board-pin-note {
-  opacity: 1;
-  transform: translateX(0) scale(1);
-  pointer-events: auto;
 }
 
 /* selection chrome — the same handles + dims pill the section frames wear,
