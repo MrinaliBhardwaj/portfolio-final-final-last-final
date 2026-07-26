@@ -22,39 +22,82 @@
 import { useEffect, useRef } from "react";
 import { Activity, Fingerprint, Terminal } from "lucide-react";
 
+// ---- the camera: one shared stream, refcounted ----
+// Module scope on purpose. <React.StrictMode> runs every effect twice in dev
+// (mount -> cleanup -> mount), so the obvious per-component version fires TWO
+// getUserMedia calls. Their tracks share one physical camera, and the first
+// call's cleanup then stops a track the second call is still displaying — the
+// badge goes black, in dev only, for reasons nothing on screen explains.
+//
+// Refcounting one shared promise gives a single prompt and a single stream with
+// no race, while a deferred release still hands the camera back when she
+// actually leaves the tech world — which a plain module singleton never would.
+// Holding a webcam open after you navigate away is exactly the creepy behaviour
+// this feature has to avoid.
+const CAM = { promise: null, refs: 0, timer: 0 };
+
+function acquireCam() {
+  CAM.refs += 1;
+  if (CAM.timer) {
+    clearTimeout(CAM.timer);
+    CAM.timer = 0;
+  }
+  if (!CAM.promise) {
+    // 320x240 is plenty: it lands under a 12px blur and a displacement map, so
+    // the extra pixels of the source's 640x480 are spent purely on decode.
+    CAM.promise = navigator.mediaDevices.getUserMedia({
+      video: { width: { ideal: 320 }, height: { ideal: 240 }, facingMode: "user" },
+    });
+  }
+  return CAM.promise;
+}
+
+function releaseCam() {
+  CAM.refs -= 1;
+  if (CAM.refs > 0) return;
+  // Deferred, so StrictMode's instant remount re-acquires the very same stream
+  // instead of tearing the camera down and prompting all over again. Clearing
+  // the promise also means a refusal isn't cached forever: fix the permission,
+  // come back to #/tech, and it asks again.
+  CAM.timer = setTimeout(() => {
+    const held = CAM.promise;
+    CAM.promise = null;
+    CAM.timer = 0;
+    held?.then((s) => s.getTracks().forEach((t) => t.stop())).catch(() => {});
+  }, 500);
+}
+
 export default function DevBadge() {
   const video = useRef(null);
 
   useEffect(() => {
-    const media = navigator.mediaDevices;
-    if (!media?.getUserMedia) return;
-
-    let stream = null;
+    if (!navigator.mediaDevices?.getUserMedia) return;
     let gone = false;
 
-    // 320x240 is plenty: it lands under a 12px blur and a displacement map, so
-    // the extra pixels of the source's 640x480 are spent purely on decode.
-    media
-      .getUserMedia({
-        video: { width: { ideal: 320 }, height: { ideal: 240 }, facingMode: "user" },
+    acquireCam()
+      .then((stream) => {
+        const el = video.current;
+        if (gone || !el) return;
+        el.srcObject = stream;
+        if (import.meta.env.DEV) window.__badgeCam = el;
+        // `autoplay` alone is unreliable when the source is attached AFTER the
+        // element has already run its autoplay algorithm against no source.
+        // Ask explicitly; muted playback needs no user gesture.
+        return el.play().catch(() => {});
       })
-      .then((s) => {
-        // a visitor can sit on the permission prompt for a while — by the time
-        // they answer, this badge may be long unmounted
-        if (gone) {
-          s.getTracks().forEach((t) => t.stop());
-          return;
+      .catch((err) => {
+        // Deliberately not silent. A refusal is fine; an undiagnosable one is
+        // not. `err.name` is the whole story: NotAllowedError means blocked
+        // (sticky per origin until reset from the address bar), NotFoundError
+        // means no camera, NotReadableError means another app holds it.
+        if (import.meta.env.DEV) {
+          console.warn("[badge] camera unavailable:", err.name, "—", err.message);
         }
-        stream = s;
-        if (video.current) video.current.srcObject = s;
-      })
-      .catch(() => {
-        /* declined, blocked, or no camera. The metal look stands on its own. */
       });
 
     return () => {
       gone = true;
-      stream?.getTracks().forEach((t) => t.stop());
+      releaseCam();
     };
   }, []);
 

@@ -83,7 +83,7 @@
   height: 100%;
   object-fit: cover;
   transform: scale(1.2) scaleX(-1);
-  opacity: 0.9;
+  opacity: 1;
   filter: saturate(0) contrast(120%) brightness(110%) blur(12px) url("#dvb-metal");
 }
 
@@ -142,7 +142,12 @@
   justify-content: space-between;
   padding: 28px;
   color: #fff;
-  background: rgba(0, 0, 0, 0.2);
+  /* THE VISIBILITY DIAL. The feed is greyscale and 12px-blurred, sitting on a
+     near-black card — so this veil is the difference between a reflection you
+     can read and one you cannot see at all. It was 0.2, which all but erased
+     it. Raise it if the text ever struggles against a bright room; the name and
+     role both carry their own text-shadow / opacity for exactly that. */
+  background: rgba(0, 0, 0, 0.1);
 }
 
 .dvb-head {
