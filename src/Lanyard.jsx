@@ -43,11 +43,11 @@ const CARD_GLB = "/lanyard/card.glb";
 const BAND_TEX = "/lanyard/lanyard.png";
 
 export default function Lanyard({
-  // z=25 is not arbitrary. Rendered height of the card is
-  // 2.25 / (2 * z * tan(fov/2)) * canvasHeightPx — at 25 that lands ~230px on a
-  // 900px viewport, which is the size the badge had back when it lived in a
-  // 300x700 box. Moving the canvas to full-screen would otherwise have doubled it.
-  position = [0, 0, 25],
+  // THE ZOOM DIAL. Rendered height of the card is
+  // 2.25 / (2 * z * tan(fov/2)) * canvasHeightPx — so smaller z = bigger badge.
+  // 20 puts it at ~287px on a 900px viewport (25 was ~230px). Lower this to
+  // zoom in further; the layout below re-derives itself, nothing else to touch.
+  position = [0, 0, 20],
   gravity = [0, -40, 0],
   fov = 20,
   transparent = true,
@@ -113,10 +113,21 @@ export default function Lanyard({
   );
 }
 
-// `rightInset` / `topLift` are world units in from the top-right of the frame:
-// the card's half-width is 0.8, so 1.7 leaves ~0.9 of clearance at the right
-// edge, and 0.5 puts the hook just past the top edge so the band runs off screen.
-function Band({ maxSpeed = 50, minSpeed = 0, cardFront = null, rightInset = 1.7, topLift = 0.5 }) {
+// `rightInset` / `topLift` are world units in from the top-right of the frame.
+//
+// rightInset: the card's half-width is 0.8, so 1.5 leaves ~0.7 of clearance at
+// the right edge (~90px at this zoom). Trimmed from 1.7 when the camera came in
+// to 20 — clearance is a fixed world distance, so zooming had been quietly
+// walking the badge further from the corner.
+//
+// topLift: how far ABOVE the top edge the hook sits. This is the "move it up"
+// dial, and it is the only thing that sets how much band you see: the card
+// hangs a fixed 4.5 units below the hook (3 rope segments + the 1.5 spherical
+// offset), so visible gap above the card = 3.375 - topLift, whatever the zoom.
+// That independence is why zooming in ALONE pushes the badge down the screen —
+// the drop stays put while the viewport shrinks around it. 1.9 keeps the gap at
+// ~21% of viewport height (0.5 would have been 41% at this camera distance).
+function Band({ maxSpeed = 50, minSpeed = 0, cardFront = null, rightInset = 1.5, topLift = 1.9 }) {
   const band = useRef(),
     fixed = useRef(),
     j1 = useRef(),
