@@ -127,13 +127,14 @@
    any normal screen edge to edge and never upscales past 1:1 on a huge one.
    The sheet's 104px bottom padding still keeps the collage clear of the dock. */
 /* Page one is a flat image whose own background is a lighter, cooler cream
-   than the scrapbook's paper (#f4f1e8). The sheet is taller than the 16:9 art,
-   so the space above and below it would otherwise read as two warm bands
-   framing a lighter rectangle. Painting the sheet in the image's OWN colour
-   makes those edges disappear — the whole screen becomes the artwork.
-   #faf8f4 is measured, not guessed: it is what 6 of 8 sampled border points of
-   the decoded WebP actually are. Page two keeps the warmer paper, which its
-   pencil collage (tech-discovery.png, itself ~#f4eee8) is drawn on. */
+   than the scrapbook's paper (#f4f1e8). The art is a wide 2.34:1 band and the
+   sheet is far taller, so the space above and below it would otherwise read as
+   warm bands framing a lighter rectangle. Painting the sheet in the image's OWN
+   colour makes those edges disappear — the whole screen becomes the artwork.
+   #faf8f4 is measured, not guessed: it is what 7 of 8 sampled border points of
+   the DECODED WebP are (sample the decoded file, not the source PNG — that is
+   what the browser actually paints next to). Page two keeps the warmer paper,
+   which its pencil collage (tech-discovery.png, itself ~#f4eee8) is drawn on. */
 .nw .sheet-one {
   background: #faf8f4;
 }
