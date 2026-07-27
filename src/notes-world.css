@@ -126,134 +126,34 @@
    The px caps are each scene's NATIVE size (1700 and 1485), so the art fills
    any normal screen edge to edge and never upscales past 1:1 on a huge one.
    The sheet's 104px bottom padding still keeps the collage clear of the dock. */
+/* Page one is a flat image whose own background is a lighter, cooler cream
+   than the scrapbook's paper (#f4f1e8). The sheet is taller than the 16:9 art,
+   so the space above and below it would otherwise read as two warm bands
+   framing a lighter rectangle. Painting the sheet in the image's OWN colour
+   makes those edges disappear — the whole screen becomes the artwork.
+   #faf8f4 is measured, not guessed: it is what 6 of 8 sampled border points of
+   the decoded WebP actually are. Page two keeps the warmer paper, which its
+   pencil collage (tech-discovery.png, itself ~#f4eee8) is drawn on. */
+.nw .sheet-one {
+  background: #faf8f4;
+}
 .nw .sheet-one .nw-stage {
-  max-width: 1700px;
+  max-width: 1673px; /* the image's native width — never upscale past 1:1 */
 }
 .nw .sheet-two .nw-stage {
   max-width: 1485px;
 }
-.nw .scene {
-  --u: calc(100cqw / 1700);
-  position: relative;
+/* ---- page one: the origin story, as one finished image ----
+   Her own composition, placed exactly as exported (27 July 2026, by request).
+   It replaced a hand-built version of this page — SVG line art, two empty
+   polaroid slots, pencil milestone labels, narrative copy — whose rules used
+   to fill this space. That art and its CSS are in git history from commit
+   5336277 onward; nothing references them now, so keeping ~120 lines of dead
+   rules here would only mislead. */
+.nw .nw-origin {
+  display: block;
   width: 100%;
-  aspect-ratio: 1700 / 956;
-  background: var(--paper);
-  overflow: hidden;
-}
-.nw .lines { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
-
-/* ---- Body copy ---- */
-.nw .copy {
-  position: absolute;
-  font-family: var(--font-ui);
-  font-size: calc(31 * var(--u));
-  line-height: 1.42;
-  letter-spacing: calc(0.1 * var(--u));
-  color: var(--ink);
-}
-.nw .copy-top { left: calc(92 * var(--u)); top: calc(86 * var(--u)); }
-.nw .copy-bottom {
-  right: calc(95 * var(--u));
-  top: calc(672 * var(--u));
-  width: calc(1010 * var(--u));
-  text-align: right;
-  line-height: 1.46;
-  white-space: nowrap;
-}
-.nw .copy-bottom .punch { font-weight: 700; }
-
-/* ---- Pink micro-labels ---- */
-.nw .micro {
-  position: absolute;
-  font-family: var(--font-ui);
-  font-size: calc(19 * var(--u));
-  color: var(--pink);
-  letter-spacing: calc(0.2 * var(--u));
-  text-align: center;
-}
-.nw .micro-left  { left: calc(380 * var(--u));  top: calc(300 * var(--u)); width: calc(240 * var(--u)); }
-.nw .micro-right { left: calc(1079 * var(--u)); top: calc(512 * var(--u)); width: calc(200 * var(--u)); }
-
-/* ---- Polaroids ---- */
-.nw .mount { position: absolute; }
-.nw .mount-left  { left: calc(417 * var(--u));  top: calc(347 * var(--u)); width: calc(165 * var(--u)); height: calc(252 * var(--u)); }
-.nw .mount-right { left: calc(1093 * var(--u)); top: calc(216 * var(--u)); width: calc(172 * var(--u)); height: calc(292 * var(--u)); }
-.nw .polaroid {
-  width: 100%;
-  height: 100%;
-  background: #fffdf8;
-  padding: calc(8 * var(--u)) calc(8 * var(--u)) calc(15 * var(--u));
-  box-shadow:
-    0 calc(16 * var(--u)) calc(28 * var(--u)) rgba(40, 35, 25, 0.18),
-    0 calc(2 * var(--u)) calc(5 * var(--u)) rgba(40, 35, 25, 0.12);
-}
-.nw .mount-left  .polaroid { transform: rotate(-1.5deg); }
-.nw .mount-right .polaroid { transform: rotate(2.5deg); }
-.nw .slot {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  background: #e9e6dc;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--font-ui);
-  font-size: calc(15 * var(--u));
-  font-style: italic;
-  letter-spacing: calc(0.3 * var(--u));
-  color: #9a9588;
-}
-.nw .corner {
-  position: absolute;
-  width: calc(17 * var(--u));
-  height: calc(17 * var(--u));
-  background: rgba(38, 33, 24, 0.42);
-}
-.nw .corner.tl { top: 0; left: 0;  clip-path: polygon(0 0, 100% 0, 0 100%); }
-.nw .corner.tr { top: 0; right: 0; clip-path: polygon(0 0, 100% 0, 100% 100%); }
-.nw .corner.bl { bottom: 0; left: 0;  clip-path: polygon(0 0, 0 100%, 100% 100%); }
-.nw .corner.br { bottom: 0; right: 0; clip-path: polygon(100% 0, 100% 100%, 0 100%); }
-
-/* Hand-drawn pencil loop standing in for each milestone dot. */
-.nw .scrib {
-  fill: none;
-  stroke: var(--dot);
-  stroke-width: 2.2;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
-/* ---- Milestone labels ---- */
-.nw .milestone {
-  position: absolute;
-  transform: translateX(-50%);
-  font-family: var(--font-ui);
-  font-size: calc(12 * var(--u));
-  letter-spacing: calc(0.2 * var(--u));
-  color: var(--pink);
-  white-space: nowrap;
-  text-align: center;
-}
-
-/* The "pull for profile" pencil note and the vertical PROFILE.TXT / PROFILE.DOC
-   file tabs used to live here. Both were removed on 27 July 2026 by request,
-   along with their rules — the scrapbook is something you read now, and the
-   dock is the way out of it. See Scene.jsx / SceneTwo.jsx. */
-
-/* ---- Reveal: page one assembles itself, left to right ---- */
-@media (prefers-reduced-motion: no-preference) {
-  .nw .dot  { transform-box: fill-box; transform-origin: center; }
-  .nw .draw { stroke-dasharray: 1; }
-
-  .nw .rise { animation: nw-rise 0.9s cubic-bezier(0.16, 1, 0.3, 1) both; animation-delay: var(--d, 0s); }
-  .nw .fade { animation: nw-fade 1s ease both; animation-delay: var(--d, 0s); }
-  .nw .dot  { animation: nw-pop 0.55s cubic-bezier(0.22, 1, 0.36, 1) both; animation-delay: var(--d, 0s); }
-  .nw .draw { animation: nw-draw 1.3s ease both; animation-delay: var(--d, 0s); }
-
-  @keyframes nw-rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
-  @keyframes nw-fade { from { opacity: 0; } to { opacity: 1; } }
-  @keyframes nw-pop  { from { opacity: 0; transform: scale(0); } to { opacity: 1; transform: scale(1); } }
-  @keyframes nw-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+  height: auto;
 }
 
 /* ============ page two: the tech desk collage ============ */
