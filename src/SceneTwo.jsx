@@ -68,14 +68,14 @@ export default function SceneTwo() {
           />
 
           {/* ============ LEFT MARGIN · pencil work ============ */}
-          <div className="t2-note" style={{ left: U(34), top: U(150), fontSize: U(27), transform: "rotate(-2deg)" }}>
+          <div className="t2-note" style={{ left: U(34), top: U(150), fontSize: U(19), transform: "rotate(-2deg)" }}>
             const idea = reality;
           </div>
           <svg className="t2-arrow" viewBox="0 0 60 64" aria-hidden="true" style={{ left: U(36), top: U(180), width: U(60), height: U(64) }}>
             <path d="M10,6 C2,22 4,40 30,52" fill="none" stroke="#8a8478" strokeWidth="1.5" strokeLinecap="round" />
             <path d="M30,52 L20,50 M30,52 L26,42" fill="none" stroke="#8a8478" strokeWidth="1.5" strokeLinecap="round" />
           </svg>
-          <div className="t2-note" style={{ left: U(74), top: U(224), fontSize: U(24), lineHeight: U(33) }}>
+          <div className="t2-note" style={{ left: U(74), top: U(224), fontSize: U(17), lineHeight: U(25) }}>
             function makeItReal() {"{"}<br />
             &nbsp;&nbsp;plan();<br />
             &nbsp;&nbsp;build();<br />
@@ -83,7 +83,7 @@ export default function SceneTwo() {
             {"}"}
           </div>
 
-          <div className="t2-note" style={{ left: U(56), top: U(466), fontSize: U(25), lineHeight: U(35) }}>
+          <div className="t2-note" style={{ left: U(56), top: U(466), fontSize: U(18), lineHeight: U(26) }}>
             <span className="t2-head">notes<Underline w={62} /></span><br />
             - keep it simple<br />
             - solve real problems<br />
@@ -94,7 +94,7 @@ export default function SceneTwo() {
           <div className="t2-card" style={{ left: U(38), top: U(724), width: U(266), height: U(116), transform: "rotate(-1deg)" }}>
             <RoughBox w={266} h={116} />
             <div className="tape" style={{ left: "50%", top: U(-15), width: U(110), height: U(34), transform: "translateX(-50%) rotate(-4deg)" }} />
-            <div className="t2-card-body" style={{ fontSize: U(25), lineHeight: U(34) }}>
+            <div className="t2-card-body" style={{ fontSize: U(18), lineHeight: U(26) }}>
               reminder:<br />
               progress {">"} perfection <span className="t2-spark">&#10038;</span>
             </div>
@@ -103,7 +103,7 @@ export default function SceneTwo() {
           {/* ============ RIGHT MARGIN · pencil work ============ */}
           <div className="t2-card" style={{ left: U(1244), top: U(148), width: U(152), height: U(226) }}>
             <RoughBox w={152} h={226} />
-            <div className="t2-card-body" style={{ fontSize: U(24), lineHeight: U(31) }}>
+            <div className="t2-card-body" style={{ fontSize: U(17), lineHeight: U(24) }}>
               <span className="t2-head">tech stack<Underline w={92} /></span><br />
               - next.js<br />
               - typescript<br />
@@ -113,7 +113,7 @@ export default function SceneTwo() {
             </div>
           </div>
 
-          <div className="t2-note" style={{ left: U(1240), top: U(392), fontSize: U(21), lineHeight: U(29) }}>
+          <div className="t2-note" style={{ left: U(1240), top: U(392), fontSize: U(15), lineHeight: U(22) }}>
             $ npm run dev<br />
             <span className="t2-mut">{">"} ready on localhost:3000</span><br />
             <span style={{ display: "block", height: U(10) }} />
@@ -123,7 +123,7 @@ export default function SceneTwo() {
 
           <div className="t2-card" style={{ left: U(1240), top: U(566), width: U(168), height: U(50) }}>
             <RoughBox w={168} h={50} />
-            <div className="t2-card-body" style={{ fontSize: U(23), lineHeight: U(28) }}>
+            <div className="t2-card-body" style={{ fontSize: U(16), lineHeight: U(23) }}>
               v1.2 shipped <span className="t2-spark">&#10003;</span>
             </div>
           </div>

@@ -10,7 +10,9 @@
    drifts. */
 
 .nw {
-  --paper: #f4f1e8;
+  /* One cream for the whole scrapbook, matching the artwork's own field, so
+     nothing on the page reads as a panel sitting on a different paper. */
+  --paper: #f8f7f4;
   --ink: #1c1c1a;
   --pink: #ef93af;
   --dot: #f2789f;
@@ -126,23 +128,18 @@
    The px caps are each scene's NATIVE size (1700 and 1485), so the art fills
    any normal screen edge to edge and never upscales past 1:1 on a huge one.
    The sheet's 104px bottom padding still keeps the collage clear of the dock. */
-/* Page one is a flat image whose own background is a lighter, cooler cream
-   than the scrapbook's paper (#f4f1e8). The art is a wide 2.34:1 band and the
-   sheet is far taller, so the space above and below it would otherwise read as
-   warm bands framing a lighter rectangle. Painting the sheet in the image's OWN
-   colour makes those edges disappear — the whole screen becomes the artwork.
-   #faf8f4 is measured, not guessed: it is what 7 of 8 sampled border points of
-   the DECODED WebP are (sample the decoded file, not the source PNG — that is
-   what the browser actually paints next to). Page two keeps the warmer paper,
-   which its pencil collage (tech-discovery.png, itself ~#f4eee8) is drawn on. */
-.nw .sheet-one {
-  background: #faf8f4;
-}
-.nw .sheet-one .nw-stage {
-  max-width: 1673px; /* the image's native width — never upscale past 1:1 */
-}
+/* Both sheets share ONE max-width, so the two halves have identical left and
+   right margins on every screen — they used to cap at 1673 and 1485, which on a
+   wide display inset page two by ~94px more per side than page one and made the
+   collage look like a narrower panel. 1673 is page one's native width, so that
+   image still never upscales past 1:1; page two's centrepiece is 1474 native
+   and now fills the same column, which costs it a slight upscale on very wide
+   screens — the alignment is worth more than the last few percent of sharpness
+   on a pencil drawing. There is no per-sheet background any more: the whole
+   world is one cream (--paper), matching the artwork's own field. */
+.nw .sheet-one .nw-stage,
 .nw .sheet-two .nw-stage {
-  max-width: 1485px;
+  max-width: 1673px;
 }
 /* ---- page one: the origin story, as one finished image ----
    Her own composition, placed exactly as exported (27 July 2026, by request).
@@ -199,13 +196,19 @@
 }
 
 /* ---- Pencil margin work around the centerpiece ---- */
+/* Inter Regular, not the Caveat pencil hand these were drawn in — page two now
+   speaks the same voice as page one's artwork. Inter sets WIDER than Caveat at
+   the same size, and these labels are absolutely placed at fixed Figma
+   coordinates with `nowrap`, so the size is trimmed below to keep them inside
+   their original footprints instead of running into the centrepiece. */
 .nw .scene-two .t2-note {
   position: absolute;
   z-index: 4;
-  font-family: "Caveat", cursive;
+  font-family: var(--font-ui);
+  font-weight: 400;
   color: #514c44;
   white-space: nowrap;
-  line-height: 1.3;
+  line-height: 1.35;
 }
 .nw .scene-two .t2-note .t2-mut { color: #8a8478; }
 .nw .scene-two .t2-head { position: relative; display: inline-block; }
@@ -231,12 +234,13 @@
 .nw .scene-two .t2-card-body {
   position: relative;
   z-index: 1;
-  padding: calc(18 * var(--u)) calc(20 * var(--u));
-  font-family: "Caveat", cursive;
-  font-size: calc(24 * var(--u));
+  padding: calc(14 * var(--u)) calc(16 * var(--u));
+  font-family: var(--font-ui);
+  font-weight: 400;
+  font-size: calc(17 * var(--u));
   color: #514c44;
   white-space: nowrap;
-  line-height: 1.3;
+  line-height: 1.35;
 }
 
 /* ---- Centerpiece reference image ---- */
