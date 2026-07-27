@@ -12,6 +12,7 @@ import { AnimatePresence, motion, MotionConfig } from "framer-motion";
 import Cover from "./Cover.jsx";
 import DesignWorld from "./DesignWorld.jsx";
 import TechWorld from "./TechWorld.jsx";
+import { WorldOpening } from "./world-open.js";
 import GalleryWorld from "./GalleryWorld.jsx";
 import NotesWorld from "./NotesWorld.jsx";
 import PondWorld from "./PondWorld.jsx";
@@ -135,7 +136,11 @@ function WorldWindow({ children }) {
       }}
       onAnimationComplete={settle}
     >
-      {children}
+      {/* Anything inside that measures its own box once has to wait this out —
+          while the zoom runs, this transform is the containing block for every
+          fixed-position descendant, so they measure the SCALED window rather
+          than the viewport. See world-open.js. */}
+      <WorldOpening.Provider value={opening}>{children}</WorldOpening.Provider>
     </motion.div>
   );
 }

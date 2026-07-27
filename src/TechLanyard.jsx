@@ -12,18 +12,26 @@
 //     they open #/tech on a wide screen.
 //   · FROZEN WHEN HIDDEN — `frameloop="never"` while the tab is backgrounded,
 //     so the rope sim isn't burning a core behind another window.
+//   · ONLY AFTER THE WORLD LANDS — the window zooms open from scale 0.3, and a
+//     canvas measured mid-zoom hands rapier a hook position that is wrong for
+//     good. Waiting also keeps the rope sim off the same 420ms as the zoom.
 //
 // This gate is also what keeps the badge's webcam request narrow: DevBadge asks
 // for the camera on mount, and it only ever mounts here — #/tech, wide screen,
 // motion allowed. Refusal is harmless (see DevBadge.jsx).
 import { Suspense, lazy, useEffect, useState } from "react";
 import DevBadge from "./DevBadge.jsx";
+import { useWorldOpening } from "./world-open.js";
 
 const Lanyard = lazy(() => import("./Lanyard.jsx"));
 
 export default function TechLanyard() {
   const [enabled, setEnabled] = useState(false);
   const [live, setLive] = useState(true);
+  // Not just tidiness: mounting mid-zoom is what nailed the hook to the wrong
+  // place. The canvas measures the SCALED world window, rapier bakes that into
+  // the bodies, and it never re-reads. See world-open.js.
+  const opening = useWorldOpening();
 
   useEffect(() => {
     const big = window.matchMedia("(min-width: 1280px) and (pointer: fine)");
@@ -46,7 +54,7 @@ export default function TechLanyard() {
     return () => document.removeEventListener("visibilitychange", sync);
   }, [enabled]);
 
-  if (!enabled) return null;
+  if (!enabled || opening) return null;
 
   return (
     <div className="tw-lanyard">

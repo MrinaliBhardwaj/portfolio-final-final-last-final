@@ -980,3 +980,30 @@ Three corrections to the lanyard, all hers.
   Flips exactly once, and correctly at ~80 degrees rather than 90 — the badge
   hangs off-axis, so it turns edge-on to the *camera* first. That parallax is
   what the ray got wrong.
+
+## Nothing that measures itself may mount during a world's zoom-open (2026-07-27)
+
+- **The lanyard dropped in the wrong place when you NAVIGATED to #/tech, but was
+  correct on reload.** That asymmetry was the whole clue. `WorldWindow` grows a
+  world from `scale: 0.3` to 1 over 420ms, and — as App.jsx's own comment says —
+  a transformed ancestor is the containing block for its fixed-position
+  descendants. `.tw-lanyard` is `position: fixed; inset: 0`, so mid-zoom it
+  measures the SCALED box. Measured directly in the browser: a fixed `inset: 0`
+  child of an opening world window reports **0.30 of the viewport** (428px of
+  1425px), which is the scale value exactly.
+  Rapier reads a body's position only when it creates it, so a canvas measured
+  mid-zoom nails the hook down permanently — and `viewport.factor` (px per world
+  unit) comes out ~3.3x too small, multiplying any scroll offset baked into the
+  anchor.
+- **It hid on reload because the lanyard chunk is ~3MB and lazy.** On a cold load
+  it arrives well after the 420ms zoom and measures a settled canvas. Navigate in
+  from another world with the chunk cached and it mounts mid-zoom instead. Any
+  bug whose repro depends on a network cache will look intermittent forever.
+- **Fix: `WorldOpening` context (world-open.js), provided by WorldWindow.**
+  TechLanyard renders nothing until the zoom lands, so the navigate path now
+  takes the identical code path to the reload path she already confirmed correct.
+  It also keeps the rope sim off the same 420ms as the zoom, which her machine
+  will thank us for. Verified: mounted=false while OPENING, true once settled.
+- **The general rule:** anything inside a world that measures its own box once
+  and keeps the answer must wait for `useWorldOpening()` to go false. This is not
+  lanyard-specific — it applies to any future canvas, chart, or virtualized list.
