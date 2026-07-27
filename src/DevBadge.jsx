@@ -43,7 +43,7 @@ function acquireCam() {
     CAM.timer = 0;
   }
   if (!CAM.promise) {
-    // 320x240 is plenty: it lands under a 12px blur and a displacement map, so
+    // 320x240 is plenty: it lands under a 7px blur and a displacement map, so
     // the extra pixels of the source's 640x480 are spent purely on decode.
     CAM.promise = navigator.mediaDevices.getUserMedia({
       video: { width: { ideal: 320 }, height: { ideal: 240 }, facingMode: "user" },

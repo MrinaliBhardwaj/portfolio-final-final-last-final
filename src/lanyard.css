@@ -84,7 +84,7 @@
   object-fit: cover;
   transform: scale(1.2) scaleX(-1);
   opacity: 1;
-  filter: saturate(0) contrast(120%) brightness(110%) blur(12px) url("#dvb-metal");
+  filter: saturate(0) contrast(120%) brightness(110%) blur(7px) url("#dvb-metal");
 }
 
 .dvb-noise {
@@ -145,7 +145,7 @@
   /* THE VISIBILITY DIAL — shaped, not flat, because those are two different
      jobs fighting each other.
 
-     The feed is greyscale and 12px-blurred under white text. A flat veil can
+     The feed is greyscale and blurred under white text. A flat veil can
      only pick one side: measured against WCAG AA (4.5:1) for white text, a
      bright room (feed ~240) needs alpha >= 0.55 to stay legible, but 0.55 also
      crushes the reflection back to the near-invisible thing this was supposed
@@ -221,7 +221,7 @@
   margin: 0;
   font-size: 12px;
   letter-spacing: 0.2em;
-  /* 0.7 in the source, but at 12px over a live feed that measured 3.82:1 —
+  /* 0.7 in the source, but at 12px font-size over a live feed that measured 3.82:1 —
      below AA. 0.82 is the least dimming that clears 4.5:1, so the hierarchy
      stays as light as it's allowed to be. */
   opacity: 0.82;

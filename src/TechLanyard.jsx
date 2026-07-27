@@ -52,7 +52,7 @@ export default function TechLanyard() {
     <div className="tw-lanyard">
       <Suspense fallback={null}>
         <Lanyard
-          position={[0, 0, 20]}
+          position={[0, 0, 17]}
           gravity={[0, -40, 0]}
           frameloop={live ? "always" : "never"}
           cardFront={<DevBadge />}

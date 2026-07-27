@@ -45,9 +45,13 @@ const BAND_TEX = "/lanyard/lanyard.png";
 export default function Lanyard({
   // THE ZOOM DIAL. Rendered height of the card is
   // 2.25 / (2 * z * tan(fov/2)) * canvasHeightPx — so smaller z = bigger badge.
-  // 20 puts it at ~287px on a 900px viewport (25 was ~230px). Lower this to
-  // zoom in further; the layout below re-derives itself, nothing else to touch.
-  position = [0, 0, 20],
+  // 17 puts it at ~338px on a 900px viewport (20 was ~287px, 25 was ~230px).
+  // Lower this to zoom in further. topLift/rightInset don't need retuning
+  // alongside it: they're fixed WORLD-UNIT offsets, and the viewport's own
+  // world-unit size scales linearly with z too, so gap-to-card-size ratios are
+  // invariant to z — the whole picture just zooms in around the same anchor.
+  // (They DO need retuning if the canvas's aspect ratio changes instead.)
+  position = [0, 0, 17],
   gravity = [0, -40, 0],
   fov = 20,
   transparent = true,
