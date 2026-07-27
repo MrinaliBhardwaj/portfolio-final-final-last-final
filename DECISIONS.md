@@ -2,6 +2,64 @@
 
 Decisions that survive rebuilds. Append, don't rewrite history.
 
+## 2026-07-19 — The cover lotus is a FRAME SEQUENCE, never a video again
+
+The hero stuttered on first scroll and only smoothed out after several seconds
+of scrolling. Root cause, measured not guessed: **`lotus-bloom.mp4` has exactly
+one keyframe for all 241 frames** (`ffprobe -select_streams v:0
+-show_entries packet=flags` → a single `K`; GOP = the whole clip, B-pyramid
+depth 5, 4 reference frames), and its `moov` box was last in the file. No seek
+point after t=0 means seeking mid-clip decodes every preceding frame and
+seeking backwards restarts from zero; `moov`-last means nothing could seek
+until all 6 MB had landed.
+
+- **Do NOT reintroduce `<video>` scrubbing here.** Codecs are built for
+  sequential forward playback; random access is their worst case, and scroll
+  scrubbing requests it every frame. This is also why Apple's scroll-driven
+  product pages use numbered image sequences on canvas, and why Stripe/Linear
+  keep scroll work on transform/opacity + WebGL and let video *play*, never
+  scrub. Re-encoding all-intra would have fixed the seeks but kept the 6 MB
+  download-before-anything problem and the Safari seek risk.
+- **The frames are built, not decoded at runtime.**
+  `scripts/build_lotus_frames.py` (ffmpeg + PIL) writes `public/lotus/`. ffmpeg
+  is needed THERE and nowhere else — not at build, not at runtime. The source
+  clip moved to `assets-src/lotus-bloom.mp4` so it stays regenerable but never
+  deploys. Re-run the script if the clip ever changes; don't hand-edit frames.
+- **Two tiers, and the atlas is the whole point.** `atlas.webp` (209 KB, all 40
+  frames at 480×270) is preloaded in `index.html` so it arrives during HTML
+  parse; the instant it decodes the ENTIRE timeline is scrubbable. Full-size
+  1600×900 frames stream in behind it and swap per index. Because the atlas
+  covers every index from the start there is never a missing frame — which is
+  why the old nearest-captured `below()`/`above()` search is gone.
+- **Frames are reversed on disk.** `f00` is the top-of-page resting pose,
+  pixel-identical to the `lotus-still.webp` poster, so the poster→canvas
+  handoff is invisible and there is no `reverse` flag anywhere.
+- **Numbers:** payload 5.99 MB → 1.52 MB; bitmap residency 427 MB → 220 MB;
+  paint 0.477 ms/frame (2.9 % of a 16.7 ms budget); atlas 63 ms.
+  Frame count/resolution are the two memory dials, both constants at the top of
+  the script and mirrored in `lotus.js` — **keep them in sync**.
+- **Latent bug found while verifying:** if layout hasn't run when the effect
+  commits (hidden tab, or a commit before first layout) both cover canvases
+  sized to 0×0 and only a later window resize rescued them. Both now size via
+  `ResizeObserver` with a zero-size guard. A `resize` listener alone cannot
+  catch this.
+- **The cover runs ONE rAF.** The starfield used to own a second, competing
+  loop; it now exposes `step(dt)` and the scrub loop drives it. It also honours
+  DPR (it built from `innerWidth`, so dots were drawn at 1× and stretched) and
+  batches into one fill per opacity bucket. Honest result: frame time is
+  unchanged at ~0.43 ms — the batching win was spent on 2.2× the pixels, i.e.
+  sharpness, not speed.
+- **The Dock's `backdrop-filter` was investigated and deliberately left alone.**
+  The suspicion was a mid-scroll layer promotion when it surfaces at progress
+  0.77, but the Dock is always mounted (`initial={false}`, animated via
+  transform/opacity, never unmounted), so there is nothing to promote. A
+  permanent `will-change: backdrop-filter` would cost more than it saves.
+- **Verifying the cover needs a harness.** The preview pane is hidden, so vsync
+  `requestAnimationFrame` never fires and CSS transitions never advance there —
+  a canvas will read `opacity: 0` and blank pixels even when the code is
+  correct. Shim `requestAnimationFrame` onto a timer, import the real module,
+  drive it, and read pixels back. See [[reports-need-proof]].
+
 ## 2026-07-19 — Engagement pass on experience/work (follow-up, same day)
 
 She asked for more visual life in the two frames (via /ui-ux-pro-max; its CLI
