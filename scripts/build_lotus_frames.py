@@ -47,7 +47,10 @@ from pathlib import Path
 from PIL import Image
 
 ROOT = Path(__file__).resolve().parent.parent
-SRC = ROOT / "public" / "lotus-bloom.mp4"
+# The source clip lives OUTSIDE public/ so it is never deployed — shipping it
+# was the whole problem. It stays in the repo purely so these frames can be
+# regenerated; nothing at runtime reads it.
+SRC = ROOT / "assets-src" / "lotus-bloom.mp4"
 OUT = ROOT / "public" / "lotus"
 
 # 40 frames. With the runtime's temporal easing (~91 ms time constant) the eye
@@ -56,18 +59,25 @@ OUT = ROOT / "public" / "lotus"
 # ImageBitmap. Raising it raises resident GPU memory proportionally.
 FRAMES = 40
 
-# Tier B: individual frames. 1280x720 upscales acceptably to a full-viewport
-# canvas for a soft organic subject sitting behind gradient overlays, and keeps
-# the bitmap working set at roughly a third of the old 1920x1080 x 54 (=448 MB).
-FRAME_W, FRAME_H = 1280, 720
-FRAME_QUALITY = 82
+# Tier B: individual frames. 1600x900 rather than the source's native 1920x1080
+# — 83% of native linear resolution for 71% of the memory. The subject is a
+# translucent flower with fine petal veining over a starfield of 1px points,
+# which is exactly the content that dies under upscaling, so we stay close to
+# native and let the compositor (not drawImage) handle any final stretch.
+# Memory is linear in W*H*FRAMES: 40 x 1600 x 900 x 4 B ~= 220 MB, against the
+# old 54 x 1920 x 1080 x 4 B = 427 MB.
+FRAME_W, FRAME_H = 1600, 900
+# Higher than a photo would need: the black field behind the stars is a smooth
+# near-black gradient, and that is where WebP bands first. Frames cost ~30 KB
+# at this quality, so there is no reason to economise here.
+FRAME_QUALITY = 88
 
 # Tier A: the instant atlas. 8x5 grid exactly fits 40 tiles with no waste.
-# 3200x1125 stays well under the 4096 texture limit that older mobile GPUs
-# enforce, so it is safe to upload as a single texture everywhere.
+# 3840x1350 stays under the 4096 texture limit that older mobile GPUs enforce,
+# so it is safe to upload as a single texture everywhere.
 ATLAS_COLS, ATLAS_ROWS = 8, 5
-TILE_W, TILE_H = 400, 225
-ATLAS_QUALITY = 80
+TILE_W, TILE_H = 480, 270
+ATLAS_QUALITY = 82
 
 
 def find_ffmpeg() -> str:

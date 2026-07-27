@@ -113,10 +113,10 @@
 }
 
 /* the resting pose as a static still: painted on the very first frame, before
-   any video byte arrives. The permanent base of the stage stack — it never
-   fades on scroll (that opened a blank gap while the clip was still
-   downloading); the seeked video and then the frame-cache canvas simply
-   paint over it. */
+   any lotus frame arrives. The permanent base of the stage stack — it never
+   fades on scroll (that opened a blank gap while the frames were still
+   loading); the frame canvas simply paints over it. Pixel-identical to
+   frame 0, so the handoff is invisible. */
 .cover-poster {
   position: absolute;
   inset: 0;
@@ -126,22 +126,11 @@
   object-fit: cover;
 }
 
-/* the fallback video starts hidden: its natural first frame is the START of
-   the clip, which is the wrong pose now that the bloom is scrubbed in reverse.
-   lotus.js fades it in only once it has been seeked to the right time. */
-.cover-video {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  opacity: 0;
-  transition: opacity 0.4s var(--ease-soft);
-}
-
-/* the decoded-frame canvas sits over the fallback video and fades in when
-   the frame cache is ready (opacity is toggled from lotus.js) */
+/* the frame canvas sits over the poster and fades in once the atlas has
+   decoded — i.e. as soon as the bloom is scrubbable (opacity is toggled from
+   lotus.js). Its backing store is sized to the source frames, not the
+   viewport, so drawImage never magnifies; this rule stretches the ELEMENT the
+   rest of the way, which the compositor does in hardware for free. */
 .cover-video-canvas {
   position: absolute;
   inset: 0;

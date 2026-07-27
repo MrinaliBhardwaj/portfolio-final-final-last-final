@@ -1,292 +1,257 @@
-// Smooth scroll-scrubbing for the lotus. Seeking a <video> per scroll frame
-// stutters because each seek re-runs the decoder. Instead we decode the whole
-// clip ONCE into a set of ImageBitmaps, then paint the frame matching scroll
-// progress to a canvas — no per-frame seeking, so it tracks the scrollbar at
-// any speed. While frames are still decoding we fall back to seeking the
-// visible <video> (rougher, but responsive), then swap to the canvas.
-const isMobile = () => window.matchMedia("(max-width: 719px)").matches;
+// Scroll-scrubbing for the cover lotus, from a pre-decoded FRAME SEQUENCE.
+//
+// WHY NOT A VIDEO
+// ---------------
+// This used to scrub `public/lotus-bloom.mp4` by seeking a <video>, with a
+// runtime frame cache in front of it. The clip is encoded with exactly ONE
+// keyframe for all 241 frames (`ffprobe -select_streams v:0
+// -show_entries packet=flags` returns a single `K`), so there is no seek point
+// after t=0: seeking mid-clip decodes every preceding frame, seeking backwards
+// restarts from zero. Its `moov` was also the last box in the file, so nothing
+// could seek until all 6 MB had arrived. Building the cache from that video
+// still paid the full cost — it just paid it once, over the first several
+// seconds, which is exactly how long the stutter lasted.
+//
+// So the frames are extracted at build time instead (scripts/build_lotus_frames.py)
+// and shipped as images. Every frame is independently decodable, nothing is a
+// seek, and no video decoder is involved at runtime.
+//
+// TWO TIERS, so responsiveness never waits on fidelity:
+//   A. one sprite atlas of every frame, small — preloaded in index.html, so it
+//      lands during HTML parse. One request, one decode, and the WHOLE timeline
+//      is scrubbable. This is the zero-stutter guarantee.
+//   B. the full-size frames, streamed in behind it, each swapping into its slot
+//      as it decodes.
+// Because A covers every index from the moment it lands, there is never a
+// missing frame — no nearest-neighbour search, no popping.
+//
+// Frame order is already reversed on disk (f00 is the top-of-page resting pose,
+// identical to the preloaded poster), so there is no reverse flag here.
+//
+// The loop also drives the particle field, so the cover runs ONE
+// requestAnimationFrame, not two competing ones.
 
-export function createLotusScrubber(canvas, video, getProgress, videoUrl, opts = {}) {
-  // reverse: play the clip end→start across the scroll track. The frame cache
-  // makes direction free — we just mirror progress before mapping it to a
-  // frame — and the same mirror applies to the <video> fallback seeks.
-  const { reverse = false } = opts;
-  const ctx = canvas.getContext("2d");
+const FRAME_COUNT = 40;
+const ATLAS_URL = "/lotus/atlas.webp";
+const frameUrl = (i) => `/lotus/f${String(i).padStart(2, "0")}.webp`;
+
+// must match scripts/build_lotus_frames.py
+const FRAME_W = 1600;
+const FRAME_H = 900;
+const ATLAS_COLS = 8;
+const TILE_W = 480;
+const TILE_H = 270;
+
+// How many frames to fetch at once. Enough to saturate an HTTP/2 connection
+// without starving the atlas or the rest of the page of bandwidth.
+const FETCH_CONCURRENCY = 6;
+
+export function createLotusScrubber(canvas, getProgress, opts = {}) {
+  const { onStep } = opts;
+  const ctx = canvas.getContext("2d", { alpha: true });
   const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   let raf = 0;
-  let frames = []; // sparse: filled in strided order, so index != capture order
-  let frameCount = 0;
-  let ready = false;
   let destroyed = false;
-  let lastF = -1; // fractional frame index of the last paint
-  let objectUrl = null; // one blob URL feeds BOTH the extractor and the
-  // visible fallback <video>, so it must outlive extract(): revoked in destroy
-  let aborter = null; // cancels the multi-MB clip download if the scrubber
-  // dies while it's in flight (route change, StrictMode's throwaway mount)
+  let atlas = null;
+  const frames = new Array(FRAME_COUNT);
+  const aborter = new AbortController();
 
-  // Temporally smoothed frame position. Wheel scrolls arrive as coarse steps
-  // (a tick can jump several frames at once), so mapping scroll → frame
-  // directly makes the bloom stutter. The painted position eases toward the
-  // live target every rAF instead; time-based, so the ~quarter-second settle
-  // feels the same at any refresh rate.
-  let smoothF = -1;
+  let lastIndex = -1;
+  let dirty = true; // force a repaint (resize, or a better frame arrived)
   let lastT = 0;
 
-  // nearest captured frame at-or-below / at-or-above i — the cache fills in
-  // strided passes, so early on only every 8th/4th slot exists
-  function below(i) {
-    for (let k = Math.min(i, frameCount - 1); k >= 0; k--) {
-      if (frames[k]) return k;
-    }
-    return -1;
-  }
-  function above(i) {
-    for (let k = Math.max(i, 0); k < frameCount; k++) {
-      if (frames[k]) return k;
-    }
-    return -1;
-  }
+  // Temporally smoothed frame position. Wheel scrolls arrive as coarse steps —
+  // a tick can jump several frames at once — so mapping scroll straight to a
+  // frame makes the bloom stutter. The painted position eases toward the live
+  // target every frame instead. Time-based, so the ~quarter-second settle feels
+  // identical at 60Hz and 120Hz.
+  let smoothF = -1;
 
   function sizeCanvas() {
-    // render at the device pixel ratio, capped at 2: the source clip is
-    // 1080p, so a larger backing store only inflates per-frame fill cost
-    // (two cover-fit draws per paint) without adding real detail
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    const w = canvas.clientWidth || window.innerWidth;
-    const h = canvas.clientHeight || window.innerHeight;
-    canvas.width = Math.round(w * dpr);
-    canvas.height = Math.round(h * dpr);
+    const cssW = canvas.clientWidth || window.innerWidth;
+    const cssH = canvas.clientHeight || window.innerHeight;
+    // A degenerate box means layout hasn't run yet (this effect can commit
+    // before the element has been laid out, and a hidden tab may skip layout
+    // entirely). Sizing to 0 here would leave a permanently blank canvas that
+    // only a later window resize could rescue — so bail and let the
+    // ResizeObserver below call us back the moment a real box exists.
+    if (cssW < 1 || cssH < 1) return;
+    // 1.5 rather than 2: the backing store's area (and so the per-frame fill
+    // cost) grows with the square of this, and the source frames are 1600 wide.
+    const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+    let bw = Math.round(cssW * dpr);
+    let bh = Math.round(cssH * dpr);
+    // Never ask drawImage to magnify. If cover-fitting the source into this
+    // backing store would upscale, shrink the backing store until it doesn't
+    // and let CSS stretch the canvas ELEMENT the rest of the way — the
+    // compositor does that in hardware for free, whereas drawImage would
+    // resample on the CPU every single frame.
+    const cover = Math.max(bw / FRAME_W, bh / FRAME_H);
+    if (cover > 1) {
+      bw = Math.round(bw / cover);
+      bh = Math.round(bh / cover);
+    }
+    canvas.width = bw;
+    canvas.height = bh;
+    // "medium" not "high": at ~1:1 the difference is invisible on a soft
+    // organic subject, and "high" resampling is real per-frame cost.
     ctx.imageSmoothingEnabled = true;
-    ctx.imageSmoothingQuality = "high"; // context state resets on resize
-    lastF = -1; // force a redraw at the new size
+    ctx.imageSmoothingQuality = "medium";
+    dirty = true; // context state and contents are reset by the resize
   }
 
-  function paint(bmp, alpha) {
+  // object-fit: cover, from an arbitrary source rect
+  function coverDraw(src, sx, sy, sw, sh) {
     const cw = canvas.width;
     const ch = canvas.height;
-    const s = Math.max(cw / bmp.width, ch / bmp.height); // object-fit: cover
-    const dw = bmp.width * s;
-    const dh = bmp.height * s;
-    ctx.globalAlpha = alpha;
-    ctx.drawImage(bmp, (cw - dw) / 2, (ch - dh) / 2, dw, dh);
-    ctx.globalAlpha = 1;
+    const s = Math.max(cw / sw, ch / sh);
+    const dw = sw * s;
+    const dh = sh * s;
+    ctx.drawImage(src, sx, sy, sw, sh, (cw - dw) / 2, (ch - dh) / 2, dw, dh);
   }
 
-  function drawBitmap(bmp) {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    paint(bmp, 1);
+  function paintFrame(i) {
+    const hi = frames[i];
+    if (hi) {
+      coverDraw(hi, 0, 0, hi.width, hi.height);
+      return true;
+    }
+    if (atlas) {
+      const col = i % ATLAS_COLS;
+      const row = Math.floor(i / ATLAS_COLS);
+      coverDraw(atlas, col * TILE_W, row * TILE_H, TILE_W, TILE_H);
+      return true;
+    }
+    return false; // nothing decoded yet — the poster still holds the stage
   }
 
-  // The fallback <video> is hidden until it sits on a frame the scroll actually
-  // asked for. Revealing it earlier flashes the clip's frame 0 — which, played
-  // in reverse, is the far END of the arc: the wrong pose. Until then the
-  // static poster (the resting pose) holds the stage, already correct.
-  //
-  // `seeked` is the reliable signal (it means we landed on a frame we asked
-  // for, even if the scroll has since moved on); the loop below also reveals
-  // on position, which covers a clip that never needs a seek at all.
-  function revealVideo() {
-    if (video) video.style.opacity = "1";
+  async function loadAtlas() {
+    const resp = await fetch(ATLAS_URL, { signal: aborter.signal });
+    const blob = await resp.blob();
+    if (destroyed) return;
+    // Decoding from a Blob happens OFF the main thread, unlike
+    // createImageBitmap(<video>), which had to run synchronously against the
+    // element's current frame. This is why the new path cannot block scroll.
+    const bmp = await createImageBitmap(blob);
+    if (destroyed) {
+      bmp.close?.();
+      return;
+    }
+    atlas = bmp;
+    dirty = true;
+    canvas.style.opacity = "1";
+    performance.mark?.("lotus-scrubbable");
   }
-  video?.addEventListener("seeked", revealVideo, { once: true });
 
-  async function extract() {
-    const src = document.createElement("video");
-    src.muted = true;
-    src.playsInline = true;
-    src.preload = "auto";
-
-    try {
-      // Load the whole clip into memory as a blob URL. Random/backward seeks
-      // on this sparse-keyframe video stall for seconds, but SEQUENTIAL forward
-      // seeks over fully-buffered data are fast (~50-170ms each), and seeking
-      // is event-driven so it works even when the tab is hidden (unlike
-      // requestVideoFrameCallback, which the browser throttles in background).
-      aborter = new AbortController();
-      const resp = await fetch(videoUrl, { signal: aborter.signal });
-      const blob = await resp.blob();
-      objectUrl = URL.createObjectURL(blob);
-      src.src = objectUrl;
-      // The visible fallback <video> drinks from the SAME blob — the clip
-      // crosses the network exactly once, and the fallback's seeks become
-      // fully-buffered (fast) instead of crawling a cold network stream.
-      if (video && !destroyed) video.src = objectUrl;
-
-      await new Promise((res, rej) => {
-        src.onloadedmetadata = () => res();
-        src.onerror = () => rej(new Error("metadata"));
-        setTimeout(() => rej(new Error("metadata timeout")), 12000);
-      });
-
-      const mobile = isMobile();
-      const count = mobile ? 40 : 54;
-      // desktop: capture at the video's NATIVE resolution (crispest the source
-      // allows). mobile: downscale with high-quality resampling to bound
-      // memory, since a portrait phone crops the landscape frame anyway.
-      const capOpts = mobile
-        ? {
-            resizeWidth: 1280,
-            resizeHeight: Math.round(
-              (1280 * src.videoHeight) / src.videoWidth
-            ),
-            resizeQuality: "high",
-          }
-        : { resizeQuality: "high" };
-      const dur = src.duration;
-      const step = (dur - 0.05) / (count - 1);
-      frameCount = count;
-      frames = new Array(count);
-
-      // Capture in a strided order (every 8th, then 4th, 2nd, 1st) so the
-      // cache covers the whole bloom coarsely within a second or two, then
-      // refines. We reveal the canvas as soon as coverage is broad enough, so
-      // the scrub is smooth and native-crisp early instead of after a full,
-      // ~15s sequential pass. seeks must still go forward within each pass to
-      // stay fast on this sparse-keyframe clip.
-      const order = [];
-      const seen = new Set();
-      const push = (i) => {
+  // Strided [8,4,2,1]: the timeline gets coarse full-length coverage first,
+  // then refines. Unlike the old video path, where each pass restarted near
+  // index 0 and so forced a backward seek (a full re-decode from frame 0),
+  // these are independent image fetches — order costs nothing.
+  function stridedOrder(n) {
+    const order = [];
+    const seen = new Set();
+    for (const stride of [8, 4, 2, 1]) {
+      for (let i = 0; i < n; i += stride) {
         if (!seen.has(i)) {
           seen.add(i);
           order.push(i);
         }
-      };
-      for (const s of [8, 4, 2, 1]) {
-        for (let i = 0; i < count; i += s) push(i);
-        // A strided walk from 0 never lands on the final frame (54 frames,
-        // stride 8 stops at 48), so it would be captured dead last. Reversed,
-        // that frame is the resting pose at the TOP of the page — the first
-        // thing anyone sees — so it has to exist in the first coarse pass or
-        // the canvas reveals a visibly earlier pose and pops later. Appending
-        // it per-pass keeps every pass ascending; later passes dedupe away.
-        push(count - 1);
       }
+    }
+    for (let i = 0; i < n; i++) {
+      if (!seen.has(i)) order.push(i);
+    }
+    return order;
+  }
 
-      let captured = 0;
-      for (const i of order) {
-        if (destroyed) return;
-        src.currentTime = i * step;
-        await new Promise((res) => {
-          const on = () => {
-            src.removeEventListener("seeked", on);
-            res();
-          };
-          src.addEventListener("seeked", on);
-          setTimeout(res, 3000); // don't hang if one seek stalls
-        });
+  async function loadFrames() {
+    const order = stridedOrder(FRAME_COUNT);
+    let cursor = 0;
+    const worker = async () => {
+      while (!destroyed) {
+        const at = cursor++;
+        if (at >= order.length) return;
+        const i = order[at];
         try {
-          const bmp = await createImageBitmap(src, capOpts);
+          const resp = await fetch(frameUrl(i), { signal: aborter.signal });
+          const blob = await resp.blob();
+          if (destroyed) return;
+          const bmp = await createImageBitmap(blob);
           if (destroyed) {
             bmp.close?.();
             return;
           }
           frames[i] = bmp;
-          captured++;
+          // if this frame is the one currently on screen, repaint it crisp
+          if (i === lastIndex) dirty = true;
         } catch {
-          /* skip a bad frame */
+          /* a dropped frame just keeps its atlas tile — nothing to recover */
         }
-
-        // reveal once coverage spans the timeline; keep refining after. The
-        // opaque canvas simply fades in over the fallback video (we never hide
-        // the video via style, which avoids a black gap if a StrictMode remount
-        // races the inline styles).
-        if (!ready && captured >= Math.min(count, 12)) {
-          sizeCanvas();
-          ready = true;
-          canvas.style.opacity = "1";
-        }
-        lastF = -1; // repaint with the newly improved coverage
       }
-    } catch {
-      /* extraction failed — the <video> fallback keeps working */
-    } finally {
-      src.removeAttribute("src");
-      src.load?.();
-      // objectUrl stays alive: the visible fallback <video> still reads from
-      // it. destroy() revokes it.
-    }
+    };
+    await Promise.all(
+      Array.from({ length: FETCH_CONCURRENCY }, worker)
+    );
   }
 
   function loop(now) {
     if (destroyed) return;
-    const raw = Math.min(1, Math.max(0, getProgress()));
-    const p = reverse ? 1 - raw : raw;
+    const dt = Math.min(0.1, lastT ? (now - lastT) / 1000 : 1 / 60);
+    lastT = now;
 
-    if (ready) {
-      const target = p * (frameCount - 1);
-      const dt = Math.min(0.1, lastT ? (now - lastT) / 1000 : 1 / 60);
-      lastT = now;
-      if (smoothF < 0) {
-        smoothF = target; // first paint: no ease-in from a stale position
-      } else {
-        smoothF += (target - smoothF) * (1 - Math.exp(-dt * 11));
-        // snap when settled so the loop stops repainting between scrolls
-        if (Math.abs(target - smoothF) < 0.003) smoothF = target;
-      }
-      const f = smoothF;
-      if (Math.abs(f - lastF) > 0.003) {
-        // paint the single nearest CAPTURED frame, flat. We used to crossfade
-        // the two neighbours for sub-frame glide, but blending two frames of
-        // a moving flower reads as motion blur — the scrub looked soft the
-        // whole way down. Crisp frames + the temporal ease above is enough.
-        const lo = below(Math.floor(f));
-        const hi = above(Math.ceil(f));
-        let pick = -1;
-        if (lo >= 0 && hi >= 0) pick = f - lo <= hi - f ? lo : hi;
-        else if (lo >= 0 || hi >= 0) pick = lo >= 0 ? lo : hi;
-        if (pick >= 0) {
-          lastF = f;
-          drawBitmap(frames[pick]);
-        }
-      }
-    } else if (
-      video &&
-      video.readyState >= 1 && // metadata is enough to start seeking
-      !video.seeking &&
-      Number.isFinite(video.duration)
-    ) {
-      // fallback: seek the visible video until the frame cache is ready
-      const target = p * (video.duration - 0.05);
-      if (Math.abs(video.currentTime - target) > 0.03) {
-        try {
-          video.currentTime = target;
-        } catch {
-          /* not seekable yet */
-        }
-      } else if (video.readyState >= 2) {
-        // already on the requested frame, with pixels to show it: safe to
-        // reveal. Covers a clip that never needs a seek (forward at rest),
-        // which the `seeked` listener alone would hide forever.
-        revealVideo();
+    const p = Math.min(1, Math.max(0, getProgress()));
+    const target = p * (FRAME_COUNT - 1);
+    if (smoothF < 0) {
+      smoothF = target; // first paint: land on position, don't ease in from 0
+    } else {
+      smoothF += (target - smoothF) * (1 - Math.exp(-dt * 11));
+      if (Math.abs(target - smoothF) < 0.004) smoothF = target; // settle
+    }
+
+    const i = Math.round(smoothF);
+    if (i !== lastIndex || dirty) {
+      if (paintFrame(i)) {
+        lastIndex = i;
+        dirty = false;
       }
     }
+
+    onStep?.(dt);
     raf = requestAnimationFrame(loop);
   }
 
   sizeCanvas();
+  // ResizeObserver, not just a window listener: it fires on the initial layout
+  // too, which is what recovers the 0x0 case above, and it tracks the element's
+  // own box rather than assuming it always matches the viewport.
+  const ro = new ResizeObserver(sizeCanvas);
+  ro.observe(canvas);
   window.addEventListener("resize", sizeCanvas);
 
+  // Reduced motion: fetch nothing, decode nothing, run nothing. The preloaded
+  // poster (the resting pose, identical to frame 0) is the whole experience.
   if (!reduced) {
     raf = requestAnimationFrame(loop);
-    extract();
+    loadAtlas()
+      .then(() => !destroyed && loadFrames())
+      .catch(() => {
+        /* offline or blocked: the poster holds, and so does the layout */
+      });
   }
-  // reduced motion: do NOTHING — no clip download, no decoding, no scrubbing.
-  // The static poster (the clip's resting pose, rendered by the Cover) is the
-  // whole experience, and the visitor saves the multi-MB video entirely.
 
   return {
     destroy() {
       destroyed = true;
       cancelAnimationFrame(raf);
+      ro.disconnect();
       window.removeEventListener("resize", sizeCanvas);
-      frames.forEach((f) => f.close?.());
-      frames = [];
-      // fall back to the poster/video so a StrictMode remount never shows a
-      // blank (revealed) canvas before its own frames are ready
-      if (canvas) canvas.style.opacity = "0";
-      aborter?.abort();
-      if (objectUrl) URL.revokeObjectURL(objectUrl);
+      aborter.abort();
+      atlas?.close?.();
+      atlas = null;
+      for (const f of frames) f?.close?.();
+      frames.length = 0;
+      canvas.style.opacity = "0";
     },
   };
 }
