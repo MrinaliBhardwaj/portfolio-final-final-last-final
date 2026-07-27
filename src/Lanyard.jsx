@@ -80,7 +80,7 @@ export default function Lanyard({
       >
         <ambientLight intensity={Math.PI} />
         <Physics gravity={gravity} timeStep={1 / 60}>
-          <Band cardFront={cardFront} />
+          <BandWhenPlaced cardFront={cardFront} />
         </Physics>
         <Environment blur={0.75}>
           <Lightformer
@@ -117,6 +117,21 @@ export default function Lanyard({
   );
 }
 
+// Rapier reads a RigidBody's `position` ONLY when it creates the body, so the
+// rig must not mount until we know where the hook goes. If Band's first render
+// lands before R3F has measured the canvas, `viewport.width` is 0, every body
+// is created at the world ORIGIN — screen centre — and the anchor walk then
+// drags the whole lanyard up to the corner at 0.8 units/frame while you watch.
+// That is the badge "coming down from the wrong place": measured at 1425x900,
+// 5.88 world units of travel over 7 frames (~117ms), with the card whipping
+// along behind it on the rope.
+// Holding the mount for one frame costs nothing and makes the rig correct at
+// birth instead of self-healing in public.
+function BandWhenPlaced(props) {
+  const placed = useThree((s) => s.viewport.width > 0);
+  return placed ? <Band {...props} /> : null;
+}
+
 // `rightInset` / `topLift` are world units in from the top-right of the frame.
 //
 // rightInset: the card's half-width is 0.8, so 1.5 leaves ~0.7 of clearance at
@@ -138,11 +153,16 @@ function Band({ maxSpeed = 50, minSpeed = 0, cardFront = null, rightInset = 1.5,
     j2 = useRef(),
     j3 = useRef(),
     card = useRef();
-  const cardMesh = useRef();
+  // the badge's DOM face, hidden by hand when the card turns away — see the
+  // facing test in the frame loop
+  const faceEl = useRef(null);
   const vec = new THREE.Vector3(),
     ang = new THREE.Vector3(),
     rot = new THREE.Vector3(),
-    dir = new THREE.Vector3();
+    dir = new THREE.Vector3(),
+    fwd = new THREE.Vector3(),
+    toCam = new THREE.Vector3(),
+    qt = new THREE.Quaternion();
   const segmentProps = {
     type: "dynamic",
     canSleep: true,
@@ -207,20 +227,11 @@ function Band({ maxSpeed = 50, minSpeed = 0, cardFront = null, rightInset = 1.5,
   // `position` only when it creates the body, so re-rendering with a new value
   // (on resize) would silently do nothing — the anchor is moved imperatively in
   // useFrame instead, which handles resize and scroll with the same code.
-  // The `> 0` guard matters because this value is locked in forever: if a first
-  // render ever slipped through before the canvas was measured, an unguarded
-  // version would nail the lanyard to a phantom origin permanently. Falling back
-  // to 0,0 is self-healing instead — the anchor walk below drags it home over a
-  // few frames and the rope brings the rest.
-  const home = useRef(null);
-  if (!home.current && viewport.width > 0) {
-    home.current = [viewport.width / 2 - rightInset, viewport.height / 2 + topLift];
-  }
-  const [hx, hy] = home.current ?? [0, 0];
-
   // Cached rather than read in useFrame: window.scrollY can force a style/layout
-  // flush, and this runs 60x a second.
-  const scrolled = useRef(0);
+  // flush, and that runs 60x a second. Seeded SYNCHRONOUSLY at first render
+  // rather than in the effect below, because `home` is computed during render
+  // and needs it — see the scroll term there.
+  const scrolled = useRef(typeof window === "undefined" ? 0 : window.scrollY);
   useEffect(() => {
     const read = () => {
       scrolled.current = window.scrollY;
@@ -229,6 +240,24 @@ function Band({ maxSpeed = 50, minSpeed = 0, cardFront = null, rightInset = 1.5,
     window.addEventListener("scroll", read, { passive: true });
     return () => window.removeEventListener("scroll", read);
   }, []);
+
+  // The `> 0` guard matters because this value is locked in forever, and
+  // BandWhenPlaced above guarantees it holds on the very first render — so the
+  // bodies are always created exactly where the frame loop wants them.
+  //
+  // The scroll term is the other half of that guarantee, and it has to match
+  // the frame loop's `target` EXACTLY. Without it the rig is born at the
+  // top-of-document anchor and then walks to the scrolled one, which on a page
+  // restored mid-scroll is several screens of travel at 0.8 units/frame — the
+  // badge sailing in from off-frame.
+  const home = useRef(null);
+  if (!home.current && viewport.width > 0) {
+    home.current = [
+      viewport.width / 2 - rightInset,
+      viewport.height / 2 + topLift + scrolled.current / viewport.factor,
+    ];
+  }
+  const [hx, hy] = home.current ?? [0, 0];
 
   useRopeJoint(fixed, j1, [[0, 0, 0], [0, 0, 0], 1]);
   useRopeJoint(j1, j2, [[0, 0, 0], [0, 0, 0], 1]);
@@ -300,6 +329,35 @@ function Band({ maxSpeed = 50, minSpeed = 0, cardFront = null, rightInset = 1.5,
       rot.copy(card.current.rotation());
       card.current.setAngvel({ x: ang.x, y: ang.y - rot.y * 0.25, z: ang.z });
 
+      // ---- is the badge facing us? ----
+      // The face is a DOM plane glued 0.04 in front of the card. drei's
+      // `occlude` used to hide it by RAYCASTING against the card's own mesh —
+      // and asking whether a surface occludes a plane 0.04 above itself is a
+      // coin flip once the card tilts: the two are the same depth to within a
+      // rounding error near edge-on, so the badge blinked out mid-drag. That is
+      // the disappearing act, and it showed up on a rightward pull because the
+      // hook sits at the right edge, so pulling that way is what swings the card
+      // through edge-on rather than just stretching the rope.
+      //
+      // Same question, answered exactly instead of by ray: the face is visible
+      // while the card's local +Z still points at the camera. One dot product,
+      // no ambiguity, and it flips exactly once. Note the flip is NOT at 90
+      // degrees of yaw — the badge hangs off-axis at x ~ 3.25, so it turns
+      // edge-on to the CAMERA at ~80 degrees, before it does to the world axis.
+      // That parallax is precisely what the ray got wrong and the dot gets right.
+      const cr = card.current.rotation();
+      fwd.set(0, 0, 1).applyQuaternion(qt.set(cr.x, cr.y, cr.z, cr.w));
+      const ct = card.current.translation();
+      toCam.set(
+        camera.position.x - ct.x,
+        camera.position.y - ct.y,
+        camera.position.z - ct.z
+      );
+      const faceWant = fwd.dot(toCam) > 0 ? "" : "hidden";
+      if (faceEl.current && faceEl.current.style.visibility !== faceWant) {
+        faceEl.current.style.visibility = faceWant;
+      }
+
       // is the cursor over the card? project its centre and one corner (the
       // collider's 0.8 x 1.125 half-extents) and compare in screen px
       const box = rect.current;
@@ -363,7 +421,7 @@ function Band({ maxSpeed = 50, minSpeed = 0, cardFront = null, rightInset = 1.5,
             drag(new THREE.Vector3().copy(e.point).sub(vec.copy(card.current.translation())))
           )}
         >
-          <mesh ref={cardMesh} geometry={nodes.card.geometry}>
+          <mesh geometry={nodes.card.geometry}>
             <meshPhysicalMaterial
               map={materials.base.map}
               map-anisotropy={16}
@@ -378,14 +436,18 @@ function Band({ maxSpeed = 50, minSpeed = 0, cardFront = null, rightInset = 1.5,
         </group>
         {cardFront && (
           <group position={[0, 0, 0.04]}>
+            {/* no `occlude`: it raycast against the card's own mesh and blinked
+                the face out mid-drag. The frame loop hides it by facing angle
+                instead — deterministic, and it costs one dot product. */}
             <Html
               transform
               distanceFactor={2}
-              occlude={[cardMesh]}
               wrapperClass="card-front-html"
               style={{ pointerEvents: "none" }}
             >
-              <div style={{ width: 320, height: 450, pointerEvents: "none" }}>{cardFront}</div>
+              <div ref={faceEl} style={{ width: 320, height: 450, pointerEvents: "none" }}>
+                {cardFront}
+              </div>
             </Html>
           </group>
         )}

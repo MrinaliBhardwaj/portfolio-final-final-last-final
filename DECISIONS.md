@@ -950,3 +950,33 @@ Three corrections to the lanyard, all hers.
   logged here rather than done quietly. **Only the two openers were removed — no
   Figma-space coordinate was touched**, so the collage art is still the
   reconstructed original.
+
+## The lanyard is born in the right place, and the badge stops blinking (2026-07-27)
+
+- **Rapier reads a body's `position` only at creation, so the rig must not mount
+  before it knows where the hook goes.** Two separate ways it was getting born
+  wrong, both healing themselves *in view* via the anchor walk:
+  1. `home` was computed WITHOUT the scroll term the frame loop's `target`
+     carries, so on a page restored mid-scroll the rig started at the
+     top-of-document anchor. Measured: scrollY 1200 = 8 world units = 10 frames
+     of travel; scrollY 2600 = 22 frames.
+  2. If `viewport.width` was still 0 on first render, every body was created at
+     the world ORIGIN — screen centre — 5.88 units from home, 7 frames (~117ms).
+  Fixes: `<BandWhenPlaced>` gates the rig on a measured viewport, and `home`
+  now carries the scroll term. **The birth expression and the frame loop's
+  target must stay textually identical** — there's a test that asserts exactly
+  that by parsing both out of the file.
+- **`history.scrollRestoration = "manual"`.** App force-scrolls to top on every
+  route change, so the browser's own restore was both redundant and a race we
+  lost: on back/forward it re-applied the old scroll *after* mount, which no
+  amount of correct birth positioning can survive.
+- **Never `occlude` a drei `<Html>` against the mesh it's glued to.** The badge
+  face is a DOM plane 0.04 in front of the card, and `occlude={[cardMesh]}`
+  raycast it against the card's own surface — a coin flip once the card tilts,
+  so the badge blinked out mid-drag. It showed up on a RIGHTWARD pull because
+  the hook sits at the right edge, so pulling that way swings the card through
+  edge-on rather than just stretching the rope. Replaced with a dot product in
+  the frame loop: the face shows while the card's local +Z points at the camera.
+  Flips exactly once, and correctly at ~80 degrees rather than 90 — the badge
+  hangs off-axis, so it turns edge-on to the *camera* first. That parallax is
+  what the ray got wrong.

@@ -150,6 +150,20 @@ export default function App() {
     return () => window.removeEventListener("hashchange", onHash);
   }, []);
 
+  // Every route change below force-scrolls to the top, so the browser's own
+  // restore is not just redundant, it's a race we lose: on back/forward it
+  // re-applies the old scroll AFTER our effect and after the world has mounted.
+  // The lanyard is pinned to the DOCUMENT, so a late jump moves its anchor by
+  // several screens and the badge visibly sails into place. Opt out.
+  useEffect(() => {
+    if (!("scrollRestoration" in history)) return;
+    const previous = history.scrollRestoration;
+    history.scrollRestoration = "manual";
+    return () => {
+      history.scrollRestoration = previous;
+    };
+  }, []);
+
   useEffect(() => {
     document.title = TITLES[route];
     document.documentElement.dataset.world = route || "void";
