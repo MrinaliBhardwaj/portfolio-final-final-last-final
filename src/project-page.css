@@ -49,7 +49,10 @@
 
 .pp-name {
   margin: 0;
-  font-family: var(--font-display, var(--font-ui));
+  /* --font-display never existed, so this always resolved to --font-ui anyway.
+     Spelled out rather than left as a fallback that implies a token you could
+     go and set. */
+  font-family: var(--font-ui);
   font-size: clamp(2.1rem, 5.5vw, 3.4rem);
   line-height: 1.04;
   letter-spacing: -0.02em;

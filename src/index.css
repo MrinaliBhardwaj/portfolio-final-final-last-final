@@ -57,7 +57,10 @@
   --syn-md: #517394;
   --tw-gold: #e7d391; /* the ONLY saturated accent in the buffer */
 
+  /* The DISPLAY face. Deliberately not the document default — see body below. */
   --font-sans: "Archivo Variable", system-ui, -apple-system, sans-serif;
+  /* No webfont: what unstyled text falls back to, and the document default. */
+  --font-system: system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-ui: "Inter Variable", "Segoe UI", system-ui, sans-serif;
   --font-mono: "JetBrains Mono Variable", ui-monospace, "Cascadia Code", monospace;
   --font-script: "Ballet Variable", "Segoe Script", cursive;
@@ -104,8 +107,18 @@ html[data-world="pond"] {
   background: #0b0f1e;
 }
 
+/* The document default is a SYSTEM stack, not Archivo, and that is a
+   performance fix rather than a taste one.
+
+   Archivo is a display face: only .display, .dw-board-display, .dwc-big and
+   .dwc-ico--txt ever paint in it, and all four set it explicitly. Checked every
+   route — not one element anywhere inherited Archivo from this rule. But
+   because `body` claimed it, the browser fetched archivo-latin-wdth-normal.woff2
+   on EVERY route, the cover included, where it painted nothing at all and
+   competed with the lotus atlas for the first paint.
+   Now it loads only when something that genuinely uses it renders. */
 body {
-  font-family: var(--font-sans);
+  font-family: var(--font-system);
   color: var(--void-text);
   overflow-x: clip;
   -webkit-font-smoothing: antialiased;
