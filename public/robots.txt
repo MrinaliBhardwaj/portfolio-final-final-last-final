@@ -1,0 +1,15 @@
+# A portfolio wants to be found, so everything is crawlable.
+User-agent: *
+Allow: /
+
+# No Sitemap line, and not an oversight. The whole site is hash-routed
+# (#/design, #/tech, #/design/layover ...), and a fragment is not a separate
+# URL to a crawler — every route collapses to "/" in an index. A sitemap here
+# could honestly list exactly one entry, which is what a crawler finds anyway.
+#
+# The résumés are deliberately NOT disallowed. They are linked from the site
+# and meant to be read; hiding them would only make her harder to find. That
+# does mean they are indexable — if a version ever carries a home address or
+# phone number that shouldn't be public, swap the file rather than adding a
+# rule here, because robots.txt is a request crawlers may ignore, not access
+# control.
