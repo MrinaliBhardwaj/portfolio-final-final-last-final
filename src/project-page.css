@@ -134,6 +134,37 @@
   grid-column: 1 / -1;
 }
 
+/* The row a Figma frame wears above the canvas: name on the left, dims on the
+   right — the same two facts .cvf-label/.cvf-dims show on the design canvas
+   itself, just laid out inline instead of overlaid, since nothing here is
+   selected and there's no handle chrome to make room for. */
+.pp-shot-frame {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.8rem;
+  margin-bottom: 0.5rem;
+}
+
+.pp-shot-name {
+  font-size: 11px;
+  font-weight: 500;
+  color: #9b9b9b;
+  user-select: none;
+}
+
+.pp-shot-dims {
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: #fff;
+  background: var(--dw-blue);
+  padding: 2px 7px;
+  border-radius: 3px;
+  white-space: nowrap;
+  user-select: none;
+}
+
 .pp-shot img {
   display: block;
   width: 100%;

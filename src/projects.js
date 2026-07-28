@@ -52,6 +52,11 @@ export const PROJECTS = [
         // PAGE — their header, a "Follow All / Appreciate" bar over her
         // artwork, and ~85% other designers' projects. Check an export's
         // contents before shipping it.)
+        //
+        // `frame`/`dims` name this as the one Figma artboard it actually is —
+        // the 18 files underneath are a delivery detail, not 18 things she drew.
+        frame: "case-study",
+        dims: "1400 × 22306",
         strip: Array.from(
           { length: 18 },
           (_, i) => `/work/meal-maestro/s${String(i).padStart(2, "0")}.webp`
@@ -97,6 +102,8 @@ export const PROJECTS = [
     shots: [
       {
         src: "/work/layover/hero.webp",
+        frame: "hero",
+        dims: "1600 × 900",
         wide: true,
         caption: "The landing page. One question — which airport are you in — and the whole product follows from the answer.",
         alt:
@@ -104,6 +111,8 @@ export const PROJECTS = [
       },
       {
         src: "/work/layover/brand.webp",
+        frame: "brand",
+        dims: "1600 × 900",
         wide: true,
         caption:
           "The wordmark, with the rotated ‘e’ — a plane turning back on itself, which is the whole idea of a layover in one letter.",
@@ -112,6 +121,8 @@ export const PROJECTS = [
       },
       {
         src: "/work/layover/app.webp",
+        frame: "app",
+        dims: "1600 × 900",
         caption:
           "The app's ordering surface, warm where the marketing site is dark — this is the part you use standing at a gate.",
         alt:
@@ -119,6 +130,8 @@ export const PROJECTS = [
       },
       {
         src: "/work/layover/order.webp",
+        frame: "order",
+        dims: "1600 × 900",
         caption:
           "Browse by terminal, then track the order. Every restaurant card carries its pier, because in an airport \"where\" is the only question that matters.",
         alt:
@@ -126,6 +139,8 @@ export const PROJECTS = [
       },
       {
         src: "/work/layover/system.webp",
+        frame: "system",
+        dims: "1600 × 900",
         wide: true,
         caption: "Site and app as one system — the dark front door, the warm room behind it.",
         alt:

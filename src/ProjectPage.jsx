@@ -81,12 +81,22 @@ export default function ProjectPage({ project }) {
           {project.shots.map((shot, i) => (
             <motion.figure
               className={`pp-shot${shot.wide ? " pp-shot--wide" : ""}`}
-              key={shot.src}
+              key={shot.frame || shot.src}
               initial={{ opacity: 0, y: 22 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-60px" }}
               transition={{ duration: 0.55, ease: EASE, delay: (i % 2) * 0.06 }}
             >
+              {/* Named and dimensioned like the artboard it is, exactly the
+                  chrome a frame gets on the canvas (see .cvf-label/.cvf-dims
+                  in DesignWorld) — this is a picture OF a Figma frame, so it
+                  should read as one, not as a photo dropped on the page. */}
+              {shot.frame && (
+                <div className="pp-shot-frame" aria-hidden="true">
+                  <span className="pp-shot-name">{shot.frame}</span>
+                  {shot.dims && <span className="pp-shot-dims">{shot.dims}</span>}
+                </div>
+              )}
               {shot.strip ? (
                 /* One tall presentation, delivered in slices. They carry no rim
                    or radius of their own — those would draw a line at every
