@@ -1161,3 +1161,21 @@ Three corrections to the lanyard, all hers.
   `<link href>`. Outbound `<a href>` links are deliberately not flagged; linking
   to GitHub, LinkedIn and Behance is the point of a portfolio. Verified it fails
   (exit 1) on a deliberately reintroduced CDN URL, not just that it passes.
+
+## Canonical domain: mrinalibhardwaj.com
+
+Confirmed 2026-07-29. Four absolute URLs in `index.html` depend on it —
+`canonical`, `og:url`, `og:image`, `twitter:image`.
+
+- **og:image cannot be relative.** LinkedIn and Facebook do not resolve a
+  relative path; the card silently drops its image rather than erroring, so a
+  wrong domain here fails invisibly and only on someone else's screen. That is
+  why this is written down rather than left to be inferred.
+- **If the site ever moves**, that domain is the one string to change, and
+  moving to a GitHub Pages project URL would additionally need Vite's `base`
+  set — every asset path currently assumes it is served from the root.
+- **No sitemap.xml, deliberately.** The site is hash-routed, so `#/design`,
+  `#/tech` and every project page collapse to `/` for a crawler. A sitemap
+  could honestly list exactly one entry, which is what a crawler finds anyway.
+  Deep-linkable, individually indexable routes would mean real paths and
+  pre-rendering — a genuine architecture change, not a metadata one.
