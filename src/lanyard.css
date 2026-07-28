@@ -87,6 +87,39 @@
   filter: saturate(0) contrast(120%) brightness(110%) blur(7px) url("#dvb-metal");
 }
 
+/* the consent line, shown only before the visitor has tapped the badge.
+   Absolutely positioned ON PURPOSE: .dvb-content below is a measured flex
+   column whose scrim gradient stops are tuned to where its three children land
+   (see the note there), so adding a fourth child in flow would shift the text
+   out from under its own contrast ramp. Out of flow, it costs that layout
+   nothing.
+
+   39% puts it in the middle of the scrim's clear window (26-52%) — the open
+   band the reflection is meant to occupy, which is exactly the space that is
+   empty while there is no reflection yet. No contrast worry despite the near-
+   transparent scrim there: whenever this is visible the feed is by definition
+   absent, so it is white on the #16181a base at ~14:1. It disappears the
+   moment the feed arrives, and never coexists with a bright background. */
+.dvb-hint {
+  position: absolute;
+  left: 50%;
+  top: 39%;
+  z-index: 11;
+  transform: translate(-50%, -50%);
+  margin: 0;
+  width: 74%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 9px;
+  text-align: center;
+  text-wrap: balance;
+  font-size: 11px;
+  line-height: 1.45;
+  letter-spacing: 0.06em;
+  color: rgba(255, 255, 255, 0.78);
+}
+
 .dvb-noise {
   position: absolute;
   inset: 0;

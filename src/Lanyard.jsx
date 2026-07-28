@@ -16,7 +16,13 @@
 //     the box edge. The hook is then pinned to the DOCUMENT, so the badge
 //     scrolls away with the buffer instead of hovering over it.
 //
-// The integration contract is unchanged: `cardFront` is any React node, mounted
+// `onCardTap` fires when the card is tapped rather than flung (see the
+// threshold at the pointer handlers). It exists because the mounted face is
+// pointer-events:none all the way down — a button painted on the badge can
+// never be clicked — so the 3D card is the only hit target anything on the face
+// can borrow. Lanyard stays ignorant of what the tap is for.
+//
+// The rest of the integration contract is unchanged: `cardFront` is any node, mounted
 // on the card's FRONT FACE via drei <Html transform occlude> inside the card's
 // RigidBody, so it swings/drags/flips with the card. Sizing math: the face is
 // 1.6 x 2.25 world units, and drei maps px -> world as px * distanceFactor/400,
@@ -57,6 +63,7 @@ export default function Lanyard({
   transparent = true,
   cardFront = null,
   frameloop = "always",
+  onCardTap = null,
 }) {
   return (
     <div className="lanyard-wrapper">
@@ -80,7 +87,7 @@ export default function Lanyard({
       >
         <ambientLight intensity={Math.PI} />
         <Physics gravity={gravity} timeStep={1 / 60}>
-          <BandWhenPlaced cardFront={cardFront} />
+          <BandWhenPlaced cardFront={cardFront} onCardTap={onCardTap} />
         </Physics>
         <Environment blur={0.75}>
           <Lightformer
@@ -146,7 +153,14 @@ function BandWhenPlaced(props) {
 // That independence is why zooming in ALONE pushes the badge down the screen —
 // the drop stays put while the viewport shrinks around it. 1.9 keeps the gap at
 // ~21% of viewport height (0.5 would have been 41% at this camera distance).
-function Band({ maxSpeed = 50, minSpeed = 0, cardFront = null, rightInset = 1.5, topLift = 1.9 }) {
+function Band({
+  maxSpeed = 50,
+  minSpeed = 0,
+  cardFront = null,
+  rightInset = 1.5,
+  topLift = 1.9,
+  onCardTap = null,
+}) {
   const band = useRef(),
     fixed = useRef(),
     j1 = useRef(),
@@ -156,6 +170,9 @@ function Band({ maxSpeed = 50, minSpeed = 0, cardFront = null, rightInset = 1.5,
   // the badge's DOM face, hidden by hand when the card turns away — see the
   // facing test in the frame loop
   const faceEl = useRef(null);
+  // where and when the current press started, so pointerup can tell a tap from
+  // a fling. Held in a ref, not state: it must not re-render the physics rig.
+  const tap = useRef(null);
   const vec = new THREE.Vector3(),
     ang = new THREE.Vector3(),
     rot = new THREE.Vector3(),
@@ -415,9 +432,26 @@ function Band({ maxSpeed = 50, minSpeed = 0, cardFront = null, rightInset = 1.5,
           position={[0, -1.2, -0.05]}
           onPointerOver={() => hover(true)}
           onPointerOut={() => hover(false)}
-          onPointerUp={(e) => (e.target.releasePointerCapture(e.pointerId), drag(false))}
+          onPointerUp={(e) => {
+            e.target.releasePointerCapture(e.pointerId);
+            drag(false);
+            // A TAP, not a fling: short and stationary. This is the card's only
+            // usable click target — the DOM face mounted on it is
+            // pointer-events:none all the way down (see lanyard.css), so a
+            // <button> painted on the badge would never receive the event.
+            // Anything the badge needs a real click for has to come through
+            // here. 300ms/5px is the usual tap threshold; a drag is longer or
+            // further and must NOT count, or every fling fires it.
+            const t = tap.current;
+            tap.current = null;
+            if (!t || !onCardTap) return;
+            if (performance.now() - t.t < 300 && Math.hypot(e.clientX - t.x, e.clientY - t.y) < 5) {
+              onCardTap();
+            }
+          }}
           onPointerDown={(e) => (
             e.target.setPointerCapture(e.pointerId),
+            (tap.current = { t: performance.now(), x: e.clientX, y: e.clientY }),
             drag(new THREE.Vector3().copy(e.point).sub(vec.copy(card.current.translation())))
           )}
         >

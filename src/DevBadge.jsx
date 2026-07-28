@@ -8,10 +8,26 @@
 //
 //   · THE WEBCAM IS THE POINT. A live getUserMedia feed is pushed through an
 //     feTurbulence/feDisplacementMap filter so the badge mirrors whoever is
-//     reading it — a laminated card catching the room. It is requested only
-//     here, which means only on #/tech above 1280px (see TechLanyard.jsx), and
-//     a refusal costs nothing: the feed simply never arrives and the card sits
-//     on its dark base with the sheen and noise doing the work.
+//     reading it — a laminated card catching the room.
+//
+//     IT IS NEVER REQUESTED WITHOUT CONSENT. This used to fire on mount, which
+//     meant opening #/tech dropped an unexplained "wants to use your camera"
+//     bar on a visitor who had clicked nothing. That is the most alarming thing
+//     a page can do, and it also DESTROYED the feature: NotAllowedError is
+//     sticky per origin (see the catch below), so the reflex block that an
+//     unexplained prompt earns meant most people never saw the reflection on
+//     any visit, ever. Browsers punish the pattern too — Chrome escalates
+//     ignored/blocked origins to silent auto-blocking, Safari wants a gesture.
+//
+//     So consent is now the caller's to establish, and this component only
+//     obeys the `consent` prop TechLanyard hands it. Asking after a deliberate
+//     tap converts far better than asking before one.
+//
+//     A refusal still costs nothing: the feed never arrives and the card sits
+//     on its dark base with the sheen and noise doing the work — the design has
+//     always had that fallback (lanyard.css: "if the camera is refused, this
+//     dark base is the card"), it is simply the DEFAULT now rather than the
+//     consolation prize.
 //
 //   · Every class is `dvb-` prefixed. The source used bare `.label`, `.value`,
 //     `.card-header`, `.card-body` — global names this project would collide
@@ -20,7 +36,7 @@
 // The copy is her real tech identity, matching README.md in the buffer behind
 // it — the original card said "JUNIOR DEVELOPER", which contradicts it.
 import { useEffect, useRef } from "react";
-import { Activity, Fingerprint, Terminal } from "lucide-react";
+import { Activity, Camera, Fingerprint, Terminal } from "lucide-react";
 
 // ---- the camera: one shared stream, refcounted ----
 // Module scope on purpose. <React.StrictMode> runs every effect twice in dev
@@ -67,10 +83,15 @@ function releaseCam() {
   }, 500);
 }
 
-export default function DevBadge() {
+// `consent` is the whole gate, owned by TechLanyard:
+//   "idle"   — show the tap hint, touch nothing
+//   "armed"  — the visitor tapped the card (or had already granted): go
+//   "denied" — blocked or unavailable: dark base, no hint, no retry loop
+export default function DevBadge({ consent = "idle", onDenied = null }) {
   const video = useRef(null);
 
   useEffect(() => {
+    if (consent !== "armed") return;
     if (!navigator.mediaDevices?.getUserMedia) return;
     let gone = false;
 
@@ -93,13 +114,17 @@ export default function DevBadge() {
         if (import.meta.env.DEV) {
           console.warn("[badge] camera unavailable:", err.name, "—", err.message);
         }
+        // Tell the owner so the hint retires. Whatever the reason, inviting
+        // another tap would only re-run a request that cannot succeed —
+        // NotAllowedError especially, which no amount of tapping will clear.
+        if (!gone) onDenied?.(err.name);
       });
 
     return () => {
       gone = true;
       releaseCam();
     };
-  }, []);
+  }, [consent, onDenied]);
 
   return (
     <div className="dvb">
@@ -137,6 +162,20 @@ export default function DevBadge() {
       </svg>
 
       <video ref={video} className="dvb-video" autoPlay playsInline muted />
+
+      {/* The consent affordance. NOT a button, and that is not laziness: the
+          whole DOM face is pointer-events:none by design (lanyard.css) because
+          this card is an overlay on a WebGL scene and the drag lives on the
+          canvas underneath — a <button> here would render perfectly and never
+          receive a click. So this is a label, and the real hit target is the 3D
+          card itself via <Lanyard onCardTap>. Tapping the badge is also the
+          more honest gesture: you touch the thing that then mirrors you. */}
+      {consent === "idle" && (
+        <p className="dvb-hint">
+          <Camera size={15} strokeWidth={1.8} aria-hidden="true" />
+          tap the badge to let it mirror the room
+        </p>
+      )}
 
       <div className="dvb-noise" aria-hidden="true" />
       <div className="dvb-sheen" aria-hidden="true" />

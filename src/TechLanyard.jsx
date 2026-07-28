@@ -16,10 +16,17 @@
 //     canvas measured mid-zoom hands rapier a hook position that is wrong for
 //     good. Waiting also keeps the rope sim off the same 420ms as the zoom.
 //
-// This gate is also what keeps the badge's webcam request narrow: DevBadge asks
-// for the camera on mount, and it only ever mounts here — #/tech, wide screen,
-// motion allowed. Refusal is harmless (see DevBadge.jsx).
-import { Suspense, lazy, useEffect, useState } from "react";
+// This gate is also the outer bound on the badge's webcam request — the camera
+// can only ever come up on #/tech, on a wide screen, with motion allowed.
+//
+// The INNER bound, and the one that matters, is consent, and it is owned here
+// rather than in DevBadge because the two halves live in different trees: the
+// hint is painted on the DOM card face, but the only clickable thing is the 3D
+// card under it (the face is pointer-events:none — see lanyard.css). So this
+// component holds the state, hands `consent` down to the badge, and takes the
+// tap back from <Lanyard onCardTap>. Nothing touches getUserMedia until that
+// tap lands, or until the Permissions API says this visitor already said yes.
+import { Suspense, lazy, useCallback, useEffect, useState } from "react";
 import DevBadge from "./DevBadge.jsx";
 import { useWorldOpening } from "./world-open.js";
 
@@ -28,6 +35,7 @@ const Lanyard = lazy(() => import("./Lanyard.jsx"));
 export default function TechLanyard() {
   const [enabled, setEnabled] = useState(false);
   const [live, setLive] = useState(true);
+  const [consent, setConsent] = useState("idle");
   // Not just tidiness: mounting mid-zoom is what nailed the hook to the wrong
   // place. The canvas measures the SCALED world window, rapier bakes that into
   // the bodies, and it never re-reads. See world-open.js.
@@ -54,6 +62,44 @@ export default function TechLanyard() {
     return () => document.removeEventListener("visibilitychange", sync);
   }, [enabled]);
 
+  // Has this visitor already granted the camera on a previous visit? Then the
+  // reflection is what they chose and re-asking would be the annoying version
+  // of being careful — arm it silently, no hint, no second prompt.
+  //
+  // querying is NOT the same as requesting: Permissions.query only reads the
+  // stored decision, it never prompts. The try/catch is load-bearing — Firefox
+  // doesn't implement the "camera" descriptor and throws TypeError — and every
+  // failure path must fall through to "idle", never to "armed". A missing API
+  // must never become an auto-request; that is the bug this whole change is
+  // about.
+  useEffect(() => {
+    if (!enabled) return;
+    let gone = false;
+    (async () => {
+      try {
+        const status = await navigator.permissions.query({ name: "camera" });
+        if (gone) return;
+        if (status.state === "granted") setConsent("armed");
+        else if (status.state === "denied") setConsent("denied");
+      } catch {
+        /* no Permissions API, or no camera descriptor: stay idle and ask. */
+      }
+    })();
+    return () => {
+      gone = true;
+    };
+  }, [enabled]);
+
+  // Only "idle" can be tapped into "armed": once denied, another request can
+  // only reproduce the same block, and once armed the stream is already up.
+  const onCardTap = useCallback(() => {
+    setConsent((c) => (c === "idle" ? "armed" : c));
+  }, []);
+
+  // Stable identity: DevBadge lists this in its effect deps, so a fresh
+  // function each render would tear down and re-acquire the stream every time.
+  const onDenied = useCallback(() => setConsent("denied"), []);
+
   if (!enabled || opening) return null;
 
   return (
@@ -63,7 +109,8 @@ export default function TechLanyard() {
           position={[0, 0, 17]}
           gravity={[0, -40, 0]}
           frameloop={live ? "always" : "never"}
-          cardFront={<DevBadge />}
+          onCardTap={onCardTap}
+          cardFront={<DevBadge consent={consent} onDenied={onDenied} />}
         />
       </Suspense>
     </div>
