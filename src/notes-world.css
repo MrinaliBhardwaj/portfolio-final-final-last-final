@@ -45,7 +45,7 @@
 }
 
 .nw-mark {
-  font-family: "Pinyon Script", cursive;
+  font-family: var(--font-monogram);
   font-size: 21px;
   line-height: 1;
   color: var(--ink);

@@ -6,19 +6,33 @@
   user-select: none;
 }
 
-/* the home badge — skinned to each app's UI type, but same letters, same
-   corner, same destination (the void) in every world */
+/* the home badge — same letters, same corner, same destination (the void) in
+   every world, and now the same FACE too. It used to be skinned to each app's
+   UI type (Inter 700), which made the monogram the one element that changed
+   identity as you moved between the cover and the worlds. A logo doesn't
+   re-set itself in the host application's font; it stays the logo. So this is
+   Pinyon Script, exactly as on the cover.
+   Weight is 400 because Pinyon ships a single weight — asking for 700 would
+   get synthetic bold, which smears a script this fine. No letter-spacing
+   either: Pinyon's letters JOIN, and tracking snaps the join open. */
 .wt-home {
   display: inline-flex;
   align-items: center;
   padding: 0 0.85rem;
-  font-family: var(--font-ui);
-  font-weight: 700;
-  font-size: 0.82rem;
-  letter-spacing: 0.02em;
+  font-family: var(--font-monogram);
+  font-weight: 400;
+  font-size: 21px;
+  line-height: 1;
   text-transform: lowercase;
   text-decoration: none;
   transition: color 0.2s var(--ease-soft), background-color 0.2s var(--ease-soft);
+}
+
+/* Pinyon's glyphs hang low in their em box, so flex centring lands the visible
+   mark below the optical middle of the bar; this lifts it back onto it */
+.wt-home span {
+  display: block;
+  transform: translateY(-2px);
 }
 
 .wt-tab {

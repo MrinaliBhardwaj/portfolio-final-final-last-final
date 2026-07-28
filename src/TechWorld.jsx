@@ -330,8 +330,11 @@ export default function TechWorld() {
 
         {/* mobile header: mark + section nav (the chrome above is desktop) */}
         <header className="tw-top">
-          <a className="tw-mark display" href="#/" aria-label="Mrinali Bhardwaj — home">
-            MB
+          {/* the monogram, not the display face: `mb` in Pinyon like the cover
+              and every other world, rather than the Archivo caps it used to
+              wear (that face belongs to the CONTENT, not the chrome) */}
+          <a className="tw-mark" href="#/" aria-label="Mrinali Bhardwaj — home">
+            mb
           </a>
           <nav className="tw-nav" aria-label="Sections">
             {NAV.map((n) => (

@@ -1179,3 +1179,37 @@ Confirmed 2026-07-29. Four absolute URLs in `index.html` depend on it —
   could honestly list exactly one entry, which is what a crawler finds anyway.
   Deep-linkable, individually indexable routes would mean real paths and
   pre-rendering — a genuine architecture change, not a metadata one.
+
+## The "mb" monogram is one mark everywhere (2026-07-29)
+
+The badge in the top-left corner is Pinyon Script in every world, matching the
+cover exactly. It had drifted into three different faces:
+
+| Where | Was | Now |
+| --- | --- | --- |
+| Cover, gallery, pond, notes | Pinyon Script `mb` | unchanged |
+| Design + tech desktop title bar (`.wt-home`) | Inter 700 `mb` | Pinyon `mb` |
+| Design mobile header (`.dw-mark`) | Inter 700 `mb` | Pinyon `mb` |
+| Tech mobile header (`.tw-mark`) | Archivo 900 caps `MB` | Pinyon `mb` |
+
+- **Why it drifted:** the app-chrome worlds skin themselves to the UI they
+  imitate — VS Code's tab bar, Figma's toolbar — and the monogram got skinned
+  along with everything else. The reasoning was that a script face inside an
+  editor tab bar breaks the app illusion.
+- **Why it's overridden:** a logo does not re-set itself in the host
+  application's font. Real software puts its own mark in its own chrome. The
+  monogram is the one element that must NOT localise, because it is the thing
+  telling you whose site you are in while everything around it changes costume.
+- **The display face is content, not chrome.** Archivo caps belong to headings
+  inside a world. `MB` in the tech header was the display face leaking into the
+  chrome slot — the same mistake `.dw-mark` had already been corrected for once.
+- **Two traps when setting Pinyon small:** it ships a SINGLE weight, so any
+  `font-weight` above 400 gets synthesised and smears the hairlines; and its
+  letters JOIN, so inherited `letter-spacing` snaps the joins open. Both were
+  present in the rules being replaced.
+- **Optical centring:** Pinyon hangs low in its em box, so flex centring lands
+  it visibly below the middle of a title bar. Each mark carries a
+  `translateY(-2px)`. On `.wt-home` that transform is on an inner `span`, not
+  the anchor — the anchor owns the hover background, which must not move.
+- `.nw-mark` also stopped hard-coding `"Pinyon Script", cursive` and now reads
+  `var(--font-monogram)`, so the family has exactly one source.

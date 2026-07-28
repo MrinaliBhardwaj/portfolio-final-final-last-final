@@ -122,6 +122,18 @@
   display: none;
 }
 
+/* the home badge. It used to be `MB` in the Archivo display face, which made
+   this the only monogram on the site set in caps — the mark read as a
+   different logo depending on which world you were in. Pinyon Script now, the
+   same as the cover and every other world. Weight 400 because Pinyon has only
+   one; 900 would have been synthesised. */
+.tw-mark {
+  font-family: var(--font-monogram);
+  font-weight: 400;
+  line-height: 1;
+  text-transform: lowercase;
+}
+
 /* ============ the buffer ============ */
 .tw-editor {
   counter-reset: ln;
@@ -522,9 +534,12 @@ a.lens-r:hover {
     border-bottom: 1px solid var(--tw-line);
   }
 
+  /* sized to sit with the other worlds' badges, and lifted off Pinyon's low
+     baseline onto the header's optical middle */
   .tw-mark {
-    font-size: 1rem;
+    font-size: 20px;
     text-decoration: none;
+    transform: translateY(-2px);
   }
 
   .tw-nav {

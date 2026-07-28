@@ -34,10 +34,12 @@
   gap: 2rem;
 }
 
-/* monogram mark — echoes the interior worlds' mb/MB marks so the giant
+/* monogram mark — the same badge every interior world carries, so the giant
    script name below can own the full-name identity without duplication.
    Pinyon Script (a single-weight display script, distinct from the Ballet
-   name) keeps the mark legible at small nav size. */
+   name) keeps the mark legible at small nav size. This is the reference
+   setting: .wt-home, .dw-mark, .tw-mark, .gw-mark, .pw-mark and .nw-mark all
+   match it, varying only in size and colour for the surface they sit on. */
 /* the home badge: a button now, not a decorative span, so the monogram is a
    live "back to top" affordance here just as it's "back to the void" in the
    worlds — one gesture, one meaning, everywhere */

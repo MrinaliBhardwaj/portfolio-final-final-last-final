@@ -59,16 +59,16 @@
   padding: 1.3rem clamp(1.25rem, 4vw, 3rem) 0;
 }
 
-/* the home badge. It used to be heavy Archivo caps — the display face, which
-   belongs to the CONTENT, not the chrome. This world's monogram is the one on
-   its own title bar (WorldTabs .wt-home): Inter, lowercase, letter-for-letter
-   the same badge whether the tab bar or this toolbar is carrying home. */
+/* the home badge — the same monogram the cover wears, and the same one on this
+   world's own title bar (WorldTabs .wt-home). It has been heavy Archivo caps
+   and then Inter lowercase; both made the mark change identity depending on
+   which chrome was carrying it. It's Pinyon Script now, everywhere. */
 .dw-mark {
   display: none; /* desktop home is the title-bar badge; this is the mobile one */
-  font-family: var(--font-ui);
-  font-weight: 700;
-  font-size: 0.82rem;
-  letter-spacing: 0.02em;
+  font-family: var(--font-monogram);
+  font-weight: 400;
+  font-size: 20px;
+  line-height: 1;
   text-transform: lowercase;
   text-decoration: none;
 }
@@ -1473,13 +1473,16 @@
     border-bottom: 1px solid var(--dw-panel-line);
   }
 
-  /* the tab strip is gone here, so the in-content badge carries home */
+  /* the tab strip is gone here, so the in-content badge carries home.
+     translateY lifts Pinyon off its low baseline onto the bar's optical middle;
+     safe to put on the element itself, since this badge has no hover fill. */
   .dw-mark {
     display: inline-flex;
     align-items: center;
     align-self: stretch;
     padding: 0 0.5rem;
     color: #d0d0d0;
+    transform: translateY(-2px);
   }
 
   .dw-mfile {
