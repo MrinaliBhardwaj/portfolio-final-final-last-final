@@ -62,6 +62,10 @@ const NAV = [
 /* ---- editor primitives ---- */
 
 // one soft-wrapped editor line: fixed gutter number, content indents in ch
+// `children` is optional because <Ln blank /> is a real call site — a blank
+// line has nothing to render. Optionality is declared in JSDoc rather than as a
+// `= null` default, which would narrow the type to null instead of widening it.
+/** @param {{ ind?: number, blank?: boolean, children?: any }} props */
 function Ln({ ind = 0, blank = false, children }) {
   return (
     <div className="ln">
@@ -94,6 +98,9 @@ function Str({ dim = false, children }) {
 
 // CodeLens headline: proportional Inter on an un-numbered editor line,
 // sticky under the breadcrumbs like VS Code's sticky scroll
+/**
+ * @param {{ title: string, tag?: string, right?: string, href?: string }} props
+ */
 function Lens({ title, tag, right, href }) {
   return (
     <div className="ln ln--lens">
@@ -252,6 +259,10 @@ const projects = [
   },
 ];
 
+// Annotated because TS otherwise infers (string | string[])[][] from the
+// literal and then refuses `items.map` — the pairs are a group name and its
+// list, not a bag of either.
+/** @type {[string, string[]][]} */
 const skills = [
   ["languages", ["Python", "TypeScript", "JavaScript", "Java", "SQL", "R"]],
   ["backend", ["FastAPI", "Django", "Express", "PostgreSQL", "REST APIs"]],

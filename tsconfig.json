@@ -1,21 +1,45 @@
 {
-  "// note": "Only the vendored froggie game is TypeScript — the portfolio itself stays plain JSX. Settings kept verbatim from the froggie repo so the game keeps its own strictness bar. Vite transpiles the .ts natively; this is for `npm run typecheck` and editors.",
+  // THE WHOLE PROJECT. `npm run typecheck` runs this, then tsconfig.froggie.json
+  // re-runs the vendored game at its own stricter bar.
+  //
+  // This used to be `include: ["src/froggie"]` and nothing else — meaning every
+  // .jsx file in the portfolio (the router, all five worlds, the project pages)
+  // was checked by absolutely nothing. That is not a theoretical gap: two
+  // crashes shipped straight through it. A missing import
+  // (`ReferenceError: PROJECTS is not defined`) and a property read off a shape
+  // that lacked it (`shot.src` on a sliced-strip shot, which has no `src`) both
+  // passed `typecheck` AND `build`, then white-screened the design world in the
+  // browser. `vite build` only transpiles, and esbuild treats an unknown
+  // identifier as a global rather than an error, so neither tool could have
+  // caught them. Both are caught here now — see the regression note below.
+  //
+  // `strict` is OFF deliberately. The job is to catch the mistakes that actually
+  // happen in this codebase — a name that doesn't exist, a property that isn't
+  // on the object, a required prop left off a component — not to migrate plain
+  // JSX to TypeScript. Turning strict on adds hundreds of nullability
+  // complaints on untyped JSX, and a check with permanent known errors is one
+  // nobody reads, which is how this file ended up covering nothing in the first
+  // place. It runs at 0 errors today and should be kept there.
+  //
+  // Two files opt out with `@ts-nocheck`, each explaining itself in place:
+  // Lanyard.jsx (react-three-fiber intrinsics, some invented at runtime by
+  // `extend()`) and DomeGallery.jsx (vendored verbatim). They are not listed in
+  // `exclude` because that would do nothing — `exclude` only filters the
+  // `include` glob, and both are reached as imports regardless.
   "compilerOptions": {
     "target": "ES2022",
     "module": "ESNext",
     "moduleResolution": "bundler",
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "jsx": "react-jsx",
     "noEmit": true,
-    "strict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noImplicitReturns": true,
-    "noFallthroughCasesInSwitch": true,
-    "forceConsistentCasingInFileNames": true,
+    "allowJs": true,
+    "checkJs": true,
     "skipLibCheck": true,
     "isolatedModules": true,
-    "verbatimModuleSyntax": true,
-    "useDefineForClassFields": true
+    "resolveJsonModule": true,
+    "strict": false,
+    "noImplicitAny": false
   },
-  "include": ["src/froggie"]
+  "include": ["src"]
 }

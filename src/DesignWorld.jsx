@@ -181,6 +181,14 @@ function PanelSketch({ kind }) {
 
 /* one artboard on the canvas. When it's the active section it wears Figma's
    selection: blue ring, four corner handles, a dimension pill below. */
+// `tone` is optional: most frames take the default board colour, and only the
+// poster, the dark one and the vermilion one pass it. Declared in JSDoc rather
+// than as a `= null` default, which would narrow the parameter's type to null
+// and turn every real string into an error under strict null checking.
+/**
+ * @param {{ frame: any, active: boolean, tone?: string, area: string,
+ *           children: any }} props
+ */
 function Frame({ frame, active, tone, area, children }) {
   return (
     <motion.section

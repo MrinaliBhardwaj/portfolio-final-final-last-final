@@ -1,3 +1,11 @@
+// @ts-nocheck — the ONE file typecheck can't see, for the same reason as the
+// eslint-disable below it. This scene is built from react-three-fiber
+// intrinsics (<mesh>, <group>, <ambientLight>), and two of them —
+// meshLineGeometry and meshLineMaterial — don't exist until `extend()` creates
+// them at runtime. TS can't know elements that a function call invents, so
+// every tag here reads as an unknown JSX element: ~40 errors, none of them a
+// defect. Checking it would mean hand-writing declarations for someone else's
+// runtime. It's verified by running #/tech on a wide screen instead.
 /* eslint-disable react/no-unknown-property */
 // A draggable 3D lanyard — rope physics (rapier) + a meshline band + the GLB
 // card, from the standalone `lanyard` project (see its HANDOVER.md). Vendored

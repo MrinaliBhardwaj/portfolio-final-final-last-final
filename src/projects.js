@@ -15,6 +15,25 @@
 // `shots` is what the case-study page renders. A project with none still gets a
 // page — it just says so, rather than showing an empty frame.
 
+/**
+ * A shot is EITHER a single image (`src`) OR a tall export delivered as stacked
+ * slices (`strip`) — never both, and never neither. Spelled out because reading
+ * `src` blindly on a strip shot is exactly the crash that took the whole design
+ * world down once: strips have no `src` at all, and nothing checked the JSX
+ * then. Anything consuming `shots` has to branch on `strip` first.
+ *
+ * @typedef {object} Shot
+ * @property {string} [src]         single image, absolute from /public
+ * @property {string[]} [strip]     slices of one tall artboard, in order
+ * @property {[number, number]} [sliceSize]      w/h shared by every slice
+ * @property {[number, number]} [lastSliceSize]  the short last one, if uneven
+ * @property {string} [frame]       artboard name, shown as frame chrome
+ * @property {string} [dims]        artboard size, shown as the dims pill
+ * @property {boolean} [wide]       span the full column rather than half
+ * @property {string} caption
+ * @property {string} alt
+ */
+
 const BEHANCE = "https://www.behance.net/mrinalibhardwaj1";
 
 export const PROJECTS = [
