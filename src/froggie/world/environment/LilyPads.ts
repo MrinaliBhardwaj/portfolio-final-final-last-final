@@ -35,6 +35,12 @@ export interface Pad {
 // half as fast as the lotuses; the pond fills in without getting crowded.
 const STARTER_PADS = 4;
 const PADS_PER_BUG = 2;
+/**
+ * Virtual px of air between the lowest pad's centre and the dock's top edge.
+ * The hero pad's ry runs to ~12 (rx caps at 30, ry is 0.42 of it), so 14 keeps
+ * the disc itself out from under the tiles, not merely its centre.
+ */
+const PAD_DOCK_CLEARANCE = 14;
 
 export class LilyPads implements SceneElement {
   readonly pads: Pad[] = [];
@@ -60,14 +66,22 @@ export class LilyPads implements SceneElement {
   }
 
   private build(bugsFixed: number): void {
-    const { w, h, waterlineY } = this.layout;
+    const { w, h, waterlineY, dockSafeY } = this.layout;
     const waterH = h - waterlineY;
     this.pads.length = 0;
 
-    // Hero pad: large, low, slightly left of centre — always present.
+    // Nothing may sit under the floating dock. The pad's own ry is ~0.42 of its
+    // rx, so this keeps the whole disc — and the frog standing on it — clear of
+    // the tiles rather than just its centre point.
+    const lowest = dockSafeY - PAD_DOCK_CLEARANCE;
+
+    // Hero pad: large, low, slightly left of centre — always present. It sits at
+    // 0.72 of the water UNLESS that would put it behind the dock, which on a
+    // short window it does: the dock is bottom-centre and so is this pad. The
+    // clamp only ever lifts it, and only by as much as the window demands.
     this.pads.push({
       x: Math.round(w * 0.46),
-      y: Math.round(waterlineY + waterH * 0.72),
+      y: Math.round(Math.min(waterlineY + waterH * 0.72, lowest)),
       rx: Math.round(Math.min(w * 0.12, 30)),
       ry: 0,
       period: this.rng.range(4.5, 6),
@@ -82,7 +96,9 @@ export class LilyPads implements SceneElement {
 
     for (let i = 0; i < this.count; i++) {
       const depth = this.rng.next(); // 0 far → 1 near
-      const y = waterlineY + waterH * (0.12 + depth * 0.8);
+      // Same clamp: the frog hops to these, so one parked under the dock is a
+      // pad you can see it land on but never tap.
+      const y = Math.min(waterlineY + waterH * (0.12 + depth * 0.8), lowest);
       const rx = (7 + depth * 17) * this.rng.range(0.8, 1.2);
       // Starters are here from the off; the rest reveal every other bug.
       const revealAt = i < STARTER_PADS ? 0 : (i - STARTER_PADS + 1) * PADS_PER_BUG;
