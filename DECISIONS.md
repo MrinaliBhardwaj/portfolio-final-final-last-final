@@ -1065,3 +1065,68 @@ Three corrections to the lanyard, all hers.
 - **The general rule:** anything inside a world that measures its own box once
   and keeps the answer must wait for `useWorldOpening()` to go false. This is not
   lanyard-specific — it applies to any future canvas, chart, or virtualized list.
+
+## No permission is ever requested without a gesture (2026-07-28)
+
+- **Opening #/tech used to fire `getUserMedia` from a mount effect.** A visitor
+  who had clicked nothing got an unexplained "wants to use your camera" bar,
+  with nothing on screen accounting for it. That is the most alarming thing a
+  page can do, and on a portfolio the reflex is to close the tab.
+- **It also destroyed the feature it existed to show off.** `NotAllowedError` is
+  sticky per origin. An unexplained prompt earns a reflex block, and that block
+  is permanent — so most visitors would never see the badge's reflection on any
+  visit, ever. Asking *after* a deliberate tap converts far better than asking
+  before one. Being polite here is not a tax on the feature; it is the only way
+  the feature ships at all.
+- **Browsers punish the pattern independently.** Chrome escalates origins whose
+  prompts are ignored or blocked to silent auto-blocking; Safari expects a user
+  gesture. Auto-request-on-mount is precisely the shape both are built to
+  suppress.
+- **The tap had to ride the 3D card, not the card face.** The DOM face is
+  `pointer-events: none` all the way down (lanyard.css) because the drag lives
+  on the canvas underneath — a `<button>` painted on the badge renders perfectly
+  and never receives a click. So `Lanyard` grew `onCardTap`, firing on a short
+  stationary press (a fling must not count), and stays ignorant of what the tap
+  is for. The hint on the face is a label, not a control.
+- **`Permissions.query` is not a request** — it reads the stored decision and
+  never prompts, so a returning visitor who already granted is armed silently
+  with no second prompt. Every failure path in that check falls through to
+  "ask", never to "request": Firefox has no `camera` descriptor and throws. **A
+  missing API must never become an auto-request.**
+- **The general rule:** any capability behind a browser permission — camera,
+  mic, location, notifications, clipboard read — is requested from a gesture or
+  not at all, and the refused state must be a finished design, not a fallback.
+  The dark base was always the designed card; it is simply the default now.
+
+## The mobile experience stays portrait; wide artwork pans (2026-07-28)
+
+- **Asked whether the whole mobile site should be landscape**, so wide
+  compositions could keep their true spacing. The answer is no, and it is worth
+  recording so it doesn't get re-proposed.
+- **Landscape cannot be forced on the web.** `screen.orientation.lock()` is
+  unimplemented on iOS Safari and fullscreen-only on Chrome Android. It degrades
+  to either a whole-page `rotate(90deg)` — which breaks the fixed dock, `dvh`
+  sizing, scroll direction and text selection — or a "rotate your device" gate,
+  which is where a recruiter arriving from a LinkedIn link leaves.
+- **And most of the site is already correct in portrait**: design stacks its
+  boards and turns the experience thread vertical, tech collapses the editor
+  chrome (and is *text* — portrait is the right shape for it), gallery is a
+  sphere, the pond is a full-bleed canvas. Rotating would have discarded all of
+  that to fix one page.
+- **Only #/notes was broken**, because both sheets are fixed-aspect wide artwork
+  with the copy baked into the pixels — measured at 0.23x / 6.3px on a 390px
+  phone. Landscape would have reached only 0.50x / ~14px: still squinting.
+- **The instinct was right but belonged on the scroll axis, not the device.**
+  Height drives the art, each sheet is its own horizontal scroll port, and page
+  one lands at 0.919x native (~25px text) with the spacing exactly as drawn.
+- **Three traps, all of which bit or would have:** `overscroll-behavior-x:
+  contain` (or the swipe past the end becomes browser back-navigation);
+  `justify-content: flex-start` (a *centred* flex container whose content
+  overflows puts its own leading edge permanently out of reach); and
+  `max-width: none` on the image (the global `img` reset capped it to the port
+  width, squashing it AND collapsing the `max-content` stage so nothing
+  scrolled). Note the third only hit page one — page two is a div.
+- **`container-type: inline-size` and `width: max-content` are mutually
+  exclusive**: inline-size containment means the box cannot be sized by its
+  contents. Page two's `--u` is re-derived from height instead, which is
+  equivalent only because its aspect ratio is fixed.
