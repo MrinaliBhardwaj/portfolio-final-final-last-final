@@ -9,10 +9,12 @@
   font-family: var(--font-ui);
 }
 
-/* ---- activity bar (far-left rail) ---- */
+/* ---- activity bar (far-left rail) ----
+   starts below the tab strip (35px), which now spans the full width — see the
+   .wt--code note in world-tabs.css */
 .tw-activity {
   position: fixed;
-  top: 0;
+  top: 35px;
   left: 0;
   bottom: 22px; /* sits on top of the status bar */
   width: 48px;
@@ -53,21 +55,32 @@
   margin-bottom: 6px;
 }
 
-/* ---- explorer sits between the activity bar and the editor ---- */
+/* ---- explorer sits between the activity bar and the editor, below the tabs ---- */
 .tw-sidebar {
   position: fixed;
-  top: 0;
+  top: 35px;
   left: 48px;
   bottom: 22px;
   width: 240px;
   z-index: 40;
   background: var(--tw-side);
   border-right: 1px solid var(--tw-line);
+  /* FileTree puts .ft on this same element, and .ft carries `height: 100%`
+     for the case where it fills a sized parent. Here it IS the fixed box, so
+     that height fights the top/bottom pair and wins — resolving against the
+     viewport and running past the bottom edge. It used to overshoot by exactly
+     the status bar's 22px and hide underneath it; once this gained a 35px top
+     the overshoot became visible as a clipped end to the tree. `auto` hands
+     the height back to top/bottom. */
+  height: auto;
 }
 
-/* ---- the editor pane clears activity bar + explorer ---- */
+/* ---- the editor pane clears activity bar + explorer, and the tab strip ----
+   the strip is fixed now, so it no longer occupies flow height here and the
+   pane has to reserve its own 35px */
 .tw-content {
   margin-left: 288px; /* 48 activity + 240 explorer */
+  padding-top: 35px;
 }
 
 /* breadcrumbs bar, just under the tab strip */
@@ -522,8 +535,10 @@ a.lens-r:hover {
     display: none;
   }
 
+  /* no rails and no tab strip here, so neither reservation applies */
   .tw-content {
     margin-left: 0;
+    padding-top: 0;
   }
 
   .tw-top {

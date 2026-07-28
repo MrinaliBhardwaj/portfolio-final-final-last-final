@@ -299,6 +299,15 @@ export default function TechWorld() {
           swinging on a real rope sim. Desktop-only — see TechLanyard.jsx. */}
       <TechLanyard />
 
+      {/* The open-pages strip, spanning the FULL width above every other piece
+          of chrome — the same position it holds in the design world, so the two
+          tabs stay put and the worlds read as one continuous window rather than
+          two apps that happen to be adjacent. VS Code would tuck this to the
+          right of the explorer; that put the tabs in a different place in each
+          world, which is the one thing this bar can't do. The rails below start
+          under it instead. */}
+      <WorldTabs world="tech" />
+
       {/* activity bar — pure chrome, like the app's left rail */}
       <div className="tw-activity" aria-hidden="true">
         <span className="tw-act is-on"><Files size={20} strokeWidth={1.5} /></span>
@@ -317,8 +326,6 @@ export default function TechWorld() {
       />
 
       <div className="tw-content">
-        <WorldTabs world="tech" />
-
         {/* breadcrumbs, tracking the section under the cursor */}
         <div className="tw-crumbs" aria-hidden="true">
           <span>portfolio</span>

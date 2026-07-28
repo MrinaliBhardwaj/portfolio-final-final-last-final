@@ -82,11 +82,20 @@
   opacity: 1;
 }
 
-/* --- VS Code chrome (tech world): the editor tab strip --- */
+/* --- VS Code chrome (tech world): the editor tab strip ---
+   Fixed across the full top of the viewport, above the activity bar and the
+   explorer, matching .wt--figma below. It used to be sticky INSIDE the editor
+   pane, which began after the 288px of left rails — so the same two tabs sat
+   flush left in the design world and inset in the tech world, and switching
+   between them slid the bar sideways. The rails now start beneath it.
+   z-index clears the activity bar (45) and explorer (40); the status bar (50)
+   and the lanyard (55) still pass over it. */
 .wt--code {
-  position: sticky;
+  position: fixed;
   top: 0;
-  z-index: 35;
+  left: 0;
+  right: 0;
+  z-index: 46;
   height: 35px;
   background: #252526; /* tab bar */
   font-family: var(--font-ui);

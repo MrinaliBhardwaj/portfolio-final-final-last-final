@@ -1213,3 +1213,29 @@ cover exactly. It had drifted into three different faces:
   the anchor — the anchor owns the hover background, which must not move.
 - `.nw-mark` also stopped hard-coding `"Pinyon Script", cursive` and now reads
   `var(--font-monogram)`, so the family has exactly one source.
+
+## The world tab strip holds one position across both worlds (2026-07-29)
+
+`.wt--code` is fixed full-width at the top of the tech world, matching
+`.wt--figma`. It used to be `position: sticky` *inside* `.tw-content`, which
+starts after 288px of left rails (activity bar + explorer).
+
+- **The symptom:** the same two tabs sat flush left in design and inset by
+  288px in tech, so switching between the worlds slid the bar sideways. The
+  tabs are the control you use to switch — they can't move when you use them.
+- **VS Code really does tuck its tab strip beside the explorer**, and that
+  fidelity is what's being given up. It's the right trade: the strip is shared
+  furniture between two worlds before it's an imitation of either one, and a
+  control that relocates costs more than an accurate screenshot buys.
+- The activity bar and explorer now start at `top: 35px`, beneath the strip.
+  `.tw-content` reserves the same 35px, reset to 0 on mobile where the strip
+  is hidden.
+- **Bar HEIGHT is deliberately still per-app** — 35px on VS Code's strip, 44px
+  on Figma's toolbar. Each is its own app's real chrome, and only the tabs'
+  horizontal position was the continuity problem.
+- **Latent bug this surfaced:** `FileTree` puts `.ft` on the same element as
+  `.tw-sidebar`, and `.ft` sets `height: 100%`, which beat the fixed box's
+  `top`/`bottom` pair and resolved against the viewport instead. It had been
+  overshooting the bottom by exactly the status bar's 22px and hiding under it;
+  adding a 35px top made the overshoot visible. `.tw-sidebar` now sets
+  `height: auto` so top/bottom govern.
