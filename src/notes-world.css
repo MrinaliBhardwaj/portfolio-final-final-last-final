@@ -255,19 +255,84 @@
   -webkit-user-drag: none;
 }
 
-/* ---- Mobile: the collages are fixed-aspect wide compositions. Below ~700px
-   they'd be postage stamps, so the sheets stop filling the viewport and the
-   pages simply stack at whatever width is left. ---- */
+/* ---- the pan hint, phones only. Lives outside both sheets on purpose: each
+   sheet IS the horizontal scroll port below, so a hint placed inside one would
+   slide away with the art exactly when it is still needed. ---- */
+.nw-pan {
+  display: none;
+}
+
+/* ---- Mobile: the collages are fixed-aspect wide compositions with their copy
+   baked into the pixels, so shrinking them to fit a phone's WIDTH is the one
+   thing that cannot work — at 390px page one lands at 0.23x and its text
+   renders at 6.3px. Measured, not guessed.
+
+   Rotating the phone doesn't rescue it either (and can't be forced on the web:
+   screen.orientation.lock is unimplemented on iOS Safari and fullscreen-only on
+   Chrome Android). Landscape would only reach 0.50x — ~14px. Still squinting.
+
+   So height drives the art instead and the sheet pans sideways: page one lands
+   near 1:1 and reads at ~26px, with the spacing exactly as drawn. You look at a
+   wide plate through a window rather than at a shrunken postcard. ---- */
 @media (max-width: 700px) {
+  .nw {
+    /* the one dial both sheets share, so they can never disagree. Floor keeps
+       a landscape phone from squashing the art to a strip; a sheet taller than
+       the viewport just scrolls, which this page already did between pages. */
+    --nw-h: max(420px, calc(100dvh - 188px)); /* toolbar 44 + padding 56 + dock 88 */
+  }
+
+  .nw-pan {
+    display: block;
+    padding: 10px 24px 0;
+    text-align: center;
+    font-family: "Caveat", cursive;
+    font-size: 18px;
+    color: var(--pencil);
+  }
+
   .nw .sheet {
     min-height: 0;
     padding: 28px 0;
+    overflow-x: auto;
+    /* without this, a swipe that runs past the end of the art becomes the
+       browser's back gesture and drops you out of the scrapbook entirely */
+    overscroll-behavior-x: contain;
+    /* the art is wider than the port, and a CENTRED flex container whose
+       content overflows puts its own leading edge out of reach — you could
+       never scroll back to the start of page one. Must be flex-start. */
+    justify-content: flex-start;
   }
-  /* let width drive the art here: capping by height on a short phone viewport
-     would shrink these wide collages to postage stamps. They stack and the
-     page scrolls instead. */
+
+  /* `container-type: inline-size` applies inline-size containment, which means
+     the element CANNOT be sized by its contents — so it and `max-content` are
+     mutually exclusive, and leaving it on would collapse the width to nothing.
+     Page two's --u is derived from 100cqw, so it has to come off that chain
+     too; it is re-derived from the height below, which is equivalent because
+     the scene's aspect ratio is fixed. */
+  .nw .nw-stage {
+    container-type: normal;
+    width: max-content;
+  }
+
   .nw .sheet-one .nw-stage,
   .nw .sheet-two .nw-stage {
     max-width: none;
+  }
+
+  .nw .nw-origin {
+    height: var(--nw-h);
+    width: auto;
+    /* the global `img { max-width: 100% }` reset has to come off, and it is not
+       optional: capped at the port width the image squashes to 390x656 AND
+       drags the max-content stage down with it, so the sheet reports nothing to
+       scroll. Page two never hit this only because it is a div, not an img. */
+    max-width: none;
+  }
+
+  .nw .scene-two {
+    --u: calc(var(--nw-h) / 1075);
+    height: var(--nw-h);
+    width: auto; /* aspect-ratio supplies it */
   }
 }

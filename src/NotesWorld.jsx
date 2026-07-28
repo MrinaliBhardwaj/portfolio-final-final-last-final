@@ -43,6 +43,13 @@ export default function NotesWorld() {
         </button>
       </header>
 
+      {/* Phones only (see notes-world.css). Both pages are wide fixed-aspect
+          artwork with the copy baked in, so on a phone they are sized by
+          HEIGHT and panned sideways rather than shrunk to fit the width —
+          this is the one line that says so. It sits outside both sheets
+          because each sheet is its own scroll port. */}
+      <p className="nw-pan">both pages pan sideways &rarr;</p>
+
       <Scene />
       <SceneTwo />
 
