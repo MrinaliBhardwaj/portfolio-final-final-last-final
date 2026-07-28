@@ -39,21 +39,35 @@ export const PROJECTS = [
       ["Recognition", "3rd — GDG Design-a-thon"],
     ],
     external: BEHANCE,
-    // WAITING ON A CLEAN EXPORT. The file supplied for this
-    // (www.behance.net_gallery_...png) was a full-page screenshot of the
-    // BEHANCE PAGE, not the case study: Behance's own header and a floating
-    // "Follow All / Appreciate" bar composited over her artwork, and then
-    // ~85% of its 7734px height was Behance's "Popular projects" feed — other
-    // designers' work, complete with Save buttons. Publishing that would have
-    // put a dozen other people's projects on her portfolio.
-    //
-    // The rendering side is ready: a `strip` shot (see the shape in
-    // ProjectPage.jsx and .pp-strip in project-page.css) takes a sliced tall
-    // image and stacks it seamlessly with lazy loading. Point
-    // scripts/build_meal_maestro_shots.py at a real export — the artboards
-    // straight out of Figma, or the Behance images themselves rather than a
-    // capture of the page around them — and this becomes a few lines.
-    shots: [],
+    shots: [
+      {
+        // The full case study, exported from the Figma file
+        // (meal-maestro-case-study, node 429-2731) at 1400x22306 and sliced by
+        // scripts/build_meal_maestro_shots.py. Slicing is REQUIRED, not an
+        // optimisation: WebP's maximum dimension is 16383px, so 22306 cannot be
+        // one file — and a bitmap that tall would be ~125 MB of RGBA to decode
+        // on the main thread anyway. 17.3 MB of PNG becomes 1.26 MB.
+        //
+        // (The first file offered for this slot was a screenshot of the Behance
+        // PAGE — their header, a "Follow All / Appreciate" bar over her
+        // artwork, and ~85% other designers' projects. Check an export's
+        // contents before shipping it.)
+        strip: Array.from(
+          { length: 18 },
+          (_, i) => `/work/meal-maestro/s${String(i).padStart(2, "0")}.webp`
+        ),
+        sliceSize: [1400, 1240],
+        // 22306 doesn't divide by 18, so the last slice is short. Given exactly
+        // rather than rounded, so the space the browser reserves for it matches
+        // what arrives and the page doesn't twitch at the very bottom.
+        lastSliceSize: [1400, 1226],
+        wide: true,
+        caption:
+          "The full case study — research with real users, the insights it earned, the design system, and the flows it produced.",
+        alt:
+          "The Meal Maestro case study: a smart meal-planning app for personalized recommendations and nutrition guidance, designed in Vellore, Tamil Nadu, May 2026. It runs from the goal of making healthy eating simpler and more accessible, through branding and primary research grounded in real voices and real data (12 discovery phone interviews, 140 survey responses, 4 comparison teardowns, 5 weeks), into key insights about why people abandon meal planning, then a design system of colour and type — Poppins for display and headings, Open Sans for body — and finally the home, recipe detail, tracker and explore flows, closing on \"Thanks for watching!\".",
+      },
+    ],
   },
   {
     slug: "layover",

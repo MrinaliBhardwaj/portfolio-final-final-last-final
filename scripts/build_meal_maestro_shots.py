@@ -1,52 +1,60 @@
-"""One-off: a tall Meal Maestro case-study export -> sliced, web-ready WebP.
+"""Her Meal Maestro case study -> sliced, web-ready WebP.
 
-!! NOT WIRED UP YET — SRC BELOW IS A BAD SOURCE. It points at a full-page
-screenshot of the BEHANCE PAGE, which carries Behance's header, a floating
-"Follow All / Appreciate" bar sitting on top of her artwork, and ~85% of its
-7734px height is Behance's "Popular projects" feed: other designers' work with
-Save buttons. It was sliced once, inspected, and pulled. Repoint SRC at a real
-export — the artboards out of Figma, or the Behance project images themselves
-rather than a capture of the page around them — then run this and put the strip
-back in projects.js (the renderer already handles it).
+Source is the full frame exported from the Figma file (meal-maestro-case-study,
+node 429-2731) at 1400x22306. The filename says "public pulse" — it is
+mislabelled; the contents were checked and it is Meal Maestro end to end.
 
-Shipping a tall case study as ONE image is a bad idea even compressed: a
-1341x7734 bitmap is ~41 MB of RGBA once decoded, all of it on the main thread,
-all of it before anything paints. So it is sliced.
+Slicing is not an optimisation here, it is REQUIRED: WebP's maximum dimension
+is 16383px and this is 22306 tall, so it cannot be one file. It would be the
+right call anyway — a 1400x22306 bitmap is ~125 MB of RGBA to decode, all on
+the main thread, before anything paints.
 
-Slices stack seamlessly (same width, no gap, no per-slice rim — see .pp-strip
-in project-page.css) and every slice after the first is lazy, so a visitor
-decodes roughly what they can see instead of the whole presentation.
+The slices stack seamlessly (see .pp-strip in project-page.css) and every one
+after the first is lazy, so a visitor decodes roughly what they scroll past.
 
-Width is left at native 1341: the case-study column caps at ~1036 CSS px, so
-this still has a little headroom on a 2x screen without paying for a 2688px
-master nobody will see.
+Width stays at native 1400: the case-study column caps around 1036 CSS px, so
+this keeps a little headroom on a 2x screen without shipping a master nobody
+will ever see at full size.
+
+An earlier attempt used a full-page screenshot of the Behance PAGE instead of
+this. It carried Behance's header, a "Follow All / Appreciate" bar sitting on
+top of her artwork, and ~85% of its height was Behance's "Popular projects"
+feed — other designers' work. Check what is actually in an export before
+shipping it.
 """
 from pathlib import Path
 from PIL import Image
 
-SRC = Path(r"C:/Users/heave/Downloads/www.behance.net_gallery_249664345_AI-Powered-Meal-Planner-App-UIUX.png")
+Image.MAX_IMAGE_PIXELS = None  # 31 MP, well past PIL's decompression-bomb guard
+
+SRC = Path(r"C:/Users/heave/Downloads/Updated case study full public pulse.png")
 OUT = Path(__file__).resolve().parent.parent / "public" / "work" / "meal-maestro"
 
-SLICES = 8
-QUALITY = 80
+SLICES = 18
+QUALITY = 82
 
 
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
     im = Image.open(SRC)
-    # flatten onto white: the capture is RGBA but has no real transparency, and
-    # an alpha channel costs bytes in WebP for nothing
+
+    # Only flatten if there is REAL transparency. Blindly compositing onto white
+    # would fringe this one — its field is dark green, not white.
     if im.mode in ("RGBA", "LA", "P"):
-        flat = Image.new("RGB", im.size, (255, 255, 255))
         rgba = im.convert("RGBA")
-        flat.paste(rgba, mask=rgba.split()[-1])
-        im = flat
+        alpha = rgba.getchannel("A")
+        if alpha.getextrema()[0] == 255:
+            im = rgba.convert("RGB")  # fully opaque: the channel was dead weight
+        else:
+            bg = rgba.getpixel((0, 0))[:3]  # its own corner, not an assumption
+            flat = Image.new("RGB", rgba.size, bg)
+            flat.paste(rgba, mask=alpha)
+            im = flat
     else:
         im = im.convert("RGB")
 
     w, h = im.size
-    # ceil division so the last slice absorbs the remainder and no row is lost
-    step = -(-h // SLICES)
+    step = -(-h // SLICES)  # ceil, so the last slice absorbs the remainder
     total = 0
     for i in range(SLICES):
         top = i * step
@@ -56,12 +64,13 @@ def main():
         part = im.crop((0, top, w, bottom))
         dest = OUT / f"s{i:02d}.webp"
         part.save(dest, "WEBP", quality=QUALITY, method=6)
-        kb = dest.stat().st_size / 1024
-        total += kb
-        print(f"s{i:02d}  {part.width}x{part.height}  {kb:7.1f} KB")
+        total += dest.stat().st_size / 1024
 
     src_mb = SRC.stat().st_size / 1024 / 1024
-    print(f"\nsource {w}x{h}  {src_mb:.2f} MB  ->  {total / 1024:.2f} MB in {SLICES} slices")
+    made = sorted(OUT.glob("s*.webp"))
+    print(f"{len(made)} slices, {w}x{step} each (last may be shorter)")
+    print(f"{src_mb:.2f} MB  ->  {total / 1024:.2f} MB "
+          f"({100 * (1 - (total / 1024) / src_mb):.0f}% smaller)")
 
 
 if __name__ == "__main__":

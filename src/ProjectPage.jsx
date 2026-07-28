@@ -80,19 +80,29 @@ export default function ProjectPage({ project }) {
                    so lazy slices below the fold don't collapse the scroll
                    height and make the page jump as they arrive. */
                 <div className="pp-strip">
-                  {shot.strip.map((src, s) => (
-                    <img
-                      key={src}
-                      src={src}
-                      alt={s === 0 ? shot.alt : ""}
-                      aria-hidden={s === 0 ? undefined : "true"}
-                      loading={s === 0 ? "eager" : "lazy"}
-                      decoding="async"
-                      width={shot.sliceSize[0]}
-                      height={shot.sliceSize[1]}
-                      draggable="false"
-                    />
-                  ))}
+                  {shot.strip.map((src, s) => {
+                    // The last slice is usually short — the source height
+                    // rarely divides evenly — so it declares its own size.
+                    // Reserving the wrong height here is what makes a long
+                    // lazy-loaded page twitch as the bottom arrives.
+                    const [w, h] =
+                      s === shot.strip.length - 1 && shot.lastSliceSize
+                        ? shot.lastSliceSize
+                        : shot.sliceSize;
+                    return (
+                      <img
+                        key={src}
+                        src={src}
+                        alt={s === 0 ? shot.alt : ""}
+                        aria-hidden={s === 0 ? undefined : "true"}
+                        loading={s === 0 ? "eager" : "lazy"}
+                        decoding="async"
+                        width={w}
+                        height={h}
+                        draggable="false"
+                      />
+                    );
+                  })}
                 </div>
               ) : (
                 <img
