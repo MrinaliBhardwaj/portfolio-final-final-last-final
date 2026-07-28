@@ -11,7 +11,9 @@ import { ArrowUpRight, Layers, Mail } from "lucide-react";
 import FigmaPanel from "./FigmaPanel.jsx";
 import WorldTabs from "./WorldTabs.jsx";
 import DesignHero from "./DesignHero.jsx";
+import ProjectPage from "./ProjectPage.jsx";
 import useSectionSpy from "./useSectionSpy.js";
+import { PROJECTS, bySlug } from "./projects.js";
 
 const EASE = [0.22, 1, 0.36, 1];
 const EMAIL = "mailto:mrinalibhardwaj0705@gmail.com";
@@ -25,66 +27,11 @@ const reveal = {
   transition: { duration: 0.7, ease: EASE },
 };
 
-// The three DESIGN projects, in her order (28 Jul 2026). Public Pulse came out
-// of this list: it is engineering work and it already has a fuller entry in
-// TechWorld.jsx, so carrying it in both worlds said the same thing twice and
-// diluted what this section is for.
-//
-// `size` is not decoration — it picks the slot AND the sketch, because the two
-// are coupled by aspect ratio in design-world.css: lg is 16/10 (the "screens"
-// web+phone pair), sm is 4/5 (portrait "app" screens), wide is 8/3 (the "brand"
-// mark + wordmark + chips). Reorder this array and the layout follows; swap a
-// `size` without swapping `sketch` to match and the art will not fit its board.
-//
-// Declared ABOVE FRAMES because the layers panel derives its selected-work
-// children from it — see the note there.
-//
-// Every work is a LINK, one per project. TODO: real per-project URLs — these
-// still point at her Behance PROFILE, so a click lands somewhere true but not
-// yet on the specific case study.
-const work = [
-  {
-    name: "Meal Maestro",
-    what: "UI design",
-    when: "Mar 2025",
-    tag: "GDG Design-a-thon · 3rd",
-    blurb:
-      "A smart meal-planning app: personalized recipes and grocery lists from user preferences.",
-    size: "lg",
-    href: BEHANCE,
-    sketch: "screens",
-    file: "meal-maestro-final",
-    dims: "1440 × 900",
-  },
-  {
-    // PLACEHOLDER COPY — `what`, `when`, `tag` and `blurb` below are invented.
-    // Nothing about this project existed in the repo when it was added, so
-    // these are a shape to fill, not facts. Replace before this ships.
-    name: "Layover",
-    what: "Product design · mobile",
-    when: "2025",
-    tag: "case study",
-    blurb: "A travel companion app — planning what to do with the hours between flights.",
-    size: "sm",
-    href: BEHANCE,
-    sketch: "app",
-    file: "layover-v3",
-    dims: "1080 × 1350",
-  },
-  {
-    name: "Futurepreneurs 10.0",
-    what: "Branding & UI",
-    when: "Oct 2024",
-    tag: "2,200+ registrations",
-    blurb:
-      "Full identity and digital assets — website, social, reels, brochures — driving 10,000+ views.",
-    size: "wide",
-    href: BEHANCE,
-    sketch: "brand",
-    file: "futurepreneurs-final-FINAL(2)",
-    dims: "1920 × 720",
-  },
-];
+// The three projects live in projects.js — one list feeding the boards here,
+// the layers panel's children, the Pages list and the case-study pages, so they
+// cannot drift apart. Each board now opens its own page of this file rather
+// than her Behance profile.
+const work = PROJECTS;
 
 // one entry per section-frame: layers-panel children + properties-panel data
 const FRAMES = [
@@ -365,7 +312,12 @@ const capabilities = [
   "Design-to-dev handoff",
 ];
 
-export default function DesignWorld() {
+// `project` is the design file's selected PAGE (a slug from #/design/<slug>),
+// or null for the canvas itself. A project page keeps every bit of this world's
+// chrome — tab bar, layers, properties, the pink cursor — because it is the
+// same file with a different page open, not somewhere else.
+export default function DesignWorld({ project = null }) {
+  const page = project ? bySlug(project) : null;
   const [activeSection, selectFrame] = useSectionSpy(SECTION_IDS);
   const activeFrame =
     FRAMES.find((f) => f.id === activeSection) || FRAMES[0];
@@ -385,14 +337,47 @@ export default function DesignWorld() {
       <WorldTabs world="design" />
 
       {/* left: layers. right: properties. the canvas sits between. */}
+      {/* On a project page the layers tree shows THAT page's contents, not the
+          canvas's frames — listing artboards that aren't on screen would make
+          the panel lie about what you're looking at. */}
       <FigmaPanel
-        frames={FRAMES}
-        activeId={activeSection}
-        onSelect={selectFrame}
+        frames={
+          page
+            ? [
+                {
+                  id: "pp",
+                  name: page.file,
+                  children: page.shots.map((s) => ({
+                    icon: "image",
+                    name: s.src.split("/").pop().replace(".webp", ""),
+                  })),
+                },
+              ]
+            : FRAMES
+        }
+        activeId={page ? "pp" : activeSection}
+        onSelect={page ? () => {} : selectFrame}
+        project={project}
         open={layersOpen}
         onClose={() => setLayersOpen(false)}
       />
-      <PropsPanel frame={activeFrame} />
+      {/* Same reason as the layers tree above: on a project page the canvas's
+          frames aren't on screen, so reporting the hero artboard's X/Y/W/H
+          here would be the panel describing something you cannot see. The page
+          reports its own artboard size instead. */}
+      <PropsPanel
+        frame={
+          page
+            ? {
+                name: page.file,
+                props: (() => {
+                  const [w, h] = page.dims.split(" × ").map(Number);
+                  return { x: 0, y: 0, w, h, fill: "transparent" };
+                })(),
+              }
+            : activeFrame
+        }
+      />
 
       {/* the sheet's dismiss surface (mobile only — nothing opens it above 768) */}
       {layersOpen && (
@@ -448,6 +433,12 @@ export default function DesignWorld() {
           </a>
         </header>
 
+        {/* One page of the file at a time. The canvas below is left at its own
+            indentation rather than re-nested under this conditional — moving
+            240 lines of artboards sideways would bury the actual change. */}
+        {page ? (
+          <ProjectPage project={page} />
+        ) : (
         <div className="dw-canvas">
           {/* ============ hero: her real Figma "PROFILE.DOC" frame ============ */}
           <Frame
@@ -524,10 +515,10 @@ export default function DesignWorld() {
                 <motion.a
                   className={`dw-board dw-board--${w.size}`}
                   key={w.name}
-                  href={w.href}
-                  target="_blank"
-                  rel="noreferrer"
-                  aria-label={`${w.name} — open the project`}
+                  /* its own page of this file now, not an outbound link — so
+                     no target/rel, and the label says "page" not "project" */
+                  href={`#/design/${w.slug}`}
+                  aria-label={`${w.name} — open the project page`}
                   initial={{ opacity: 0, y: 18 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: "-40px" }}
@@ -580,6 +571,7 @@ export default function DesignWorld() {
                       View project
                       <ArrowUpRight size={13} strokeWidth={2} aria-hidden="true" />
                     </p>
+
                   </div>
                 </motion.a>
               ))}
@@ -691,6 +683,7 @@ export default function DesignWorld() {
             </div>
           </Frame>
         </div>
+        )}
       </div>
     </div>
   );

@@ -66,8 +66,10 @@
   padding: 0 8px;
 }
 
-/* display-only rows now (see FigmaPanel.jsx): no hover, no pointer — the tabs
-   switch, the panel just names the two pages of the file */
+/* Real navigation now (see FigmaPanel.jsx): these are the design file's own
+   pages — the canvas, then one per project — and the panel is the only place
+   they can be reached, so they get a hover and a pointer. The two WORLDS are
+   still switched by the tab bar; that never moved here. */
 .fp-page {
   display: flex;
   align-items: center;
@@ -78,6 +80,20 @@
   text-align: left;
   font-size: 12px;
   color: #c4c4c4;
+  text-decoration: none;
+  transition: background-color 0.15s var(--ease-soft), color 0.15s var(--ease-soft);
+}
+
+.fp-page:hover,
+.fp-page:focus-visible {
+  background: rgba(255, 255, 255, 0.07);
+  color: #ffffff;
+}
+
+/* the selected page keeps Figma blue on hover rather than washing to grey */
+.fp-page.is-current:hover,
+.fp-page.is-current:focus-visible {
+  background: rgba(13, 153, 255, 0.32);
 }
 
 .fp-page.is-current {

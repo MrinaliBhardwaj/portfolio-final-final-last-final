@@ -13,6 +13,7 @@ import Cover from "./Cover.jsx";
 import DesignWorld from "./DesignWorld.jsx";
 import TechWorld from "./TechWorld.jsx";
 import { WorldOpening } from "./world-open.js";
+import { bySlug } from "./projects.js";
 import GalleryWorld from "./GalleryWorld.jsx";
 import NotesWorld from "./NotesWorld.jsx";
 import PondWorld from "./PondWorld.jsx";
@@ -22,6 +23,7 @@ import "./cover.css";
 import "./dock.css";
 import "./world-tabs.css";
 import "./design-world.css";
+import "./project-page.css";
 import "./figma-panel.css";
 import "./file-tree.css";
 import "./tech-world.css";
@@ -61,12 +63,17 @@ function launchOrigin() {
     : "50% 100%";
 }
 
+// the hash path, minus the leading #/ and any "?" query, lowercased
+function hashPath() {
+  return window.location.hash.replace(/^#\/?/, "").split("?")[0].toLowerCase();
+}
+
 function getRoute() {
-  // route on the path only, ignoring any "?" query the hash may carry
-  const hash = window.location.hash
-    .replace(/^#\/?/, "")
-    .split("?")[0]
-    .toLowerCase();
+  // FIRST SEGMENT only. The design file has project pages under it
+  // (#/design/layover), and those are still the design world — same tab bar,
+  // same layers panel, same pink cursor, different page on the canvas. Matching
+  // the whole path here would drop them to the cover.
+  const hash = hashPath().split("/")[0];
   if (hash === "design") return "design";
   // "engineering" kept as an alias for links already in circulation
   if (hash === "tech" || hash === "engineering") return "tech";
@@ -76,6 +83,15 @@ function getRoute() {
   // the dock calls it the Game; the piece calls itself the pond
   if (hash === "pond" || hash === "game") return "pond";
   return "";
+}
+
+// The design file's selected PAGE: null on the canvas itself, otherwise the
+// project slug from #/design/<slug>. Unknown slugs return null, so a stale or
+// mistyped link lands on the canvas rather than on a blank page.
+function getProject() {
+  const [world, slug] = hashPath().split("/");
+  if (world !== "design" || !slug) return null;
+  return bySlug(slug) ? slug : null;
 }
 
 // A world opens the way a Mac app window opens: it unfolds out of the dock
@@ -147,10 +163,14 @@ function WorldWindow({ children }) {
 
 export default function App() {
   const [route, setRoute] = useState(getRoute);
+  const [project, setProject] = useState(getProject);
   const [coverSettled, setCoverSettled] = useState(false);
 
   useEffect(() => {
-    const onHash = () => setRoute(getRoute());
+    const onHash = () => {
+      setRoute(getRoute());
+      setProject(getProject());
+    };
     window.addEventListener("hashchange", onHash);
     return () => window.removeEventListener("hashchange", onHash);
   }, []);
@@ -170,12 +190,18 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    document.title = TITLES[route];
+    // a project page names itself in the tab — it is its own page of the file
+    const named = project && bySlug(project);
+    document.title = named
+      ? `${named.name} — Mrinali Bhardwaj`
+      : TITLES[route];
     document.documentElement.dataset.world = route || "void";
     window.scrollTo(0, 0);
     // back on the cover, the dock retracts until the divergence settles again
     if (route === "") setCoverSettled(false);
-  }, [route]);
+    // `project` is in the deps so moving BETWEEN pages of the design file still
+    // retitles and scrolls to the top — the route doesn't change on those.
+  }, [route, project]);
 
   // launching a world is just navigation now — no slide-wipe. The world's
   // own grow-open (WorldWindow) carries the transition, unfolding from
@@ -219,7 +245,7 @@ export default function App() {
 
         {route === "design" && (
           <WorldWindow key="design">
-            <DesignWorld />
+            <DesignWorld project={project} />
           </WorldWindow>
         )}
 

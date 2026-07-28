@@ -6,6 +6,7 @@
 // row, click to jump. Selection reads Figma-blue on purpose — the panel is
 // the app's chrome, not the portfolio's palette.
 import { useState } from "react";
+import { PROJECTS } from "./projects.js";
 
 function cx(...parts) {
   return parts.filter(Boolean).join(" ");
@@ -145,13 +146,24 @@ export default function FigmaPanel({
   onSelect,
   open = false,
   onClose,
+  project = null,
 }) {
-  // Pages is display-only: it says "one portfolio file, two pages," but it is
-  // NOT a switcher. Switching worlds has a single home — the file tabs in the
-  // title bar (WorldTabs) — so the panel doesn't offer a competing second one.
+  // Pages is a REAL switcher now, and only because what it switches changed.
+  // It used to list "design" and "tech" as display-only text: the two worlds
+  // are switched by the file tabs in the title bar (WorldTabs), so making these
+  // clickable would have been a second, competing control for the same job.
+  //
+  // "tech" is gone from here — it is a different file, not a page of this one,
+  // and the tab bar already carries it. What replaced it are the design file's
+  // actual pages: the canvas, then one page per project. Those have no other
+  // control, so the panel is their home and clicking them navigates.
   const pages = [
-    { name: "design", current: true },
-    { name: "tech", current: false },
+    { name: "design", href: "#/design", current: !project },
+    ...PROJECTS.map((p) => ({
+      name: p.slug,
+      href: `#/design/${p.slug}`,
+      current: project === p.slug,
+    })),
   ];
 
   // On phones the panel is a bottom SHEET pulled up from the toolbar's Layers
@@ -192,14 +204,16 @@ export default function FigmaPanel({
       <p className="fp-label">Pages</p>
       <div className="fp-pages">
         {pages.map((p) => (
-          <div
+          <a
             key={p.name}
+            href={p.href}
             className={cx("fp-page", p.current && "is-current")}
             aria-current={p.current ? "page" : undefined}
+            onClick={onClose}
           >
             <span className="fp-page-check">{p.current && ICONS.check}</span>
             {p.name}
-          </div>
+          </a>
         ))}
       </div>
 
