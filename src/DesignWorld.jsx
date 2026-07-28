@@ -25,6 +25,67 @@ const reveal = {
   transition: { duration: 0.7, ease: EASE },
 };
 
+// The three DESIGN projects, in her order (28 Jul 2026). Public Pulse came out
+// of this list: it is engineering work and it already has a fuller entry in
+// TechWorld.jsx, so carrying it in both worlds said the same thing twice and
+// diluted what this section is for.
+//
+// `size` is not decoration — it picks the slot AND the sketch, because the two
+// are coupled by aspect ratio in design-world.css: lg is 16/10 (the "screens"
+// web+phone pair), sm is 4/5 (portrait "app" screens), wide is 8/3 (the "brand"
+// mark + wordmark + chips). Reorder this array and the layout follows; swap a
+// `size` without swapping `sketch` to match and the art will not fit its board.
+//
+// Declared ABOVE FRAMES because the layers panel derives its selected-work
+// children from it — see the note there.
+//
+// Every work is a LINK, one per project. TODO: real per-project URLs — these
+// still point at her Behance PROFILE, so a click lands somewhere true but not
+// yet on the specific case study.
+const work = [
+  {
+    name: "Meal Maestro",
+    what: "UI design",
+    when: "Mar 2025",
+    tag: "GDG Design-a-thon · 3rd",
+    blurb:
+      "A smart meal-planning app: personalized recipes and grocery lists from user preferences.",
+    size: "lg",
+    href: BEHANCE,
+    sketch: "screens",
+    file: "meal-maestro-final",
+    dims: "1440 × 900",
+  },
+  {
+    // PLACEHOLDER COPY — `what`, `when`, `tag` and `blurb` below are invented.
+    // Nothing about this project existed in the repo when it was added, so
+    // these are a shape to fill, not facts. Replace before this ships.
+    name: "Layover",
+    what: "Product design · mobile",
+    when: "2025",
+    tag: "case study",
+    blurb: "A travel companion app — planning what to do with the hours between flights.",
+    size: "sm",
+    href: BEHANCE,
+    sketch: "app",
+    file: "layover-v3",
+    dims: "1080 × 1350",
+  },
+  {
+    name: "Futurepreneurs 10.0",
+    what: "Branding & UI",
+    when: "Oct 2024",
+    tag: "2,200+ registrations",
+    blurb:
+      "Full identity and digital assets — website, social, reels, brochures — driving 10,000+ views.",
+    size: "wide",
+    href: BEHANCE,
+    sketch: "brand",
+    file: "futurepreneurs-final-FINAL(2)",
+    dims: "1920 × 720",
+  },
+];
+
 // one entry per section-frame: layers-panel children + properties-panel data
 const FRAMES = [
   {
@@ -62,11 +123,12 @@ const FRAMES = [
     id: "dw-work",
     name: "selected-work",
     props: { x: 240, y: 1440, w: 1200, h: 720, fill: "transparent" },
-    children: [
-      { icon: "frame", name: "publicpulse-v12" },
-      { icon: "frame", name: "meal-maestro-final" },
-      { icon: "frame", name: "futurepreneurs-final-FINAL(2)" },
-    ],
+    // DERIVED, not typed out. These three used to be hardcoded, which made the
+    // layers panel a second source of truth for the same file names — and the
+    // moment the work list was reordered it silently kept listing a project
+    // that is no longer on the canvas. The panel is supposed to be a view OF
+    // the artboards, so it reads from them.
+    children: work.map((w) => ({ icon: "frame", name: w.file })),
   },
   {
     id: "dw-skills",
@@ -287,51 +349,6 @@ const experience = [
     points: [
       "60+ branded social creatives building one cohesive, recognizable identity across platforms.",
     ],
-  },
-];
-
-// Every work is a LINK. TODO: she supplies the real per-project URLs
-// (Behance case studies / live sites); until then each opens her Behance
-// profile so the affordance is honest, never dead.
-const work = [
-  {
-    name: "Public Pulse",
-    what: "Civic-issue platform · web & mobile",
-    when: "Sep 2025",
-    tag: "SIH national finalist",
-    blurb:
-      "End-to-end product design for citizen-reported civic issues — capture, feeds, voting — shortlisted for the Smart India Hackathon finals.",
-    size: "lg",
-    href: BEHANCE,
-    sketch: "screens",
-    file: "publicpulse-v12",
-    dims: "1440 × 900",
-  },
-  {
-    name: "Meal Maestro",
-    what: "UI design",
-    when: "Mar 2025",
-    tag: "GDG Design-a-thon · 3rd",
-    blurb:
-      "A smart meal-planning app: personalized recipes and grocery lists from user preferences.",
-    size: "sm",
-    href: BEHANCE,
-    sketch: "app",
-    file: "meal-maestro-final",
-    dims: "1080 × 1350",
-  },
-  {
-    name: "Futurepreneurs 10.0",
-    what: "Branding & UI",
-    when: "Oct 2024",
-    tag: "2,200+ registrations",
-    blurb:
-      "Full identity and digital assets — website, social, reels, brochures — driving 10,000+ views.",
-    size: "wide",
-    href: BEHANCE,
-    sketch: "brand",
-    file: "futurepreneurs-final-FINAL(2)",
-    dims: "1920 × 720",
   },
 ];
 
