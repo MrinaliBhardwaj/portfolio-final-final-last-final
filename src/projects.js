@@ -154,7 +154,9 @@ export const PROJECTS = [
       ["Reach", "10,000+ views · 2,200+ registrations"],
       ["Timeline", "Oct 2024"],
     ],
-    external: BEHANCE,
+    // The project's own gallery, not the general profile — same reasoning as
+    // Layover's live link: point at the specific thing, not a landing page.
+    external: "https://www.behance.net/gallery/221417825/FUTUREPRENEURS-100-UI-Design",
     shots: [],
   },
 ];
