@@ -91,6 +91,9 @@ export const PROJECTS = [
       ["Timeline", "2025"],
     ],
     external: BEHANCE,
+    // Shipped as a real product — the case-study page links here instead of
+    // back to Behance, since the live thing outranks mockups of it.
+    live: "https://mylayover.in/",
     shots: [
       {
         src: "/work/layover/hero.webp",

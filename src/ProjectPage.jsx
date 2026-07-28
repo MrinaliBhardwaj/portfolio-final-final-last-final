@@ -48,16 +48,31 @@ export default function ProjectPage({ project }) {
           ))}
         </dl>
 
-        {project.external && (
+        {/* Layover shipped as a real product, so it points there instead of
+            back to the Behance mockups — the live thing outranks the case
+            study of it. Everything else still points to Behance. */}
+        {project.live ? (
           <a
             className="pp-ext"
-            href={project.external}
+            href={project.live}
             target="_blank"
             rel="noreferrer"
           >
-            See it on Behance
+            Visit the live site
             <ArrowUpRight size={13} strokeWidth={2} aria-hidden="true" />
           </a>
+        ) : (
+          project.external && (
+            <a
+              className="pp-ext"
+              href={project.external}
+              target="_blank"
+              rel="noreferrer"
+            >
+              See it on Behance
+              <ArrowUpRight size={13} strokeWidth={2} aria-hidden="true" />
+            </a>
+          )
         )}
       </motion.header>
 
