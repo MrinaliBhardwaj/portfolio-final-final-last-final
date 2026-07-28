@@ -93,7 +93,7 @@ export default function DesignHero() {
       {/* painted lotus-pond background (her real bg, exported frame-clipped) */}
       <img
         className="dwh-bg"
-        src={`${A}/bg-pond.png`}
+        src={`${A}/bg-pond.webp`}
         alt=""
         aria-hidden="true"
         style={{ left: U(0), top: U(0), width: U(1316), height: U(741) }}
@@ -115,7 +115,7 @@ export default function DesignHero() {
       {/* childhood photo — blue bucket hat, bleeds off the sheet's lower-left */}
       <img
         className="dwh-photo"
-        src={`${A}/mini-mri.png`}
+        src={`${A}/mini-mri.webp`}
         alt="Mrinali as a child in a blue bucket hat"
         style={{ left: U(-61), top: U(238), width: U(483.556), height: U(519) }}
       />
@@ -123,7 +123,7 @@ export default function DesignHero() {
       {/* pink tiger, bottom-right, anchored to its bottom edge */}
       <img
         className="dwh-tiger"
-        src={`${A}/tiger.png`}
+        src={`${A}/tiger.webp`}
         alt=""
         aria-hidden="true"
         style={{ left: U(922), top: U(318), width: U(593), height: U(593) }}
@@ -244,7 +244,7 @@ export default function DesignHero() {
         <div className="dwh-m-hero">
           <img
             className="dwh-m-photo"
-            src={`${A}/mini-mri.png`}
+            src={`${A}/mini-mri.webp`}
             alt="Mrinali as a child in a blue bucket hat"
           />
           <div className="dwh-m-headline">

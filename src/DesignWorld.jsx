@@ -45,7 +45,7 @@ const FRAMES = [
       y: 0,
       w: 1316,
       h: 741,
-      fill: { type: "image", src: "/design-hero/bg-pond.png" },
+      fill: { type: "image", src: "/design-hero/bg-pond.webp" },
     },
     children: [
       { icon: "image", name: "PROFILE.DOC" },
@@ -347,9 +347,17 @@ export default function DesignWorld({ project = null }) {
                 {
                   id: "pp",
                   name: page.file,
-                  children: page.shots.map((s) => ({
+                  /* A shot is EITHER a single `src` or a sliced `strip` — a
+                     strip has no `src` at all, so reading it blindly threw and
+                     took the whole world down with it. One layer per shot
+                     either way: the slices are a delivery detail, not eight
+                     things the visitor put on the page. */
+                  children: page.shots.map((s, i) => ({
                     icon: "image",
-                    name: s.src.split("/").pop().replace(".webp", ""),
+                    name: s.strip
+                      ? `${page.slug}-case-study`
+                      : s.src.split("/").pop().replace(".webp", ""),
+                    key: s.src || `strip-${i}`,
                   })),
                 },
               ]
@@ -675,7 +683,7 @@ export default function DesignWorld({ project = null }) {
               <div className="dwc-env">
                 <img
                   className="dwc-env-photo"
-                  src="/contact-envelope.png"
+                  src="/contact-envelope.webp"
                   alt="A handwritten note tucked in a pink envelope: Thank you so much for taking the time to look through my portfolio! I truly appreciate new opportunities to learn and grow. If you're interested in working together, I'd love to chat!"
                   draggable="false"
                 />

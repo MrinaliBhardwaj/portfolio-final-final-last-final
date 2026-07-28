@@ -39,6 +39,20 @@ export const PROJECTS = [
       ["Recognition", "3rd — GDG Design-a-thon"],
     ],
     external: BEHANCE,
+    // WAITING ON A CLEAN EXPORT. The file supplied for this
+    // (www.behance.net_gallery_...png) was a full-page screenshot of the
+    // BEHANCE PAGE, not the case study: Behance's own header and a floating
+    // "Follow All / Appreciate" bar composited over her artwork, and then
+    // ~85% of its 7734px height was Behance's "Popular projects" feed — other
+    // designers' work, complete with Save buttons. Publishing that would have
+    // put a dozen other people's projects on her portfolio.
+    //
+    // The rendering side is ready: a `strip` shot (see the shape in
+    // ProjectPage.jsx and .pp-strip in project-page.css) takes a sliced tall
+    // image and stacks it seamlessly with lazy loading. Point
+    // scripts/build_meal_maestro_shots.py at a real export — the artboards
+    // straight out of Figma, or the Behance images themselves rather than a
+    // capture of the page around them — and this becomes a few lines.
     shots: [],
   },
   {

@@ -144,6 +144,28 @@
   box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.09);
 }
 
+/* A long presentation delivered as stacked slices. The frame lives on the
+   wrapper, never on the slices: a rim or radius per slice would draw a visible
+   line at every seam. `display: block` and `vertical-align: top` are both
+   load-bearing — an inline image sits on the text baseline, which would leave a
+   few px of canvas showing between every pair of slices. */
+.pp-strip {
+  border-radius: 3px;
+  overflow: hidden;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.09);
+  font-size: 0; /* belt and braces against inline-gap between the slices */
+  line-height: 0;
+}
+
+.pp-strip img {
+  display: block;
+  vertical-align: top;
+  width: 100%;
+  height: auto;
+  border-radius: 0;
+  box-shadow: none;
+}
+
 .pp-shot figcaption {
   margin-top: 0.9rem;
   font-size: 0.83rem;

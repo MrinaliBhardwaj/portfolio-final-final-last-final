@@ -72,15 +72,39 @@ export default function ProjectPage({ project }) {
               viewport={{ once: true, margin: "-60px" }}
               transition={{ duration: 0.55, ease: EASE, delay: (i % 2) * 0.06 }}
             >
-              <img
-                src={shot.src}
-                alt={shot.alt}
-                loading={i === 0 ? "eager" : "lazy"}
-                decoding="async"
-                width="1600"
-                height="900"
-                draggable="false"
-              />
+              {shot.strip ? (
+                /* One tall presentation, delivered in slices. They carry no rim
+                   or radius of their own — those would draw a line at every
+                   seam — so the wrapper holds the frame and the slices just
+                   stack. `width`/`height` on each is what reserves the space,
+                   so lazy slices below the fold don't collapse the scroll
+                   height and make the page jump as they arrive. */
+                <div className="pp-strip">
+                  {shot.strip.map((src, s) => (
+                    <img
+                      key={src}
+                      src={src}
+                      alt={s === 0 ? shot.alt : ""}
+                      aria-hidden={s === 0 ? undefined : "true"}
+                      loading={s === 0 ? "eager" : "lazy"}
+                      decoding="async"
+                      width={shot.sliceSize[0]}
+                      height={shot.sliceSize[1]}
+                      draggable="false"
+                    />
+                  ))}
+                </div>
+              ) : (
+                <img
+                  src={shot.src}
+                  alt={shot.alt}
+                  loading={i === 0 ? "eager" : "lazy"}
+                  decoding="async"
+                  width="1600"
+                  height="900"
+                  draggable="false"
+                />
+              )}
               <figcaption>{shot.caption}</figcaption>
             </motion.figure>
           ))}

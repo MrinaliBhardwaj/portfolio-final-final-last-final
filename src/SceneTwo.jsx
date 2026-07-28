@@ -4,7 +4,7 @@
 // RECOVERED, not rewritten — see the note in Scene.jsx. Reconstructed from the
 // transcripts' Write + Edit chain and verified against the full-file Read
 // snapshot of 1 July 2026. The centerpiece art it points at,
-// public/tech-discovery.png, survived the rebuild on disk.
+// public/tech-discovery.webp, survived the rebuild on disk.
 //
 // Two deliberate edits since restoration, both by request: `onOpen` was
 // rewired off the retired ArchivePanel drawer to #/tech, and then the
@@ -62,7 +62,7 @@ export default function SceneTwo() {
               Aspect (1474/1067) matches the scene, so it drops in 1:1. */}
           <img
             className="t2-ref"
-            src="/tech-discovery.png"
+            src="/tech-discovery.webp"
             alt="Hand-drawn pencil flow: from first website through prototype, deployment and first real product — idea, sketch, wireframe, build, launch, iterate."
             draggable="false"
           />
