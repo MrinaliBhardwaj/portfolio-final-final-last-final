@@ -15,6 +15,7 @@
 // navigate.
 import { motion } from "framer-motion";
 import { Code2, Flower2, NotebookPen } from "lucide-react";
+import { ClaudeMark, FigmaMark, GooglePhotosMark } from "./BrandIcons.jsx";
 
 const EASE = [0.22, 1, 0.36, 1];
 
@@ -98,11 +99,12 @@ function DockItem({ app, active }) {
 }
 
 export default function Dock({ visible, onChoose, active }) {
-  // real brand marks via Simple Icons (same CDN pattern as the nav's GitHub
-  // logo) — a single monochrome tint keeps them from reading as "colorful
-  // app icons" and closer to a quiet, premium glass surface. VS Code has no
-  // entry in Simple Icons (Microsoft's mark is trademark-restricted there,
-  // the same reason lucide-react dropped it too), so it keeps a line glyph.
+  // real brand marks, vendored as inline SVG in BrandIcons.jsx — a single
+  // monochrome tint keeps them from reading as "colorful app icons" and closer
+  // to a quiet, premium glass surface. That tint is now the CSS `color` on
+  // .dock-item-icon rather than a hex baked into a URL. VS Code has no Simple
+  // Icons entry (Microsoft's mark is trademark-restricted there, the same
+  // reason lucide-react dropped it too), so it keeps a line glyph.
   const apps = [
     {
       key: "figma",
@@ -110,12 +112,7 @@ export default function Dock({ visible, onChoose, active }) {
       world: "design",
       action: () => onChoose("design"),
       node: (
-        <img
-          className="dock-item-icon"
-          src="https://cdn.simpleicons.org/figma/e8e8ec"
-          alt=""
-          aria-hidden="true"
-        />
+        <FigmaMark className="dock-item-icon" aria-hidden="true" />
       ),
     },
     {
@@ -147,12 +144,7 @@ export default function Dock({ visible, onChoose, active }) {
       world: "gallery",
       action: () => onChoose("gallery"),
       node: (
-        <img
-          className="dock-item-icon"
-          src="https://cdn.simpleicons.org/googlephotos/e8e8ec"
-          alt=""
-          aria-hidden="true"
-        />
+        <GooglePhotosMark className="dock-item-icon" aria-hidden="true" />
       ),
     },
     {
@@ -160,12 +152,7 @@ export default function Dock({ visible, onChoose, active }) {
       label: "Claude (coming soon)",
       action: null,
       node: (
-        <img
-          className="dock-item-icon"
-          src="https://cdn.simpleicons.org/claude/e8e8ec"
-          alt=""
-          aria-hidden="true"
-        />
+        <ClaudeMark className="dock-item-icon" aria-hidden="true" />
       ),
     },
     {

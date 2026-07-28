@@ -35,7 +35,18 @@
   width: 13px;
   height: 13px;
   flex: none;
-  object-fit: contain;
+}
+
+/* The figma mark takes each chrome's own foreground. This used to be a hex
+   templated into a CDN URL (FIGMA_TINT in WorldTabs.jsx), which meant the same
+   glyph was fetched twice — once per colour. It's one inline SVG on
+   currentColor now, so the tint is just cascade. */
+.wt--code .wt-tab-icon {
+  color: #7e8d82;
+}
+
+.wt--figma .wt-tab-icon {
+  color: #d0d0d0;
 }
 
 /* the single app-close, pushed to the far right of the title bar */

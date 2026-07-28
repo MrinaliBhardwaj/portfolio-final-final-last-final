@@ -42,7 +42,12 @@
   color: #e5e5e5;
 }
 
-.fp-file img {
+/* `svg`, not `img` — inline mark now. The explicit colour is the tint the CDN
+   URL used to carry; the row's own #e5e5e5 text colour would otherwise brighten
+   it. `flex: none` keeps it from being squeezed by the file name beside it. */
+.fp-file svg {
+  flex: none;
+  color: #d0d0d0;
   opacity: 0.9;
 }
 

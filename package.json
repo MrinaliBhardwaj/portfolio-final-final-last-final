@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "node scripts/check-no-cdn.mjs && vite build",
+    "check:cdn": "node scripts/check-no-cdn.mjs",
     "typecheck": "tsc -p tsconfig.json && tsc -p tsconfig.froggie.json",
     "preview": "vite preview"
   },

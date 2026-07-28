@@ -1130,3 +1130,34 @@ Three corrections to the lanyard, all hers.
   exclusive**: inline-size containment means the box cannot be sized by its
   contents. Page two's `--u` is re-derived from height instead, which is
   equivalent only because its aspect ratio is fixed.
+
+## No third-party origin serves navigation chrome (2026-07-29)
+
+- **The dock, the tab strip and the cover no longer fetch their brand marks from
+  cdn.simpleicons.org.** Seven call sites, four logos (Figma, Google Photos,
+  Claude, GitHub), now inline SVG in `src/BrandIcons.jsx`. That host returned 200
+  every time we checked, which is exactly the problem with depending on it: the
+  failure is somebody else's downtime, an ad blocker (`cdn.*` is a common
+  filter-list entry), or a corporate proxy — and the casualty is the dock, which
+  is the only way out of most worlds. It also sent every visitor's IP and referer
+  to a third party with no consent, and it was the last remote origin in a
+  project that vendors everything else.
+- **Path data is CC0** (Simple Icons), so vendoring is expressly allowed; the
+  marks stay their owners' trademarks either way, which hotlinking never changed.
+  **No `simple-icons` npm dependency** — that is ~3000 icons to ship four paths.
+- **The tint is now CSS `color`, not a hex in a URL.** Every mark is
+  `fill="currentColor"`. This deleted `FIGMA_TINT` from WorldTabs entirely, which
+  had been templating a colour into a URL — the same glyph fetched twice, once
+  per chrome.
+- **It also woke a dead rule.** `.dock-item-icon` had always declared `color` and
+  transitioned it, but on an `<img>` that does nothing — so the brand marks sat
+  at 0.82 alpha while the lucide glyphs beside them sat at 0.82 x 0.82 = 0.67.
+  Two rest brightnesses on one row of icons, invisible in the source. The colour
+  is opaque now so `opacity` alone dims: brand marks unchanged, glyphs brightened
+  to match. Size (48% vs 52%) is what keeps glyphs subordinate, as the comment
+  there always claimed.
+- **`npm run build` now runs `scripts/check-no-cdn.mjs` first.** It fails the
+  build on a remote SUBRESOURCE under `src/` — `src=`, `url()`, `@import`,
+  `<link href>`. Outbound `<a href>` links are deliberately not flagged; linking
+  to GitHub, LinkedIn and Behance is the point of a portfolio. Verified it fails
+  (exit 1) on a deliberately reintroduced CDN URL, not just that it passes.

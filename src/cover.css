@@ -81,12 +81,17 @@
   color: var(--void-text);
 }
 
-.cover-social-logo img {
+/* `svg`, not `img`: the GitHub mark is inline now (BrandIcons.jsx). `color` is
+   set explicitly rather than inherited — the links around it ride --void-dim,
+   but this mark was always pure white under its own opacity, and inheriting
+   would quietly restyle it. */
+.cover-social-logo svg {
+  color: #fff;
   opacity: 0.62;
   transition: opacity 0.25s var(--ease-soft);
 }
 
-.cover-social-logo:hover img {
+.cover-social-logo:hover svg {
   opacity: 1;
 }
 

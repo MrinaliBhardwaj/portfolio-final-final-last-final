@@ -126,14 +126,24 @@
   transform: scale(1.35);
 }
 
+/* Every icon here is now an inline <svg> — the three brand marks from
+   BrandIcons.jsx and the two lucide glyphs — so `color` finally drives all five.
+   It was always declared, but while the brand marks were remote image tags it
+   did nothing for them: the tint arrived baked into the URL, and only `opacity`
+   moved on hover. That left two rest brightnesses on one row of icons — the
+   marks at 0.82, the glyphs at 0.82 x 0.82 = 0.67, because the glyphs multiplied
+   this alpha by the one below.
+   The colour is OPAQUE now so `opacity` alone carries the dimming: the brand
+   marks stay exactly as they looked, and the glyphs come up to meet them. They
+   still read subordinate — that's the job of the smaller size below, which is
+   what the note under this rule always said it was for. */
 .dock-item-icon {
   position: relative;
   z-index: 1;
   width: 52%;
   height: 52%;
-  object-fit: contain;
   opacity: 0.82;
-  color: rgba(240, 240, 244, 0.82);
+  color: #e8e8ec;
   transition: opacity 0.3s var(--ease-soft), color 0.3s var(--ease-soft);
   pointer-events: none;
 }

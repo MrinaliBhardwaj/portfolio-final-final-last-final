@@ -9,15 +9,17 @@
 // the single app-close × owns that job. Hidden on mobile, where the dock alone
 // carries switching and each world's own mobile header carries home.
 import { Code2, X } from "lucide-react";
+import { FigmaMark } from "./BrandIcons.jsx";
 
 // file-flavoured labels in BOTH chromes now — the filenames are the charm, and
 // keeping them identical kills the old "design.fig here, plain 'design' there"
 // split the two tab systems used to have
 const LABELS = { design: "design.fig", tech: "tech.jsx" };
 
-// figma brand mark tinted to each chrome's foreground (greenish-grey on the
-// tech tab bar, light grey on the Figma dark toolbar)
-const FIGMA_TINT = { code: "7e8d82", figma: "d0d0d0" };
+// The figma mark is tinted to each chrome's foreground (greenish-grey on the
+// tech tab bar, light grey on the Figma dark toolbar). That used to be a
+// FIGMA_TINT map templated into a CDN URL — so the same icon was fetched twice,
+// once per colour. It's `color` on .wt--code / .wt--figma in world-tabs.css now.
 
 export default function WorldTabs({ world }) {
   const chrome = world === "tech" ? "code" : "figma";
@@ -32,14 +34,7 @@ export default function WorldTabs({ world }) {
   const tabs = [
     {
       world: "design",
-      icon: (
-        <img
-          className="wt-tab-icon"
-          src={`https://cdn.simpleicons.org/figma/${FIGMA_TINT[chrome]}`}
-          alt=""
-          aria-hidden="true"
-        />
-      ),
+      icon: <FigmaMark className="wt-tab-icon" aria-hidden="true" />,
     },
     {
       world: "tech",

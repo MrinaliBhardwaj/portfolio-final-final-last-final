@@ -8,6 +8,7 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { ArrowUpRight, Layers, Mail } from "lucide-react";
+import { FigmaMark } from "./BrandIcons.jsx";
 import FigmaPanel from "./FigmaPanel.jsx";
 import WorldTabs from "./WorldTabs.jsx";
 import DesignHero from "./DesignHero.jsx";
@@ -422,13 +423,7 @@ export default function DesignWorld({ project = null }) {
           </a>
 
           <span className="dw-mfile">
-            <img
-              src="https://cdn.simpleicons.org/figma/d0d0d0"
-              alt=""
-              aria-hidden="true"
-              width="12"
-              height="12"
-            />
+            <FigmaMark size={12} aria-hidden="true" />
             design.fig
           </span>
 

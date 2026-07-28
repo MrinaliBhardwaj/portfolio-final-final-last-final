@@ -1495,6 +1495,13 @@
     text-overflow: ellipsis;
   }
 
+  /* the figma mark keeps its own tint — the row's #b6b6b6 is for the file name.
+     `flex: none` stops the ellipsising label from squeezing it. */
+  .dw-mfile svg {
+    flex: none;
+    color: #d0d0d0;
+  }
+
   .dw-mlayers {
     display: inline-flex;
     align-items: center;

@@ -16,6 +16,7 @@ import {
   useMotionValueEvent,
 } from "framer-motion";
 import { ChevronDown, Mail, ArrowUpRight } from "lucide-react";
+import { GitHubMark } from "./BrandIcons.jsx";
 import { createParticles } from "./particles.js";
 import { createLotusScrubber } from "./lotus.js";
 
@@ -240,12 +241,7 @@ export default function Cover({ onChoose, onSettledChange }) {
             rel="noreferrer"
             aria-label="GitHub"
           >
-            <img
-              src="https://cdn.simpleicons.org/github/ffffff"
-              alt=""
-              width="18"
-              height="18"
-            />
+            <GitHubMark size={18} aria-hidden="true" />
           </a>
           <a href="mailto:mrinalibhardwaj0705@gmail.com" aria-label="Email">
             <Mail size={19} strokeWidth={1.75} />

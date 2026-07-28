@@ -6,6 +6,7 @@
 // row, click to jump. Selection reads Figma-blue on purpose — the panel is
 // the app's chrome, not the portfolio's palette.
 import { useState } from "react";
+import { FigmaMark } from "./BrandIcons.jsx";
 import { PROJECTS } from "./projects.js";
 
 function cx(...parts) {
@@ -191,13 +192,7 @@ export default function FigmaPanel({
       </button>
 
       <div className="fp-file">
-        <img
-          src="https://cdn.simpleicons.org/figma/d0d0d0"
-          alt=""
-          aria-hidden="true"
-          width="13"
-          height="13"
-        />
+        <FigmaMark size={13} aria-hidden="true" />
         <span>mrinali &middot; portfolio</span>
       </div>
 
