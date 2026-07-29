@@ -84,6 +84,21 @@
   box-sizing: border-box;
 }
 
+/* The browser's own stylesheet sets `font-family: monospace` on these, and a UA
+   rule matching the element BEATS inheritance — so a <code> inside a <pre> that
+   has been styled with JetBrains Mono silently renders in the browser's default
+   mono instead. That was live: the README preview's one code line, the `import
+   { craft } from "../design"` that links the two halves of the site together,
+   was the only text in the tech world not set in the editor's own typeface, and
+   nothing in the source said so. Inherit instead, so an ancestor's choice
+   actually reaches them. */
+code,
+kbd,
+samp,
+pre {
+  font-family: inherit;
+}
+
 html {
   /* clip (not hidden) contains horizontal overflow WITHOUT creating a scroll
      container — hidden would break position: sticky on the cover stage */

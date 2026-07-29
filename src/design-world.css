@@ -589,18 +589,12 @@
   color: var(--dw-board-dim);
 }
 
-.dw-h1 {
-  margin-top: 1.2rem;
-  font-size: clamp(2.2rem, 5.4vw, 4.4rem);
-  line-height: 1.02;
-  letter-spacing: -0.02em;
-  max-width: 18ch;
-}
-
-.dw-h1 em {
-  font-style: italic;
-  color: var(--dw-accent);
-}
+/* `.dw-h1` and its `em` rule lived here and matched nothing: no JSX in the
+   project ever carried the class (`.dw-h2` is the heading that is actually
+   used, four times) and there is no <em> anywhere in the source. They were
+   left over from an earlier hero. Worth naming because the `em` rule was the
+   supposed evidence for an "Inter renders faux italic" problem — a dead rule
+   cannot render anything, faux or otherwise. */
 
 .dw-sub {
   margin-top: 1.6rem;

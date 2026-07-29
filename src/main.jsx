@@ -23,6 +23,12 @@ import { createRoot } from "react-dom/client";
 // weight, and not worth the fragility.
 import "@fontsource-variable/archivo/wdth.css";
 import "@fontsource-variable/jetbrains-mono";
+// TRUE italic, because the tech world renders comments in it and a synthesised
+// slant is the wrong shape: JetBrains Mono's italic is a drawn face, and the
+// browser's fallback is a shear applied to the upright — including to the box
+// drawing characters in the file dividers, which a shear visibly bends. This is
+// the only italic face the site loads; nothing else is ever italic.
+import "@fontsource-variable/jetbrains-mono/wght-italic.css";
 import "@fontsource-variable/inter";
 import "@fontsource-variable/ballet";
 import "@fontsource/pinyon-script/latin-400.css";
