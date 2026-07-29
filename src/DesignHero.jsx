@@ -153,15 +153,21 @@ export default function DesignHero() {
         {INTRO}
       </p>
 
-      {/* download resume */}
+      {/* Opens the résumé for VIEWING, not a forced download — a recruiter
+          skimming on a phone doesn't want a surprise file landing in
+          Downloads before they've decided whether to keep it. A PDF renders
+          in the browser's own viewer (Chrome, Edge, Firefox and Safari all
+          have one built in), which has its own save button if they want it —
+          exactly the read-first model of a shared Google Drive link. */}
       <a
         className="dwh-download"
-        href="/resume-design.docx"
-        download
+        href="/resume-design.pdf"
+        target="_blank"
+        rel="noreferrer"
         style={{ left: U(1095), top: U(94), fontSize: U(14) }}
       >
-        Download Resume
-        <span className="dwh-download-arrow" aria-hidden="true">↓</span>
+        View Resume
+        <span className="dwh-download-arrow" aria-hidden="true">↗</span>
       </a>
 
       {/* ============ EXPERIENCE (2×2) ============ */}
@@ -255,9 +261,9 @@ export default function DesignHero() {
 
         <p className="dwh-m-intro">{INTRO}</p>
 
-        <a className="dwh-m-download" href="/resume-design.docx" download>
-          Download Resume
-          <span aria-hidden="true">↓</span>
+        <a className="dwh-m-download" href="/resume-design.pdf" target="_blank" rel="noreferrer">
+          View Resume
+          <span aria-hidden="true">↗</span>
         </a>
 
         <section className="dwh-m-sec">

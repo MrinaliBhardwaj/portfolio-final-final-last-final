@@ -674,8 +674,10 @@ export default function DesignWorld({ project = null }) {
               </ul>
 
               <div className="dwc-sec">
-                <a href="/resume-design.docx" download>
-                  Design resume <span aria-hidden="true">&darr;</span>
+                {/* View, not force-download — see the note on the hero's own
+                    resume link in DesignHero.jsx for why. */}
+                <a href="/resume-design.pdf" target="_blank" rel="noreferrer">
+                  Design resume <span aria-hidden="true">↗</span>
                 </a>
               </div>
 

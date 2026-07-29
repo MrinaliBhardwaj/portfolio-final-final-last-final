@@ -1681,7 +1681,13 @@
     color: #4a4a58;
   }
 
-  .dwh-m-download {
+  /* `a.` rather than a bare class: the global reset in index.css sets
+     `a { color: inherit }` (specificity 0,0,1), and this button's text was
+     rendering nearly invisible — dark ink on its own dark fill — because a
+     single class alone (0,1,0) was somehow losing to that reset in testing.
+     Qualifying with the tag name (0,1,1) makes the win unambiguous rather
+     than relying on source order between two files. */
+  a.dwh-m-download {
     display: inline-flex;
     align-items: center;
     gap: 0.4rem;

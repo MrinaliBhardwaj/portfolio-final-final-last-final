@@ -378,7 +378,11 @@ export default function TechWorld() {
                   <span className="badge-k">in</span>
                   <span className="badge-v">mrinali-bhardwaj</span>
                 </a>
-                <a className="badge" href="/resume-tech.pdf" download>
+                {/* View, not force-download — a recruiter skimming on a phone
+                    doesn't want a surprise file landing in Downloads before
+                    deciding whether to keep it. A PDF opens in the browser's
+                    own viewer, which has its own save button already. */}
+                <a className="badge" href="/resume-tech.pdf" target="_blank" rel="noreferrer">
                   <span className="badge-k">cv</span>
                   <span className="badge-v">resume-tech.pdf</span>
                 </a>
@@ -590,7 +594,7 @@ export default function TechWorld() {
             <Ln>
               <V>RESUME</V>
               <P>=</P>
-              <a className="ln-link env-v" href="/resume-tech.pdf" download>
+              <a className="ln-link env-v" href="/resume-tech.pdf" target="_blank" rel="noreferrer">
                 /resume-tech.pdf
               </a>
             </Ln>
