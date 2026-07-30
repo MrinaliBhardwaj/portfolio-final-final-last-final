@@ -55,6 +55,19 @@ extend({ MeshLineGeometry, MeshLineMaterial });
 
 const CARD_GLB = "/lanyard/card.glb";
 const BAND_TEX = "/lanyard/lanyard.png";
+// The card's own artwork. The GLB ships with the reactbits.dev demo's branding
+// baked into its base map — an Atom mark on the front half of the atlas and the
+// reactbits logo + wordmark on the back half — so the ID was advertising
+// somebody else's project. This overrides that map rather than rewriting the
+// binary, which keeps the asset a plain, diffable image.
+//
+// It must keep the GLB's atlas layout, because the UVs are baked into the
+// geometry: LEFT half (u 0..0.5) is the FRONT face, RIGHT half (u 0.5..1) is
+// the BACK. Both carry the Pinyon monogram, on the card stock's own paper grain
+// lifted from a blank corner of the original. Verified against the mesh: on the
+// back face, u runs 0.501 -> 1.000 left-to-right as seen by a viewer, and the
+// top of the card is v ~= 0, so that half is displayed upright, not mirrored.
+const CARD_TEX = "/lanyard/card-face.jpg";
 
 export default function Lanyard({
   // THE ZOOM DIAL. Rendered height of the card is
@@ -197,6 +210,7 @@ function Band({
   };
   const { nodes, materials } = useGLTF(CARD_GLB);
   const texture = useTexture(BAND_TEX);
+  const cardTex = useTexture(CARD_TEX);
   const [curve] = useState(
     () =>
       new THREE.CatmullRomCurve3([
@@ -410,6 +424,13 @@ function Band({
   curve.curveType = "chordal";
   texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
 
+  // Match how the loader would have configured this map had it come from inside
+  // the GLB, since the geometry's UVs were authored against those conventions:
+  // glTF puts the UV origin at the TOP-left (so no flip), and a base-colour map
+  // is sRGB. Miss either and the monogram lands upside down or washed out.
+  cardTex.flipY = false;
+  cardTex.colorSpace = THREE.SRGBColorSpace;
+
   return (
     <>
       {/* No wrapping <group>: the hook is moved imperatively every frame, and a
@@ -465,7 +486,7 @@ function Band({
         >
           <mesh geometry={nodes.card.geometry}>
             <meshPhysicalMaterial
-              map={materials.base.map}
+              map={cardTex}
               map-anisotropy={16}
               clearcoat={1}
               clearcoatRoughness={0.15}
@@ -494,6 +515,11 @@ function Band({
           </group>
         )}
       </RigidBody>
+      {/* `repeat` is POSITIVE, where the demo had -4. A negative repeat walks u
+          backwards along the strap, which mirrors whatever is printed on it —
+          invisible with the near-symmetric Atom mark this replaced, but it
+          would have run the monogram's script backwards. The sign only picks
+          which way the repeat travels; nothing else reads it. */}
       <mesh ref={band}>
         <meshLineGeometry />
         <meshLineMaterial
@@ -502,7 +528,7 @@ function Band({
           resolution={[1000, 1000]}
           useMap
           map={texture}
-          repeat={[-4, 1]}
+          repeat={[4, 1]}
           lineWidth={1}
         />
       </mesh>
