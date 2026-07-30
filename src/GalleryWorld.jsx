@@ -9,16 +9,22 @@ import DomeGallery from "./DomeGallery.jsx";
 // dissolves into the page edges instead of sitting on a visible panel
 const GALLERY_BG = "#05040a";
 
-// TODO: swap these placeholders for real work shots (ideally vendored to
-// public/, the way the lotus video is, to drop the external-URL dependency).
-const IMAGES = [
-  { src: "https://images.unsplash.com/photo-1755331039789-7e5680e26e8f?q=80&w=774&auto=format&fit=crop", alt: "Gallery image" },
-  { src: "https://images.unsplash.com/photo-1755569309049-98410b94f66d?q=80&w=772&auto=format&fit=crop", alt: "Gallery image" },
-  { src: "https://images.unsplash.com/photo-1755497595318-7e5e3523854f?q=80&w=774&auto=format&fit=crop", alt: "Gallery image" },
-  { src: "https://images.unsplash.com/photo-1755353985163-c2a0fe5ac3d8?q=80&w=774&auto=format&fit=crop", alt: "Gallery image" },
-  { src: "https://images.unsplash.com/photo-1745965976680-d00be7dc0377?q=80&w=774&auto=format&fit=crop", alt: "Gallery image" },
-  { src: "https://images.unsplash.com/photo-1752588975228-21f44630bb3c?q=80&w=774&auto=format&fit=crop", alt: "Gallery image" },
-];
+// Vendored to public/gallery/ (WebP, longest edge capped at 1000px) from her
+// own camera roll — dropped the placeholder Unsplash set. Source photos lived
+// in three zip exports + loose WhatsApp downloads; exact-duplicate exports
+// were deduped by content hash before conversion. 28 photos on a 150-slot
+// dome (segments=30 below), so nothing repeats. Five more shots exist only as
+// HEIC (no JPEG sibling) and were skipped — this machine's ffmpeg has no
+// libheif, so they can't be decoded here. Re-export those as JPEG/PNG from
+// the phone and re-run to add them.
+//
+// Alt text is generic ("Photo N") because these are personal photos, not
+// captioned work samples — there's no description to give beyond what they
+// are. Swap in real captions if these get replaced with case-study shots.
+const IMAGES = Array.from({ length: 28 }, (_, i) => ({
+  src: `/gallery/photo-${String(i + 1).padStart(2, "0")}.webp`,
+  alt: `Photo ${i + 1}`,
+}));
 
 export default function GalleryWorld() {
   const back = () => {
@@ -36,6 +42,8 @@ export default function GalleryWorld() {
           segments={30}
           dragDampening={3.8}
           grayscale={false}
+          openedImageWidth="min(56vw, 620px)"
+          openedImageHeight="min(56vh, 620px)"
         />
       </div>
 

@@ -103,6 +103,22 @@ body.dg-scroll-lock {
   overflow: hidden;
 }
 
+/* The vendored dome (DomeGallery.jsx/.css, untouched) crops every enlarged
+   photo to object-fit: cover inside a fixed 250x350 box — fine for a curated
+   set of same-ratio shots, wrong for a real camera roll of mixed portrait
+   and landscape photos. Overriding from here, not the vendored file: contain
+   instead of cover shows each photo at its true aspect ratio.
+   NO background here — that was the "black screen" bug. The box
+   (openedImageWidth/Height, GalleryWorld.jsx) is bigger than most photos'
+   actual aspect ratio, so contain leaves letterboxed gaps; a solid fill on
+   .enlarge turned those gaps into an opaque near-black slab stacked on top
+   of the dome's own dim/blurred scrim, reading as a black screen behind a
+   small photo. Leaving it transparent lets the blurred dome show through
+   the gaps instead, like a frosted mat around the photo. */
+.gw-stage .viewer .enlarge img {
+  object-fit: contain;
+}
+
 @media (max-width: 768px) {
   .gw-top {
     padding: 1.1rem 1.25rem;
