@@ -446,11 +446,15 @@
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.22), 0 14px 34px rgba(0, 0, 0, 0.5);
   max-width: 216px;
   transform-origin: top left;
-  /* ALWAYS OPEN. This used to be opacity 0 until you hovered or tapped the
-     dot, which hid the one line on the page that says she's available. A
-     resolved Figma thread sits open in the file; you don't click a marker to
-     find out a comment exists. The note is what matters — the dot is just its
-     anchor. */
+  /* ALWAYS OPEN BY DEFAULT. This used to be opacity 0 until you hovered or
+     tapped the dot, which hid the one line on the page that says she's
+     available — that's why it stopped being hover-gated everywhere. On a
+     TOUCH device it still never gates: there's no hover, and a tap here must
+     reach the mailto link on the first try, not get eaten opening a note. A
+     precise pointer gets its expand-on-hover back below (see the
+     `pointer: fine` block near .dw-board-pin-avatar) — a mouse can hover
+     without cost, so collapsing to the dot there is a real Figma-thread
+     feeling, not a place content goes missing. */
 }
 
 /* author row — an avatar chip + name, so the note reads as a real comment
@@ -906,9 +910,13 @@
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.22), 0 14px 34px rgba(0, 0, 0, 0.5);
   max-width: 214px;
   transform-origin: top left;
-  /* ALWAYS OPEN — which is what the rule above this block always claimed
-     ("the social proof, not a hover surprise") and never actually did: it was
-     opacity 0 until hover. The awards are the reason to look at the boards. */
+  /* ALWAYS OPEN BY DEFAULT — which is what the rule above this block always
+     claimed ("the social proof, not a hover surprise") and never actually
+     did: it was opacity 0 until hover, on every pointer, including touch,
+     where a tap has nothing better to do than open it. Touch keeps that
+     always-open behaviour permanently. A precise pointer gets it back as a
+     genuine hover-expand instead (below) — see the `pointer: fine` block
+     after .dw-board-pin-avatar. */
 }
 
 .dw-board-pin-author {
@@ -931,6 +939,46 @@
   color: #2e2e38;
   font-size: 9.5px;
   font-weight: 700;
+}
+
+/* ---- desktop: comment threads collapse to the dot, expand on hover ----
+   `pointer: fine` — not a width breakpoint — because the thing that decides
+   whether this is safe is whether a hover exists to expand it, not how wide
+   the screen is. Touch (pointer: coarse) never reaches this block, so the
+   always-open rules above stand completely untouched: nothing here can
+   reopen the tap-swallow bug those were written to fix, because a touch
+   pointer was never in scope for it.
+
+   Note it, don't just fade it: opacity 0 with `pointer-events: none` takes it
+   fully out of the hit-testing path (so it can never eat a click meant for
+   something behind it while collapsed), and the light `scale()` is what
+   makes the reveal read as the note UNFOLDING from its dot rather than a
+   tooltip materialising out of nowhere. */
+@media (pointer: fine) {
+  .cvf-pin-note,
+  .dw-board-pin-note {
+    opacity: 0;
+    transform: scale(0.9);
+    pointer-events: none;
+    transition: opacity 0.16s var(--ease-soft), transform 0.16s var(--ease-soft);
+  }
+
+  .cvf-pin:hover .cvf-pin-note,
+  .cvf-pin:focus-visible .cvf-pin-note {
+    opacity: 1;
+    transform: scale(1);
+    pointer-events: auto;
+  }
+
+  /* mirrors the dot-lift rule above: hovering the pin OR focusing the whole
+     board (the pin itself is a plain span, not focusable on its own) both
+     count, so a keyboard visitor sees the same thing a mouse visitor does */
+  .dw-board-pin:hover .dw-board-pin-note,
+  .dw-board:focus-visible .dw-board-pin-note {
+    opacity: 1;
+    transform: scale(1);
+    pointer-events: auto;
+  }
 }
 
 /* selection chrome — the same handles + dims pill the section frames wear,
