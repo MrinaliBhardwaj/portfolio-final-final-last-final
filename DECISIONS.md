@@ -1131,6 +1131,56 @@ Three corrections to the lanyard, all hers.
   contents. Page two's `--u` is re-derived from height instead, which is
   equivalent only because its aspect ratio is fixed.
 
+## Reversed: #/notes asks for landscape instead of panning (2026-07-30)
+
+The pan approach above shipped, then turned out wrong in practice: a
+horizontal scroll port is not "the entire width visible at once," which is
+what was actually wanted. Overruling the 2026-07-28 entry, scoped to notes
+only.
+
+- **The four objections to a page-wide `rotate(90deg)`** (dock, `dvh` sizing,
+  scroll direction, text selection) are all objections to *faking* landscape
+  with a transform while the phone stays portrait. None of them apply to
+  asking for the real thing: a phone actually turned sideways is a genuine
+  landscape viewport, so the existing width-driven rules (already correct for
+  desktop) just apply unchanged — no transform, no dock conflict, nothing
+  special to maintain for landscape at all.
+- **Portrait phones get a gate instead of a squeeze**: both sheets and the
+  coda go `display: none`, replaced by `.nw-rotate-gate` — a `Smartphone` icon
+  rotated 90° as the instruction itself, plus a line of Caveat asking the
+  visitor to turn their phone. The `.nw-top` header (home link, close button)
+  stays outside the gated content, so leaving Notes never requires rotating.
+- **700px was kept as the breakpoint, `orientation: portrait` was added to
+  it.** Landscape phones (667px on the smallest common case, an iPhone SE)
+  clear 700px turned sideways and fall straight through to the unconditional
+  desktop rules above — confirmed at 844×390: image renders 829×354 (0.495x),
+  `documentElement.scrollWidth` (829) stays under the viewport (844), zero
+  horizontal overflow.
+- **Cost of the reversal, stated plainly:** panning reached ~0.92x/~26px text;
+  landscape-without-scroll reaches ~0.50x/~14px. Smaller text, but no
+  scrolling — matches what was actually asked for over what reads more sharply.
+- **Bug caught in the same pass, worth recording:** the gate's base
+  `display: none` and its media-query override started at equal specificity
+  (0,1,0 each), and the base rule sat *after* the query in source — so it won
+  regardless of viewport, and the gate never appeared. Fixed by ordering the
+  unconditional rule first, override after. A media query adds a condition,
+  not specificity; source order still decides ties.
+- **`--nw-h`, `.nw-pan`, and the container-query workaround for page two's
+  `--u`** are deleted outright rather than kept dark — nothing references them
+  once panning is gone, and dead CSS answering a question no longer asked
+  only misleads the next read.
+
+## Page one's whitespace above "meet mini mri" (2026-07-30)
+
+`.sheet-one` centred vertically (`align-items: center`) in a box at least
+viewport-tall, but the artwork's rendered height is usually much shorter than
+that box — on a normal desktop monitor the dead cream above the composition
+matched the dead cream below it, and on a tall external display it read as
+the page having not loaded. `.sheet-one` (only — `.sheet-two` untouched) is
+now `align-items: flex-start`, so the only whitespace above the image is the
+sheet's own 24px top padding that clears the fixed toolbar. Measured at
+1440×900: 84px of top whitespace before, 24px after.
+
 ## No third-party origin serves navigation chrome (2026-07-29)
 
 - **The dock, the tab strip and the cover no longer fetch their brand marks from
@@ -1239,3 +1289,45 @@ starts after 288px of left rails (activity bar + explorer).
   overshooting the bottom by exactly the status bar's 22px and hiding under it;
   adding a 35px top made the overshoot visible. `.tw-sidebar` now sets
   `height: auto` so top/bottom govern.
+
+## The ID badge wears her monogram, not the demo's branding (2026-07-29)
+
+The lanyard came from the `lanyard` sample project, and it arrived carrying that
+project's identity in two places we had never replaced:
+
+- **The strap** (`public/lanyard/lanyard.png`) was the **Atom editor logo**,
+  repeated four times down the band.
+- **The card** had the **reactbits.dev logo and wordmark** baked into the GLB's
+  base colour map. That is the face you see when the badge flips, so the back of
+  her ID was an advert for someone else's library.
+
+Both are now the Pinyon Script `mb`, matching the monogram everywhere else.
+
+- **The card map is overridden in code, not baked back into the GLB.**
+  `Lanyard.jsx` loads `card-face.jpg` and passes it as the material's `map`.
+  Rewriting the binary would have meant rebuilding buffer views by hand and
+  would have left the artwork undiffable. As a plain image anyone can re-edit it.
+- **The atlas layout is load-bearing.** The UVs are baked into the geometry:
+  left half (u 0–0.5) is the FRONT face, right half (u 0.5–1) is the BACK. A
+  replacement must keep that split or the faces show the wrong thing. Measured
+  off the mesh, not guessed.
+- **No mirroring is needed on the back**, which is not obvious: the back face's
+  normals point −z, and its u runs 1.000 at local +x down to 0.501 at local −x.
+  Viewed from behind, +x is on the viewer's LEFT, so left-to-right across the
+  screen is u 0.501 → 1.000 — increasing, therefore upright.
+- **The paper grain is the original card stock**, sampled from a blank corner of
+  the GLB's own texture and tiled with alternate cells mirrored to kill the seam.
+  A flat fill lost the material feel; the grain is what makes it read as card.
+- **JPEG, not PNG.** The grain is high-frequency noise, so PNG could not compress
+  it: 1.03 MB as PNG vs 181 KB as JPEG q0.92, replacing a 2.29 MB baked PNG. No
+  alpha is needed, and at the size the card renders (~340px tall) q0.92 ringing
+  is invisible.
+- **`repeat` on the band material flipped from −4 to +4.** A negative repeat
+  walks u backwards along the strap, which mirrors whatever is printed on it.
+  That was invisible with the near-symmetric Atom mark but would have run the
+  script backwards. The sign only chooses which way the repeat travels.
+- **Verification note:** the card face was confirmed by reading pixels back out
+  of the live WebGL buffer. The STRAP could not be confirmed the same way —
+  driving the scene by hand (`__lanyard.advance`) feeds rapier synthetic deltas
+  and NaNs the rope, so the band has no geometry to draw. The band's `uv` does
+  run 0→1 along its length, which is the premise the repeat-sign fix rests on.

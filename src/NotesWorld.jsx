@@ -13,7 +13,7 @@
 // Notes is the portfolio's one LIGHT world on purpose. Design, tech, gallery
 // and the pond are all dark; the scrapbook is paper, and Apple Notes is paper
 // too, so the app and its contents agree instead of fighting.
-import { X } from "lucide-react";
+import { Smartphone, X } from "lucide-react";
 import Scene from "./Scene.jsx";
 import SceneTwo from "./SceneTwo.jsx";
 
@@ -43,12 +43,20 @@ export default function NotesWorld() {
         </button>
       </header>
 
-      {/* Phones only (see notes-world.css). Both pages are wide fixed-aspect
-          artwork with the copy baked in, so on a phone they are sized by
-          HEIGHT and panned sideways rather than shrunk to fit the width —
-          this is the one line that says so. It sits outside both sheets
-          because each sheet is its own scroll port. */}
-      <p className="nw-pan">both pages pan sideways &rarr;</p>
+      {/* Portrait phones only (see notes-world.css): both pages are wide
+          fixed-aspect artwork with the copy baked into the pixels, which
+          cannot be shrunk to a portrait phone's width without the text going
+          unreadable. Rather than pan or fake a rotated layout, this asks for
+          the real thing — landscape gets no special treatment at all, because
+          the same width-driven rules the desktop uses already work on it. */}
+      <div className="nw-rotate-gate" role="status">
+        <Smartphone size={30} strokeWidth={1.3} aria-hidden="true" />
+        <p>
+          turn your phone sideways
+          <br />
+          to read the scrapbook
+        </p>
+      </div>
 
       <Scene />
       <SceneTwo />
