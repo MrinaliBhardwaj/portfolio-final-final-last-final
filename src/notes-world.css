@@ -154,6 +154,120 @@
   height: auto;
 }
 
+/* ---- the four pink dots on the scribbled line ----
+   The dots are painted into origin.webp, so these are invisible hotspots laid
+   over them at measured percentages (see MILESTONES in Scene.jsx). `relative`
+   on the stage is what those percentages resolve against; the stage wraps the
+   image tightly in both layouts, so it is the right box in both. */
+.nw .nw-stage {
+  position: relative;
+}
+
+.nw .nw-milestone {
+  position: absolute;
+  /* left/top put the hotspot's top-left on the dot; this pulls its CENTRE
+     there instead, which is what the measured centroids describe */
+  transform: translate(-50%, -50%);
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  cursor: help;
+  z-index: 3;
+}
+
+/* A ring, not a fill: the pink dot underneath is hers and stays visible. This
+   only confirms the thing is live, because a painted dot gives no such hint. */
+.nw .nw-milestone::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 17px;
+  height: 17px;
+  margin: -8.5px 0 0 -8.5px;
+  border: 1px solid var(--dot);
+  border-radius: 50%;
+  opacity: 0;
+  transform: scale(0.55);
+  transition: opacity 0.2s var(--ease-soft), transform 0.2s var(--ease-soft);
+}
+
+.nw .nw-milestone:hover::before,
+.nw .nw-milestone:focus-visible::before,
+.nw .nw-milestone:focus::before {
+  opacity: 0.6;
+  transform: scale(1);
+}
+
+/* Opacity, not `display: none` — the note has to be laid out to animate, and
+   its size has to be known so it never reflows on reveal. It carries no
+   accessibility duty: the button's own aria-label does that (see Scene.jsx),
+   because the age and the number are separated only by a flex `gap`, which is
+   layout rather than text, and they would otherwise be read as one number. */
+.nw .nw-milestone-note {
+  position: absolute;
+  left: 50%;
+  display: flex;
+  align-items: baseline;
+  gap: 0.36em;
+  width: max-content;
+  max-width: 46vw;
+  padding: 3px 10px 4px;
+  border-radius: 3px;
+  background: rgba(248, 247, 244, 0.94);
+  box-shadow: 0 1px 0 rgba(28, 28, 26, 0.05), 0 6px 20px rgba(28, 28, 26, 0.11);
+  font-family: "Caveat", cursive;
+  font-size: 17px;
+  line-height: 1.2;
+  color: var(--ink);
+  white-space: nowrap;
+  text-align: left;
+  opacity: 0;
+  pointer-events: none; /* never let the note itself eat a hover from a neighbour */
+  transition: opacity 0.22s var(--ease-soft), transform 0.22s var(--ease-soft);
+}
+
+/* Offset left of centre rather than centred: at 40–52% across the sheet these
+   all have room to the right, and anchoring near the dot keeps the note reading
+   as something the dot said. */
+.nw .nw-milestone--above .nw-milestone-note {
+  bottom: calc(100% + 5px);
+  transform: translate(-14%, 5px);
+}
+
+.nw .nw-milestone--below .nw-milestone-note {
+  top: calc(100% + 5px);
+  transform: translate(-14%, -5px);
+}
+
+/* It should read as coming OUT of the dot, so it settles the last few px
+   towards its resting place as it fades in. */
+.nw .nw-milestone:hover .nw-milestone-note,
+.nw .nw-milestone:focus-visible .nw-milestone-note,
+.nw .nw-milestone:focus .nw-milestone-note {
+  opacity: 1;
+  transform: translate(-14%, 0);
+}
+
+.nw .nw-milestone-age {
+  color: var(--pencil);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nw .nw-milestone-note,
+  .nw .nw-milestone::before {
+    transition-duration: 0.01ms;
+  }
+  /* no travel at all — it appears where it will stay */
+  .nw .nw-milestone--above .nw-milestone-note,
+  .nw .nw-milestone--below .nw-milestone-note {
+    transform: translate(-14%, 0);
+  }
+}
+
 /* ============ page two: the tech desk collage ============ */
 .nw .scene-two {
   --u: calc(100cqw / 1485);
@@ -334,5 +448,14 @@
     --u: calc(var(--nw-h) / 1075);
     height: var(--nw-h);
     width: auto; /* aspect-ratio supplies it */
+  }
+
+  /* A finger is not a cursor. Here the sheet pans at roughly 1580px wide, so
+     the two closest dots sit ~44px apart rather than the ~25px they can reach
+     on a narrow desktop window — there is room to grow the target, and on
+     touch there is no hover to fall back on, so the tap has to land. */
+  .nw .nw-milestone {
+    width: 34px;
+    height: 34px;
   }
 }
