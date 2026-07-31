@@ -168,15 +168,18 @@
   /* The name's size lives here rather than on the h1 so the margin below can
      be computed from it. Custom properties only inherit downward.
    *
-   * 15vw is close to the ceiling and the ceiling is measured: the name is set
-   * nowrap, and its INK is 6.08x the font-size wide (wider than the 5.87x
-   * advance — Ballet's swashes overhang both ends, so the advance width
-   * understates it). With this element's 2 x 1.25rem padding that puts the
-   * hard limit at 16.03vw, past which the M and j swashes hit the viewport
-   * edges and the stage's overflow:hidden shears them sideways. 15vw fills
-   * ~92% of the width and keeps the margin. The rem cap is raised in step so
-   * wide screens grow proportionally rather than capping earlier than before. */
-  --name-fs: clamp(3.8rem, 15vw, 19rem);
+   * The ceiling is measured, and it MOVED when the lowercase became Pinyon:
+   * that face is ~16% wider per em than Ballet, so the name now lays out at
+   * 7.047x the font-size (was 6.08x) and the hard limit dropped from 16.03vw
+   * to 13.79vw. Past it the M's swash and the j's tail hit the viewport edges
+   * and the stage's overflow:hidden shears them SIDEWAYS, which is not the
+   * intended spill — 15vw overhung by 41px a side before this was corrected.
+   *
+   * 13vw sits ~6% under that limit. Note the name is not visually smaller for
+   * it: 13vw x 7.047 fills ~91.6% of the width, which is what 15vw x 6.08
+   * filled before. Same footprint, smaller em. Re-measure the multiplier if
+   * either script changes. */
+  --name-fs: clamp(3.3rem, 13vw, 16.5rem);
   /* The stage bottom-aligns this, so the negative bottom margin sets how low
      the script sits. The stage is a sticky 100dvh box with overflow:hidden, so
      the viewport bottom clips anything pushed past it — INTENTIONALLY, here:
@@ -245,6 +248,23 @@
   white-space: nowrap;
   text-shadow: 0 2px 40px rgba(0, 0, 0, 0.55);
   opacity: 0;
+}
+
+/* The two scripts. Ballet keeps the capitals — its swashed M and B are the
+   reason that face is on this page at all — and Pinyon takes the lowercase.
+ *
+ * They do NOT agree at the same em, and the correction runs the opposite way
+ * to the obvious guess: Pinyon's lowercase is the BIGGER of the two. Measured
+ * on a no-ascender, no-descender run ("rn") at 200px, x-height is 0.395em in
+ * Pinyon against 0.340em in Ballet, so Pinyon is scaled DOWN by 0.340/0.395 =
+ * 0.861 to bring the two x-heights level. Re-measure if either face changes. */
+.cover-name-cap {
+  font-family: var(--font-script);
+}
+
+.cover-name-rest {
+  font-family: var(--font-monogram);
+  font-size: 0.861em;
 }
 
 .cover-name-script.is-inked {
@@ -477,14 +497,15 @@
   transform: translateY(-50%);
   z-index: 4;
   /* Measured, not picked: every role has to sit on ONE line, and in Inter 300
-     at 11px tracked -0.04em the longest ("INTERACTION DESIGNER") measures
-     123.2px. 136px clears it by ~10%, which covers both cross-platform
+     at 12px tracked -0.04em the longest ("INTERACTION DESIGNER") measures
+     134.3px. 148px clears it by ~10%, which covers both cross-platform
      rendering variance and the fact that canvas measureText reads ~1.5% under
      real layout here. Re-measure if the roles, the size, the tracking or the
      weight change — the one-line guarantee is THIS NUMBER, not the nowrap
      below it: if the width is ever too small, nowrap makes the text spill out
-     of the column rather than wrap. */
-  width: 136px;
+     of the column rather than wrap. (At the previous 136px this had fallen to
+     1.7px of margin, inside that 1.5% measurement error.) */
+  width: 148px;
   pointer-events: none;
   /* the stage centres its text; these are margin notes and read off the edge */
   text-align: left;
@@ -548,8 +569,7 @@
   --track: -0.04em;
   font-family: var(--font-ui);
   font-weight: 300;
-  font-size: 10px;
-  /* 0.85 (8.5px actual) + 2px = 10.5px actual -> 1.05 at this font-size */
+  font-size: 11px;
   line-height: 1.05;
   letter-spacing: var(--track);
   /* letter-spacing lands on the SPACE characters too, and at -0.1em that ate
@@ -577,8 +597,7 @@
    than restating the numbers. */
 .cover-aside-role {
   --track: -0.04em;
-  --role-fs: 11px;
-  /* 0.85 (9.35px actual) + 2px = 11.35px actual -> 1.032 at this font-size */
+  --role-fs: 12px;
   --role-lh: 1.032;
   min-height: calc(var(--role-lh) * var(--role-fs));
   font-family: var(--font-ui);

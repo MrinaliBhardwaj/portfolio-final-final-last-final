@@ -68,17 +68,20 @@ export default function Cover({ onChoose, onSettledChange }) {
   const splitRef = useRef(false);
   const settledRef = useRef(false);
   const [split, setSplit] = useState(false);
-  // hold the name invisible until Ballet has actually loaded — its fallback
-  // (Segoe Script) is close enough in metrics that font-display:swap flashed
-  // the wrong script on every cold load. The timeout covers a hung font fetch.
+  // Hold the name invisible until BOTH its scripts have actually loaded — the
+  // capitals are Ballet and the lowercase is Pinyon, and each has a fallback
+  // (Segoe Script) close enough in metrics that font-display:swap flashed the
+  // wrong script on every cold load. Waiting on Ballet alone would still let
+  // "rinali"/"hardwaj" pop from the fallback a beat later. allSettled, not all,
+  // so one failed fetch cannot leave the name hidden behind the timeout.
   const [fontReady, setFontReady] = useState(false);
 
   useEffect(() => {
     let alive = true;
-    document.fonts
-      .load('400 1em "Ballet Variable"')
-      .then(() => alive && setFontReady(true))
-      .catch(() => alive && setFontReady(true));
+    Promise.allSettled([
+      document.fonts.load('400 1em "Ballet Variable"'),
+      document.fonts.load('400 1em "Pinyon Script"'),
+    ]).then(() => alive && setFontReady(true));
     const t = setTimeout(() => alive && setFontReady(true), 2500);
     return () => {
       alive = false;
@@ -249,8 +252,17 @@ export default function Cover({ onChoose, onSettledChange }) {
             className="cover-hero-inner"
             style={{ opacity: nameOpacity, y: nameLift }}
           >
+            {/* Two scripts, split at the capitals: the M and B stay Ballet —
+                its swashed capitals are the whole reason that face is here —
+                while the lowercase runs are set in Pinyon Script, the same
+                face as the monogram. Kept as separate spans rather than one
+                string because the split is per-glyph-run, and the mask wipe
+                on .is-inked still sweeps the h1 as a single box. */}
             <h1 className={`cover-name-script${fontReady ? " is-inked" : ""}`}>
-              Mrinali Bhardwaj
+              <span className="cover-name-cap">M</span>
+              <span className="cover-name-rest">rinali</span>{" "}
+              <span className="cover-name-cap">B</span>
+              <span className="cover-name-rest">hardwaj</span>
             </h1>
           </motion.div>
 
