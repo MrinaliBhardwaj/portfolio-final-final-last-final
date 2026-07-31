@@ -182,7 +182,7 @@
      the viewport bottom clips anything pushed past it — INTENTIONALLY, here:
      the brief is to bottom out the name and let the j's tail run off-screen.
    *
-   * This has to be in em of the name, not vh. font-size is 13.5vw, so the
+   * This has to be in em of the name, not vh. font-size is 15vw, so the
    * descender scales with viewport WIDTH while a vh margin scales with
    * HEIGHT — the drop (and therefore how much of the j is cut) would vary by
    * aspect ratio instead of being a deliberate, consistent choice.
@@ -455,99 +455,6 @@
 .cover-side-cta:hover svg,
 .cover-side-cta:focus-visible svg {
   transform: translate(2px, -2px);
-}
-
-/* ============ the lotus plates ============ */
-/* The reference poster's concept-copy device: one dense uppercase block set
-   TWICE in the top corners, left-aligned on the left and right-aligned on the
-   right, masked so it dissolves downward. In the reference this tier is
-   texture, not reading matter — the fade is the thing that says so, and it is
-   why the same words appearing twice reads as a framing device rather than a
-   duplication bug.
- *
- * These sit where the nav used to; see the note in Cover.jsx. They ride the
- * same scroll fade as the margin notes, so the full poster composition is
- * what you see at scroll 0 and it clears before beat 3. */
-.cover-plate {
-  position: absolute;
-  top: clamp(18px, 2.2vh, 30px);
-  z-index: 4;
-  /* sized to the WIDEST composed line (109.3px, "FACE ONLY KNOWS LIGHT.") plus
-     ~6%, so no hand-broken line ever wraps a second time. The line breaks are
-     in Cover.jsx and the reason they are hand-set is there too. Re-measure on
-     any change to the size, weight, tracking or copy — this width is the only
-     thing holding the composed lines intact. */
-  width: 116px;
-  pointer-events: none;
-  font-family: var(--font-ui);
-  font-weight: 300;
-  font-size: 8.5px;
-  line-height: 1.5;
-  letter-spacing: -0.005em;
-  text-transform: uppercase;
-  color: #fff;
-  /* The dissolve: decays from the VERY TOP, with no opaque plateau — the top
-     line is already the brightest thing here and every line after it is
-     dimmer. (An earlier version held ~full opacity through the first fifth,
-     which read as a block that fades rather than a block that is fading.)
-     Eleven stops on an ease-out curve, because a two-stop gradient put a
-     visible kink where the ramp began: CSS interpolates alpha linearly, so
-     the start of a linear ramp is a corner. These leave no edge anywhere.
-   *
-   * This doubles as the collision guard: on a short viewport the block reaches
-   * toward the margin notes, but everything near its bottom is already close
-   * to transparent, so the two never visibly meet. */
-  -webkit-mask-image: linear-gradient(
-    to bottom,
-    rgba(0, 0, 0, 1) 0%,
-    rgba(0, 0, 0, 0.88) 10%,
-    rgba(0, 0, 0, 0.76) 20%,
-    rgba(0, 0, 0, 0.64) 30%,
-    rgba(0, 0, 0, 0.53) 40%,
-    rgba(0, 0, 0, 0.42) 50%,
-    rgba(0, 0, 0, 0.32) 60%,
-    rgba(0, 0, 0, 0.22) 70%,
-    rgba(0, 0, 0, 0.14) 80%,
-    rgba(0, 0, 0, 0.06) 90%,
-    rgba(0, 0, 0, 0) 100%
-  );
-  mask-image: linear-gradient(
-    to bottom,
-    rgba(0, 0, 0, 1) 0%,
-    rgba(0, 0, 0, 0.88) 10%,
-    rgba(0, 0, 0, 0.76) 20%,
-    rgba(0, 0, 0, 0.64) 30%,
-    rgba(0, 0, 0, 0.53) 40%,
-    rgba(0, 0, 0, 0.42) 50%,
-    rgba(0, 0, 0, 0.32) 60%,
-    rgba(0, 0, 0, 0.22) 70%,
-    rgba(0, 0, 0, 0.14) 80%,
-    rgba(0, 0, 0, 0.06) 90%,
-    rgba(0, 0, 0, 0) 100%
-  );
-}
-
-/* each composed line is its own block, so nothing re-flows them together */
-.cover-plate span {
-  display: block;
-}
-
-.cover-plate--left {
-  left: clamp(24px, 2.4vw, 40px);
-  text-align: left;
-}
-
-.cover-plate--right {
-  right: clamp(24px, 2.4vw, 40px);
-  /* the mirror: same words, opposite rag */
-  text-align: right;
-}
-
-/* the stage centres its text; both plates read off their own edge */
-@media (max-width: 1023px) {
-  .cover-plate {
-    display: none;
-  }
 }
 
 /* ============ the margin notes ============ */
