@@ -472,22 +472,27 @@
   position: absolute;
   top: clamp(18px, 2.2vh, 30px);
   z-index: 4;
-  /* sized to the WIDEST composed line (123.9px, "FACE ONLY KNOWS LIGHT.") plus
+  /* sized to the WIDEST composed line (109.3px, "FACE ONLY KNOWS LIGHT.") plus
      ~6%, so no hand-broken line ever wraps a second time. The line breaks are
-     in Cover.jsx and the reason they are hand-set is there too. */
-  width: 132px;
+     in Cover.jsx and the reason they are hand-set is there too. Re-measure on
+     any change to the size, weight, tracking or copy — this width is the only
+     thing holding the composed lines intact. */
+  width: 116px;
   pointer-events: none;
   font-family: var(--font-ui);
-  font-weight: 500;
-  font-size: 9.5px;
+  font-weight: 300;
+  font-size: 8.5px;
   line-height: 1.5;
   letter-spacing: -0.005em;
   text-transform: uppercase;
   color: #fff;
-  /* The dissolve: begins almost immediately and eases the whole way down.
-     A two-stop gradient put a visible kink where the ramp started, because
-     alpha then falls off linearly — these stops trace a smoothstep curve
-     instead, so there is no edge anywhere, just continuous decay.
+  /* The dissolve: decays from the VERY TOP, with no opaque plateau — the top
+     line is already the brightest thing here and every line after it is
+     dimmer. (An earlier version held ~full opacity through the first fifth,
+     which read as a block that fades rather than a block that is fading.)
+     Eleven stops on an ease-out curve, because a two-stop gradient put a
+     visible kink where the ramp began: CSS interpolates alpha linearly, so
+     the start of a linear ramp is a corner. These leave no edge anywhere.
    *
    * This doubles as the collision guard: on a short viewport the block reaches
    * toward the margin notes, but everything near its bottom is already close
@@ -495,29 +500,29 @@
   -webkit-mask-image: linear-gradient(
     to bottom,
     rgba(0, 0, 0, 1) 0%,
-    rgba(0, 0, 0, 0.97) 10%,
-    rgba(0, 0, 0, 0.91) 20%,
-    rgba(0, 0, 0, 0.82) 30%,
-    rgba(0, 0, 0, 0.7) 40%,
-    rgba(0, 0, 0, 0.57) 50%,
-    rgba(0, 0, 0, 0.43) 60%,
-    rgba(0, 0, 0, 0.3) 70%,
-    rgba(0, 0, 0, 0.18) 80%,
-    rgba(0, 0, 0, 0.08) 90%,
+    rgba(0, 0, 0, 0.88) 10%,
+    rgba(0, 0, 0, 0.76) 20%,
+    rgba(0, 0, 0, 0.64) 30%,
+    rgba(0, 0, 0, 0.53) 40%,
+    rgba(0, 0, 0, 0.42) 50%,
+    rgba(0, 0, 0, 0.32) 60%,
+    rgba(0, 0, 0, 0.22) 70%,
+    rgba(0, 0, 0, 0.14) 80%,
+    rgba(0, 0, 0, 0.06) 90%,
     rgba(0, 0, 0, 0) 100%
   );
   mask-image: linear-gradient(
     to bottom,
     rgba(0, 0, 0, 1) 0%,
-    rgba(0, 0, 0, 0.97) 10%,
-    rgba(0, 0, 0, 0.91) 20%,
-    rgba(0, 0, 0, 0.82) 30%,
-    rgba(0, 0, 0, 0.7) 40%,
-    rgba(0, 0, 0, 0.57) 50%,
-    rgba(0, 0, 0, 0.43) 60%,
-    rgba(0, 0, 0, 0.3) 70%,
-    rgba(0, 0, 0, 0.18) 80%,
-    rgba(0, 0, 0, 0.08) 90%,
+    rgba(0, 0, 0, 0.88) 10%,
+    rgba(0, 0, 0, 0.76) 20%,
+    rgba(0, 0, 0, 0.64) 30%,
+    rgba(0, 0, 0, 0.53) 40%,
+    rgba(0, 0, 0, 0.42) 50%,
+    rgba(0, 0, 0, 0.32) 60%,
+    rgba(0, 0, 0, 0.22) 70%,
+    rgba(0, 0, 0, 0.14) 80%,
+    rgba(0, 0, 0, 0.06) 90%,
     rgba(0, 0, 0, 0) 100%
   );
 }
