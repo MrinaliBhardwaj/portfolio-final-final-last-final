@@ -162,13 +162,29 @@
 .cover-hero-inner {
   position: relative;
   z-index: 4;
-  /* hug the name's width (its widest child) so the eyebrow, a full-width
-     space-between row, aligns DESIGN/ENGINEER to the name's own corners
-     — not the screen's */
   width: fit-content;
   max-width: 100%;
   padding: 0 1.25rem 0;
-  margin: 0 auto -1.5vh;
+  /* The name's size lives here rather than on the h1 so the margin below can
+     be computed from it. Custom properties only inherit downward. */
+  --name-fs: clamp(3.4rem, 13.5vw, 17rem);
+  /* The stage bottom-aligns this, so the negative bottom margin sets how low
+     the script sits — and the viewport bottom is a HARD floor, because the
+     stage is a sticky 100dvh box with overflow:hidden.
+   *
+   * This has to be in em of the name, not vh. The font-size is 13.5vw, so the
+   * descender that must stay above the fold scales with viewport WIDTH while a
+   * vh margin scales with HEIGHT: safe on one aspect ratio, shearing on the
+   * next. (-5vh cut 23px off the j at 1280x800 and nothing at all at 1280x550.)
+   *
+   * Measured, not guessed: a zero-height inline-block probe puts the baseline
+   * exactly, and a pixel scan of the rendered string puts its lowest ink at
+   * 0.52em below that — still a solid 12-16px stroke down there, the j's tail,
+   * so there is nothing droppable at the bottom. Geometry works out to
+   * headroom = 0.099em - drop; 0.08em leaves ~0.019em of clearance at every
+   * ratio, which is as low as this can go with the glyphs intact. */
+  --name-drop: 0.08;
+  margin: 0 auto calc(-1 * var(--name-drop) * var(--name-fs));
   text-align: center;
 }
 
@@ -191,24 +207,6 @@
   pointer-events: none;
 }
 
-/* "a design engineer" — small Helvetica oblique caption pinned under
-   "rinali" at the edge of the M. --cap-x/--cap-y are measured off the real
-   rendered glyphs in Cover.jsx (and re-measured on resize), so the pin holds
-   at any dimension; the % values are only a pre-measure fallback. */
-.cover-eyebrow-arc {
-  position: absolute;
-  left: var(--cap-x, 26.5%);
-  top: var(--cap-y, 110%);
-  z-index: 5;
-  pointer-events: none;
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: 13px;
-  font-style: oblique;
-  letter-spacing: 0.02em;
-  white-space: nowrap;
-  color: #fff;
-}
-
 /* the name, set in Ballet script, spanning the lower width of the stage.
    Hidden until Cover.jsx confirms the font is loaded (kills the
    fallback-script flash), then .is-inked writes it on left→right with an
@@ -218,7 +216,7 @@
   font-weight: 400;
   font-optical-sizing: auto;
   font-variation-settings: "opsz" 72;
-  font-size: clamp(3.4rem, 13.5vw, 17rem);
+  font-size: var(--name-fs);
   /* Ballet's capital swashes (M, B) overshoot a tight line box — harmless
      with plain overflow:visible, but the .is-inked mask below clips
      rendering to this box, so it must be tall enough to contain them.
@@ -461,7 +459,13 @@
   top: 50%;
   transform: translateY(-50%);
   z-index: 4;
-  width: 160px;
+  /* Measured, not picked: in Archivo bold caps at 12px the nine roles run
+     101-152px on one line, and their widest single word ("STORYTELLER") is
+     89px. Anything in 90-100px therefore breaks every one of them to exactly
+     two lines without any word overflowing the column — the stacked block of
+     the reference, and what makes the two-line reserve below exact rather
+     than a guess. Re-measure if the roles, the size or the face change. */
+  width: 96px;
   pointer-events: none;
   /* the stage centres its text; these are margin notes and read off the edge */
   text-align: left;
@@ -501,39 +505,47 @@
   align-items: flex-end;
 }
 
-/* the lead-in: the quietest thing on the stage */
+/* Archivo — the grotesque already carrying display type across every world —
+   set bold, uppercase and near-untracked, the dense editorial voice of the
+   reference. Space Mono's wide monospaced tracking was the opposite of it. */
 .cover-aside-lead {
-  font-family: var(--font-mono-alt);
+  --track: 0.1em;
+  font-family: var(--font-sans);
+  font-weight: 600;
   font-size: 10px;
-  line-height: 1.2;
-  letter-spacing: 0.28em;
+  line-height: 0.92;
+  letter-spacing: var(--track);
   text-transform: uppercase;
-  color: rgba(237, 236, 234, 0.34);
+  color: #fff;
 }
 
-/* trailing letter-spacing would hold both right-aligned lines off the edge */
+/* letter-spacing is added AFTER the last glyph too, so a right-aligned line
+   hangs off the edge by exactly one tracking step unless it's pulled back.
+   Reading --track means these stay correct if the tracking is ever retuned. */
 .cover-aside--right .cover-aside-lead,
 .cover-aside--right .cover-aside-role {
-  margin-right: -0.28em;
+  margin-right: calc(-1 * var(--track));
 }
 
-.cover-aside-rule {
-  width: 26px;
-  height: 1px;
-  background: rgba(237, 236, 234, 0.2);
-}
-
-/* the morphing role. The slot reserves two lines so the column doesn't jump
-   when a one-line title swaps for a two-line one — which also keeps
-   AnimatePresence's popLayout exit measuring against a stable box. */
+/* The morphing role, in the reference's voice: bold grotesque caps, tracking
+   near zero, leading tight enough that the two lines almost touch.
+ *
+ * The slot reserves two lines so the column doesn't jump when a one-line title
+ * swaps for a two-line one — which also keeps AnimatePresence's popLayout exit
+ * measuring against a stable box. Size and leading are properties purely so
+ * that reserve can be derived from them instead of restated. */
 .cover-aside-role {
-  min-height: calc(2 * 1.2 * 11px);
-  font-family: var(--font-mono-alt);
-  font-size: 11px;
-  line-height: 1.2;
-  letter-spacing: 0.14em;
+  --track: 0.005em;
+  --role-fs: 12px;
+  --role-lh: 0.92;
+  min-height: calc(2 * var(--role-lh) * var(--role-fs));
+  font-family: var(--font-sans);
+  font-weight: 700;
+  font-size: var(--role-fs);
+  line-height: var(--role-lh);
+  letter-spacing: var(--track);
   text-transform: uppercase;
-  color: rgba(237, 236, 234, 0.68);
+  color: #fff;
 }
 
 /* TextMorph's own scaffolding (see TextMorph.jsx) */
@@ -584,21 +596,26 @@
     display: none;
   }
 
+  /* Only the size changes here — the bottom margin is em-based, so it retunes
+     itself. The wrap to two lines doesn't affect it either: the element's
+     bottom edge is the LAST line's box, which is what the margin is measured
+     against. */
   .cover-hero-inner {
     padding-bottom: 0;
-    margin-bottom: -1vh;
+    --name-fs: clamp(3.6rem, 22vw, 7rem);
+    /* The clearance is a fraction of the name, and the name is much smaller
+       here — 0.08 left it under a pixel clear, which subpixel rounding can
+       shear. A gentler drop buys back ~4px without reading as higher. */
+    --name-drop: 0.05;
   }
 
   /* wrap the name to two lines on narrow screens so it stays large and legible
      instead of being clipped at the viewport edges */
   .cover-name-script {
     white-space: normal;
-    font-size: clamp(3.6rem, 22vw, 7rem);
     line-height: 1.6;
   }
 
-  /* wrapped name: the glyph-measured pin (--cap-x/--cap-y) already lands
-     under the first line's "rinali", so no override is needed here */
 
   /* the split stacks: Design near the top, Tech near the bottom, flower
      centred behind — the two disciplines still frame the bloom */

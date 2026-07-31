@@ -72,8 +72,6 @@ export default function Cover({ onChoose, onSettledChange }) {
   // (Segoe Script) is close enough in metrics that font-display:swap flashed
   // the wrong script on every cold load. The timeout covers a hung font fetch.
   const [fontReady, setFontReady] = useState(false);
-  const heroRef = useRef(null);
-  const nameRef = useRef(null);
 
   useEffect(() => {
     let alive = true;
@@ -87,61 +85,6 @@ export default function Cover({ onChoose, onSettledChange }) {
       clearTimeout(t);
     };
   }, []);
-
-  // Pin the "a design engineer" caption under "rinali": CSS % anchors drift
-  // with viewport size (the hero's fixed padding doesn't scale with the
-  // script), so measure the ACTUAL rendered glyph run — chars 1–7 of the
-  // name's text node — and drop the caption at its left edge, just below its
-  // baseline. Re-measured on resize; exact at any dimension by construction.
-  useEffect(() => {
-    if (!fontReady) return;
-    const hero = heroRef.current;
-    const name = nameRef.current;
-    if (!hero || !name || !name.firstChild) return;
-    const place = () => {
-      const range = document.createRange();
-      range.setStart(name.firstChild, 1);
-      range.setEnd(name.firstChild, 7); // "rinali"
-      const g = range.getBoundingClientRect();
-      const h = hero.getBoundingClientRect();
-      // Vertical anchor is the BASELINE of rinali's line, not the glyph
-      // run's ink bottom — Ballet's swash tails descend far below the
-      // baseline, which pushed the caption under the viewport fold (the
-      // stage clips overflow). Baseline = line-box top + half-leading +
-      // ascent, with Ballet's font-box ratios (measured via canvas
-      // TextMetrics: ascent 1.134em, descent 0.768em).
-      const cs = getComputedStyle(name);
-      const fs = parseFloat(cs.fontSize);
-      const lh = parseFloat(cs.lineHeight);
-      const halfLeading = (lh - (1.134 + 0.768) * fs) / 2;
-      const nameBox = name.getBoundingClientRect();
-      const baseline = nameBox.top + halfLeading + 1.134 * fs;
-      hero.style.setProperty("--cap-x", `${g.left - h.left}px`);
-      hero.style.setProperty("--cap-y", `${baseline - h.top + fs * 0.06}px`);
-    };
-    place();
-    // Two re-measure paths, both needed:
-    // - ResizeObserver fires after layout settles, catching the 719px
-    //   media-query rewrap and any other reflow of the name's box.
-    // - The resize listener's deferred second pass covers environments where
-    //   RO callbacks (paint-coupled) are throttled, and the immediate call
-    //   can race the media-query relayout.
-    let tid = 0;
-    const onResize = () => {
-      place();
-      clearTimeout(tid);
-      tid = setTimeout(place, 120);
-    };
-    const ro = new ResizeObserver(place);
-    ro.observe(name);
-    ro.observe(hero);
-    window.addEventListener("resize", onResize);
-    return () => {
-      ro.disconnect();
-      window.removeEventListener("resize", onResize);
-      clearTimeout(tid);
-    };
-  }, [fontReady]);
 
   // scroll progress across the tall track drives everything on the stage
   const { scrollYProgress } = useScroll({
@@ -297,30 +240,16 @@ export default function Cover({ onChoose, onSettledChange }) {
           />
           <div className="cover-video-overlay" />
 
-          {/* beat 1: the name. Nothing renders until Ballet has loaded (no
-              fallback-font flash); then the script writes itself on via a
-              mask wipe (see .is-inked) and the eyebrow settles in above it. */}
+          {/* beat 1: the name, alone. Nothing renders until Ballet has loaded
+              (no fallback-font flash); then the script writes itself on via a
+              mask wipe (see .is-inked). The "a design engineer" caption that
+              used to sit under it is gone — the two margin notes below now
+              carry the roles, and they say it in far more detail. */}
           <motion.div
             className="cover-hero-inner"
-            ref={heroRef}
             style={{ opacity: nameOpacity, y: nameLift }}
           >
-            {/* "a design engineer" — small Helvetica oblique caption pinned
-                just below the name, under "rinali" at the edge of the M. Its
-                position (--cap-x/--cap-y) is measured off the real glyphs in
-                the effect above, so it holds at any dimension. */}
-            <motion.p
-              className="cover-eyebrow-arc"
-              initial={{ opacity: 0 }}
-              animate={fontReady ? { opacity: 1 } : {}}
-              transition={{ duration: 0.9, ease: EASE, delay: 1.3 }}
-            >
-              a design engineer
-            </motion.p>
-            <h1
-              ref={nameRef}
-              className={`cover-name-script${fontReady ? " is-inked" : ""}`}
-            >
+            <h1 className={`cover-name-script${fontReady ? " is-inked" : ""}`}>
               Mrinali Bhardwaj
             </h1>
           </motion.div>
@@ -347,7 +276,6 @@ export default function Cover({ onChoose, onSettledChange }) {
               transition={{ duration: 0.9, ease: EASE, delay: 1.6 }}
             >
               <p className="cover-aside-lead">I am a</p>
-              <span className="cover-aside-rule" />
               <TextMorph
                 className="cover-aside-role"
                 words={DESIGN_ROLES}
@@ -373,7 +301,6 @@ export default function Cover({ onChoose, onSettledChange }) {
               transition={{ duration: 0.9, ease: EASE, delay: 1.75 }}
             >
               <p className="cover-aside-lead">as well as a</p>
-              <span className="cover-aside-rule" />
               <TextMorph
                 className="cover-aside-role"
                 words={TECH_ROLES}

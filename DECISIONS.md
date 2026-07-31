@@ -1456,3 +1456,58 @@ stack that exists. Two substantive changes, both forced by this placement:
 The role slot reserves two lines (`min-height: calc(2 * 1.2 * 11px)`) so the
 column does not jump between one- and two-line titles — which is also what
 keeps `AnimatePresence`'s `popLayout` exit measuring against a stable box.
+
+### Marginalia, revised: Archivo caps, and the column sized to force two lines
+
+Direction moved to a dense editorial reference — bold grotesque caps, tracking
+near zero, leading tight enough that the lines almost touch. Changes:
+
+- **Archivo replaces Space Mono here.** It is already the display face across
+  every world, and a monospace's wide fixed tracking was the opposite of the
+  reference. 700 weight, 12px, `letter-spacing: 0.005em`, `line-height: 0.92`.
+  Pure white, and the hairline rule between lead-in and role is gone.
+- **The column is 96px, and that number is measured.** In Archivo bold caps at
+  12px the nine roles run 101–152px on one line and their widest single word
+  ("STORYTELLER") is 89px, so any width in 90–100px breaks every one of them to
+  exactly two lines with nothing overflowing. Sized this way the two-line
+  reserve is exact — the role box measures 22px = 2 x 11.04 at every step of
+  the cycle, so there is no dead space and no jump. Archivo is compact enough
+  that the original 160px column put all nine on ONE line, which would have
+  lost the stacked block the reference is built on.
+- Size, leading and tracking are now custom properties (`--role-fs`,
+  `--role-lh`, `--track`) because three other rules derive from them: the
+  two-line reserve, and the right column's negative margin that cancels the
+  trailing letter-space so it sits flush to the edge.
+
+### "a design engineer" is gone
+
+The caption under the name is removed, along with the glyph-measuring effect
+that pinned it (a Range over chars 1–7 of the name's text node, plus a
+ResizeObserver and a deferred resize pass, feeding `--cap-x`/`--cap-y`). The
+margin notes say the same thing in far more detail, so the caption was
+restating them in a place that cost ~55 lines of measurement code to hold.
+
+### The name's drop is in em of itself, never vh
+
+Asked to sit lower, and the honest answer is that it was already close to its
+floor: the stage is a sticky 100dvh box with `overflow: hidden`, so the
+viewport bottom is a hard clip.
+
+- **The old `-1.5vh` was the wrong unit.** `font-size` is `13.5vw`, so the
+  descender that has to stay above the fold scales with viewport WIDTH while a
+  vh margin scales with HEIGHT — safe at one aspect ratio, shearing at the
+  next. A trial `-5vh` cut 23px off the j at 1280x800 and nothing at 1280x550.
+- **Measured rather than estimated.** A zero-height inline-block probe appended
+  to the h1 gives the baseline exactly (an empty inline-block's baseline is its
+  bottom margin edge); a pixel scan of the string rendered to canvas puts its
+  lowest ink at 0.52em below that. The bottom band is still a solid 12–16px
+  stroke — the j's tail, not a droppable hairline — so zero clipping is the
+  bar. Note the LINE box bottom is ~0.5em below the ink and is useless for this.
+- Geometry reduces to `headroom = 0.099em - drop`. Shipping `--name-drop: 0.08`
+  leaves ~0.019em clear at every ratio, verified positive at 1280x800,
+  1600x700 (widest/shortest), 1100x1000 and 375x812. Mobile overrides it to
+  0.05 — the same fraction of a much smaller name left under a pixel of
+  clearance, which subpixel rounding can shear.
+- Net: about 2px lower than before at 1280x800, and consistent everywhere
+  instead of accidental. **Going visibly lower needs the name smaller** — the
+  drop is capped by the glyphs, not by the margin.
