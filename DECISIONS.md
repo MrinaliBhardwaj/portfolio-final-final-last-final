@@ -1457,34 +1457,42 @@ The role slot reserves two lines (`min-height: calc(2 * 1.2 * 11px)`) so the
 column does not jump between one- and two-line titles — which is also what
 keeps `AnimatePresence`'s `popLayout` exit measuring against a stable box.
 
-### Marginalia, settled: Inter ExtraLight, one line per role
+### Marginalia, settled: Inter 300 Light, one line per role
 
-Four faces went through this slot before it landed, and the failures are the
-useful part: **Space Mono** (a monospace's fixed tracking reads as code),
-**Archivo 700** (bold caps read as UI chrome, not editorial), **Archivo 200**
-(right register, wrong skeleton). Shipped: **Inter 200 at 11px, leading 0.9,
-tracking -0.1em**, pure white — Inter's variable wght axis runs 100-900, so 200
-is a real master rather than a synthesised thin. Lead-in matches at 10px.
+Tuned across six sessions (2026-07-28 to 2026-08-01) and now holds.
 
-- **Negative tracking lands on the SPACE characters too.** At -0.13em (the
-  first value tried) it ate most of the word gap and "I AM A" set solid as
-  "IAMA". `word-spacing: calc(-1 * var(--track))` cancels it back out on word
-  breaks only, so the letter tracking stays exactly as specified while the
-  words stay separable. Derived from `--track` so the two cannot drift.
+**The ship values** are:
+- **Lead-in** (the role label above each column): Inter 300 at 10px, leading
+  1.05, tracking **-0.04em**, pure white.
+- **Role** (the cycling phrase): Inter 300 at 12px, leading 1.032, tracking
+  -0.04em (same as lead-in).
+- **Column width:** 148px (was 122px before lead-in and role sizes went up).
+
+**Measured, not picked:** across all 125 adjacent character pairs in the nine
+roles + both lead-ins at weight 300, the binding collision pair is **"WA"** in
+SOFTWARE DEVELOPER at -0.0463em. That's the no-overlap floor. Previous -0.1em
+had 17 of 125 pairs genuinely overlapping. Shipped -0.04em clears the floor by
+0.0063em, verified in a cycle sample of 40 morphs.
+
+- **Negative tracking lands on the SPACE characters too.** At the previous -0.1em
+  it ate most of the word gap and "I AM A" set solid as "IAMA".
+  `word-spacing: calc(-1 * var(--track))` cancels it back out on word breaks
+  only, so the letter tracking stays exactly as specified while the words stay
+  separable. Derived from `--track` so the two cannot drift.
 - **That fix does not reach the roles**, because TextMorph renders each
   character as its own inline-block and the word break there is a flex gap, not
   a space. The gap is set directly to 0.26em — Inter's own space advance — so
   the word rhythm matches the lead-in's restored one instead of drifting wide.
 - **Every role sits on ONE line, and the column width is the guarantee.**
-  In this setting the nine roles measure 74-111px; longest is "INTERACTION
-  DESIGNER" at 110.9px, so the column is 122px (~10% clear). `white-space:
+  The nine roles at 12px/-0.04em measure 74–134px; longest is "INTERACTION
+  DESIGNER" at 134.3px, so the column is 148px (~10% clear). `white-space:
   nowrap` is a belt on top, NOT the guarantee: if the width is ever too small,
   nowrap makes the text spill OUT of the column instead of wrapping. Re-measure
   on any change to the roles, size, tracking, weight or face.
 - Because it is always one line, the slot reserves one, so the role box is a
-  constant 10px whatever is showing — no jump, and a stable box for
-  AnimatePresence's popLayout to measure its exit against. Verified across the
-  cycle: 8 of 9 roles sampled live, all one line, none spilling.
+  constant 12.384px (12px × 1.032) whatever is showing — no jump, and a stable
+  box for AnimatePresence's popLayout to measure its exit against. Verified
+  across a live 30-cycle morph: all one line, none spilling.
 - Size, leading and tracking stay custom properties (`--role-fs`, `--role-lh`,
   `--track`) because three things derive from them: the one-line reserve, the
   word-spacing correction, and the right column's negative margin that cancels
@@ -1492,12 +1500,50 @@ is a real master rather than a synthesised thin. Lead-in matches at 10px.
   sign-agnostic by construction and stayed correct when tracking went negative.
 
 **Verifying this needed a workaround worth remembering.** The Browser pane's
-native surface is ~615px, so a 1280px viewport composites at ~48% and 11px type
+native surface is ~615px, so a 1280px viewport composites at ~48% and 12px type
 is unreadable in a screenshot; the pane also served stale frames that
 contradicted the DOM. The fix was a temporary injected stylesheet scaling the
 columns 4x with the morph frozen (`opacity`/`filter`/`transform` forced, all but
 the last `.tm-phrase` hidden), screenshot, then removed. Layout facts came from
 measurement, not from looking.
+
+### The name runs two scripts; its tighter tracking cannot close the Pinyon joins (2026-08-01)
+
+The capitals stay Ballet — its swashed M and B are why that face is here at all
+— and "rinali"/"hardwaj" became Pinyon, the monogram's face. Split into spans so
+the change is per-glyph-run while the `.is-inked` mask still sweeps the h1 as one
+box and the font-load gate waits for both.
+
+**Pinyon scaled down to 0.861em.** The correction runs opposite to the obvious
+guess: Pinyon's lowercase is the *bigger* of the two faces, not smaller. Measured
+on a no-ascender/no-descender run ("rn") at 200px: x-height is 0.395em in Pinyon
+against 0.340em in Ballet, so it scales DOWN to bring the two x-heights level.
+
+**The name's horizontal footprint expanded ~16%.** Pinyon lays out at 7.047×
+font-size vs Ballet's 6.08×, so the width ceiling fell from 16.03vw to 13.79vw.
+At the old 15vw this overflowed by 41px a side and the stage's `overflow:hidden`
+sheared the swashes sideways — the wrong kind of spill. Dropped to 13vw, ~6% under
+the new limit. **Not visually smaller for it:** 13vw × 7.047 fills the same ~92%
+of width that 15vw × 6.08 did.
+
+**Tracking tightened to -0.01em to close breaks in "rinali"/"hardwaj".** Scanning
+the baseline join band at 300px, the number of interruptions is FIXED at 7 in
+"rinali" and 11 in "hardwaj" at every spacing value from +0.01em to -0.01em.
+Pinyon does not join those letter pairs at all — it's a script that looks
+connected but isn't — so spacing only narrows the gaps, never removes them. This
+move closes ~16% of their total width. Further tightening crashes the taller
+strokes without closing anything.
+
+### Cover margin notes sit further from the edges (2026-08-01)
+
+Inset from edges changed `clamp(24px, 2.4vw, 40px)` → `clamp(40px, 4.5vw, 80px)`.
+At 1440 this moves them 34px → 64px off the glass; at 1024 it's 45px. They were
+close enough to the edge to read as pinned to it rather than placed. Held as one
+`--aside-inset` CSS variable that both sides read so they cannot drift apart —
+these are a mirrored pair and any asymmetry is visible.
+
+Verified symmetric to within a pixel at 1024 and 1440, still clearing the name
+vertically (150px at the tighter end), no overflow.
 
 ### "a design engineer" is gone
 
@@ -1507,27 +1553,37 @@ ResizeObserver and a deferred resize pass, feeding `--cap-x`/`--cap-y`). The
 margin notes say the same thing in far more detail, so the caption was
 restating them in a place that cost ~55 lines of measurement code to hold.
 
-### The name's drop is in em of itself, never vh
+### The name's drop is in em of itself, never vh; it is DELIBERATELY reversed (2026-08-01)
 
-Asked to sit lower, and the honest answer is that it was already close to its
-floor: the stage is a sticky 100dvh box with `overflow: hidden`, so the
-viewport bottom is a hard clip.
+The earlier rule was **"zero clipping is the bar"** — hold the name's descenders
+above the fold at `drop <= 0.099em`. That is now **deliberately overridden**. The
+name now **bottoms out at the viewport edge and both the B and j are meant to run
+off the screen**. The reason this rule reversal is load-bearing: the stage is a
+sticky 100dvh box with `overflow: hidden`, so the viewport bottom is a hard clip,
+and the clipping reads as a deliberate compositional choice only when it does NOT
+look accidental.
 
-- **The old `-1.5vh` was the wrong unit.** `font-size` is `13.5vw`, so the
-  descender that has to stay above the fold scales with viewport WIDTH while a
-  vh margin scales with HEIGHT — safe at one aspect ratio, shearing at the
-  next. A trial `-5vh` cut 23px off the j at 1280x800 and nothing at 1280x550.
-- **Measured rather than estimated.** A zero-height inline-block probe appended
-  to the h1 gives the baseline exactly (an empty inline-block's baseline is its
-  bottom margin edge); a pixel scan of the string rendered to canvas puts its
-  lowest ink at 0.52em below that. The bottom band is still a solid 12–16px
-  stroke — the j's tail, not a droppable hairline — so zero clipping is the
-  bar. Note the LINE box bottom is ~0.5em below the ink and is useless for this.
-- Geometry reduces to `headroom = 0.099em - drop`. Shipping `--name-drop: 0.08`
-  leaves ~0.019em clear at every ratio, verified positive at 1280x800,
-  1600x700 (widest/shortest), 1100x1000 and 375x812. Mobile overrides it to
-  0.05 — the same fraction of a much smaller name left under a pixel of
-  clearance, which subpixel rounding can shear.
-- Net: about 2px lower than before at 1280x800, and consistent everywhere
-  instead of accidental. **Going visibly lower needs the name smaller** — the
-  drop is capped by the glyphs, not by the margin.
+**The geometry is size-invariant**, both sides measured in em of the name:
+
+```
+clip line below baseline = 0.621 - (--name-drop)
+```
+
+Current shipping value: `--name-drop: 0.32`. This puts the clip line at 0.301em.
+
+- **Measured against two descenders** (after the script split where the j became
+  Pinyon instead of Ballet): the B's flourish bottoms out at 0.286em and now
+  clears the fold by 0.015em — the whole curve reads — while the j still runs
+  0.034em past it. Neither value is approximate; both were measured via a
+  zero-height inline-block probe for the baseline and per-glyph canvas metrics.
+- **Why em, not vh.** `font-size` is `13vw`, so a descendant that must stay
+  visible scales with viewport WIDTH while a vh margin scales with HEIGHT — the
+  clipping amount would drift by aspect ratio instead of being a deliberate,
+  consistent choice. Verified on two ratios (1280x800 and 1600x700): clip
+  depths 0.099em and 0.342em measured identically both ways in em.
+- **The usable window is tight.** Above ~0.34 the B's curve gets eaten again;
+  below ~0.285 the j stops spilling at all. The 0.32 value sits 0.015em from
+  the B ceiling and 0.034em from the j floor, leaving no headroom to tune.
+- Previous: 0.44 (too low, fully clips the B's curve), then 0.08 (when the
+  default was zero clipping). The steady-state is 0.32, recorded here so it
+  doesn't regress.
