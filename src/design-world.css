@@ -799,8 +799,17 @@
   transform: rotate(1.6deg);
 }
 
+/* Was 8/3: under object-fit:cover with a fixed-width source, the rendered
+   crop height is always source_width / this ratio, no matter how much
+   vertical content the source image itself has - a taller pre-crop gets
+   re-cropped straight back down to whatever this ratio demands. So the ONLY
+   way to show more of Futurepreneurs' cover (the ask that started this) was
+   loosening the ratio itself, not re-exporting the asset. Safe to touch here
+   because futurepreneurs is the only project using size:"wide" - nothing
+   else shares this box. See scripts/build_project_covers.py for the crop
+   this ratio now pairs with. */
 .dw-board--wide .dw-board-art {
-  aspect-ratio: 8 / 3;
+  aspect-ratio: 2 / 1;
   transform: rotate(-0.6deg);
 }
 
@@ -1081,7 +1090,7 @@
   }
 
   .dw-board--wide .dw-board-art {
-    aspect-ratio: 16 / 10; /* the 8:3 letterbox is too shallow at phone width */
+    aspect-ratio: 16 / 10; /* the desktop 2/1 is still too shallow at phone width - height would be a mere 195px at 390px wide, versus 244px here */
   }
 }
 

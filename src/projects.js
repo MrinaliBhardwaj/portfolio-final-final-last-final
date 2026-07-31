@@ -8,7 +8,7 @@
 //
 // `size` is not decoration: it picks the board slot, and that slot is a fixed
 // CSS aspect-ratio box (design-world.css: lg 16/10, sm 4/5 portrait, wide
-// 8/3). `cover` has to already be cropped to roughly that ratio — see
+// 2/1). `cover` has to already be cropped to roughly that ratio — see
 // scripts/build_project_covers.py, which is also the record of where each
 // crop landed and why. Reorder this array and the canvas follows.
 //
