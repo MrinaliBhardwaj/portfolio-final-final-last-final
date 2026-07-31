@@ -1457,27 +1457,35 @@ The role slot reserves two lines (`min-height: calc(2 * 1.2 * 11px)`) so the
 column does not jump between one- and two-line titles — which is also what
 keeps `AnimatePresence`'s `popLayout` exit measuring against a stable box.
 
-### Marginalia, revised: Archivo caps, and the column sized to force two lines
+### Marginalia, revised: Archivo EXTRA LIGHT, one line per role
 
-Direction moved to a dense editorial reference — bold grotesque caps, tracking
-near zero, leading tight enough that the lines almost touch. Changes:
+Two passes here, and the first was wrong in a way worth recording. A dense bold
+grotesque reference was read literally — Archivo 700, tracking near zero, a
+96px column sized to break every role into a tight two-line stack. It read as
+UI chrome, not as editorial.
 
-- **Archivo replaces Space Mono here.** It is already the display face across
-  every world, and a monospace's wide fixed tracking was the opposite of the
-  reference. 700 weight, 12px, `letter-spacing: 0.005em`, `line-height: 0.92`.
-  Pure white, and the hairline rule between lead-in and role is gone.
-- **The column is 96px, and that number is measured.** In Archivo bold caps at
-  12px the nine roles run 101–152px on one line and their widest single word
-  ("STORYTELLER") is 89px, so any width in 90–100px breaks every one of them to
-  exactly two lines with nothing overflowing. Sized this way the two-line
-  reserve is exact — the role box measures 22px = 2 x 11.04 at every step of
-  the cycle, so there is no dead space and no jump. Archivo is compact enough
-  that the original 160px column put all nine on ONE line, which would have
-  lost the stacked block the reference is built on.
-- Size, leading and tracking are now custom properties (`--role-fs`,
-  `--role-lh`, `--track`) because three other rules derive from them: the
-  two-line reserve, and the right column's negative margin that cancels the
-  trailing letter-space so it sits flush to the edge.
+**What actually makes marginalia read editorial at this size is weight and air,
+not density.** The shipped setting is Archivo 200 (the variable wght axis runs
+100-900, so this is a real weight, not a synthesised one) at 11px, tracked
+0.1em, leading 1, pure white. The lead-in matches at 10px tracked 0.2em. For
+the record, the three faces tried in this slot, in order: Space Mono (a
+monospace's fixed tracking reads as code), Archivo 700 (reads as UI), Archivo
+200 tracked (editorial).
+
+- **Every role sits on ONE line, and the column width is what guarantees it.**
+  Measured in the shipped setting, the nine roles run 105-158px; the longest is
+  "INTERACTION DESIGNER". The column is 164px — the live measure came in at
+  158px against a 155.8px canvas estimate, so the slack over the estimate is
+  load-bearing, not decoration. `white-space: nowrap` is a belt on top of it,
+  NOT the guarantee: if the width is ever wrong, nowrap makes the text spill
+  out of the column instead of wrapping. Re-measure the roles if the size,
+  tracking, weight or face change.
+- The one-line rule means the slot reserves exactly one line, so the role box
+  is a constant 11px whatever is showing — no jump, and a stable box for
+  AnimatePresence's popLayout to measure its exit against.
+- Size, leading and tracking stay custom properties (`--role-fs`, `--role-lh`,
+  `--track`) because the reserve derives from the first two, and the right
+  column's flush edge derives from the third.
 
 ### "a design engineer" is gone
 

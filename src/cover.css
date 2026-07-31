@@ -459,13 +459,13 @@
   top: 50%;
   transform: translateY(-50%);
   z-index: 4;
-  /* Measured, not picked: in Archivo bold caps at 12px the nine roles run
-     101-152px on one line, and their widest single word ("STORYTELLER") is
-     89px. Anything in 90-100px therefore breaks every one of them to exactly
-     two lines without any word overflowing the column — the stacked block of
-     the reference, and what makes the two-line reserve below exact rather
-     than a guess. Re-measure if the roles, the size or the face change. */
-  width: 96px;
+  /* Measured, not picked: every role has to sit on ONE line, and in Archivo
+     200 at 11px tracked 0.1em the longest ("INTERACTION DESIGNER") measures
+     155.8px. 164px clears it with a little slack for cross-platform rendering
+     variance, and still sits inside the 140-180px the column was briefed at.
+     Re-measure if the roles, the size, the tracking or the weight change —
+     the one-line guarantee is this number, not the nowrap below it. */
+  width: 164px;
   pointer-events: none;
   /* the stage centres its text; these are margin notes and read off the edge */
   text-align: left;
@@ -506,14 +506,16 @@
 }
 
 /* Archivo — the grotesque already carrying display type across every world —
-   set bold, uppercase and near-untracked, the dense editorial voice of the
-   reference. Space Mono's wide monospaced tracking was the opposite of it. */
+   but set EXTRA LIGHT and generously tracked. That pairing is what reads
+   editorial at marginalia size: bold caps read as UI chrome, and a monospace's
+   fixed tracking (the first pass here) reads as code. Archivo's variable wght
+   axis runs 100-900, so 200 is a real weight, not a synthesised one. */
 .cover-aside-lead {
-  --track: 0.1em;
+  --track: 0.2em;
   font-family: var(--font-sans);
-  font-weight: 600;
+  font-weight: 200;
   font-size: 10px;
-  line-height: 0.92;
+  line-height: 1;
   letter-spacing: var(--track);
   text-transform: uppercase;
   color: #fff;
@@ -527,25 +529,31 @@
   margin-right: calc(-1 * var(--track));
 }
 
-/* The morphing role, in the reference's voice: bold grotesque caps, tracking
-   near zero, leading tight enough that the two lines almost touch.
- *
- * The slot reserves two lines so the column doesn't jump when a one-line title
- * swaps for a two-line one — which also keeps AnimatePresence's popLayout exit
- * measuring against a stable box. Size and leading are properties purely so
- * that reserve can be derived from them instead of restated. */
+/* The morphing role. Every title sits on ONE line — the column below is sized
+   to the longest of them — so the slot reserves exactly one, and the box is a
+   constant height no matter which role is showing. That stability is also what
+   keeps AnimatePresence's popLayout exit measuring against a stable box. Size
+   and leading are properties purely so the reserve derives from them rather
+   than restating the numbers. */
 .cover-aside-role {
-  --track: 0.005em;
-  --role-fs: 12px;
-  --role-lh: 0.92;
-  min-height: calc(2 * var(--role-lh) * var(--role-fs));
+  --track: 0.1em;
+  --role-fs: 11px;
+  --role-lh: 1;
+  min-height: calc(var(--role-lh) * var(--role-fs));
   font-family: var(--font-sans);
-  font-weight: 700;
+  font-weight: 200;
   font-size: var(--role-fs);
   line-height: var(--role-lh);
   letter-spacing: var(--track);
   text-transform: uppercase;
   color: #fff;
+}
+
+/* one line, always: the column is measured to fit the longest role, so this
+   only guarantees what the width already allows */
+.cover-aside-role .tm-phrase {
+  flex-wrap: nowrap;
+  white-space: nowrap;
 }
 
 /* TextMorph's own scaffolding (see TextMorph.jsx) */
