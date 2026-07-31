@@ -472,19 +472,59 @@
   position: absolute;
   top: clamp(18px, 2.2vh, 30px);
   z-index: 4;
-  width: 150px;
+  /* sized to the WIDEST composed line (123.9px, "FACE ONLY KNOWS LIGHT.") plus
+     ~6%, so no hand-broken line ever wraps a second time. The line breaks are
+     in Cover.jsx and the reason they are hand-set is there too. */
+  width: 132px;
   pointer-events: none;
   font-family: var(--font-ui);
   font-weight: 500;
   font-size: 9.5px;
-  line-height: 1.16;
+  line-height: 1.5;
   letter-spacing: -0.005em;
   text-transform: uppercase;
   color: #fff;
-  /* the dissolve. Fully opaque through the first ~half, then out — the
-     reference's blocks are unreadable well before their last line. */
-  -webkit-mask-image: linear-gradient(to bottom, #000 46%, transparent 96%);
-  mask-image: linear-gradient(to bottom, #000 46%, transparent 96%);
+  /* The dissolve: begins almost immediately and eases the whole way down.
+     A two-stop gradient put a visible kink where the ramp started, because
+     alpha then falls off linearly — these stops trace a smoothstep curve
+     instead, so there is no edge anywhere, just continuous decay.
+   *
+   * This doubles as the collision guard: on a short viewport the block reaches
+   * toward the margin notes, but everything near its bottom is already close
+   * to transparent, so the two never visibly meet. */
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 1) 0%,
+    rgba(0, 0, 0, 0.97) 10%,
+    rgba(0, 0, 0, 0.91) 20%,
+    rgba(0, 0, 0, 0.82) 30%,
+    rgba(0, 0, 0, 0.7) 40%,
+    rgba(0, 0, 0, 0.57) 50%,
+    rgba(0, 0, 0, 0.43) 60%,
+    rgba(0, 0, 0, 0.3) 70%,
+    rgba(0, 0, 0, 0.18) 80%,
+    rgba(0, 0, 0, 0.08) 90%,
+    rgba(0, 0, 0, 0) 100%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 1) 0%,
+    rgba(0, 0, 0, 0.97) 10%,
+    rgba(0, 0, 0, 0.91) 20%,
+    rgba(0, 0, 0, 0.82) 30%,
+    rgba(0, 0, 0, 0.7) 40%,
+    rgba(0, 0, 0, 0.57) 50%,
+    rgba(0, 0, 0, 0.43) 60%,
+    rgba(0, 0, 0, 0.3) 70%,
+    rgba(0, 0, 0, 0.18) 80%,
+    rgba(0, 0, 0, 0.08) 90%,
+    rgba(0, 0, 0, 0) 100%
+  );
+}
+
+/* each composed line is its own block, so nothing re-flows them together */
+.cover-plate span {
+  display: block;
 }
 
 .cover-plate--left {

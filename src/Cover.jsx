@@ -49,17 +49,34 @@ const TECH_ROLES = [
 // reference this tier is texture rather than reading matter; the fade is what
 // says so.
 //
-// Rendered as one string, not lines: the plate is a narrow measure and the
-// reference's blocks wrap naturally on their own rag. Hard line breaks here
-// would fight the column instead of filling it.
-const LOTUS_PLATE =
-  "मृणाली [mṛṇālī; one who belongs to the lotus] " +
-  "The Lotus is born in water, yet untouched by it. " +
-  "It rises from mud, yet carries no stain. " +
-  "Its roots drink from darkness, but its face only knows light. " +
-  "Is that what grace looks like? " +
-  "To know darkness intimately, and simply refusing to carry it " +
-  "into your heart.";
+// The lines are COMPOSED, not wrapped. Holding every line to 3-4 words cannot
+// be done with a width: the copy mixes 10-letter words ("UNTOUCHED",
+// "INTIMATELY") with 2-letter ones ("IS", "TO", "IT"), so greedy wrapping
+// produces 1-4 words per line at every width from 70px to 190px — measured
+// across that whole range, no value satisfies it. Breaking by hand also lets
+// the breaks fall on phrases rather than wherever the box happens to end.
+//
+// Max 4 words, and the column below is sized to the widest composed line so
+// none of these wrap a second time. Re-measure if the copy changes.
+const LOTUS_PLATE_LINES = [
+  "मृणाली [mṛṇālī;",
+  "one who belongs",
+  "to the lotus]",
+  "The Lotus is born",
+  "in water, yet",
+  "untouched by it.",
+  "It rises from mud,",
+  "yet carries no stain.",
+  "Its roots drink from",
+  "darkness, but its",
+  "face only knows light.",
+  "Is that what",
+  "grace looks like?",
+  "To know darkness",
+  "intimately, and simply",
+  "refusing to carry it",
+  "into your heart.",
+];
 
 // the resting pose as a small preloaded still — on screen from the very first
 // paint, and pixel-identical to lotus frame 0, so the handoff to the canvas is
@@ -253,14 +270,18 @@ export default function Cover({ onChoose, onSettledChange }) {
             className="cover-plate cover-plate--left"
             style={{ opacity: asideOpacity }}
           >
-            {LOTUS_PLATE}
+            {LOTUS_PLATE_LINES.map((line) => (
+              <span key={line}>{line}</span>
+            ))}
           </motion.aside>
           <motion.aside
             className="cover-plate cover-plate--right"
             style={{ opacity: asideOpacity }}
             aria-hidden="true"
           >
-            {LOTUS_PLATE}
+            {LOTUS_PLATE_LINES.map((line) => (
+              <span key={line}>{line}</span>
+            ))}
           </motion.aside>
 
           {/* marginalia: the roles behind each discipline, pinned to the
