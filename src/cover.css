@@ -190,20 +190,21 @@
    * HEIGHT — the drop (and therefore how much of the j is cut) would vary by
    * aspect ratio instead of being a deliberate, consistent choice.
    *
-   * Geometry, measured the same way as before: a zero-height inline-block
-   * probe gives the exact baseline, and a pixel scan of the rendered string
-   * puts the lowest ink (the j's tail) 0.523em below it. Zero clipping is
-   * drop <= 0.099em (shipped originally at 0.08). Clip amount for the j scales
-   * linearly as (drop - 0.099)em.
+   * Geometry, measured with a zero-height inline-block probe for the exact
+   * baseline plus per-glyph canvas metrics. The relation is linear and
+   * size-invariant, both sides in em of the name:
    *
-   * Pushed further per feedback: the B's own flourish (the swash on
-   * "Bhardwaj", a separate descending curve from the j) sits 0.28em below the
-   * baseline — shallower than the j's 0.523em, so it stayed fully clear at the
-   * first clip setting. 0.44em puts the clip line 0.18em below baseline: about
-   * 0.1em of the B's curve is now cut along with most of the j's tail (only
-   * its top ~0.18em remains visible), at every aspect ratio by the same
-   * construction as before. */
-  --name-drop: 0.44;
+   *     clip line below baseline = 0.621 - (--name-drop)
+   *
+   * The two descenders that matter, re-measured after the script split — the
+   * j is Pinyon now, not Ballet, so it no longer reaches 0.523em:
+   *     Ballet capital B ... 0.281em      Pinyon "hardwaj" j ... 0.336em
+   *
+   * 0.32 puts the clip line at 0.301em, which is the point of this setting:
+   * it clears the B's curve by 0.020em so the whole flourish reads, while the
+   * j still runs 0.035em past the fold. Raising the drop above ~0.340 starts
+   * eating the B again; dropping it below ~0.285 stops the j spilling at all. */
+  --name-drop: 0.32;
   margin: 0 auto calc(-1 * var(--name-drop) * var(--name-fs));
   text-align: center;
 }
@@ -243,7 +244,14 @@
      Measured via canvas fontBoundingBox metrics: needs >= ~1.55 to stop
      clipping the M's peak; 1.3 still cut it by ~14px at 112px font-size. */
   line-height: 1.6;
-  letter-spacing: 0.01em;
+  /* Tightened from 0.01em to close the visible breaks in "rinali"/"hardwaj".
+     It helps, but only so far, and the measurement says why: scanning the
+     baseline join band at 300px, the number of interruptions is FIXED at 7 in
+     "rinali" and 11 in "hardwaj" at every value from +0.01em to -0.01em. Pinyon
+     does not join those pairs at all, so spacing can only narrow the gaps, not
+     remove them — this move takes ~16% off their total width. Going further
+     starts crashing the taller strokes without closing anything. */
+  letter-spacing: -0.01em;
   color: #fff;
   white-space: nowrap;
   text-shadow: 0 2px 40px rgba(0, 0, 0, 0.55);
