@@ -166,24 +166,41 @@
   max-width: 100%;
   padding: 0 1.25rem 0;
   /* The name's size lives here rather than on the h1 so the margin below can
-     be computed from it. Custom properties only inherit downward. */
-  --name-fs: clamp(3.4rem, 13.5vw, 17rem);
+     be computed from it. Custom properties only inherit downward.
+   *
+   * 15vw is close to the ceiling and the ceiling is measured: the name is set
+   * nowrap, and its INK is 6.08x the font-size wide (wider than the 5.87x
+   * advance — Ballet's swashes overhang both ends, so the advance width
+   * understates it). With this element's 2 x 1.25rem padding that puts the
+   * hard limit at 16.03vw, past which the M and j swashes hit the viewport
+   * edges and the stage's overflow:hidden shears them sideways. 15vw fills
+   * ~92% of the width and keeps the margin. The rem cap is raised in step so
+   * wide screens grow proportionally rather than capping earlier than before. */
+  --name-fs: clamp(3.8rem, 15vw, 19rem);
   /* The stage bottom-aligns this, so the negative bottom margin sets how low
-     the script sits — and the viewport bottom is a HARD floor, because the
-     stage is a sticky 100dvh box with overflow:hidden.
+     the script sits. The stage is a sticky 100dvh box with overflow:hidden, so
+     the viewport bottom clips anything pushed past it — INTENTIONALLY, here:
+     the brief is to bottom out the name and let the j's tail run off-screen.
    *
-   * This has to be in em of the name, not vh. The font-size is 13.5vw, so the
-   * descender that must stay above the fold scales with viewport WIDTH while a
-   * vh margin scales with HEIGHT: safe on one aspect ratio, shearing on the
-   * next. (-5vh cut 23px off the j at 1280x800 and nothing at all at 1280x550.)
+   * This has to be in em of the name, not vh. font-size is 13.5vw, so the
+   * descender scales with viewport WIDTH while a vh margin scales with
+   * HEIGHT — the drop (and therefore how much of the j is cut) would vary by
+   * aspect ratio instead of being a deliberate, consistent choice.
    *
-   * Measured, not guessed: a zero-height inline-block probe puts the baseline
-   * exactly, and a pixel scan of the rendered string puts its lowest ink at
-   * 0.52em below that — still a solid 12-16px stroke down there, the j's tail,
-   * so there is nothing droppable at the bottom. Geometry works out to
-   * headroom = 0.099em - drop; 0.08em leaves ~0.019em of clearance at every
-   * ratio, which is as low as this can go with the glyphs intact. */
-  --name-drop: 0.08;
+   * Geometry, measured the same way as before: a zero-height inline-block
+   * probe gives the exact baseline, and a pixel scan of the rendered string
+   * puts the lowest ink (the j's tail) 0.523em below it. Zero clipping is
+   * drop <= 0.099em (shipped originally at 0.08). Clip amount for the j scales
+   * linearly as (drop - 0.099)em.
+   *
+   * Pushed further per feedback: the B's own flourish (the swash on
+   * "Bhardwaj", a separate descending curve from the j) sits 0.28em below the
+   * baseline — shallower than the j's 0.523em, so it stayed fully clear at the
+   * first clip setting. 0.44em puts the clip line 0.18em below baseline: about
+   * 0.1em of the B's curve is now cut along with most of the j's tail (only
+   * its top ~0.18em remains visible), at every aspect ratio by the same
+   * construction as before. */
+  --name-drop: 0.44;
   margin: 0 auto calc(-1 * var(--name-drop) * var(--name-fs));
   text-align: center;
 }
@@ -440,6 +457,54 @@
   transform: translate(2px, -2px);
 }
 
+/* ============ the lotus plates ============ */
+/* The reference poster's concept-copy device: one dense uppercase block set
+   TWICE in the top corners, left-aligned on the left and right-aligned on the
+   right, masked so it dissolves downward. In the reference this tier is
+   texture, not reading matter — the fade is the thing that says so, and it is
+   why the same words appearing twice reads as a framing device rather than a
+   duplication bug.
+ *
+ * These sit where the nav used to; see the note in Cover.jsx. They ride the
+ * same scroll fade as the margin notes, so the full poster composition is
+ * what you see at scroll 0 and it clears before beat 3. */
+.cover-plate {
+  position: absolute;
+  top: clamp(18px, 2.2vh, 30px);
+  z-index: 4;
+  width: 150px;
+  pointer-events: none;
+  font-family: var(--font-ui);
+  font-weight: 500;
+  font-size: 9.5px;
+  line-height: 1.16;
+  letter-spacing: -0.005em;
+  text-transform: uppercase;
+  color: #fff;
+  /* the dissolve. Fully opaque through the first ~half, then out — the
+     reference's blocks are unreadable well before their last line. */
+  -webkit-mask-image: linear-gradient(to bottom, #000 46%, transparent 96%);
+  mask-image: linear-gradient(to bottom, #000 46%, transparent 96%);
+}
+
+.cover-plate--left {
+  left: clamp(24px, 2.4vw, 40px);
+  text-align: left;
+}
+
+.cover-plate--right {
+  right: clamp(24px, 2.4vw, 40px);
+  /* the mirror: same words, opposite rag */
+  text-align: right;
+}
+
+/* the stage centres its text; both plates read off their own edge */
+@media (max-width: 1023px) {
+  .cover-plate {
+    display: none;
+  }
+}
+
 /* ============ the margin notes ============ */
 /* Two annotations pinned to the vertical centre of the stage's left and right
    edges — the roles behind the two disciplines, set as marginalia rather than
@@ -459,15 +524,15 @@
   top: 50%;
   transform: translateY(-50%);
   z-index: 4;
-  /* Measured, not picked: every role has to sit on ONE line, and in Inter 200
-     at 11px tracked -0.1em the longest ("INTERACTION DESIGNER") measures
-     110.9px. 122px clears it by ~10%, which covers both cross-platform
+  /* Measured, not picked: every role has to sit on ONE line, and in Inter 300
+     at 11px tracked -0.04em the longest ("INTERACTION DESIGNER") measures
+     123.2px. 136px clears it by ~10%, which covers both cross-platform
      rendering variance and the fact that canvas measureText reads ~1.5% under
      real layout here. Re-measure if the roles, the size, the tracking or the
      weight change — the one-line guarantee is THIS NUMBER, not the nowrap
      below it: if the width is ever too small, nowrap makes the text spill out
      of the column rather than wrap. */
-  width: 122px;
+  width: 136px;
   pointer-events: none;
   /* the stage centres its text; these are margin notes and read off the edge */
   text-align: left;
@@ -496,29 +561,44 @@
   white-space: nowrap;
 }
 
+/* The two lines set as one tight block. The gap is 0 deliberately: the lead-in
+   and the role are separate flex items, so leading alone can never close the
+   distance between them no matter how far line-height drops — the gap is the
+   only thing that actually controls it. With line-height 0.85 the line boxes
+   are already shorter than the caps they hold, so at gap 0 the two lines sit
+   ~1.5px apart and read as a single stacked unit. */
 .cover-aside-inner {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 0.85rem;
+  gap: 0;
 }
 
 .cover-aside--right .cover-aside-inner {
   align-items: flex-end;
 }
 
-/* Inter ExtraLight caps, set tight: weight 200, leading 0.9, tracking -0.1em.
-   Inter's variable wght axis runs 100-900, so 200 is a real master, not a
-   synthesised thin. Three faces were tried in this slot before this one, and
+/* Inter LIGHT caps, set tight: weight 300, leading 0.85, tracking -0.04em.
+   Inter's variable wght axis runs 100-900, so 300 is a real master, not a
+   synthesised weight. Three faces were tried in this slot before this one, and
    each failed in a way worth not repeating: Space Mono (a monospace's fixed
    tracking reads as code), Archivo 700 (bold caps read as UI chrome), Archivo
-   200 (closer, but still the wrong skeleton for this). */
+   200 (closer, but still the wrong skeleton for this).
+ *
+ * -0.04em is the floor, and it is measured rather than eyeballed. For adjacent
+ * glyphs A,B the ink collides once tracking drops below
+ * inkRight(A) + inkLeft(B) - advance(A). Run over every adjacent pair in the
+ * nine roles and both lead-ins (125 pairs) at weight 300, the binding pair is
+ * "WA" in SOFTWARE DEVELOPER at -0.0463em; -0.1em, the previous value, had 17
+ * of those 125 pairs actually overlapping. Re-measure if the weight or the
+ * copy changes — side bearings differ per weight on a variable axis. */
 .cover-aside-lead {
-  --track: -0.1em;
+  --track: -0.04em;
   font-family: var(--font-ui);
-  font-weight: 200;
+  font-weight: 300;
   font-size: 10px;
-  line-height: 0.9;
+  /* 0.85 (8.5px actual) + 2px = 10.5px actual -> 1.05 at this font-size */
+  line-height: 1.05;
   letter-spacing: var(--track);
   /* letter-spacing lands on the SPACE characters too, and at -0.1em that ate
      most of the word gap — "I AM A" set solid as "IAMA". Cancelling it back out
@@ -544,12 +624,13 @@
    and leading are properties purely so the reserve derives from them rather
    than restating the numbers. */
 .cover-aside-role {
-  --track: -0.1em;
+  --track: -0.04em;
   --role-fs: 11px;
-  --role-lh: 0.9;
+  /* 0.85 (9.35px actual) + 2px = 11.35px actual -> 1.032 at this font-size */
+  --role-lh: 1.032;
   min-height: calc(var(--role-lh) * var(--role-fs));
   font-family: var(--font-ui);
-  font-weight: 200;
+  font-weight: 300;
   font-size: var(--role-fs);
   line-height: var(--role-lh);
   letter-spacing: var(--track);

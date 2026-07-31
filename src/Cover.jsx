@@ -15,6 +15,10 @@ import {
   useTransform,
   useMotionValueEvent,
 } from "framer-motion";
+// Mail and GitHubMark are unused RIGHT NOW and deliberately kept: they belong
+// to the nav that is temporarily pulled (see the note in the markup below), and
+// leaving them here is what makes restoring it a markup-only change. Delete
+// them only if the nav is being removed for good.
 import { ChevronDown, Mail, ArrowUpRight } from "lucide-react";
 import { GitHubMark } from "./BrandIcons.jsx";
 import TextMorph from "./TextMorph.jsx";
@@ -38,6 +42,24 @@ const TECH_ROLES = [
   "Creative Coder",
   "Problem Solver",
 ];
+
+// The lotus's meaning, set as the reference poster sets its concept copy: one
+// dense uppercase block, printed TWICE in the top corners — left-aligned left,
+// right-aligned right — and masked so it dissolves toward the bottom. In the
+// reference this tier is texture rather than reading matter; the fade is what
+// says so.
+//
+// Rendered as one string, not lines: the plate is a narrow measure and the
+// reference's blocks wrap naturally on their own rag. Hard line breaks here
+// would fight the column instead of filling it.
+const LOTUS_PLATE =
+  "मृणाली [mṛṇālī; one who belongs to the lotus] " +
+  "The Lotus is born in water, yet untouched by it. " +
+  "It rises from mud, yet carries no stain. " +
+  "Its roots drink from darkness, but its face only knows light. " +
+  "Is that what grace looks like? " +
+  "To know darkness intimately, and simply refusing to carry it " +
+  "into your heart.";
 
 // the resting pose as a small preloaded still — on screen from the very first
 // paint, and pixel-identical to lotus frame 0, so the handoff to the canvas is
@@ -174,45 +196,14 @@ export default function Cover({ onChoose, onSettledChange }) {
       {/* starfield spans the whole cover as ambient connective tissue */}
       <canvas ref={particlesRef} className="cover-particles" aria-hidden="true" />
 
-      <header className={`cover-nav${split ? " is-split" : ""}`}>
-        <div className="cover-nav-left">
-          {/* the monogram is the one home gesture, shared with every world:
-              on the cover (already home) it lifts you back to the top. The
-              world links that used to sit here were a third path into the
-              disciplines — the Explore CTAs below and the dock already carry
-              that, so they're gone. */}
-          <button
-            type="button"
-            className="cover-mark"
-            onClick={() =>
-              window.scrollTo({
-                top: 0,
-                behavior: window.matchMedia("(prefers-reduced-motion: reduce)")
-                  .matches
-                  ? "auto"
-                  : "smooth",
-              })
-            }
-            aria-label="Mrinali Bhardwaj — back to top"
-          >
-            mb
-          </button>
-        </div>
-        <div className="cover-social">
-          <a
-            className="cover-social-logo"
-            href="https://github.com/MrinaliBhardwaj"
-            target="_blank"
-            rel="noreferrer"
-            aria-label="GitHub"
-          >
-            <GitHubMark size={18} aria-hidden="true" />
-          </a>
-          <a href="mailto:mrinalibhardwaj0705@gmail.com" aria-label="Email">
-            <Mail size={19} strokeWidth={1.75} />
-          </a>
-        </div>
-      </header>
+      {/* NAV TEMPORARILY REMOVED — the monogram "back to top" button and the
+          GitHub/Mail links used to sit here, and they occupied exactly the two
+          top corners the lotus plates below now claim. Pulled so the reference
+          layout can be judged on its own. Everything it needs to come back is
+          intact: .cover-nav / .cover-mark / .cover-social still have their
+          styles in cover.css, and the `split` state that tinted it is still
+          computed. Restoring is re-adding this markup, nothing more.
+          NOTE while it is out, the cover has no route to GitHub or email. */}
 
       {/* one pinned stage carries the whole cover narrative */}
       <section className="cover-track" ref={trackRef} aria-label="Intro">
@@ -253,6 +244,24 @@ export default function Cover({ onChoose, onSettledChange }) {
               Mrinali Bhardwaj
             </h1>
           </motion.div>
+
+          {/* the lotus plates: the same block printed in both top corners,
+              mirrored, fading out downward — the reference's concept-copy
+              device. Only the left one is exposed to assistive tech; the right
+              is the identical string, so reading it twice would be noise. */}
+          <motion.aside
+            className="cover-plate cover-plate--left"
+            style={{ opacity: asideOpacity }}
+          >
+            {LOTUS_PLATE}
+          </motion.aside>
+          <motion.aside
+            className="cover-plate cover-plate--right"
+            style={{ opacity: asideOpacity }}
+            aria-hidden="true"
+          >
+            {LOTUS_PLATE}
+          </motion.aside>
 
           {/* marginalia: the roles behind each discipline, pinned to the
               vertical centre of each edge. They annotate the name, so they
