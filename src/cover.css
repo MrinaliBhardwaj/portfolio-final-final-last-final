@@ -459,13 +459,15 @@
   top: 50%;
   transform: translateY(-50%);
   z-index: 4;
-  /* Measured, not picked: every role has to sit on ONE line, and in Archivo
-     200 at 11px tracked 0.1em the longest ("INTERACTION DESIGNER") measures
-     155.8px. 164px clears it with a little slack for cross-platform rendering
-     variance, and still sits inside the 140-180px the column was briefed at.
-     Re-measure if the roles, the size, the tracking or the weight change —
-     the one-line guarantee is this number, not the nowrap below it. */
-  width: 164px;
+  /* Measured, not picked: every role has to sit on ONE line, and in Inter 200
+     at 11px tracked -0.1em the longest ("INTERACTION DESIGNER") measures
+     110.9px. 122px clears it by ~10%, which covers both cross-platform
+     rendering variance and the fact that canvas measureText reads ~1.5% under
+     real layout here. Re-measure if the roles, the size, the tracking or the
+     weight change — the one-line guarantee is THIS NUMBER, not the nowrap
+     below it: if the width is ever too small, nowrap makes the text spill out
+     of the column rather than wrap. */
+  width: 122px;
   pointer-events: none;
   /* the stage centres its text; these are margin notes and read off the edge */
   text-align: left;
@@ -505,18 +507,24 @@
   align-items: flex-end;
 }
 
-/* Archivo — the grotesque already carrying display type across every world —
-   but set EXTRA LIGHT and generously tracked. That pairing is what reads
-   editorial at marginalia size: bold caps read as UI chrome, and a monospace's
-   fixed tracking (the first pass here) reads as code. Archivo's variable wght
-   axis runs 100-900, so 200 is a real weight, not a synthesised one. */
+/* Inter ExtraLight caps, set tight: weight 200, leading 0.9, tracking -0.1em.
+   Inter's variable wght axis runs 100-900, so 200 is a real master, not a
+   synthesised thin. Three faces were tried in this slot before this one, and
+   each failed in a way worth not repeating: Space Mono (a monospace's fixed
+   tracking reads as code), Archivo 700 (bold caps read as UI chrome), Archivo
+   200 (closer, but still the wrong skeleton for this). */
 .cover-aside-lead {
-  --track: 0.2em;
-  font-family: var(--font-sans);
+  --track: -0.1em;
+  font-family: var(--font-ui);
   font-weight: 200;
   font-size: 10px;
-  line-height: 1;
+  line-height: 0.9;
   letter-spacing: var(--track);
+  /* letter-spacing lands on the SPACE characters too, and at -0.1em that ate
+     most of the word gap — "I AM A" set solid as "IAMA". Cancelling it back out
+     on word breaks keeps the tracking exactly as specified while leaving the
+     words separable. Derived from --track so the two can't drift apart. */
+  word-spacing: calc(-1 * var(--track));
   text-transform: uppercase;
   color: #fff;
 }
@@ -536,11 +544,11 @@
    and leading are properties purely so the reserve derives from them rather
    than restating the numbers. */
 .cover-aside-role {
-  --track: 0.1em;
+  --track: -0.1em;
   --role-fs: 11px;
-  --role-lh: 1;
+  --role-lh: 0.9;
   min-height: calc(var(--role-lh) * var(--role-fs));
-  font-family: var(--font-sans);
+  font-family: var(--font-ui);
   font-weight: 200;
   font-size: var(--role-fs);
   line-height: var(--role-lh);
@@ -550,10 +558,17 @@
 }
 
 /* one line, always: the column is measured to fit the longest role, so this
-   only guarantees what the width already allows */
+   only guarantees what the width already allows.
+ *
+ * TextMorph renders each character as its own inline-block, so the word break
+ * is a flex gap rather than a space character — which means the lead-in's
+ * word-spacing fix above does not reach it and the gap has to be set directly.
+ * 0.26em is Inter's own space advance, so the word rhythm here matches the
+ * lead-in's restored one instead of drifting wider. */
 .cover-aside-role .tm-phrase {
   flex-wrap: nowrap;
   white-space: nowrap;
+  gap: 0 0.26em;
 }
 
 /* TextMorph's own scaffolding (see TextMorph.jsx) */

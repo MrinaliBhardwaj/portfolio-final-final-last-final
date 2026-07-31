@@ -1457,35 +1457,47 @@ The role slot reserves two lines (`min-height: calc(2 * 1.2 * 11px)`) so the
 column does not jump between one- and two-line titles — which is also what
 keeps `AnimatePresence`'s `popLayout` exit measuring against a stable box.
 
-### Marginalia, revised: Archivo EXTRA LIGHT, one line per role
+### Marginalia, settled: Inter ExtraLight, one line per role
 
-Two passes here, and the first was wrong in a way worth recording. A dense bold
-grotesque reference was read literally — Archivo 700, tracking near zero, a
-96px column sized to break every role into a tight two-line stack. It read as
-UI chrome, not as editorial.
+Four faces went through this slot before it landed, and the failures are the
+useful part: **Space Mono** (a monospace's fixed tracking reads as code),
+**Archivo 700** (bold caps read as UI chrome, not editorial), **Archivo 200**
+(right register, wrong skeleton). Shipped: **Inter 200 at 11px, leading 0.9,
+tracking -0.1em**, pure white — Inter's variable wght axis runs 100-900, so 200
+is a real master rather than a synthesised thin. Lead-in matches at 10px.
 
-**What actually makes marginalia read editorial at this size is weight and air,
-not density.** The shipped setting is Archivo 200 (the variable wght axis runs
-100-900, so this is a real weight, not a synthesised one) at 11px, tracked
-0.1em, leading 1, pure white. The lead-in matches at 10px tracked 0.2em. For
-the record, the three faces tried in this slot, in order: Space Mono (a
-monospace's fixed tracking reads as code), Archivo 700 (reads as UI), Archivo
-200 tracked (editorial).
-
-- **Every role sits on ONE line, and the column width is what guarantees it.**
-  Measured in the shipped setting, the nine roles run 105-158px; the longest is
-  "INTERACTION DESIGNER". The column is 164px — the live measure came in at
-  158px against a 155.8px canvas estimate, so the slack over the estimate is
-  load-bearing, not decoration. `white-space: nowrap` is a belt on top of it,
-  NOT the guarantee: if the width is ever wrong, nowrap makes the text spill
-  out of the column instead of wrapping. Re-measure the roles if the size,
-  tracking, weight or face change.
-- The one-line rule means the slot reserves exactly one line, so the role box
-  is a constant 11px whatever is showing — no jump, and a stable box for
-  AnimatePresence's popLayout to measure its exit against.
+- **Negative tracking lands on the SPACE characters too.** At -0.13em (the
+  first value tried) it ate most of the word gap and "I AM A" set solid as
+  "IAMA". `word-spacing: calc(-1 * var(--track))` cancels it back out on word
+  breaks only, so the letter tracking stays exactly as specified while the
+  words stay separable. Derived from `--track` so the two cannot drift.
+- **That fix does not reach the roles**, because TextMorph renders each
+  character as its own inline-block and the word break there is a flex gap, not
+  a space. The gap is set directly to 0.26em — Inter's own space advance — so
+  the word rhythm matches the lead-in's restored one instead of drifting wide.
+- **Every role sits on ONE line, and the column width is the guarantee.**
+  In this setting the nine roles measure 74-111px; longest is "INTERACTION
+  DESIGNER" at 110.9px, so the column is 122px (~10% clear). `white-space:
+  nowrap` is a belt on top, NOT the guarantee: if the width is ever too small,
+  nowrap makes the text spill OUT of the column instead of wrapping. Re-measure
+  on any change to the roles, size, tracking, weight or face.
+- Because it is always one line, the slot reserves one, so the role box is a
+  constant 10px whatever is showing — no jump, and a stable box for
+  AnimatePresence's popLayout to measure its exit against. Verified across the
+  cycle: 8 of 9 roles sampled live, all one line, none spilling.
 - Size, leading and tracking stay custom properties (`--role-fs`, `--role-lh`,
-  `--track`) because the reserve derives from the first two, and the right
-  column's flush edge derives from the third.
+  `--track`) because three things derive from them: the one-line reserve, the
+  word-spacing correction, and the right column's negative margin that cancels
+  the trailing letter-space so the edge sits flush. That last one is
+  sign-agnostic by construction and stayed correct when tracking went negative.
+
+**Verifying this needed a workaround worth remembering.** The Browser pane's
+native surface is ~615px, so a 1280px viewport composites at ~48% and 11px type
+is unreadable in a screenshot; the pane also served stale frames that
+contradicted the DOM. The fix was a temporary injected stylesheet scaling the
+columns 4x with the morph frozen (`opacity`/`filter`/`transform` forced, all but
+the last `.tm-phrase` hidden), screenshot, then removed. Layout facts came from
+measurement, not from looking.
 
 ### "a design engineer" is gone
 
