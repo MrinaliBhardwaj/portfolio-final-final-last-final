@@ -1409,3 +1409,50 @@ board it sits in.
   number the photo was then further cropped to hit.** 1530×1080, reduced,
   is 17/12 exactly — using it directly means the photo needed no additional
   cropping beyond trimming the frame bars.
+
+## Cover: marginalia — the roles flank the name
+
+The two disciplines were named on the cover only at beat 3, and only as
+"Design" and "Tech". The actual roles now sit as **margin notes** in the
+stage's left and right gutters, vertically centred, one word cycling in each:
+"I am a" → the five design roles on the left, "as well as a" → the four
+engineering roles on the right.
+
+- **They belong to beat 1, not beat 3.** Beat 3's `.cover-split` claims those
+  same two margins from progress ~0.51 with 25rem-wide blocks, which would sit
+  straight on top of 160px marginalia. So they fade on the name's own ramp
+  (0.02 → 0.22) and are measured at opacity 0 by 0.32 — well clear. They also
+  carry `pointer-events: none` permanently, so they can never shadow the
+  Explore CTAs even if that timing is ever changed.
+- **Vertical centring is what keeps them off the script name**, for free: the
+  stage is `justify-content: flex-end`, so `.cover-name-script` occupies the
+  bottom third (measured top 458 at 1280×720) while these hold at 50% and end
+  at y 393. No overlap at any width, because both scale with the viewport.
+- **Hidden below 1024px, but the screen-reader line is not.** `display: none`
+  is on `.cover-aside-inner` only; `.cover-aside-sr` — one plain sentence
+  naming every role — stays in the accessibility tree at every width. The
+  visible column is `aria-hidden`, because a word that swaps every 2.6s is not
+  something a screen reader can follow.
+
+### TextMorph is ported, not installed
+
+The component arrived as a shadcn/Tailwind/TSX recipe importing `motion/react`.
+This project is Vite + JSX + plain CSS with design tokens, and already depends
+on `framer-motion` (same `AnimatePresence`/`motion` API). Adding Tailwind,
+shadcn and the `motion` package to host one 11px label would have been a
+toolchain rebuild for no gain, so `src/TextMorph.jsx` is the same idea on the
+stack that exists. Two substantive changes, both forced by this placement:
+
+- **It splits on words first, then characters.** The original laid every char
+  out in a single flex row, which cannot wrap. Fine for "designer"; these roles
+  ("INTERACTION DESIGNER") live in a 160px editorial column and must break
+  across lines. Word groups wrap, and a flat char index keeps the stagger
+  running continuously across the whole phrase rather than restarting per word.
+- **It takes `paused` and honours `prefers-reduced-motion`.** `paused={split}`
+  reuses Cover's existing scroll boolean, so the interval stops once the slot
+  has faded rather than re-rendering forever behind an opacity 0 — no new state
+  and no new render path. Reduced motion gets a plain crossfade with no blur.
+
+The role slot reserves two lines (`min-height: calc(2 * 1.2 * 11px)`) so the
+column does not jump between one- and two-line titles — which is also what
+keeps `AnimatePresence`'s `popLayout` exit measuring against a stable box.

@@ -442,6 +442,134 @@
   transform: translate(2px, -2px);
 }
 
+/* ============ the margin notes ============ */
+/* Two annotations pinned to the vertical centre of the stage's left and right
+   edges — the roles behind the two disciplines, set as marginalia rather than
+   as content. Narrow enough (160px) that the longer titles break across lines
+   into tall editorial columns.
+ *
+ * They belong to BEAT 1, and leave with the name: .cover-split claims these
+ * same two margins from progress ~0.51, and 25rem-wide side blocks would sit
+ * straight on top of them. The scroll fade in Cover.jsx clears them well before
+ * that. pointer-events stay off for the same reason — nothing here should ever
+ * shadow the Explore CTAs.
+ *
+ * Vertically they clear the name for free: the stage is justify-content:flex-end,
+ * so the script sits in the bottom third while these hold at 50%. */
+.cover-aside {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 4;
+  width: 160px;
+  pointer-events: none;
+  /* the stage centres its text; these are margin notes and read off the edge */
+  text-align: left;
+}
+
+.cover-aside--left {
+  left: clamp(24px, 2.4vw, 40px);
+}
+
+.cover-aside--right {
+  right: clamp(24px, 2.4vw, 40px);
+  text-align: right;
+}
+
+/* The roles as one readable sentence for assistive tech. A slot that swaps a
+   word every 2.6s is not something a screen reader can follow, so the visual
+   column is aria-hidden and this carries the content instead. It sits OUTSIDE
+   the tablet/mobile hide below, so the roles stay in the accessibility tree at
+   every width even where the marginalia doesn't render. */
+.cover-aside-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.cover-aside-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.85rem;
+}
+
+.cover-aside--right .cover-aside-inner {
+  align-items: flex-end;
+}
+
+/* the lead-in: the quietest thing on the stage */
+.cover-aside-lead {
+  font-family: var(--font-mono-alt);
+  font-size: 10px;
+  line-height: 1.2;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: rgba(237, 236, 234, 0.34);
+}
+
+/* trailing letter-spacing would hold both right-aligned lines off the edge */
+.cover-aside--right .cover-aside-lead,
+.cover-aside--right .cover-aside-role {
+  margin-right: -0.28em;
+}
+
+.cover-aside-rule {
+  width: 26px;
+  height: 1px;
+  background: rgba(237, 236, 234, 0.2);
+}
+
+/* the morphing role. The slot reserves two lines so the column doesn't jump
+   when a one-line title swaps for a two-line one — which also keeps
+   AnimatePresence's popLayout exit measuring against a stable box. */
+.cover-aside-role {
+  min-height: calc(2 * 1.2 * 11px);
+  font-family: var(--font-mono-alt);
+  font-size: 11px;
+  line-height: 1.2;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(237, 236, 234, 0.68);
+}
+
+/* TextMorph's own scaffolding (see TextMorph.jsx) */
+.tm {
+  display: block;
+  position: relative; /* popLayout pops the outgoing phrase out of flow */
+}
+
+.tm-phrase {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 0.34em; /* the gap IS the word space; the chars are inline-blocks */
+}
+
+.cover-aside--right .tm-phrase {
+  justify-content: flex-end;
+}
+
+.tm-word {
+  display: flex;
+}
+
+.tm-char {
+  display: inline-block;
+  white-space: pre;
+}
+
+/* Below the desktop breakpoint these are hidden: the two margins are needed
+   for the stacked split, and 11px marginalia beside a 22vw script name is
+   noise. The screen-reader line stays in the tree at every width — see below. */
+@media (max-width: 1023px) {
+  .cover-aside-inner {
+    display: none;
+  }
+}
+
 /* ============ mobile ============ */
 @media (max-width: 719px) {
   .cover-nav {

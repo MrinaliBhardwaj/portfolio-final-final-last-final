@@ -17,8 +17,27 @@ import {
 } from "framer-motion";
 import { ChevronDown, Mail, ArrowUpRight } from "lucide-react";
 import { GitHubMark } from "./BrandIcons.jsx";
+import TextMorph from "./TextMorph.jsx";
 import { createParticles } from "./particles.js";
 import { createLotusScrubber } from "./lotus.js";
+
+// The two margin notes flanking the name — the roles behind each discipline.
+// Module constants, not inline literals: TextMorph keys its interval effect on
+// this array, and a fresh one each render would restart the timer mid-cycle.
+const DESIGN_ROLES = [
+  "UI/UX Designer",
+  "Product Designer",
+  "Visual Storyteller",
+  "Interaction Designer",
+  "Systems Thinker",
+];
+
+const TECH_ROLES = [
+  "Software Developer",
+  "Frontend Engineer",
+  "Creative Coder",
+  "Problem Solver",
+];
 
 // the resting pose as a small preloaded still — on screen from the very first
 // paint, and pixel-identical to lotus frame 0, so the handoff to the canvas is
@@ -159,6 +178,9 @@ export default function Cover({ onChoose, onSettledChange }) {
   const nameOpacity = useTransform(scrollYProgress, [0.05, 0.26], [1, 0]);
   const nameLift = useTransform(scrollYProgress, [0, 0.47], [0, -rise]);
   const chevronOpacity = useTransform(scrollYProgress, [0, 0.12], [1, 0]);
+  // the margin notes annotate the name, so they leave with it — and they MUST
+  // be gone before beat 3, which claims these same two margins at 0.51
+  const asideOpacity = useTransform(scrollYProgress, [0.02, 0.22], [1, 0]);
   // the nudge keyframes are `infinite`, so once the chevron has faded out it
   // kept a composited layer ticking for the rest of the page. Park it. Driven
   // by a motion value, so this costs no React render.
@@ -302,6 +324,64 @@ export default function Cover({ onChoose, onSettledChange }) {
               Mrinali Bhardwaj
             </h1>
           </motion.div>
+
+          {/* marginalia: the roles behind each discipline, pinned to the
+              vertical centre of each edge. They annotate the name, so they
+              arrive after it inks and fade out with it — long before beat 3
+              takes these margins over. The visible column is aria-hidden (a
+              word that swaps every 2.6s is unfollowable); the .cover-aside-sr
+              line carries the same content to assistive tech at every width. */}
+          <motion.aside
+            className="cover-aside cover-aside--left"
+            style={{ opacity: asideOpacity }}
+          >
+            <p className="cover-aside-sr">
+              I am a UI/UX designer, product designer, visual storyteller,
+              interaction designer and systems thinker.
+            </p>
+            <motion.div
+              className="cover-aside-inner"
+              aria-hidden="true"
+              initial={{ opacity: 0, x: -8 }}
+              animate={fontReady ? { opacity: 1, x: 0 } : {}}
+              transition={{ duration: 0.9, ease: EASE, delay: 1.6 }}
+            >
+              <p className="cover-aside-lead">I am a</p>
+              <span className="cover-aside-rule" />
+              <TextMorph
+                className="cover-aside-role"
+                words={DESIGN_ROLES}
+                interval={2600}
+                paused={split}
+              />
+            </motion.div>
+          </motion.aside>
+
+          <motion.aside
+            className="cover-aside cover-aside--right"
+            style={{ opacity: asideOpacity }}
+          >
+            <p className="cover-aside-sr">
+              As well as a software developer, frontend engineer, creative coder
+              and problem solver.
+            </p>
+            <motion.div
+              className="cover-aside-inner"
+              aria-hidden="true"
+              initial={{ opacity: 0, x: 8 }}
+              animate={fontReady ? { opacity: 1, x: 0 } : {}}
+              transition={{ duration: 0.9, ease: EASE, delay: 1.75 }}
+            >
+              <p className="cover-aside-lead">as well as a</p>
+              <span className="cover-aside-rule" />
+              <TextMorph
+                className="cover-aside-role"
+                words={TECH_ROLES}
+                interval={2600}
+                paused={split}
+              />
+            </motion.div>
+          </motion.aside>
 
           {/* beat 3: the split — one identity diverging into two disciplines */}
           <div
