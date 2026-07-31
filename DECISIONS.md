@@ -1331,3 +1331,52 @@ Both are now the Pinyon Script `mb`, matching the monogram everywhere else.
   driving the scene by hand (`__lanyard.advance`) feeds rapier synthetic deltas
   and NaNs the rope, so the band has no geometry to draw. The band's `uv` does
   run 0→1 along its length, which is the premise the repeat-sign fix rests on.
+
+## The three work boards get real cover photos (2026-07-31)
+
+The "Selected work" boards (design canvas) carried a decorative SVG sketch
+per board — line-drawing placeholders, explicitly commented as such
+("real case-study shots replace these when she supplies them"). Replaced with
+real cover photos for all three: Meal Maestro, Layover, Futurepreneurs.
+
+- **`.dw-board-display`, the large project-name text drawn over the empty
+  cream, is deleted along with the sketch, not just the sketch alone.** It
+  existed to compensate for the placeholder having no wordmark of its own —
+  every supplied cover photo already carries the project's real branding baked
+  in (Meal Maestro's wordmark, Layover's logo, the FUTUREPRENEURS headline), so
+  redrawing the name a second time on top would double it up, not label it.
+- **Layover's source was the wrong orientation for its board**, and this is
+  the one worth remembering if a future cover swap looks wrong on arrival: the
+  `sm` board is a 4/5 PORTRAIT slot, but the supplied export was a 1920x1080
+  LANDSCAPE slide (a 3-mockup hero: laptop + two phones). A blind centre-crop
+  to 4:5 lands almost entirely on the dark laptop panel and misses both
+  phones. Cropped instead to the two-phone cluster on the right edge
+  (x 1056–1920, full height) — checked by rendering the candidate crop box
+  over the source and looking at it before cutting anything, not by
+  computing coordinates blind.
+- **Never upscale a crop past its native resolution.** Futurepreneurs'
+  source screenshot is only 814px wide; the first pass resized every cover to
+  a uniform 1200px width regardless, which stretched futurepreneurs 47% and
+  visibly softened the laptop screen's text. Fixed by capping output width to
+  `min(target, crop_width)` — meal-maestro and layover both have enough
+  native resolution to hit the target size unscaled; futurepreneurs ships at
+  its native 814px instead.
+- **Crops are pre-baked (`scripts/build_project_covers.py`), not left to
+  `object-fit: cover` on the raw file.** The raw files stay wherever she
+  exported them; the script is the record of exactly where each crop lands
+  and why, re-runnable if a source ever gets re-exported.
+- **`.dw-board-art` deliberately does NOT get `overflow: hidden`**, even
+  though a full-bleed photo is the kind of thing that usually wants it:
+  `.dw-board-pin` sits at `top: -12px` and `.dw-board-dims` at
+  `bottom: -22px`, both intentionally poking past the box edge (the "pinned
+  to the top edge" and "dimension pill below" effects). Clipping would have
+  cut both off — caught by checking their CSS before adding the rule, not by
+  shipping it and noticing the pins had vanished.
+- **`coverAlt` was written, then removed.** The instinct was to pair `cover`
+  with real alt text the way `shots` pairs images with captions — but nothing
+  reads it: the board's `<img>` correctly gets `alt=""` (the parent `<a>`'s
+  own `aria-label` already names the project once; a screen reader would
+  otherwise hear the same description twice for what is one link), and
+  `ProjectPage.jsx` only ever renders `project.shots`, never `project.cover`.
+  An unused field is exactly the kind of thing worth deleting on sight rather
+  than leaving for "later."

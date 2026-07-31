@@ -125,9 +125,9 @@ html[data-world="pond"] {
 /* The document default is a SYSTEM stack, not Archivo, and that is a
    performance fix rather than a taste one.
 
-   Archivo is a display face: only .display, .dw-board-display, .dwc-big and
-   .dwc-ico--txt ever paint in it, and all four set it explicitly. Checked every
-   route — not one element anywhere inherited Archivo from this rule. But
+   Archivo is a display face: only .display, .dwc-big and .dwc-ico--txt ever
+   paint in it, and all three set it explicitly. Checked every route — not one
+   element anywhere inherited Archivo from this rule. But
    because `body` claimed it, the browser fetched archivo-latin-wdth-normal.woff2
    on EVERY route, the cover included, where it painted nothing at all and
    competed with the lotus atlas for the first paint.

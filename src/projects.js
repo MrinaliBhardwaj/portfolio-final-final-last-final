@@ -6,14 +6,17 @@
 // the file names lived in two places they drifted within a single edit — see
 // the note on FRAMES in DesignWorld.jsx.
 //
-// `size` is not decoration: it picks the board slot AND the sketch, and the two
-// are coupled by aspect ratio in design-world.css (lg 16/10 = the "screens"
-// web+phone pair, sm 4/5 = portrait "app" screens, wide 8/3 = the "brand" mark
-// + wordmark + chips). Reorder this array and the canvas follows; change a
-// `size` without changing `sketch` to match and the art won't fit its board.
+// `size` is not decoration: it picks the board slot, and that slot is a fixed
+// CSS aspect-ratio box (design-world.css: lg 16/10, sm 4/5 portrait, wide
+// 8/3). `cover` has to already be cropped to roughly that ratio — see
+// scripts/build_project_covers.py, which is also the record of where each
+// crop landed and why. Reorder this array and the canvas follows.
 //
-// `shots` is what the case-study page renders. A project with none still gets a
-// page — it just says so, rather than showing an empty frame.
+// `cover` replaced a placeholder SVG sketch (one per `size`, keyed by a
+// `sketch` field this file no longer has) once real case-study art existed
+// for every board. `shots` is what the case-study page itself renders. A
+// project with none still gets a page — it just says so, rather than showing
+// an empty frame.
 
 /**
  * A shot is EITHER a single image (`src`) OR a tall export delivered as stacked
@@ -46,7 +49,7 @@ export const PROJECTS = [
     blurb:
       "A smart meal-planning app: personalized recipes and grocery lists from user preferences.",
     size: "lg",
-    sketch: "screens",
+    cover: "/work/meal-maestro/cover.webp",
     file: "meal-maestro-final",
     dims: "1440 × 900",
     role: "UI design",
@@ -102,7 +105,7 @@ export const PROJECTS = [
     blurb:
       "An airport companion: order meals from your terminal and book lounge access, in the hours between flights.",
     size: "sm",
-    sketch: "app",
+    cover: "/work/layover/cover.webp",
     file: "layover-v3",
     dims: "1080 × 1350",
     role: "Brand identity, UI design, product design",
@@ -176,7 +179,7 @@ export const PROJECTS = [
     blurb:
       "Full identity and digital assets — website, social, reels, brochures — driving 10,000+ views.",
     size: "wide",
-    sketch: "brand",
+    cover: "/work/futurepreneurs/cover.webp",
     file: "futurepreneurs-final-FINAL(2)",
     dims: "1920 × 720",
     role: "Branding, UI design",
