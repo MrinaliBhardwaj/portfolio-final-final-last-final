@@ -9,19 +9,38 @@ three sources don't match their board's aspect at all:
   meal-maestro (lg, 16/10=1.6): source is already 1400x870=1.609 - a near
   no-op trim, 4px off each side.
 
-  layover (sm, 4/5=0.8, PORTRAIT): source is a 1920x1080 LANDSCAPE slide -
-  the exact opposite orientation. Two passes to get here, both by drawing
+  layover (sm) went through two different SOURCE IMAGES, not just recrops.
+  Both were 1920x1080 slides from the same deck:
+
+  v1 was the two-phone app slide. Two passes to get right, both by drawing
   candidate boxes over the source and looking, not by computing coordinates
-  blind: pass 1 cropped the full height at the two-phone cluster and looked
-  wrong on arrival (phones small at the bottom of empty gradient). Pass 2
-  raised the crop's top edge, but only as far as y=340 - still 45px into the
-  gap where the DARK LAPTOP MOCKUP's edge is exposed just above the phones
-  (the phone doesn't visually start until y=385, and the laptop sits behind
-  it, so anything above y=385 in that x-range shows laptop, not phone or
-  background). The fix was raising y0 again, to right where the phone
-  actually begins (y=385) rather than stopping at a number that merely looked
-  close. Final box (1082, 385, 1638, 1080): starts exactly at the phones' top
-  edge, no laptop, both phones filling the frame centred.
+  blind: pass 1 cropped the full height at the phone cluster and looked wrong
+  on arrival (phones small at the bottom of empty gradient). Pass 2 raised
+  the crop's top edge, but only to y=340 - still 45px into the gap where the
+  dark laptop mockup BEHIND the phones is exposed above them (the phone
+  itself doesn't start until y=385). Fixed by raising y0 to 385 exactly.
+
+  v2 (current) swaps in the wordmark billboard slide instead - white LayOver
+  logo (the reversed 'e') on a black sign, on a tree-lined street. Asked to
+  "increase width": the board was 4/5 PORTRAIT, this source is landscape, and
+  unlike the futurepreneurs case, this board's WIDTH is not aspect-ratio
+  derived - `.dw-board--sm .dw-board-art` has no explicit width, so it fills
+  its grid-column track first and aspect-ratio only ever set its HEIGHT
+  against that already-fixed width. Loosening the ratio here would have made
+  the box shorter, not wider. Actually growing it needed the grid-column span
+  itself increased (design-world.css) - 4 tracks to 5, reclaiming the empty
+  gap column between it and the lg board (row: lg spans 1-7, gap at 8, sm
+  used to start at 9 - sm now starts at 8, the maximum growth available
+  without overlapping lg, which ends its own span exactly at column 8).
+
+  The crop itself only trims the slide's own decorative frame - flat cream
+  and gold gradient bars either side of the photo, confirmed by scanning for
+  colour-jump discontinuities rather than eyeballing where they end (x<195
+  and x>1725 are the bars; the real photo is exactly x 195-1725). No
+  further crop needed: keeping the full photo height alongside that width
+  gives 1530x1080 = 17/12 ≈ 1.417, on its own a normal landscape ratio - nice
+  enough that the board's aspect-ratio just uses that number directly rather
+  than forcing a rounder target and cropping the photo further to hit it.
 
   futurepreneurs (wide, was 8/3=2.667, now 2/1=2.0): source is 814x580=1.403,
   much closer to square than either letterbox ratio. IMPORTANT: under
@@ -53,11 +72,11 @@ JOBS = [
     },
     {
         "name": "layover",
-        "src": r"C:\Users\heave\Downloads\LAYOVER\Slide 16_9 - 7.png",
+        "src": r"C:\Users\heave\Downloads\LAYOVER\Slide 16_9 - 5.png",
         "out": ROOT + r"\public\work\layover\cover.webp",
         "crop": "explicit",
-        "box": (1082, 385, 1638, 1080),
-        "resize_width": 700,
+        "box": (195, 0, 1725, 1080),
+        "resize_width": 1200,
     },
     {
         "name": "futurepreneurs",

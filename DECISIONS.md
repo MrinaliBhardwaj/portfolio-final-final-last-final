@@ -1380,3 +1380,32 @@ real cover photos for all three: Meal Maestro, Layover, Futurepreneurs.
   `ProjectPage.jsx` only ever renders `project.shots`, never `project.cover`.
   An unused field is exactly the kind of thing worth deleting on sight rather
   than leaving for "later."
+
+## Layover's cover swapped to the billboard wordmark shot, and grows a column (2026-07-31)
+
+Replaced the two-phone app screenshot with a different photo entirely — the
+LayOver wordmark on a black billboard, tree-lined street — and widened the
+board it sits in.
+
+- **This board's width was never aspect-ratio-derived, unlike futurepreneurs'
+  wide board.** `.dw-board-art` has no explicit width; it fills its
+  grid-column track first, and `aspect-ratio` only ever set HEIGHT against
+  that already-fixed width. So when asked to "increase width" here, loosening
+  the ratio alone (the futurepreneurs move) would only have made the box
+  *shorter* — width is entirely a grid-column question for this component.
+  Worth remembering as the general rule: check whether a board's width comes
+  from its grid span or its aspect-ratio before reaching for either fix.
+- **Grew the grid span instead** — `.dw-board--sm` from `9 / span 4` to
+  `8 / span 5`, reclaiming the column that used to sit empty between it and
+  the lg board on purpose ("scattered, not stacked"). Column 8 is the most it
+  can grow to without overlapping lg, which ends its own span there.
+- **The crop only trims the source slide's own decorative frame** — flat
+  cream and gold gradient bars either side of the photo, confirmed by
+  scanning for colour-jump discontinuities (`scripts/build_project_covers.py`
+  has the exact method) rather than eyeballing where they ended. Real photo
+  content is exactly x 195–1725 of the 1920-wide slide; nothing above or
+  below is cropped at all.
+- **The board's aspect-ratio (17/12) is the crop's own ratio, not a rounder
+  number the photo was then further cropped to hit.** 1530×1080, reduced,
+  is 17/12 exactly — using it directly means the photo needed no additional
+  cropping beyond trimming the frame bars.

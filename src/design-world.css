@@ -748,10 +748,14 @@
   align-items: start;
 }
 
-/* scattered, not stacked: the sm board starts lower and a column of canvas
-   stays empty between the two — a working file, not a card grid */
+/* scattered, not stacked: the sm board starts lower — a working file, not a
+   card grid. It used to start at column 9, leaving column 8 empty between it
+   and lg; that gap is gone now, reclaimed to widen sm (see .dw-board--sm
+   .dw-board-art below for why growing it needed the grid span touched at
+   all, not just an aspect-ratio number). Column 8 is the most it can grow to
+   without overlapping lg, whose own span ends exactly there. */
 .dw-board--lg { grid-column: 1 / span 7; }
-.dw-board--sm { grid-column: 9 / span 4; margin-top: 3.5rem; }
+.dw-board--sm { grid-column: 8 / span 5; margin-top: 3.5rem; }
 .dw-board--wide { grid-column: 2 / span 10; }
 
 .dw-board {
@@ -794,8 +798,18 @@
   transform: rotate(-1.1deg);
 }
 
+/* Was 4/5 portrait, for a cover that was a portrait phone-app screenshot.
+   Now a landscape billboard photo, so the box needed to follow — but unlike
+   the wide board below, THIS box's width was never aspect-ratio-derived in
+   the first place: .dw-board-art has no explicit width, so it fills its
+   grid-column track first (see .dw-board--sm above) and aspect-ratio only
+   ever set height against that already-fixed width. Loosening the ratio
+   alone would have made the box shorter, not wider - the grid span had to
+   grow too. 17/12 is the cover photo's own crop ratio (1530x1080, after
+   trimming the source slide's decorative frame bars) used directly, rather
+   than forcing a rounder number and cropping the photo further to hit it. */
 .dw-board--sm .dw-board-art {
-  aspect-ratio: 4 / 5;
+  aspect-ratio: 17 / 12;
   transform: rotate(1.6deg);
 }
 
