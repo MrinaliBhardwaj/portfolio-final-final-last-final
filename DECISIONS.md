@@ -87,7 +87,25 @@ until all 6 MB had landed.
   Note this also means **`<img>`-loaded SVG is useless for measuring this** — that
   is a separate document with no access to the page's `@font-face`, so it
   silently rasterises the fallback. It reported an 8.71x ink ratio (Segoe's)
-  where the real face is 6.73x.
+  where the real face is 6.73x. That false measurement is what cleared the ink
+  mask of blame the first time round; the mask was in fact the culprit (below).
+- **The name carries `padding-inline: 0.5em` / `margin-inline: -0.5em` so the
+  ink mask has something to cover.** The `.is-inked` mask clips to the h1's box,
+  and these faces paint outside theirs — the M's leading swash starts ~5px left
+  of the box, the j's trailing flourish runs ~21px past its right edge (at
+  font-size 185px, and both are underestimates). The mask erased exactly those
+  two ends: `mask-repeat` is `repeat`, so paint left of the box samples the
+  PREVIOUS tile's transparent tail and the M's swash tip vanished outright,
+  while the opaque run reaches only 101.2% of the box (46% of a 220% tile) so
+  the j's flourish faded out past x = box.left + 1.012·width.
+  Padding grows the mask box (`mask-origin` is border-box); the matching
+  negative margin keeps layout identical, parent shrink-to-fit included, since
+  the margin box is `width + 0.5em − 0.5em`. Verified: font-size, hero position
+  and every ink coordinate are unchanged, only the mask box moved (89.2 → −3.4
+  on the left, opaque edge 1350.4 → 1445.3 against ink ending at 1356.3).
+  **This is a clipping bug that no amount of resizing reveals** — it is fixed to
+  the element's own box, so it reproduces identically at every width. Do not
+  chase it with `--name-fs` or `--name-drop`.
 - **Latent bug found while verifying:** if layout hasn't run when the effect
   commits (hidden tab, or a commit before first layout) both cover canvases
   sized to 0×0 and only a later window resize rescued them. Both now size via

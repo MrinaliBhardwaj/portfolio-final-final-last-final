@@ -266,6 +266,29 @@
   white-space: nowrap;
   text-shadow: 0 2px 40px rgba(0, 0, 0, 0.55);
   opacity: 0;
+  /* ROOM FOR THE SWASHES TO EXIST IN.
+   *
+   * The .is-inked mask below clips to this element's box, and these faces paint
+   * well outside theirs: the M's leading swash starts ~5px left of the box and
+   * the j's trailing flourish runs ~21px past its right edge (both measured at
+   * font-size 185px, and both underestimates — canvas cannot measure the
+   * `opsz 72` instance the page actually renders, so the real overhang is
+   * larger still). The mask has no idea any of that is there:
+   *   - the tile is 220% wide and opaque for its first 46%, i.e. 101.2% of the
+   *     box, so paint past the RIGHT edge fades out — the j's flourish did
+   *   - `mask-repeat` is `repeat`, so paint left of the box samples the PREVIOUS
+   *     tile's transparent tail — the M's swash tip was erased outright
+   * Both are exactly the two ends that were reported cut.
+   *
+   * Padding grows the mask box (mask-origin is border-box) so the ink lands
+   * inside it; the matching negative margin keeps layout identical, including
+   * the parent's shrink-to-fit width, since a margin box of
+   * width + 0.5em - 0.5em is unchanged. 0.5em is deliberately generous —
+   * roughly 4x the largest measured overhang — because the true extent cannot
+   * be measured here and over-reserving costs nothing: the mask's opaque run is
+   * 101.2% of whatever the box becomes, so it always covers it. */
+  padding-inline: 0.5em;
+  margin-inline: -0.5em;
 }
 
 /* The two scripts. Ballet keeps the capitals — its swashed M and B are the
