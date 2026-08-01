@@ -54,6 +54,26 @@ until all 6 MB had landed.
   last change at y=1980 of 1980 — **zero dead scroll**. Head unchanged: frames
   4/8/14 at 5/10/20% vs the old curve's 4/7/14.
   **Any future easing here needs a non-zero end slope**, or the stall comes back.
+- **The name is scaled to fit whatever font ACTUALLY rendered (`--name-fit`).**
+  Every number tuning the cover name — the 13vw size, the measured 13.79vw ink
+  ceiling, the em-based drop — is tuned to Ballet + Pinyon, and the moment a
+  different face renders those numbers are wrong. The failure is silent and
+  ugly: the name is `white-space: nowrap` inside a stage that is
+  `overflow: hidden`, so text that is too wide is not wrapped or scaled, it is
+  **sheared at the viewport edge**. Segoe Script — the fallback that paints
+  while the webfonts load, and permanently if they fail — lays out ~30% wider
+  and overflowed at **every** width from 1024 to 1600; at 1366 it ran 241px
+  past the budget and cut 204px off "hardwaj", taking the j and its dot with it.
+  `Cover.jsx` now measures the rendered name and sets `--name-fit`, a multiplier
+  on `--name-fs`. Verified: real font holds `--name-fit: 1` and byte-identical
+  font-sizes (185.25px at 1440, 131.17px at 1024) so the tuned design is
+  untouched; the fallback scales to ~0.85 and clears both edges by 23px at every
+  width; the value returns to 1 when the real font lands, so it cannot compound.
+  **The budget is the STAGE minus the hero's padding, never the h1's own box** —
+  the hero is `width: fit-content`, so the h1 shrink-wraps its own text and its
+  `clientWidth` *is* the ink width by definition; comparing those two can only
+  come out equal and lets rounding decide, which spuriously shrank the name by
+  0.55% before this was corrected.
 - **Latent bug found while verifying:** if layout hasn't run when the effect
   commits (hidden tab, or a commit before first layout) both cover canvases
   sized to 0×0 and only a later window resize rescued them. Both now size via

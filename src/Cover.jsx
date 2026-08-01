@@ -63,6 +63,8 @@ export default function Cover({ onChoose, onSettledChange }) {
   const particlesRef = useRef(null);
   const trackRef = useRef(null);
   const canvasRef = useRef(null);
+  const heroRef = useRef(null);
+  const nameRef = useRef(null);
   const progressRef = useRef(0);
   // mirror the two scroll-driven booleans so we only enter React's scheduler
   // when one actually flips, not on every scroll tick (see below)
@@ -93,6 +95,65 @@ export default function Cover({ onChoose, onSettledChange }) {
       clearTimeout(t);
     };
   }, []);
+
+  // The name's SAFETY NET. Every number in cover.css — the 13vw size, the
+  // measured 13.79vw ink ceiling, the em-based drop — is tuned to Ballet +
+  // Pinyon. The instant a different face renders the name those numbers are
+  // wrong, and the failure is silent and ugly: the name is `white-space: nowrap`
+  // inside a stage that is `overflow: hidden`, so anything too wide is not
+  // wrapped or scaled, it is SHEARED at the viewport edge.
+  //
+  // That is not hypothetical. Segoe Script — the fallback that paints while the
+  // webfonts load, and permanently if they fail — lays out ~30% wider and
+  // overflowed at every width tested (1024 through 1600). At 1366 it ran 241px
+  // past the available width and 204px of "hardwaj" was cut off, taking the j
+  // and its dot with it.
+  //
+  // So: measure what actually rendered and scale to fit, rather than trusting
+  // that the intended font is the one on screen. Re-run whenever the fonts
+  // settle (both the `fontReady` gate below AND document.fonts.ready, since the
+  // real faces can land after that gate's 2.5s timeout has already given up)
+  // and on resize, because the budget is a vw. Measurement is synchronous
+  // against a reset value so it never compounds on itself.
+  useEffect(() => {
+    const hero = heroRef.current;
+    const name = nameRef.current;
+    if (!hero || !name) return;
+
+    const fit = () => {
+      hero.style.setProperty("--name-fit", "1");
+      // flush the reset so the measurement below sees the unscaled name
+      void name.offsetWidth;
+      const range = document.createRange();
+      range.selectNodeContents(name);
+      const ink = range.getBoundingClientRect().width;
+      // The budget is the STAGE minus the hero's padding — deliberately not the
+      // h1's own box. The hero is `width: fit-content`, so the h1 shrink-wraps
+      // its own text and its clientWidth is the ink width by definition; that
+      // comparison can only ever come out equal, and rounding then decides the
+      // result. Measuring against the space the name is allowed to occupy is
+      // what actually answers "does this fit".
+      const stage = hero.parentElement;
+      const pad = getComputedStyle(hero);
+      const avail =
+        stage.clientWidth -
+        (parseFloat(pad.paddingLeft) || 0) -
+        (parseFloat(pad.paddingRight) || 0);
+      if (ink > 0 && avail > 0 && ink > avail) {
+        // 0.995 keeps subpixel rounding from shaving the outermost swash
+        hero.style.setProperty("--name-fit", ((avail / ink) * 0.995).toFixed(4));
+      }
+    };
+
+    fit();
+    window.addEventListener("resize", fit);
+    let alive = true;
+    document.fonts?.ready.then(() => alive && fit());
+    return () => {
+      alive = false;
+      window.removeEventListener("resize", fit);
+    };
+  }, [fontReady]);
 
   // scroll progress across the tall track drives everything on the stage
   const { scrollYProgress } = useScroll({
@@ -267,6 +328,7 @@ export default function Cover({ onChoose, onSettledChange }) {
               used to sit under it is gone — the two margin notes below now
               carry the roles, and they say it in far more detail. */}
           <motion.div
+            ref={heroRef}
             className="cover-hero-inner"
             style={{ opacity: nameOpacity, y: nameLift }}
           >
@@ -276,7 +338,10 @@ export default function Cover({ onChoose, onSettledChange }) {
                 face as the monogram. Kept as separate spans rather than one
                 string because the split is per-glyph-run, and the mask wipe
                 on .is-inked still sweeps the h1 as a single box. */}
-            <h1 className={`cover-name-script${fontReady ? " is-inked" : ""}`}>
+            <h1
+              ref={nameRef}
+              className={`cover-name-script${fontReady ? " is-inked" : ""}`}
+            >
               <span className="cover-name-cap">M</span>
               <span className="cover-name-rest">rinali</span>{" "}
               <span className="cover-name-cap">B</span>

@@ -178,8 +178,18 @@
    * 13vw sits ~6% under that limit. Note the name is not visually smaller for
    * it: 13vw x 7.047 fills ~91.6% of the width, which is what 15vw x 6.08
    * filled before. Same footprint, smaller em. Re-measure the multiplier if
-   * either script changes. */
-  --name-fs: clamp(3.3rem, 13vw, 16.5rem);
+   * either script changes.
+   *
+   * --name-fit is the SAFETY NET on all of the above, set by Cover.jsx: every
+   * number here is tuned to Ballet+Pinyon's metrics, and the moment anything
+   * else renders the name those numbers are wrong. Segoe Script — the fallback
+   * that paints while the webfonts load, and permanently if they fail — lays
+   * out ~30% wider, which overflowed at EVERY width (241px at 1366) and, since
+   * the name is nowrap inside the stage's overflow:hidden, got sheared: 204px
+   * of "hardwaj" cut off at 1366, the j and its dot with it. The measured fit
+   * scales the name down just enough to fit whatever font actually rendered.
+   * It stays 1 for the real fonts, so nothing below changes for them. */
+  --name-fs: calc(clamp(3.3rem, 13vw, 16.5rem) * var(--name-fit, 1));
   /* The stage bottom-aligns this, so the negative bottom margin sets how low
      the script sits. The stage is a sticky 100dvh box with overflow:hidden, so
      the viewport bottom clips anything pushed past it — INTENTIONALLY, here:
@@ -692,7 +702,9 @@
      against. */
   .cover-hero-inner {
     padding-bottom: 0;
-    --name-fs: clamp(3.6rem, 22vw, 7rem);
+    /* wraps to two lines here (see below), so the fit measures <= 1 line box
+       and stays at 1 — carried through anyway so the two paths can't diverge */
+    --name-fs: calc(clamp(3.6rem, 22vw, 7rem) * var(--name-fit, 1));
     /* The clearance is a fraction of the name, and the name is much smaller
        here — 0.08 left it under a pixel clear, which subpixel rounding can
        shear. A gentler drop buys back ~4px without reading as higher. */
