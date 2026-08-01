@@ -59,12 +59,20 @@ const SCRUB_END = 1;
 
 const EASE = [0.22, 1, 0.36, 1];
 
+// px of breathing room kept between the name's outermost ink and the stage edge
+// (see the fit effect). Small on purpose: it is a guard against the swash
+// touching the edge, not a margin in the design sense.
+const SIDE_GUARD = 8;
+
 export default function Cover({ onChoose, onSettledChange }) {
   const particlesRef = useRef(null);
   const trackRef = useRef(null);
   const canvasRef = useRef(null);
   const heroRef = useRef(null);
   const nameRef = useRef(null);
+  // one reusable 2D context for the ink measurement below — allocating a canvas
+  // per resize tick would be the expensive part of an otherwise cheap effect
+  const fitCtx = useRef(null);
   const progressRef = useRef(0);
   // mirror the two scroll-driven booleans so we only enter React's scheduler
   // when one actually flips, not on every scroll tick (see below)
@@ -124,24 +132,51 @@ export default function Cover({ onChoose, onSettledChange }) {
       hero.style.setProperty("--name-fit", "1");
       // flush the reset so the measurement below sees the unscaled name
       void name.offsetWidth;
-      const range = document.createRange();
-      range.selectNodeContents(name);
-      const ink = range.getBoundingClientRect().width;
-      // The budget is the STAGE minus the hero's padding — deliberately not the
-      // h1's own box. The hero is `width: fit-content`, so the h1 shrink-wraps
-      // its own text and its clientWidth is the ink width by definition; that
-      // comparison can only ever come out equal, and rounding then decides the
-      // result. Measuring against the space the name is allowed to occupy is
-      // what actually answers "does this fit".
-      const stage = hero.parentElement;
+
+      // TRUE GLYPH INK, not the advance boxes. This distinction is the whole
+      // point: `getBoundingClientRect()`/Range return layout boxes, and these
+      // faces do not stay inside theirs — Ballet's M paints 128px past its own
+      // advance at 185px, and "hardwaj" 19px past its. Measuring boxes said the
+      // name cleared the stage by 89px when the ink cleared it by 57px. Canvas
+      // `actualBoundingBox*` is the only thing here that reports where the paint
+      // actually lands, and it uses the real loaded face.
+      const ctx = (fitCtx.current ||= document
+        .createElement("canvas")
+        .getContext("2d"));
+      let inkL = Infinity;
+      let inkR = -Infinity;
+      for (const run of name.children) {
+        const k = getComputedStyle(run);
+        // first family only: this is the face that actually rendered
+        const family = k.fontFamily.split(",")[0].trim();
+        ctx.font = `${k.fontStyle} ${k.fontWeight} ${parseFloat(k.fontSize)}px ${family}`;
+        const m = ctx.measureText(run.textContent);
+        const box = run.getBoundingClientRect();
+        inkL = Math.min(inkL, box.left - m.actualBoundingBoxLeft);
+        inkR = Math.max(inkR, box.left + m.actualBoundingBoxRight);
+      }
+      if (!Number.isFinite(inkL) || !Number.isFinite(inkR)) return;
+
+      // Solve about the CENTRE, not the width. The name is centred but its ink
+      // is not symmetric (the M leads with a swash, the j trails with one), so
+      // a name that fits on width can still put one end through the edge. Both
+      // halves scale with the font, so the binding constraint is simply the
+      // longer of the two.
+      const sb = hero.parentElement.getBoundingClientRect();
       const pad = getComputedStyle(hero);
-      const avail =
-        stage.clientWidth -
-        (parseFloat(pad.paddingLeft) || 0) -
-        (parseFloat(pad.paddingRight) || 0);
-      if (ink > 0 && avail > 0 && ink > avail) {
-        // 0.995 keeps subpixel rounding from shaving the outermost swash
-        hero.style.setProperty("--name-fit", ((avail / ink) * 0.995).toFixed(4));
+      const padX =
+        (parseFloat(pad.paddingLeft) || 0) + (parseFloat(pad.paddingRight) || 0);
+      const centre = sb.left + sb.width / 2;
+      const halfNeeded = Math.max(centre - inkL, inkR - centre);
+      // SIDE_GUARD keeps the outermost swash off the edge rather than exactly on
+      // it, so subpixel rounding can never shave it
+      const halfAvail = (sb.width - padX) / 2 - SIDE_GUARD;
+
+      if (halfNeeded > halfAvail && halfNeeded > 0 && halfAvail > 0) {
+        hero.style.setProperty(
+          "--name-fit",
+          (halfAvail / halfNeeded).toFixed(4)
+        );
       }
     };
 

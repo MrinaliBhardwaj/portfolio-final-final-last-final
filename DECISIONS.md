@@ -74,6 +74,20 @@ until all 6 MB had landed.
   `clientWidth` *is* the ink width by definition; comparing those two can only
   come out equal and lets rounding decide, which spuriously shrank the name by
   0.55% before this was corrected.
+  **Measure TRUE GLYPH INK, never the layout boxes.** These faces do not stay
+  inside their advance: at 185px the M paints 128px past its own advance and
+  "hardwaj" 19px past its. `getBoundingClientRect()`/Range report the boxes, and
+  said the name cleared the stage by 89px when the ink cleared it by 57px — a
+  32px lie, in the direction that hides a clip. Canvas `measureText`'s
+  `actualBoundingBoxLeft/Right` is the only thing here that reports where paint
+  actually lands, and it resolves against the real loaded face. The fit also
+  solves about the **centre**, not the width: the ink is asymmetric (the M leads
+  with a swash, the j trails with one), so a name that fits on width can still
+  push one end through an edge.
+  Note this also means **`<img>`-loaded SVG is useless for measuring this** — that
+  is a separate document with no access to the page's `@font-face`, so it
+  silently rasterises the fallback. It reported an 8.71x ink ratio (Segoe's)
+  where the real face is 6.73x.
 - **Latent bug found while verifying:** if layout hasn't run when the effect
   commits (hidden tab, or a commit before first layout) both cover canvases
   sized to 0×0 and only a later window resize rescued them. Both now size via
