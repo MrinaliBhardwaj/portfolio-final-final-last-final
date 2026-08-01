@@ -114,7 +114,6 @@ export const PROJECTS = [
     facts: [
       ["Role", "Brand identity · UI · product design"],
       ["Surfaces", "Marketing site, web app, mobile app"],
-      ["Airports", "Delhi IGI, Mumbai CSIA, Bengaluru KIA, Hyderabad RGIA"],
       ["Timeline", "2025"],
     ],
     external: BEHANCE,
