@@ -38,6 +38,22 @@ until all 6 MB had landed.
   paint 0.477 ms/frame (2.9 % of a 16.7 ms budget); atlas 63 ms.
   Frame count/resolution are the two memory dials, both constants at the top of
   the script and mirrored in `lotus.js` — **keep them in sync**.
+- **The scrub's head boost must not flatten its tail.** The map from scroll
+  progress to frame index is eased, because the sequence's head is the source
+  clip's static "fully open, holding" tail and a linear map left the flower
+  frozen for the first stretch of scroll. The first fix was `r * (2 - r)`, whose
+  slope is `2(1-r)` — **zero at the end**. The last of the 40 frames was
+  therefore reached at progress 0.887 and held flat for the remaining 11%, which
+  on a 320vh track is ~224px: a quarter of a screen of scrolling against a dead
+  flower. Fixing the head had quietly relocated the stall to the bottom.
+  The boost is now carried by `(1-r)²` — `r + 1.2·r·(1-r)²` — whose value *and*
+  slope both vanish at `r = 1`. Head rate is 2.2× (a shade faster than the old
+  2×), the tail runs at exactly linear rate, and the final frame lands on the
+  final pixel of the track. Verified by hashing the painted canvas while
+  walking the last 20%: frames still change at every 2% step to the very bottom,
+  last change at y=1980 of 1980 — **zero dead scroll**. Head unchanged: frames
+  4/8/14 at 5/10/20% vs the old curve's 4/7/14.
+  **Any future easing here needs a non-zero end slope**, or the stall comes back.
 - **Latent bug found while verifying:** if layout hasn't run when the effect
   commits (hidden tab, or a commit before first layout) both cover canvases
   sized to 0×0 and only a later window resize rescued them. Both now size via
@@ -1639,8 +1655,38 @@ flying up) or throws the bottom one a screen and a half. Distance is measured
 from the stage's own bottom, and since the stage is exactly `100dvh` the
 viewport *is* that measurement (read at render, the way `Cover.jsx` reads it for
 the name's rise). All three therefore wait on the same line just past the edge.
+Measured at 1440×900: all three park at y≈1017, one line below the 900px fold,
+regardless of where they rest.
+
 Durations are equal over unequal distances, so they arrive together with the far
 ones moving faster — which is what throwing three things at once looks like.
+
+### They FLOAT in, they are not thrown
+
+The launch does **not** use the project's `--ease-soft`. That curve front-loads
+almost the whole distance into the first third, which at 1.15s read as three
+things being flung at the glass and stopping dead. The launch has its own curve,
+`cubic-bezier(0.16, 0.62, 0.2, 1)` over **2.15s**: it leaves the edge gently and
+spends most of its time easing into the resting position. Measured travel shows
+the intended long tail — the design sheet covers 14px in one 330ms stretch and
+then just 3px in the following 213ms.
+
+Two supporting changes, both necessary for it to read as floating rather than
+slow: the entry scale starts at **0.96, not 0.88** (a big scale ramp over a slow
+rise reads as zooming toward the glass, and these are rising *behind* it), and
+opacity takes **0.75s** instead of 0.35s while still finishing well inside the
+flight, so you watch them travel rather than watch them fade in. The stagger
+widens to 0.2 / 0.42 / 0.64 so the three read as separate arrivals, and the whole
+run still sits under the dock's own 1.4s rise.
+
+`--ease-soft` still owns the hover, where snap is the entire point.
+
+### design.pdf sits higher than tech.ts
+
+Its centre is at **19.4%**, not 25.2%. Level with the tech sheet the pair read as
+a row and the scatter stopped looking scattered. Re-measured at the new height:
+tightest clearance is 96px (to the design side's title), nothing overlaps, and
+`scrollWidth === clientWidth`.
 
 ### They rest straight and lean on hover
 

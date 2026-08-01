@@ -159,12 +159,23 @@ export default function Cover({ onChoose, onSettledChange }) {
     const scrubber = createLotusScrubber(
       canvasRef.current,
       () => {
-        // ease-out the scrub: the sequence's head is the clip's static "fully
-        // open, holding" tail, so a linear map left the flower frozen for the
-        // first stretch of scroll. Doubling the initial rate makes it start
-        // folding the moment the scroll starts; endpoints unchanged.
+        // Ease the scrub's HEAD without killing its TAIL. The sequence's head
+        // is the clip's static "fully open, holding" tail, so a linear map left
+        // the flower frozen for the first stretch of scroll — hence a boost.
+        //
+        // That boost used to be `r * (2 - r)`, whose slope is 2(1-r): it hits
+        // ZERO at the end. The last of the 40 frames was therefore reached at
+        // progress 0.887 and held for the remaining 11%, which at 320vh is
+        // ~224px — a quarter of a screen of scrolling against a frozen flower.
+        // Fixing the head had quietly moved the dead stretch to the bottom.
+        //
+        // The boost is now carried by (1-r)², whose value AND slope both vanish
+        // at r = 1. Head rate is 2.2x (a touch faster than the old 2x), the tail
+        // runs at exactly linear rate, and the final frame lands on the final
+        // pixel of the track. The only flat spot left is the half-frame rounding
+        // step every frame gets — ~25px, one twentieth of the old stall.
         const r = Math.min(1, progressRef.current / SCRUB_END);
-        return r * (2 - r);
+        return r + 1.2 * r * (1 - r) * (1 - r);
       },
       { onStep: particles.step }
     );
