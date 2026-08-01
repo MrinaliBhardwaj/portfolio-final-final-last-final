@@ -16,7 +16,12 @@
 import { motion } from "framer-motion";
 import { GitHubMark } from "./BrandIcons.jsx";
 
-const EASE = [0.22, 1, 0.36, 1];
+// The launch's own curve, NOT the project's --ease-soft. That one front-loads
+// almost the whole distance into the first third, which reads as a throw — the
+// files shot up and stopped. This one leaves the edge gently and spends most of
+// its time easing into the resting position, so they DRIFT up and settle.
+// (--ease-soft still owns the hover, where snap is the point.)
+const FLOAT = [0.16, 0.62, 0.2, 1];
 
 // A macOS-style document sheet: rounded page, folded top-right corner, two
 // lines of "content", and a coloured band carrying the extension. One shape for
@@ -111,9 +116,11 @@ const FILES = [
     external: false,
     art: <DocIcon ext="PDF" accent="#d8544c" gradient="dfile-sheet-pdf" />,
     left: 30.1,
-    top: 25.2,
+    // sits higher than the tech sheet on purpose: level with it the pair read as
+    // a row, and the scatter stops looking scattered
+    top: 19.4,
     tilt: -7,
-    delay: 0.24,
+    delay: 0.2,
   },
   {
     key: "tech",
@@ -127,7 +134,7 @@ const FILES = [
     left: 69.2,
     top: 35.2,
     tilt: 6,
-    delay: 0.38,
+    delay: 0.42,
   },
   {
     key: "github",
@@ -139,7 +146,7 @@ const FILES = [
     left: 24.7,
     top: 74.9,
     tilt: -5,
-    delay: 0.52,
+    delay: 0.64,
   },
 ];
 
@@ -184,22 +191,27 @@ export default function DesktopFiles({ visible }) {
           animate={
             visible
               ? { y: 0, opacity: 1, scale: 1 }
-              : { y: riseFor(f.top), opacity: 0, scale: 0.88 }
+              : { y: riseFor(f.top), opacity: 0, scale: 0.96 }
           }
-          // Equal durations over unequal distances, deliberately: the two up in
-          // the corners have most of a screen to cross and the folder barely a
-          // third, so they arrive together with the far ones moving faster —
-          // which is what throwing three things at once actually looks like.
-          // Opacity resolves early so the flight is watched rather than faded
-          // through; the stage's overflow hides the wait below the edge anyway.
-          // Delays sit under the dock's own 1.4s rise, so the files read as
-          // arriving WITH it rather than after it.
+          // They FLOAT. Equal durations over unequal distances is deliberate —
+          // the two up top have most of a screen to cross and the folder barely
+          // a third, so they land together with the far ones travelling faster.
+          // But the duration is long (2.15s) and the curve decelerates late, so
+          // even the fastest of the three is drifting rather than being thrown.
+          // Scale starts at 0.96, not 0.88: a big scale ramp over a slow rise
+          // reads as zooming toward the glass, and these are supposed to be
+          // rising behind it.
+          // Opacity takes its time too, but still finishes well inside the
+          // flight, so you watch them travel rather than watch them fade in.
+          // The stagger is wide enough (0.2 / 0.42 / 0.64) to read as three
+          // separate arrivals, and the whole run still sits under the dock's own
+          // 1.4s rise so the files arrive WITH it, not after it.
           transition={{
-            duration: 1.15,
-            ease: EASE,
+            duration: 2.15,
+            ease: FLOAT,
             delay: visible ? f.delay : 0,
             opacity: {
-              duration: 0.35,
+              duration: 0.75,
               ease: "easeOut",
               delay: visible ? f.delay : 0,
             },
