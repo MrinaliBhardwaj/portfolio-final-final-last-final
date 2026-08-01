@@ -1587,3 +1587,74 @@ Current shipping value: `--name-drop: 0.32`. This puts the clip line at 0.301em.
 - Previous: 0.44 (too low, fully clips the B's curve), then 0.08 (when the
   default was zero clipping). The steady-state is 0.32, recorded here so it
   doesn't regress.
+
+## The cover's second half is a desktop, so it has files on it
+
+The settled cover is a MacBook screen — dock, wallpaper, the lot. Three files
+now launch from below the bottom edge alongside the dock's rise and settle into
+place: `design.pdf` (the design résumé), `tech.ts` (the tech résumé — the file
+on disk is a PDF, the extension is the joke) and `github` as a folder carrying
+the GitHub mark.
+
+They live **inside `.cover-stage`**, not beside the dock in `App`. The stage is
+`overflow: hidden` and pinned to the viewport, so a file waiting below the fold
+is clipped by the screen edge rather than hanging off the document; and they
+leave with the cover's own fade instead of popping out the instant a world
+opens. The dock is the one thing that genuinely outlives the route — these
+belong to the cover, and `Cover` mirrors the 0.77 settle threshold into its own
+state to drive them.
+
+Icons are **inline SVG**, for the same reason `BrandIcons.jsx` exists: no extra
+requests, no remote origin, sharp at whatever size the clamp lands on.
+
+### Positions are the icon's CENTRE, not the tile's corner
+
+The tile is wider than the artwork (the label needs the room) and taller (the
+label sits under it). Anchoring by corner made every art-directed position an
+offset puzzle — the first pass had the right icon reading 151px off its edge
+against the left one's 120px, from the same nominal inset. The CSS now pulls the
+box back by half of itself (`margin-left`/`margin-top`, **not** a transform —
+Framer owns that for the launch), so the `left`/`top` in `DesktopFiles.jsx` are
+the point the icon sits on.
+
+### The scatter is placed against the lotus, and it is measured
+
+The three points sit inboard, in the quiet gaps around the flower, rather than
+jammed into the screen corners — corners read as a filed-away grid. Verified at
+1440x900, 1280x720 and 1920x1080 against the **ink** of every neighbour (a
+`Range` box, not the element box: both discipline blocks are 25rem wide with
+their text aligned to the outer edge, so their boxes are far wider than what you
+can see). No tile touches the nav, either block, or the dock; closest approach
+44px; nothing truncates; no horizontal overflow.
+
+Hidden below 900px wide. The two blocks already own every margin there, and
+nothing is lost: GitHub is in the cover header at every width, and both résumés
+are linked from inside their own worlds.
+
+### The launch distance is per tile
+
+One flat offset cannot work — the tiles rest at different heights, so a single
+number either leaves the top pair on screen (they fade in place instead of
+flying up) or throws the bottom one a screen and a half. Distance is measured
+from the stage's own bottom, and since the stage is exactly `100dvh` the
+viewport *is* that measurement (read at render, the way `Cover.jsx` reads it for
+the name's rise). All three therefore wait on the same line just past the edge.
+Durations are equal over unequal distances, so they arrive together with the far
+ones moving faster — which is what throwing three things at once looks like.
+
+### They rest straight and lean on hover
+
+The tilt was a resting pose first, and three permanently crooked icons on an
+otherwise precise stage read as sloppy rather than casual. As a hover state it
+costs nothing until you point at one, and then it reads as picking the thing up.
+It rides on the inner `.dfile-icon` because Framer owns the tile's transform —
+which also leaves the label upright and readable. Each file leans its own way
+and amount so pointing along the row isn't mechanical.
+
+Labels carry **no plate at rest** (a dark pill under all three was three more
+boxes on a stage that is mostly empty space); a tight text-shadow does the
+legibility work, and the macOS selection plate arrives on hover. Names echo the
+world tabs' own naming — `design.fig`/`tech.jsx` — so the extension is what
+tells you which half of the person a file belongs to. Short on purpose: at this
+icon size the full `resume-design.pdf` was 111px against an 81px box and
+rendered as `resume-desig…`. The `aria-label`s carry the full meaning.
