@@ -1,0 +1,167 @@
+/* ============ the desktop files (the MacBook screen's own files) ============ */
+/* Three icons scattered on the settled cover, arriving with the dock. The LAYER
+   spans the whole stage but is inert — only the tiles themselves take pointer
+   events. Without that, this sheet would sit over .cover-split (z-index 4) and
+   swallow both Explore CTAs across the entire screen. */
+.cover-desktop {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+}
+
+/* One tile: icon over a Finder-style label. Positioned by the component (the
+   scatter is data, not style), sized here. `translate: none` is deliberate —
+   Framer owns the transform for the launch, so centring or nudging a tile has
+   to happen through the position properties, never a transform. */
+.dfile {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.44rem;
+  /* The TILE is wider than the icon, the way a Finder label is allowed to run
+     past the artwork it belongs to. At icon width alone the label box was 81px
+     and the names rendered as "resume-desig…". The icon keeps --dfile-w; only
+     the naming gets the room. */
+  width: var(--dfile-tile);
+  /* Pull the box back by half of itself so the component's `left`/`top` land on
+     the ICON'S CENTRE rather than the tile's top-left. The scatter is placed by
+     eye against the lotus, and aiming a corner at a point you picked visually is
+     guesswork. Margins, not a transform — Framer owns the transform here. */
+  margin-left: calc(var(--dfile-tile) / -2);
+  margin-top: calc(var(--dfile-ih) / -2);
+  text-decoration: none;
+  cursor: pointer;
+  will-change: transform, opacity;
+}
+
+.cover-desktop {
+  /* one knob for the whole scatter; the other two derive from it */
+  --dfile-w: clamp(42px, 3.7vw, 54px);
+  --dfile-tile: calc(var(--dfile-w) * 1.55);
+  --dfile-ih: calc(var(--dfile-w) * 1.25);
+}
+
+/* A FIXED box, bottom-aligned. The two artworks have different aspect ratios —
+   a document is taller than it is wide (56:70), a folder is wider than it is
+   tall (64:54) — so at a shared width they came out 130px and 96px, and the
+   labels landed on three different lines. Pinning the box height to the taller
+   of the two and sitting both on its bottom edge puts every icon on one desk
+   surface and every label on one baseline, while keeping the folder honestly
+   wider and shorter the way a real one is. */
+.dfile-icon {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  width: var(--dfile-w);
+  height: var(--dfile-ih);
+  transform-origin: center 70%;
+  transition: transform 0.4s var(--ease-soft);
+}
+
+.dfile-art {
+  width: 100%;
+  height: auto;
+  /* a real drop shadow, not a box-shadow: the icons are cut-out shapes (a folded
+     page, a folder with a tab), and a rectangular shadow behind them would give
+     away that they're <svg> boxes. Kept light — at this size a heavy one turns
+     into a smudge under the icon. */
+  filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.5))
+    drop-shadow(0 1px 3px rgba(0, 0, 0, 0.35));
+}
+
+/* the extension inside the coloured band */
+.dfile-ext {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+/* Finder desktop label. No plate at rest — a dark pill under all three read as
+   three more boxes on a stage that is mostly empty space, and the ask here was
+   minimal. A tight shadow does the legibility work instead, which matters
+   because two of these sit near the lotus and the petals behind them are pale.
+   The selection plate arrives on hover, the way Finder's does. */
+.dfile-label {
+  max-width: 100%;
+  padding: 0.16em 0.45em;
+  border-radius: 0.4em;
+  font-family: var(--font-ui);
+  font-size: 10px;
+  font-weight: 400;
+  line-height: 1.3;
+  letter-spacing: 0.01em;
+  color: rgba(240, 240, 246, 0.88);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9), 0 0 8px rgba(0, 0, 0, 0.7);
+  text-align: center;
+  /* Finder truncates a long name rather than reflowing the grid */
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  transition: background 0.3s var(--ease-soft), color 0.3s var(--ease-soft);
+}
+
+/* Hover/focus: the file LEANS. That tilt used to be a resting pose, which made
+   three permanently crooked icons on an otherwise precise stage; as a hover it
+   costs nothing until you point at one, and then it reads as picking the thing
+   up. Each file leans its own way and amount (--tilt, set per file in
+   DesktopFiles.jsx) so pointing along the row doesn't look mechanical.
+   It rides on .dfile-icon rather than the tile because Framer owns the tile's
+   transform for the launch — and it leaves the label straight and readable.
+   No colour change on the artwork: these are supposed to look like the OS drew
+   them, and the OS doesn't tint your files when you point at them. */
+.dfile:hover .dfile-icon,
+.dfile:focus-visible .dfile-icon {
+  transform: rotate(var(--tilt, 0deg)) scale(1.1) translateY(-3px);
+}
+
+.dfile:hover .dfile-label,
+.dfile:focus-visible .dfile-label {
+  background: rgba(52, 96, 168, 0.85);
+  color: #fff;
+}
+
+.dfile:focus-visible {
+  outline: none;
+}
+
+.dfile:focus-visible .dfile-label {
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.75);
+}
+
+.dfile:active .dfile-icon {
+  transform: rotate(var(--tilt, 0deg)) scale(0.99);
+}
+
+/* Below this the two 25rem discipline blocks and the CTAs already own every
+   margin on the stage, and the files would land on top of them. Nothing is lost
+   by dropping them: GitHub is in the cover's own header at every width, and both
+   résumés are linked from inside their worlds. */
+@media (max-width: 899px) {
+  .cover-desktop {
+    display: none;
+  }
+}
+
+/* A short window squeezes the vertical gap between the nav, the centred
+   discipline blocks and the dock. Pull the scatter in toward the corners and
+   shrink the tiles rather than letting them collide. */
+@media (max-height: 760px) {
+  .cover-desktop {
+    --dfile-w: clamp(38px, 3.1vw, 46px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dfile-icon,
+  .dfile-label {
+    transition: none;
+  }
+
+  .dfile:hover .dfile-icon,
+  .dfile:focus-visible .dfile-icon {
+    transform: none;
+  }
+}

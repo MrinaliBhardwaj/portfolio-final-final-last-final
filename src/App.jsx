@@ -20,6 +20,7 @@ import PondWorld from "./PondWorld.jsx";
 import Dock from "./Dock.jsx";
 import DesignCursor from "./DesignCursor.jsx";
 import "./cover.css";
+import "./desktop-files.css";
 import "./dock.css";
 import "./world-tabs.css";
 import "./design-world.css";

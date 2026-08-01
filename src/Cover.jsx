@@ -18,6 +18,7 @@ import {
 import { ChevronDown, Mail, ArrowUpRight } from "lucide-react";
 import { GitHubMark } from "./BrandIcons.jsx";
 import TextMorph from "./TextMorph.jsx";
+import DesktopFiles from "./DesktopFiles.jsx";
 import { createParticles } from "./particles.js";
 import { createLotusScrubber } from "./lotus.js";
 
@@ -68,6 +69,10 @@ export default function Cover({ onChoose, onSettledChange }) {
   const splitRef = useRef(false);
   const settledRef = useRef(false);
   const [split, setSplit] = useState(false);
+  // the same threshold the dock surfaces on, mirrored into state because the
+  // desktop files render inside the stage (see DesktopFiles.jsx). Same guarded
+  // pattern as `split` below: two renders per scroll direction, not sixty.
+  const [settled, setSettled] = useState(false);
   // Hold the name invisible until BOTH its scripts have actually loaded — the
   // capitals are Ballet and the lowercase is Pinyon, and each has a fallback
   // (Segoe Script) close enough in metrics that font-display:swap flashed the
@@ -112,8 +117,10 @@ export default function Cover({ onChoose, onSettledChange }) {
     if (nextSettled !== settledRef.current) {
       settledRef.current = nextSettled;
       // once the divergence scene has fully settled, the dock (owned by App,
-      // where it persists across routes) surfaces
+      // where it persists across routes) surfaces — and the desktop files fly
+      // up onto the screen alongside it
       onSettledChange?.(nextSettled);
+      setSettled(nextSettled);
     }
   });
 
@@ -367,6 +374,12 @@ export default function Cover({ onChoose, onSettledChange }) {
               </a>
             </motion.div>
           </div>
+
+          {/* the screen's own files, arriving with the dock: this half of the
+              cover is a desktop, and a desktop with a dock but nothing on it is
+              a screenshot. Two résumés and GitHub, scattered into the corners
+              the split text doesn't claim. */}
+          <DesktopFiles visible={settled} />
 
           <motion.div
             className="cover-scroll"
