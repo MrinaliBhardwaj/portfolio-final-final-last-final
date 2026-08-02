@@ -57,12 +57,27 @@ const EDUCATION = [
   },
 ];
 
-// the three Skill-Set folders: {folder x,y} and its {label x,y,w + lines}
+// the folder artwork's own size in Figma units, shared by the image element
+// below and by the label centring
+const FOLDER_W = 64.107;
+const FOLDER_H = 64.198;
+
+// The three Skill-Set folders: {folder x,y} and its {label y,w + lines}.
+//
+// The label's X IS DERIVED, not stored. It used to be an `lx` per row (12, 134,
+// 254) and every one of them was about a folder-width too far left, so each name
+// sat ~41px to the left of the folder it belongs to instead of under it — the
+// labels are `align-items: center`, so the intent was always centred. Centring
+// them off `fx` means the two cannot drift apart again, whatever the artwork
+// does next.
 const SKILLS = [
-  { fx: 64.107, fy: 28.07, lx: 12, ly: 104, lw: 36, label: ["UI/UX", "Design"] },
-  { fx: 188.28, fy: 55.18, lx: 134, ly: 133, lw: 47, label: ["Branding"] },
-  { fx: 305, fy: 12.29, lx: 254, ly: 89, lw: 41, label: ["Graphic", "Design"] },
+  { fx: 64.107, fy: 28.07, ly: 104, lw: 36, label: ["UI/UX", "Design"] },
+  { fx: 188.28, fy: 55.18, ly: 133, lw: 47, label: ["Branding"] },
+  { fx: 305, fy: 12.29, ly: 89, lw: 41, label: ["Graphic", "Design"] },
 ];
+
+// centre of the folder, minus half the label box
+const skillLabelX = (s) => s.fx + (FOLDER_W - s.lw) / 2;
 
 function ExperienceEntry({ e }) {
   const right = e.align === "right";
@@ -212,14 +227,19 @@ export default function DesignHero() {
             src={`${A}/folder.png`}
             alt=""
             aria-hidden="true"
-            style={{ left: U(s.fx), top: U(s.fy), width: U(64.107), height: U(64.198) }}
+            style={{ left: U(s.fx), top: U(s.fy), width: U(FOLDER_W), height: U(FOLDER_H) }}
           />
         ))}
         {SKILLS.map((s, i) => (
           <span
             key={`l${i}`}
             className="dwh-skill-label"
-            style={{ left: U(s.lx), top: U(s.ly), width: U(s.lw), fontSize: U(11) }}
+            style={{
+              left: U(skillLabelX(s)),
+              top: U(s.ly),
+              width: U(s.lw),
+              fontSize: U(11),
+            }}
           >
             {s.label.map((line, j) => (
               <span key={j}>{line}</span>

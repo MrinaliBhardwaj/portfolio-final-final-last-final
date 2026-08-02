@@ -138,23 +138,41 @@
  * must grow, not overflow. border-box, so the mirrored padding is inside the
  * min-height rather than added to it. */
 @media (min-width: 769px) {
+  /* so the poster can read its own rendered width below. The canvas's width
+     comes from its parent, never from its contents, so inline-size containment
+     changes nothing about how it lays out. */
+  .dw-canvas {
+    container-type: inline-size;
+  }
+
   .dw-canvas > .cvf--poster {
-    /* 44px tab bar + the 39px header above the canvas. The canvas's own
-       padding-top is NOT part of this: it is cancelled just below, because it
-       is `6vh` and would otherwise make the centring drift with height — the
-       bug the first attempt at this shipped. */
+    /* 44px tab bar + the 39px header above the canvas */
     --dw-chrome: 83px;
-    /* cancel the canvas's top padding for this row only, so the band starts
-       exactly where the chrome ends */
+    /* the frame's name label above the artboard: its height plus its margin */
+    --dw-label: 20px;
+    /* HALF THE ARTBOARD'S OWN HEIGHT, derived rather than guessed: the body is
+       locked to aspect-ratio 1316/741 and spans the full canvas width, so its
+       height is 100cqw * 741/1316 and half of that is 28.155cqw. This is the
+       piece that makes the offset exact instead of approximate. */
+    --dw-poster-half: 28.155cqw;
+
+    /* cancel the canvas's own top padding for this row, so the sum below starts
+       exactly where the chrome ends. It is `6vh`, so folding it into a constant
+       makes the centring drift with height — a bug an earlier attempt shipped. */
     margin-top: calc(-1 * clamp(2.5rem, 6vh, 4rem));
-    min-height: calc(100dvh - var(--dw-chrome));
-    /* mirror the chrome underneath: that makes the centred band symmetric about
-       the viewport, so the frame lands on the SCREEN's centre and not on the
-       centre of the space left under the chrome (~50px lower) */
-    padding-bottom: var(--dw-chrome);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+
+    /* The whole offset sits ABOVE the artboard, never below. Centring by filling
+       the screen and using `justify-content: center` also works, but it reserves
+       the matching empty half UNDERNEATH — which pushed every frame after this
+       one down by ~264px and opened a void between the poster and the next
+       frame. Pushing from the top alone puts the artboard on the screen's centre
+       AND leaves the following frames exactly one normal grid gap below it.
+       max() clamps to 0 so a poster taller than the screen simply starts at the
+       chrome rather than being dragged off the top. */
+    padding-top: max(
+      0px,
+      calc(50dvh - var(--dw-poster-half) - var(--dw-chrome) - var(--dw-label))
+    );
   }
 }
 
