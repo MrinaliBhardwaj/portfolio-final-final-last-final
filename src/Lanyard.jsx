@@ -439,18 +439,35 @@ function Band({
           Absolute world positions instead, seeded from `home`.
           The hook is `kinematicPosition` rather than `fixed` so it can be
           driven; both are infinite-mass as far as the joints care. */}
+      {/* SEEDED IN THE REST POSE — hanging straight down, one rope-length apart.
+       *
+       * These used to be strung out HORIZONTALLY (hx+0.5, +1, +1.5, +2, all at
+       * hy), which made the first fall a spectacle: the chain started stretched
+       * sideways from the hook and gravity swung the whole thing down through
+       * 90°. Worse, the card's spherical joint anchors it 1.5 BELOW j3, so
+       * seeding it 0.5 to the RIGHT violated that joint by ~1.6 units and the
+       * solver snapped it out in a single step. Traced at 1440x900: the card
+       * entered at (1518, -349) — off screen, above and right — jumped, then
+       * slid 399px left and 831px down over ~6s before settling.
+       *
+       * The ropes are max-distance constraints of length 1 each and the card
+       * hangs 1.5 under j3, so the resting chain is exactly hook, -1, -2, -3,
+       * -4.5. Seeding those values means every constraint is already satisfied
+       * on frame 0: nothing to snap, nothing to swing. The settled position is
+       * unchanged — physics reached it either way, this only removes the
+       * journey. */}
       <RigidBody ref={fixed} position={[hx, hy, 0]} {...segmentProps} type="kinematicPosition" />
-      <RigidBody position={[hx + 0.5, hy, 0]} ref={j1} {...segmentProps}>
+      <RigidBody position={[hx, hy - 1, 0]} ref={j1} {...segmentProps}>
         <BallCollider args={[0.1]} />
       </RigidBody>
-      <RigidBody position={[hx + 1, hy, 0]} ref={j2} {...segmentProps}>
+      <RigidBody position={[hx, hy - 2, 0]} ref={j2} {...segmentProps}>
         <BallCollider args={[0.1]} />
       </RigidBody>
-      <RigidBody position={[hx + 1.5, hy, 0]} ref={j3} {...segmentProps}>
+      <RigidBody position={[hx, hy - 3, 0]} ref={j3} {...segmentProps}>
         <BallCollider args={[0.1]} />
       </RigidBody>
       <RigidBody
-        position={[hx + 2, hy, 0]}
+        position={[hx, hy - 4.5, 0]}
         ref={card}
         {...segmentProps}
         type={dragged ? "kinematicPosition" : "dynamic"}
