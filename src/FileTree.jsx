@@ -29,21 +29,40 @@ function getFileIcon(extension) {
   return FILE_ICONS[extension || "default"] || FILE_ICONS.default;
 }
 
-function FileItem({ node, depth, isLast, parentPath, onSelectFile, activeId }) {
+function FileItem({
+  node,
+  depth,
+  isLast,
+  parentPath,
+  onSelectFile,
+  activeId,
+  // the sectionId of the folder this node sits in, if any — see isActive below.
+  // Defaulted so the root row, which has no parent, need not pass it.
+  parentSectionId = null,
+}) {
   const [isOpen, setIsOpen] = useState(true);
   const [isHovered, setIsHovered] = useState(false);
 
   const isFolder = node.type === "folder";
   const hasChildren = isFolder && node.children && node.children.length > 0;
   const fileIcon = getFileIcon(node.extension);
-  const isActive = !isFolder && node.sectionId && node.sectionId === activeId;
+
+  // A FOLDER can now own the selection, because a section can be a folder of
+  // entries rather than a single file. Its children repeat its sectionId so
+  // they can navigate, which would otherwise light up the folder and all four
+  // children at once — so a node whose section is its parent's never takes the
+  // highlight. The folder is the one row that represents the open section.
+  const isActive =
+    !!node.sectionId &&
+    node.sectionId === activeId &&
+    node.sectionId !== parentSectionId;
 
   const handleClick = () => {
-    if (isFolder) {
-      setIsOpen((v) => !v);
-    } else if (node.sectionId && onSelectFile) {
-      onSelectFile(node.sectionId);
-    }
+    // A folder still expands/collapses, but one that stands for a section also
+    // jumps to it — that row replaced a file that used to do exactly that, and
+    // losing the jump would make the section unreachable from a collapsed tree.
+    if (isFolder) setIsOpen((v) => !v);
+    if (node.sectionId && onSelectFile) onSelectFile(node.sectionId);
   };
 
   return (
@@ -162,6 +181,7 @@ function FileItem({ node, depth, isLast, parentPath, onSelectFile, activeId }) {
               parentPath={[...parentPath, !isLast]}
               onSelectFile={onSelectFile}
               activeId={activeId}
+              parentSectionId={node.sectionId}
             />
           ))}
         </div>

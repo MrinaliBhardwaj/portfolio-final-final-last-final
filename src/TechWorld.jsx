@@ -26,23 +26,13 @@ const EMAIL = "mrinalibhardwaj0705@gmail.com";
 const GITHUB = "https://github.com/MrinaliBhardwaj";
 const LINKEDIN = "https://www.linkedin.com/in/mrinali-bhardwaj-a340a3322/";
 
-// the explorer maps files to sections of the buffer
-const FILE_TREE = [
-  {
-    name: "portfolio",
-    type: "folder",
-    children: [
-      { name: "README.md", type: "file", extension: "md", sectionId: "tw-about" },
-      { name: "experience.ts", type: "file", extension: "ts", sectionId: "tw-exp" },
-      { name: "projects.ts", type: "file", extension: "ts", sectionId: "tw-projects" },
-      { name: "skills.json", type: "file", extension: "json", sectionId: "tw-skills" },
-      { name: ".env", type: "file", sectionId: "tw-contact" },
-    ],
-  },
-];
+// FILE_TREE and SECTION_IDS are built from `experience` and `projects`, so they
+// are defined AFTER those arrays rather than here — a `const` cannot be read
+// before its initialiser runs.
 
-const SECTION_IDS = FILE_TREE[0].children.map((f) => f.sectionId);
-
+// The buffer's own file names, for the breadcrumb and the status bar. These are
+// the MAIN PAGE's labels and are deliberately untouched by the explorer's
+// nesting: the page still renders one experience.ts and one projects.ts.
 const FILE_OF = {
   "tw-about": "README.md",
   "tw-exp": "experience.ts",
@@ -258,6 +248,77 @@ const projects = [
     repo: "github.com/MrinaliBhardwaj/public-pulse",
   },
 ];
+
+// ---- the explorer tree ----
+// EXPLORER ONLY. The buffer beside it is unchanged: it still renders a single
+// experience.ts and a single projects.ts, and FILE_OF above still names them
+// that way for the breadcrumb and status bar. This nesting exists so the
+// sidebar reads like a real source tree instead of two opaque files.
+//
+// Both folders' children are DERIVED from the same arrays the page renders, so
+// the sidebar cannot drift out of sync with the buffer — add a job or a project
+// and it appears here on its own.
+const slug = (s) =>
+  s
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+
+// Every child carries its PARENT's sectionId: the page has no per-company or
+// per-project anchor to scroll to (and adding one would mean touching the main
+// page), so clicking any child jumps to the section that contains it. FileTree
+// keeps the selected highlight on the folder rather than lighting up every
+// child at once — see the parentSectionId note there.
+const FILE_TREE = [
+  {
+    name: "portfolio",
+    type: "folder",
+    children: [
+      { name: "README.md", type: "file", extension: "md", sectionId: "tw-about" },
+      {
+        name: "experience",
+        type: "folder",
+        sectionId: "tw-exp",
+        children: experience.map((e) => ({
+          name: `${slug(e.org)}.ts`,
+          type: "file",
+          extension: "ts",
+          sectionId: "tw-exp",
+        })),
+      },
+      {
+        name: "projects",
+        type: "folder",
+        sectionId: "tw-projects",
+        children: projects.map((p) => ({
+          name: `${slug(p.name)}.ts`,
+          type: "file",
+          extension: "ts",
+          sectionId: "tw-projects",
+        })),
+      },
+      { name: "skills.json", type: "file", extension: "json", sectionId: "tw-skills" },
+      { name: ".env", type: "file", sectionId: "tw-contact" },
+    ],
+  },
+];
+
+// Walk the whole tree, in document order, keeping the first occurrence of each
+// section. A flat `children.map` cannot do this any more: the two folders now
+// hold their section's id AND repeat it on every child, so a naive map would
+// yield undefined for the folders and duplicates underneath them — and
+// useSectionSpy would observe the same element several times.
+const SECTION_IDS = (() => {
+  const ids = [];
+  const walk = (nodes) => {
+    for (const n of nodes) {
+      if (n.sectionId && !ids.includes(n.sectionId)) ids.push(n.sectionId);
+      if (n.children) walk(n.children);
+    }
+  };
+  walk(FILE_TREE);
+  return ids;
+})();
 
 // Annotated because TS otherwise infers (string | string[])[][] from the
 // literal and then refuses `items.map` — the pairs are a group name and its
