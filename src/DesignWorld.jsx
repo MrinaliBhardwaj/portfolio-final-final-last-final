@@ -13,6 +13,7 @@ import FigmaPanel from "./FigmaPanel.jsx";
 import WorldTabs from "./WorldTabs.jsx";
 import DesignHero from "./DesignHero.jsx";
 import ProjectPage from "./ProjectPage.jsx";
+import InteractiveDots from "./InteractiveDots.jsx";
 import useSectionSpy from "./useSectionSpy.js";
 import { PROJECTS, bySlug } from "./projects.js";
 
@@ -535,6 +536,13 @@ export default function DesignWorld({ project = null }) {
             tone="dark"
             area="1 / span 7"
           >
+            {/* the halftone field: texture that answers the pointer, so the
+                one frame that is just a word list has something to do. Inert
+                and behind the type — see .dw-skills-dots. Pink because that is
+                the design world's accent, the same one the cursor carries. */}
+            <div className="dw-skills-dots">
+              <InteractiveDots color="rgba(244, 114, 182, 0.5)" dotSize={26} />
+            </div>
             <h2 className="dw-h2">Skills</h2>
             <ul className="dw-skill-chips">
               {capabilities.map((c) => (

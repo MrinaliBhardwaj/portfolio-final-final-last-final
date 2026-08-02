@@ -106,6 +106,21 @@ until all 6 MB had landed.
   **This is a clipping bug that no amount of resizing reveals** — it is fixed to
   the element's own box, so it reproduces identically at every width. Do not
   chase it with `--name-fs` or `--name-drop`.
+- **The skills frame carries a pointer-reactive halftone field**
+  (`InteractiveDots.jsx`, adapted from a Next/Tailwind/TS snippet). Skills was
+  the one frame that is just a word list; the field gives it something to do
+  without adding copy. Pink, the design world's own accent. Four changes were
+  required to make the snippet safe here, none cosmetic:
+  it is **scoped to its own box** (the original sized to `window.innerWidth/
+  Height` and read `clientX/clientY` as canvas coordinates — correct only for a
+  full-viewport hero, wrong size AND offset by the frame's page position here);
+  it **cancels its rAF** (the original's cleanup never did, so every mount
+  leaked a permanent loop, and the design world unmounts on every route change);
+  it **pauses off screen** via IntersectionObserver; and it honours
+  `prefers-reduced-motion` with one static field. The noise also advances on
+  SECONDS rather than frame count, which otherwise ran twice as fast on a 120Hz
+  screen. Clipping is a wrapper, not `overflow: hidden` on `.cvf-body` — the
+  frame's handles sit outside that box, the same trap `#dw-contact` documents.
 - **Latent bug found while verifying:** if layout hasn't run when the effect
   commits (hidden tab, or a commit before first layout) both cover canvases
   sized to 0×0 and only a later window resize rescued them. Both now size via

@@ -1109,6 +1109,53 @@
 }
 
 /* ---- skills (dark frame) ---- */
+/* ---- skills: the halftone field behind the chips ----
+   A CLIPPING WRAPPER rather than `overflow: hidden` on .cvf-body itself. The
+   frame's selection handles sit at -4px outside that box and its dims pill 22px
+   below it (see .cvf-handle / .cvf-dims), so clipping the body would swallow the
+   Figma chrome that makes this read as an artboard at all — the same trap
+   #dw-contact documents. This layer is the frame's own size, inert, and behind
+   everything. */
+.dw-skills-dots {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.idots {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: transparent;
+}
+
+/* the field is texture, so it fades out where the type actually sits rather
+   than competing with it — densest bottom-right, gone under the heading */
+.dw-skills-dots .idots {
+  -webkit-mask-image: radial-gradient(
+    120% 130% at 100% 100%,
+    #000 12%,
+    rgba(0, 0, 0, 0.45) 45%,
+    transparent 78%
+  );
+  mask-image: radial-gradient(
+    120% 130% at 100% 100%,
+    #000 12%,
+    rgba(0, 0, 0, 0.45) 45%,
+    transparent 78%
+  );
+}
+
+/* lift the frame's real content above the field */
+#dw-skills .cvf-body > .dw-h2,
+#dw-skills .cvf-body > .dw-skill-chips,
+#dw-skills .cvf-body > .dw-tools-line {
+  position: relative;
+  z-index: 1;
+}
+
 .dw-skill-chips {
   list-style: none;
   display: flex;
