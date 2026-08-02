@@ -119,6 +119,45 @@
   min-width: 0;
 }
 
+/* The poster is the landing view, so it CENTRES ON THE SCREEN rather than
+   hanging off the chrome above it.
+ *
+ * It used to sit at a fixed y: its top is a fixed stack (44px tab bar + 39px
+ * header + 54px canvas padding) and its height is width-driven by its
+ * aspect-ratio, so its centre landed at y=397 no matter how tall the window
+ * was. That is above centre on a big display (-143px at 1080) and below it on
+ * a laptop (+47px at 700) — the same layout reading wrong in both directions.
+ *
+ * Filling the leftover height and centring inside it is not enough on its own:
+ * the 137px of chrome and padding stacked above this row is dead weight the
+ * centring would inherit, landing the frame ~78px low at every height. So the
+ * same 137px is mirrored underneath, which makes the centred band symmetric
+ * about the viewport and puts the frame on the screen's true centre.
+ *
+ * `min-height`, not `height`: if the poster is ever taller than the screen it
+ * must grow, not overflow. border-box, so the mirrored padding is inside the
+ * min-height rather than added to it. */
+@media (min-width: 769px) {
+  .dw-canvas > .cvf--poster {
+    /* 44px tab bar + the 39px header above the canvas. The canvas's own
+       padding-top is NOT part of this: it is cancelled just below, because it
+       is `6vh` and would otherwise make the centring drift with height — the
+       bug the first attempt at this shipped. */
+    --dw-chrome: 83px;
+    /* cancel the canvas's top padding for this row only, so the band starts
+       exactly where the chrome ends */
+    margin-top: calc(-1 * clamp(2.5rem, 6vh, 4rem));
+    min-height: calc(100dvh - var(--dw-chrome));
+    /* mirror the chrome underneath: that makes the centred band symmetric about
+       the viewport, so the frame lands on the SCREEN's centre and not on the
+       centre of the space left under the chrome (~50px lower) */
+    padding-bottom: var(--dw-chrome);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+}
+
 /* the frame-name label above every artboard, exactly like Figma */
 .cvf-label {
   font-size: 11px;
