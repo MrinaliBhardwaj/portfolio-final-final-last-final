@@ -105,8 +105,14 @@ export default function TechLanyard() {
   return (
     <div className="tw-lanyard">
       <Suspense fallback={null}>
+        {/* The camera z is the zoom dial documented on Lanyard's `position`
+            prop: rendered card height is 2.25 / (2z·tan(fov/2)) · canvasHeight,
+            so this is purely "how big is the badge". 13 renders it ~442px tall
+            on a 900px viewport, against ~338px at 17. Nothing else needs
+            retuning — the hang anchor's offsets are in world units, which scale
+            with z too, so the composition just zooms around the same point. */}
         <Lanyard
-          position={[0, 0, 17]}
+          position={[0, 0, 13]}
           gravity={[0, -40, 0]}
           frameloop={live ? "always" : "never"}
           onCardTap={onCardTap}
