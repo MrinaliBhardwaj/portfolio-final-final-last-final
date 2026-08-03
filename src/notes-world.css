@@ -316,180 +316,122 @@
   }
 }
 
-/* ============ page two: the tech desk collage ============ */
-/* RE-COMPOSED 3 Aug 2026 (by request) from a 1485x1075 Figma plate of
-   absolutely-placed elements into a three-column layout that is SIZED BY
-   HEIGHT and LAID OUT BY EDGE. The old plate was nearly square in a viewport
-   that is nearly 2:1, so it could be full-width or one-viewport-tall, never
-   both. Now:
+/* ============ page two: the tech origin story ============ */
+/* SECOND RE-COMPOSITION, 3 Aug 2026, by request: every pencil mark is GONE —
+   `const idea = reality`, `makeItReal()`, the notes list, the reminder card,
+   the tech-stack card, the terminal lines, the ship note. What is left is the
+   drawing and the two runs of narrative, which is exactly page one's cast:
+   opening copy, artwork, closing line. (The removed markup and its rules are in
+   git from commit 7639232 back — nothing references them, so they are not kept
+   here as dead weight.)
 
-     · the scene's HEIGHT is the room, so the drawing is as large as a
-       viewport-fitting page can make it, and --u (the scale every pencil mark
-       is expressed in) is derived from that height rather than from the width.
-       Making the window wider therefore does NOT shrink the type — it only
-       moves the two margin columns further apart, which is the whole point of
-       running full-bleed.
-     · the two margin columns are pinned to the LEFT and RIGHT EDGES, at one
-       shared --t2-pad, so the page occupies the full width with consistent
-       padding on both sides.
-     · the drawing is centred between them.
+   With the same cast, page two takes page one's geometry as well: a 1673x714
+   field, the copy set in page one's type at page one's side padding, and the
+   drawing taking everything the copy leaves.
 
-   714 is the cap on the scene's height, and it is page one's native height on
-   purpose: the two sheets are then the same shape, and --u never exceeds 1, so
-   nothing upscales past its native size on a tall display. Everything below is
-   in those 714 units. */
+     [copy 1, top-left]
+                        [ the drawing, filling the height ]
+                                            [copy 2, bottom-right]
+
+   Copy 2 OVERLAPS the drawing's bottom-right corner, deliberately — see the
+   note on .t2-copy--close, which is where that is shown to be safe. */
 .nw .scene-two {
   --t2-h: min(714px, calc(100dvh - var(--nw-room)));
   --u: calc(var(--t2-h) / 714);
-  /* the consistent left/right padding, and the columns it holds */
-  --t2-pad: calc(48 * var(--u));
-  /* 285 is the narrowest column the LEFT margin's content fits in with air
-     between its four groups — at 250 the opening copy ran to five lines and
-     `space-between` was left distributing 8 units across three gaps, so the
-     groups touched. Every unit here is taken off the drawing, so it is worth
-     re-measuring rather than rounding up: at 285 the drawing still renders
-     711px wide on a 1440 screen, against 690 before the re-composition. */
-  --t2-col: calc(285 * var(--u));
-  --t2-gap: calc(24 * var(--u));
-  --t-ink: #2c2823;
-  --t-grey: #6f6a61;
-  --t-pencil: #514c44;
-  --t-blue: #828aa6;
-  --t-pink: #c98ca0;
-  --t-dot: #e2a0b4;
+  /* THE SIDE PADDING IS PAGE ONE'S, and it is deliberately NOT in --u.
+     Page one's copy sits 87px from the left edge of a 1673-wide export, and
+     that inset scales with the sheet's WIDTH. --u scales with height, so a pad
+     expressed in it drifted away from page one's on every window that wasn't
+     square-ish: 48px against page one's 74px at 1440x900. cqw is the stage's
+     own width (the container is .nw-stage), so this tracks page one exactly at
+     every size. 5.1303 = 85.8/1673 — the text BOX, not the ink: the measured
+     ink is at 87 and the 't' sidebearing is 2.2, and it is the INK that has to
+     line up between the two pages. Corrected against the rendered result rather
+     than the estimate, which was 0.45px out. */
+  --t2-pad: 5.1303cqw;
+  /* Where the drawing starts. The pad, plus copy 1's widest line — 419.7 source
+     units, "the little one knew visuals alone" — plus a 28-unit gap:
+     (85.8 + 419.7 + 28) / 1673. In cqw like the copy, so the two scale together
+     and can never grow into each other. */
+  --t2-plate-x: 31.889cqw;
+  /* the top and bottom margin the drawing sits in */
+  --t2-inset: calc(16 * var(--u));
   position: relative;
   width: 100%;
   height: var(--t2-h);
 }
 
-/* ---- the two margin columns ----
-   space-between rather than fixed offsets: the column is exactly as tall as
-   the scene, and its four groups are the same four the old Figma coordinates
-   placed by hand. Distributing them means the rhythm survives any height
-   instead of being tuned for one. */
-.nw .scene-two .t2-col {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: var(--t2-col);
-  z-index: 4;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  padding: calc(18 * var(--u)) 0;
-}
+/* ---- Narrative copy: PAGE ONE'S TYPOGRAPHY, not an approximation of it ----
+   Page one's copy is BAKED INTO origin.webp, so there was nothing to inherit
+   from and this had drifted into its own thing (20u / 1.5 / 0.1u tracking /
+   #2c2823). Every value below is measured out of those pixels instead. Fitting
+   the seven lines of page one's copy against Inter at 100px, solving for size
+   and tracking together:
 
-.nw .scene-two .t2-col--left {
-  left: var(--t2-pad);
-}
+     weight        400 (300 and 500 both fit worse)
+     font-size     28.01 source px — cross-checked against the cap-to-descender
+                   height of "By the time she was 12," (27px / 0.967em = 27.9)
+     tracking      0 — a two-parameter fit wanted 0.03em, but zero tracking fit
+                   the four clean lines to within 0.3px, so the 0.03 was the
+                   apostrophe lines' error and not real letter-spacing
+     line-height   1.221 — line pitch is 34.2px, uniform across both blocks
+     colour        #000, not #2c2823. The dark pixels are pure black, 2130 of
+                   them against 478 for the runner-up.
 
-.nw .scene-two .t2-col--right {
-  right: var(--t2-pad);
-}
-
-/* ---- Narrative copy (same system as page one) ----
-   The page's opening and closing lines: "for the other half" at the top of the
-   left column, "all ideas started feeling real" at the foot of the right one,
-   so reading the page top-left to bottom-right reads the sentence. */
+   Sized in cqw for the same reason as --t2-pad: page one's type scales with the
+   sheet's width, so this has to as well, or the two only agree at one window
+   size. 1.6737 = 28/1673. */
 .nw .scene-two .t-copy {
   margin: 0;
-  z-index: 5;
   font-family: var(--font-ui);
-  font-size: calc(20 * var(--u));
-  line-height: 1.5;
-  letter-spacing: calc(0.1 * var(--u));
-  color: var(--t-ink);
+  font-weight: 400;
+  font-size: 1.6737cqw;
+  line-height: 1.221;
+  letter-spacing: 0;
+  color: #000;
 }
 
+/* One blank line between the two sentences, and exactly one: 1.221em is the
+   line-height, so the gap is a line slot rather than a number that happens to
+   look close. */
 .nw .scene-two .t-copy + .t-copy {
-  margin-top: calc(14 * var(--u));
+  margin-top: 1.221em;
 }
 
-/* the closing line, wrapping in a 250-unit column — balance keeps it from
-   ending on an orphaned "real." */
-.nw .scene-two .t-copy--close {
-  text-wrap: balance;
-}
-
-/* ---- Tape ---- */
-.nw .scene-two .tape {
+.nw .scene-two .t2-copy {
   position: absolute;
-  z-index: 4;
-  background: rgba(207, 197, 176, 0.4);
-  border-left: 1px solid rgba(150, 140, 120, 0.14);
-  border-right: 1px solid rgba(150, 140, 120, 0.14);
-  box-shadow: 0 calc(2 * var(--u)) calc(5 * var(--u)) rgba(60, 50, 30, 0.05);
-}
-.nw .scene-two .tape::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.16) 0, rgba(255, 255, 255, 0.16) 2px, transparent 2px, transparent 7px);
-}
-
-/* ---- Pencil margin work around the centerpiece ---- */
-/* Inter Regular, not the Caveat pencil hand these were drawn in — page two now
-   speaks the same voice as page one's artwork. Inter sets WIDER than Caveat at
-   the same size, and these labels are absolutely placed at fixed Figma
-   coordinates with `nowrap`, so the size is trimmed below to keep them inside
-   their original footprints instead of running into the centrepiece. */
-.nw .scene-two .t2-note {
-  position: relative;
-  z-index: 4;
-  font-family: var(--font-ui);
-  font-weight: 400;
-  color: #514c44;
+  z-index: 5;
+  /* The line breaks are HERS. Nothing here re-wraps: every block is positioned
+     off an edge and sized by its own longest line, so there is no measure for
+     the browser to break against. */
   white-space: nowrap;
-  line-height: 1.35;
-}
-.nw .scene-two .t2-note .t2-mut { color: #8a8478; }
-.nw .scene-two .t2-head { position: relative; display: inline-block; }
-.nw .scene-two .t2-uline {
-  position: absolute;
-  left: 0;
-  bottom: calc(-6 * var(--u));
-  width: 100%;
-  height: calc(8 * var(--u));
-  overflow: visible;
-}
-.nw .scene-two .t2-arrow {
-  position: relative;
-  z-index: 4;
-  display: block;
-  overflow: visible;
-  width: calc(46 * var(--u));
-  height: calc(48 * var(--u));
-  margin: calc(2 * var(--u)) 0 calc(4 * var(--u)) calc(22 * var(--u));
-}
-.nw .scene-two .t2-spark { color: var(--t-pink); }
-
-.nw .scene-two .t2-card { position: relative; z-index: 4; }
-.nw .scene-two .t2-box {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  overflow: visible;
-}
-.nw .scene-two .t2-card-body {
-  position: relative;
-  z-index: 1;
-  padding: calc(14 * var(--u)) calc(16 * var(--u));
-  font-family: var(--font-ui);
-  font-weight: 400;
-  font-size: calc(17 * var(--u));
-  color: #514c44;
-  white-space: nowrap;
-  line-height: 1.35;
 }
 
-/* ---- Centerpiece: the drawing, CROPPED TO ITS OWN INK ----
+.nw .scene-two .t2-copy--open {
+  left: var(--t2-pad);
+  top: var(--t2-inset);
+}
+
+/* Right-aligned, like page one's closing block, and pinned to the same padding
+   on the other side.
+
+   IT SITS OVER THE DRAWING, which is only allowed because that corner of the
+   drawing is empty. Measured on a 12x10 ink-density grid of the drawing: the
+   block covers roughly columns 8-11 of rows 8-9, and every one of those cells
+   reads zero. This is also where her original composition put it. If the
+   artwork is ever re-exported, re-scan before trusting it. */
+.nw .scene-two .t2-copy--close {
+  right: var(--t2-pad);
+  bottom: var(--t2-inset);
+  text-align: right;
+}
+
+/* ---- The drawing, CROPPED TO ITS OWN INK ----
    tech-discovery.webp is 1474x1067, but the pencil work only occupies
    1011x845 of it, offset (252, 121) — 31% of the file's width and 21% of its
-   height is blank cream. Placed whole, that padding was competing with the
-   viewport for room and the drawing paid for it. The plate below IS the ink
-   box, and the image is scaled and offset inside it so the ink lands exactly
-   on the plate's edges.
+   height is blank cream. Placed whole, that padding competed with the viewport
+   for room and the drawing paid for it. The plate IS the ink box, and the image
+   is scaled and offset inside it so the ink lands exactly on the plate's edges.
 
    Every number is that measurement, nothing is eyeballed:
      width   1474/1011        = 145.796%   (of the plate's width)
@@ -504,18 +446,21 @@
 
    overflow: hidden rather than letting the blank margin bleed over the cream —
    the file's paper is within 2/255 of --paper, so it would very nearly
-   disappear, and "very nearly" is a faint rectangle on a good monitor. The
-   crop is safe because the plate is the ink's own bounding box: there is
-   nothing outside it to lose. */
+   disappear, and "very nearly" is a faint rectangle on a good monitor. The crop
+   is safe because the plate is the ink's own bounding box: there is nothing
+   outside it to lose.
+
+   Height first, width second. The drawing fills the room top to bottom and its
+   width follows from the aspect; the cqw term is only a floor-guard for a
+   window wide enough that the height would run it into the right-hand padding.
+   1.19645 = 1011/845; 63.01cqw = 100 - --t2-plate-x - --t2-pad. */
 .nw .scene-two .t2-plate {
   position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  /* as wide as the height allows, then as wide as the two columns leave */
+  left: var(--t2-plate-x);
+  top: var(--t2-inset);
   width: min(
-    calc(760 * var(--u)),
-    calc(100% - 2 * (var(--t2-pad) + var(--t2-col) + var(--t2-gap)))
+    calc((var(--t2-h) - 2 * var(--t2-inset)) * 1.19645),
+    62.981cqw
   );
   aspect-ratio: 1011 / 845;
   overflow: hidden;
@@ -532,6 +477,7 @@
   user-select: none;
   -webkit-user-drag: none;
 }
+
 
 /* ---- Portrait phones get a "turn me sideways" gate; landscape gets nothing
    special at all ----

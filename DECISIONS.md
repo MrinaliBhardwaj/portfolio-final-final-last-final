@@ -1892,3 +1892,55 @@ window height it needs drops from 780 to **733**. At 1440×760 — where it used
 overflow — the title now clears the toolbar by 37px and the closing line ends
 78px above the dock. The crop is exact: the first ink row lands at 0.00px from
 the stage's top edge.
+
+### Page two is stripped to the drawing and the two lines, in page one's type
+
+Two changes on the same day, both by request, and the second one supersedes the
+three-column layout described above.
+
+**First: the copy is set in page one's typography, measured out of the pixels.**
+Page one's copy is baked into `origin.webp`, so there was nothing to inherit
+from and page two's had drifted into its own thing (20u / 1.5 / 0.1u tracking /
+`#2c2823`). Fitting the seven lines of page one's copy against Inter at 100px
+and solving for size and tracking together:
+
+| | value | how |
+|---|---|---|
+| weight | 400 | 300 and 500 both fit worse |
+| font-size | 28.01 source px | cross-checked: "By the time she was 12," is 27px cap-to-descender ÷ 0.967em = 27.9 |
+| tracking | 0 | the 2-param fit wanted 0.03em, but zero fit the four clean lines to within 0.3px — the 0.03 was the apostrophe lines' error |
+| line-height | 1.221 | line pitch 34.2px, uniform across both of page one's blocks |
+| colour | `#000` | 2130 pure-black pixels against 478 for the runner-up — **not** `#2c2823` |
+
+**Both the type and the padding are in `cqw`, not `--u`.** This is the load-
+bearing part: page one's type and inset scale with the sheet's WIDTH, and `--u`
+scales with height, so anything expressed in `--u` only agreed with page one at
+one window size (48px against page one's 74px at 1440×900). `--t2-pad` is
+`5.1303cqw` — the text box, i.e. the measured ink at 87 less the 2.2 sidebearing,
+because it is the INK that has to line up. Verified rendered: ink-left, size and
+pitch all match page one to **within 0.01px** at 1440×900.
+
+**Second: every pencil mark is gone** — `const idea = reality`, `makeItReal()`,
+the notes list, the reminder card, the tech-stack card, the terminal lines, the
+ship note, and the `RoughBox`/`Underline` components that drew their frames.
+They are in git from `7639232` back.
+
+What is left is the drawing and two runs of narrative — page one's exact cast —
+so page two takes page one's geometry too: opening copy top-left, artwork,
+closing line bottom-right and right-aligned.
+
+- **The line breaks are hers and nothing re-wraps them.** Each block is
+  `nowrap`, pinned to an edge, sized by its own longest line. `--t2-plate-x` is
+  derived from copy 1's widest line (419.7 source units, "the little one knew
+  visuals alone") plus a 28-unit gap, so **changing a word means re-checking
+  that the block still clears the drawing.**
+- **The closing copy sits ON the drawing**, as her original composition did.
+  That is only safe because the corner is blank, and it was checked against the
+  pixels rather than the density grid: **115 ink pixels in 52,877, darkest 205
+  against paper at 248** — texture, not a stroke.
+- **The drawing is now 816×682** at 1440×900, against 676×565 before the strip
+  and 690×577 originally. Removing the margin columns is what paid for it.
+
+Verified at 1366×768, 1440×900 and 1920×1080: both sheets fit the room, sheet
+margins match, padding symmetric, 6 and 3 lines with no re-wrap anywhere,
+`scrollWidth === clientWidth`. Typecheck and build clean.
