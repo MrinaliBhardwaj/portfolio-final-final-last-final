@@ -172,7 +172,9 @@ export default function DevBadge({ consent = "idle", onDenied = null }) {
           more honest gesture: you touch the thing that then mirrors you. */}
       {consent === "idle" && (
         <p className="dvb-hint">
-          <Camera size={15} strokeWidth={1.8} aria-hidden="true" />
+          {/* tracks .dvb-hint's font-size, which grew for legibility through
+              the card's ~0.92 on-screen mapping */}
+          <Camera size={19} strokeWidth={1.8} aria-hidden="true" />
           tap the badge to let it mirror the room
         </p>
       )}

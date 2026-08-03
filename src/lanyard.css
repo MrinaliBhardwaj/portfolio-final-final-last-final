@@ -114,10 +114,20 @@
   gap: 9px;
   text-align: center;
   text-wrap: balance;
-  font-size: 11px;
+  /* SIZED FOR THE SCREEN, NOT FOR THIS BOX. The face is a 320px-wide DOM layer
+     mapped onto the 3D card, so everything here is rendered through that
+     mapping: at the current camera the card is ~295px on screen, a factor of
+     ~0.92. The old 11px therefore arrived as ~10.1px — the smallest thing on
+     the card, and the one piece of text that has to be read before anything
+     else works. 15px lands at ~13.8px, which is an actual reading size.
+     Tracking eases off as the size goes up (0.06em was doing legibility work
+     that the size now does, and wide tracking hurts a two-line wrap), and the
+     ink is a little brighter to match. If the camera z in TechLanyard changes,
+     the effective size moves with it — recheck this. */
+  font-size: 15px;
   line-height: 1.45;
-  letter-spacing: 0.06em;
-  color: rgba(255, 255, 255, 0.78);
+  letter-spacing: 0.035em;
+  color: rgba(255, 255, 255, 0.88);
 }
 
 .dvb-noise {
