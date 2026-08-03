@@ -127,38 +127,32 @@
   margin: 0 auto;
 }
 
-/* EACH COLLAGE FITS ITS OWN VIEWPORT (3 Aug 2026, by request). Both are
-   fixed-aspect, so a width can be converted straight into the height it will
-   cost; capping the width at `room x aspect` is therefore the same statement as
-   "never taller than the room". Three limits, whichever binds first:
+/* BOTH SHEETS RUN THE FULL WIDTH OF THE PAGE, and both still fit one viewport.
+   Those two used to be in conflict: a fixed-aspect collage can only obey one
+   master, so making page two's HEIGHT fit meant shrinking it until 210px of
+   page was wasted on each side and the art was smaller than the room it had —
+   the opposite of the point.
 
-     · 100% of the page          — never wider than the screen
-     · the scene's NATIVE width  — never upscaled past 1:1 on a huge display
-     · (100dvh - --nw-room) x aspect — never taller than one viewport
+   The conflict was in page two's COMPOSITION, not in the sizing. Its plate was
+   1485x1075 — aspect 1.38, nearly square, in a viewport that is nearly 2:1 —
+   and 31% of the centrepiece's width was dead cream (measured: the drawing's
+   ink is 1011x845 inside a 1474x1067 file). Page two has been RE-COMPOSED into
+   a wide three-column plate that fills the room's height and the page's width
+   at the same time, so it needs no height cap: it is built to fit. See
+   SceneTwo.jsx. Page one is a single fixed image and simply runs edge to edge.
 
-   This REVERSES the width-only rule that stood here (the sheets shared a single
-   1673px cap so their side margins matched). That rule was chosen because a
-   fixed-aspect collage can only obey one master and height wins every time —
-   which is exactly what is wanted now: landing on page one means seeing all of
-   page one, and one scroll means seeing all of page two, rather than reading
-   either of them in two pieces.
-
-   The cost the old note predicted is real and accepted: the two sheets no
-   longer share a width, because their aspects differ (2.34 vs 1.38) and the
-   same available height buys page one far more of it. At 1440x900 page one
-   still fills the full 1440 (it would need 1706 before height bound it) while
-   page two settles at ~1005. Page two is the narrower plate now, and that is
-   the price of seeing it whole.
-
-   Only the widths differ — the cream field is one continuous --paper across
-   both, so this reads as two plates on one sheet of paper, not as two panels of
-   different sizes. */
-.nw .sheet-one .nw-stage {
-  max-width: min(1673px, calc((100dvh - var(--nw-room)) * (1673 / 714)));
-}
-
+   ONE SHARED MAX-WIDTH, so the two halves have identical left and right margins
+   on every screen. 1673 is page one's native width, so its artwork never
+   upscales past 1:1; page two's plate is fluid and fills whatever it is given.
+   Below 1673 both are full-bleed — which is what puts page one's dotted arrow
+   on the leftmost border of the screen, where its ink starts (measured: the
+   arrow's first pixel is column 0 of origin.webp). Any side padding here would
+   take that away, so the padding lives INSIDE page two's own composition
+   instead, where it can be consistent without cutting the artwork loose from
+   the edge. */
+.nw .sheet-one .nw-stage,
 .nw .sheet-two .nw-stage {
-  max-width: min(1673px, calc((100dvh - var(--nw-room)) * (1485 / 1075)));
+  max-width: 1673px;
 }
 /* ---- page one: the origin story, as one finished image ----
    Her own composition, placed exactly as exported (27 July 2026, by request).
@@ -289,8 +283,40 @@
 }
 
 /* ============ page two: the tech desk collage ============ */
+/* RE-COMPOSED 3 Aug 2026 (by request) from a 1485x1075 Figma plate of
+   absolutely-placed elements into a three-column layout that is SIZED BY
+   HEIGHT and LAID OUT BY EDGE. The old plate was nearly square in a viewport
+   that is nearly 2:1, so it could be full-width or one-viewport-tall, never
+   both. Now:
+
+     · the scene's HEIGHT is the room, so the drawing is as large as a
+       viewport-fitting page can make it, and --u (the scale every pencil mark
+       is expressed in) is derived from that height rather than from the width.
+       Making the window wider therefore does NOT shrink the type — it only
+       moves the two margin columns further apart, which is the whole point of
+       running full-bleed.
+     · the two margin columns are pinned to the LEFT and RIGHT EDGES, at one
+       shared --t2-pad, so the page occupies the full width with consistent
+       padding on both sides.
+     · the drawing is centred between them.
+
+   714 is the cap on the scene's height, and it is page one's native height on
+   purpose: the two sheets are then the same shape, and --u never exceeds 1, so
+   nothing upscales past its native size on a tall display. Everything below is
+   in those 714 units. */
 .nw .scene-two {
-  --u: calc(100cqw / 1485);
+  --t2-h: min(714px, calc(100dvh - var(--nw-room)));
+  --u: calc(var(--t2-h) / 714);
+  /* the consistent left/right padding, and the columns it holds */
+  --t2-pad: calc(48 * var(--u));
+  /* 285 is the narrowest column the LEFT margin's content fits in with air
+     between its four groups — at 250 the opening copy ran to five lines and
+     `space-between` was left distributing 8 units across three gaps, so the
+     groups touched. Every unit here is taken off the drawing, so it is worth
+     re-measuring rather than rounding up: at 285 the drawing still renders
+     711px wide on a 1440 screen, against 690 before the re-composition. */
+  --t2-col: calc(285 * var(--u));
+  --t2-gap: calc(24 * var(--u));
   --t-ink: #2c2823;
   --t-grey: #6f6a61;
   --t-pencil: #514c44;
@@ -299,18 +325,56 @@
   --t-dot: #e2a0b4;
   position: relative;
   width: 100%;
-  aspect-ratio: 1485 / 1075;
+  height: var(--t2-h);
 }
 
-/* ---- Narrative copy (same system as page one) ---- */
-.nw .scene-two .t-copy {
+/* ---- the two margin columns ----
+   space-between rather than fixed offsets: the column is exactly as tall as
+   the scene, and its four groups are the same four the old Figma coordinates
+   placed by hand. Distributing them means the rhythm survives any height
+   instead of being tuned for one. */
+.nw .scene-two .t2-col {
   position: absolute;
+  top: 0;
+  bottom: 0;
+  width: var(--t2-col);
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: calc(18 * var(--u)) 0;
+}
+
+.nw .scene-two .t2-col--left {
+  left: var(--t2-pad);
+}
+
+.nw .scene-two .t2-col--right {
+  right: var(--t2-pad);
+}
+
+/* ---- Narrative copy (same system as page one) ----
+   The page's opening and closing lines: "for the other half" at the top of the
+   left column, "all ideas started feeling real" at the foot of the right one,
+   so reading the page top-left to bottom-right reads the sentence. */
+.nw .scene-two .t-copy {
+  margin: 0;
   z-index: 5;
   font-family: var(--font-ui);
-  font-size: calc(27 * var(--u));
+  font-size: calc(20 * var(--u));
   line-height: 1.5;
   letter-spacing: calc(0.1 * var(--u));
   color: var(--t-ink);
+}
+
+.nw .scene-two .t-copy + .t-copy {
+  margin-top: calc(14 * var(--u));
+}
+
+/* the closing line, wrapping in a 250-unit column — balance keeps it from
+   ending on an orphaned "real." */
+.nw .scene-two .t-copy--close {
+  text-wrap: balance;
 }
 
 /* ---- Tape ---- */
@@ -336,7 +400,7 @@
    coordinates with `nowrap`, so the size is trimmed below to keep them inside
    their original footprints instead of running into the centrepiece. */
 .nw .scene-two .t2-note {
-  position: absolute;
+  position: relative;
   z-index: 4;
   font-family: var(--font-ui);
   font-weight: 400;
@@ -354,10 +418,18 @@
   height: calc(8 * var(--u));
   overflow: visible;
 }
-.nw .scene-two .t2-arrow { position: absolute; z-index: 4; overflow: visible; }
+.nw .scene-two .t2-arrow {
+  position: relative;
+  z-index: 4;
+  display: block;
+  overflow: visible;
+  width: calc(46 * var(--u));
+  height: calc(48 * var(--u));
+  margin: calc(2 * var(--u)) 0 calc(4 * var(--u)) calc(22 * var(--u));
+}
 .nw .scene-two .t2-spark { color: var(--t-pink); }
 
-.nw .scene-two .t2-card { position: absolute; z-index: 4; }
+.nw .scene-two .t2-card { position: relative; z-index: 4; }
 .nw .scene-two .t2-box {
   position: absolute;
   inset: 0;
@@ -377,14 +449,52 @@
   line-height: 1.35;
 }
 
-/* ---- Centerpiece reference image ---- */
+/* ---- Centerpiece: the drawing, CROPPED TO ITS OWN INK ----
+   tech-discovery.webp is 1474x1067, but the pencil work only occupies
+   1011x845 of it, offset (252, 121) — 31% of the file's width and 21% of its
+   height is blank cream. Placed whole, that padding was competing with the
+   viewport for room and the drawing paid for it. The plate below IS the ink
+   box, and the image is scaled and offset inside it so the ink lands exactly
+   on the plate's edges.
+
+   Every number is that measurement, nothing is eyeballed:
+     width   1474/1011        = 145.796%   (of the plate's width)
+     left   -252/1011         = -24.9258%  (of the plate's width)
+     top    -121/845          = -14.3195%  (of the plate's HEIGHT — a top %
+                                            resolves against height, and the
+                                            plate's height is 845/1011 of its
+                                            width, so this is not the same
+                                            ratio as `left`)
+   Re-export the file and these four numbers are wrong: re-scan for the ink
+   bounds rather than nudging them by eye.
+
+   overflow: hidden rather than letting the blank margin bleed over the cream —
+   the file's paper is within 2/255 of --paper, so it would very nearly
+   disappear, and "very nearly" is a faint rectangle on a good monitor. The
+   crop is safe because the plate is the ink's own bounding box: there is
+   nothing outside it to lose. */
+.nw .scene-two .t2-plate {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  /* as wide as the height allows, then as wide as the two columns leave */
+  width: min(
+    calc(760 * var(--u)),
+    calc(100% - 2 * (var(--t2-pad) + var(--t2-col) + var(--t2-gap)))
+  );
+  aspect-ratio: 1011 / 845;
+  overflow: hidden;
+  z-index: 2;
+}
+
 .nw .scene-two .t2-ref {
   position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  z-index: 2;
+  width: 145.796%;
+  max-width: none;
+  height: auto;
+  left: -24.9258%;
+  top: -14.3195%;
   user-select: none;
   -webkit-user-drag: none;
 }

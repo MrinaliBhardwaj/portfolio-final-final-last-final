@@ -1780,45 +1780,89 @@ tells you which half of the person a file belongs to. Short on purpose: at this
 icon size the full `resume-design.pdf` was 111px against an 81px box and
 rendered as `resume-desig…`. The `aria-label`s carry the full meaning.
 
-## One sheet, one viewport — the scrapbook fits again (2026-08-03)
+## One sheet, one viewport — at full size, not shrunk down (2026-08-03)
 
 **Supersedes "Notes runs full-bleed…" (2026-07-27) and "Page one's whitespace
-above 'meet mini mri'" (2026-07-30).** Both of those decided the opposite of
-this; read them as history, not as rules.
+above 'meet mini mri'" (2026-07-30).** Both decided the opposite of this; read
+them as history, not as rules.
 
 Each scrapbook page is one composition with a beginning and an end baked into
 the pixels — page one runs "meet mini mri" → "maybe this was half the game",
 page two "for the other half" → "all ideas started feeling real". Reading either
-of them in two scrolled pieces breaks the sentence. So the sheets fit their
-viewport again: you land on page one whole, and one scroll hands you page two
-whole.
+in two scrolled pieces breaks the sentence. So each page fits one viewport,
+centred in the room — **and fills the page's full width while doing it.**
 
-- **The cap is back to `min(native, 100%, room x aspect)`.** Both collages are
-  fixed-aspect, so a width converts straight into the height it will cost;
-  capping width by `room x aspect` is the same statement as "never taller than
-  the room". `--nw-room: 172px` on `.nw` is the one number it solves against —
-  44px toolbar + 24px top pad + 104px dock reserve. **Change `.sheet`'s padding
-  and this must change with it**, or the art runs under the dock.
-- **The two sheets no longer share a max-width, and can't.** Their aspects are
-  2.34 and 1.38, so the same available height buys page one far more width. At
-  1440×900 page one still fills the full 1425 (it would need 1706 before height
-  bound it) while page two settles at 1006 — the 210px-a-side inset the
-  2026-07-27 entry was written to kill. That inset is now the *price of seeing
-  page two whole*, and it was accepted knowingly. The cream field is one
-  continuous `--paper` across both, so it reads as two plates on one sheet of
-  paper rather than two panels of different sizes.
-- **`.sheet-one` is centred again** (`align-items: flex-start` removed). The
-  2026-07-30 complaint — dead cream above the art on a tall display — is gone
-  on its own now that the art grows to fill the room instead of sitting at its
-  native height inside it.
-- **THE COST, measured, so nobody rediscovers it as a bug:** page two's pencil
-  marginalia scale with the plate, and the plate is now narrower. The smallest
-  notes (`U(15)`, the terminal block in the right margin) render **10.2px at
-  1440×900 and 8.3px at 1366×768** — they were ~14px full-bleed. The narrative
-  copy is fine (18.3px / 15.0px). If those notes need to be readable, the fix is
-  to raise their `U()` sizes, **not** to lift the height cap — but they sit at
-  fixed Figma coordinates with `nowrap`, so re-measure for collisions first.
+**The first attempt at this got it wrong in an instructive way.** It capped each
+sheet's width at `room × aspect`, which does make a fixed-aspect plate fit — by
+shrinking it. Page two came out 1006px wide on a 1440px screen, 210px of waste
+per side, pencil notes down at 8–10px. Fitting is not the goal; fitting *at
+full size* is.
 
-Verified at 1440×900 and 1366×768: both stages inside the room, page two clears
-the dock by 15px, first and last lines of copy both on screen,
-`scrollWidth === clientWidth`. Build clean.
+- **The conflict was in page two's COMPOSITION, not in the sizing.** Its plate
+  was 1485×1075 — aspect 1.38, nearly square — in a viewport that is nearly 2:1.
+  A fixed-aspect plate obeys width or height, never both. Page two has been
+  re-composed (below) into something built to fit, so the height cap could go
+  and both sheets are simply full-bleed under one shared 1673px max-width —
+  identical margins on every screen.
+- **Page one's dotted arrow starts at column 0 of `origin.webp`** (measured by
+  ink scan). So page one is full-bleed by requirement, not by taste: any side
+  padding cuts the arrow loose from the edge of the screen. The consistent side
+  padding lives *inside* page two's composition, where it costs the artwork
+  nothing.
+- **`.sheet-one` is centred again.** The 2026-07-30 complaint (dead cream above
+  the art on a tall display) is gone on its own now that the art runs edge to
+  edge instead of sitting at its native height inside a taller box.
+
+### Page two is three columns now, sized by height and laid out by edge
+
+`SceneTwo.jsx` was a 1485×1075 stage of absolutely-placed Figma coordinates. It
+is now `[ left margin ] [ the drawing ] [ right margin ]`, with the margins
+pinned to the screen's edges at one shared `--t2-pad` and the drawing centred
+between them.
+
+- **`--u` is derived from the scene's HEIGHT, not its width** (`--t2-h / 714`).
+  This is the whole trick: a wider window now moves the two columns apart
+  instead of shrinking the type. 714 is the cap and it is page one's native
+  height on purpose — the two sheets are then the same shape, and `--u` never
+  exceeds 1 so nothing upscales on a tall display.
+- **The columns are flex columns with `justify-content: space-between`**, and
+  the groups they distribute are the original's own grouping. That rhythm
+  survives any height; four hand-tuned y-coordinates only survived 1075.
+- **The centrepiece is cropped to its measured ink.** `tech-discovery.webp` is
+  1474×1067 but the pencil work only occupies **1011×845 at offset (252, 121)** —
+  31% of its width and 21% of its height was blank cream, competing with the
+  viewport for room. The plate IS that ink box and the image is scaled/offset
+  inside it (`145.796%` / `-24.9258%` / `-14.3195%`, all derived from those
+  numbers — note `top` resolves against height, so it is not the same ratio as
+  `left`). Verified: the ink maps onto the plate to within **0.01px on all four
+  sides**, so nothing is clipped and no cream shows. **Re-export the file and
+  those four numbers are wrong — re-scan for ink bounds, don't nudge by eye.**
+- **`--t2-col: 285`** is the narrowest column the left margin's content fits in
+  with air between its groups. At 250 the opening copy ran to five lines and
+  `space-between` had 8 units to spread across three gaps — the groups touched.
+  Every unit here comes off the drawing, so re-measure rather than round up.
+- **The closing line lost its authored `<br>`s.** They were tuned for ~500 units
+  of run; the column is 285, so it wrapped anyway and the hard breaks only added
+  ragged half-lines. `text-wrap: balance` keeps the three-beat shape.
+
+**This edits `SceneTwo.jsx`, a RECOVERED artifact** (standing rule: don't touch
+it). Explicit request — "reposition elements if necessary" — so it is logged
+here rather than done quietly. Every element from the original is still present
+and still in the margin it was drawn in.
+
+### Measured
+
+|  | 1366×768 | 1440×900 | 1920×1080 |
+|---|---|---|---|
+| page one | 1351×576 | 1425×608 | 1673×714 |
+| page two | 1351×596 | 1425×714 | 1673×714 |
+| the drawing | 634×530 | 711×594 | 760×635 |
+| side padding L/R | 40/40 | 48/48 | 48/48 |
+| gap col↔drawing L/R | 80/80 | 34/34 | 124/124 |
+| smallest pencil note | 12.5px | 15px | 15px |
+
+Both sheets fit the room at all three; margins match between the two sheets;
+nothing overflows its column; `scrollWidth === clientWidth`. Against the
+shrink-to-fit version the drawing is **larger** (711×594 vs 690×577 at 1440×900)
+and the smallest note went 8.3px → 12.5px at 1366×768. Typecheck and build
+clean.
