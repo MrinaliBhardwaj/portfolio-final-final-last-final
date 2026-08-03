@@ -161,6 +161,40 @@
    to fill this space. That art and its CSS are in git history from commit
    5336277 onward; nothing references them now, so keeping ~120 lines of dead
    rules here would only mislead. */
+/* THE TOP 55 ROWS ARE CROPPED OFF (3 Aug 2026, by request), so the closing
+   "half the game" line clears the bottom of the viewport on shorter screens.
+
+   55 is not a taste call, it is the measurement: rows 0-54 of origin.webp are
+   COMPLETELY empty — the first ink in the file is the "m" of "meet mini mri" at
+   row 55. So this removes blank cream and nothing else, and there is no second
+   helping of it to take. (There are another 58 empty rows at the BOTTOM, below
+   "half the game", left alone on purpose: they are the only thing keeping that
+   line off the edge of its own frame.)
+
+   The frame does not need breathing room above it either — the sheet centres
+   the art in the room and pads it, so at 1440x900 there are still ~80px of
+   cream above the title.
+
+   The stage is the crop window and .nw-origin-frame is the whole export, pulled
+   up out of it. Doing it this way rather than reshaping the stage directly is
+   what keeps MILESTONES honest: those percentages were measured against the
+   full 1673x714 frame by pixel scan (see Scene.jsx), and they resolve against
+   this element, so the crop cannot silently invalidate them. */
+.nw .sheet-one .nw-stage {
+  aspect-ratio: 1673 / 659; /* 714 - 55 */
+  overflow: hidden;
+}
+
+.nw .nw-origin-frame {
+  position: absolute;
+  left: 0;
+  /* a top % resolves against the STAGE's height, which is 659 units — so the
+     55-unit shift is 55/659, not 55/714 */
+  top: -8.346%;
+  width: 100%;
+  aspect-ratio: 1673 / 714;
+}
+
 .nw .nw-origin {
   display: block;
   width: 100%;

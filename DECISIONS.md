@@ -1866,3 +1866,29 @@ nothing overflows its column; `scrollWidth === clientWidth`. Against the
 shrink-to-fit version the drawing is **larger** (711×594 vs 690×577 at 1440×900)
 and the smallest note went 8.3px → 12.5px at 1366×768. Typecheck and build
 clean.
+
+### Page one is cropped at its first ink row
+
+`origin.webp` carries **55 completely empty rows above the artwork** — the first
+ink in the file is the "m" of "meet mini mri" at row 55. That cream was pushing
+"maybe this was half the game" off the bottom of shorter desktop windows, so the
+sheet's stage is now a crop window at `1673 / 659` and `.nw-origin-frame` (the
+whole export) is pulled up out of it by `55/659 = 8.346%`.
+
+- **Blank cream only.** There is no second helping to take from the top. The
+  other 58 empty rows are at the BOTTOM, below "half the game", and are left
+  alone deliberately — they are the only thing holding that line off the edge of
+  its own frame.
+- **No breathing room is lost.** The sheet centres the art in the room, so at
+  1440×900 there are still ~80px of cream above the title.
+- **The milestones moved into the frame, not onto the stage.** Their
+  percentages were measured against the full 1673×714 export by pixel scan, and
+  inside `.nw-origin-frame` they stay true — the crop cannot silently
+  invalidate them. Verified: all three dots render at the identical pixel
+  centres they did before the crop.
+
+What it buys, measured: page one goes 608 → **561px** tall at 1440 wide, so the
+window height it needs drops from 780 to **733**. At 1440×760 — where it used to
+overflow — the title now clears the toolbar by 37px and the closing line ends
+78px above the dock. The crop is exact: the first ink row lands at 0.00px from
+the stage's top edge.

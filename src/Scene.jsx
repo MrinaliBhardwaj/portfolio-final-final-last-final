@@ -54,50 +54,58 @@ export default function Scene() {
   return (
     <section className="sheet sheet-one">
       <div className="nw-stage">
-        <img
-          className="nw-origin"
-          src="/notes/origin.webp"
-          alt={
-            "meet mini mri. tiny, curious and an eye for art. If something " +
-            "looked cool, she noticed. By the time she was 12, the signs had " +
-            "aligned. — A childhood school photograph of Mrinali is joined by " +
-            "a looping hand-drawn line to a recent portrait of her, the line " +
-            "tangling into a dense scribble in between before straightening " +
-            "out and leaving as a single confident arrow. — After mastering " +
-            "the art of growing an audience with just a little flair, she " +
-            "probably thought she'd cracked it. That's when it clicked, maybe " +
-            "this was half the game."
-          }
-          width="1673"
-          height="714"
-          draggable="false"
-        />
+        {/* The frame is the WHOLE 1673x714 export; the stage above it is the
+            crop window, and the top 55 rows of blank cream are pulled up out of
+            it (see .nw-origin-frame). The milestones live in here rather than on
+            the stage on purpose: their percentages were measured against the
+            full frame by pixel scan, and inside this element they stay true
+            without being rewritten. */}
+        <div className="nw-origin-frame">
+          <img
+            className="nw-origin"
+            src="/notes/origin.webp"
+            alt={
+              "meet mini mri. tiny, curious and an eye for art. If something " +
+              "looked cool, she noticed. By the time she was 12, the signs had " +
+              "aligned. — A childhood school photograph of Mrinali is joined by " +
+              "a looping hand-drawn line to a recent portrait of her, the line " +
+              "tangling into a dense scribble in between before straightening " +
+              "out and leaving as a single confident arrow. — After mastering " +
+              "the art of growing an audience with just a little flair, she " +
+              "probably thought she'd cracked it. That's when it clicked, maybe " +
+              "this was half the game."
+            }
+            width="1673"
+            height="714"
+            draggable="false"
+          />
 
-        {/* A <button> rather than a bare div with a title: hover alone would
-            leave this on a mouse only. As a button each one is tabbable, so the
-            milestones are reachable by keyboard, and a tap works on a phone,
-            where there is no hover at all.
+          {/* A <button> rather than a bare div with a title: hover alone would
+              leave this on a mouse only. As a button each one is tabbable, so the
+              milestones are reachable by keyboard, and a tap works on a phone,
+              where there is no hover at all.
 
-            The label is spelled out rather than left to the markup. Read from
-            the DOM, "age 13" followed by "1M on TikTok" concatenates to
-            "age 131M on TikTok" — the space you see is a flex `gap`, which is
-            layout and not text, so a screen reader would say "age one hundred
-            thirty-one M". The visible halves stay aria-hidden and this carries
-            the meaning. */}
-        {MILESTONES.map((m) => (
-          <button
-            key={m.age}
-            type="button"
-            className={`nw-milestone nw-milestone--${m.place}`}
-            style={{ left: `${m.left}%`, top: `${m.top}%` }}
-            aria-label={`${m.age} — ${m.note}`}
-          >
-            <span className="nw-milestone-note" aria-hidden="true">
-              <span className="nw-milestone-age">{m.age}</span>
-              {m.note}
-            </span>
-          </button>
-        ))}
+              The label is spelled out rather than left to the markup. Read from
+              the DOM, "age 13" followed by "1M on TikTok" concatenates to
+              "age 131M on TikTok" — the space you see is a flex `gap`, which is
+              layout and not text, so a screen reader would say "age one hundred
+              thirty-one M". The visible halves stay aria-hidden and this carries
+              the meaning. */}
+          {MILESTONES.map((m) => (
+            <button
+              key={m.age}
+              type="button"
+              className={`nw-milestone nw-milestone--${m.place}`}
+              style={{ left: `${m.left}%`, top: `${m.top}%` }}
+              aria-label={`${m.age} — ${m.note}`}
+            >
+              <span className="nw-milestone-note" aria-hidden="true">
+                <span className="nw-milestone-age">{m.age}</span>
+                {m.note}
+              </span>
+            </button>
+          ))}
+        </div>
       </div>
     </section>
   );
