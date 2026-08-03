@@ -1072,6 +1072,10 @@ Three corrections to the lanyard, all hers.
 
 ## Notes runs full-bleed, and the scrapbook stops asking you to pull a tab (2026-07-27)
 
+> **The first bullet is SUPERSEDED** — see "One sheet, one viewport" (2026-08-03)
+> at the end of this file. The height cap it removes here has been restored, by
+> request. The rest of this entry still stands.
+
 - **The collages fill the page width.** They were capped twice over — by their
   native size *and* by `available height x aspect`, so each sheet would fit in
   exactly one viewport. Height won every time, because a fixed-aspect collage
@@ -1254,6 +1258,10 @@ only.
   only misleads the next read.
 
 ## Page one's whitespace above "meet mini mri" (2026-07-30)
+
+> **SUPERSEDED** — see "One sheet, one viewport" (2026-08-03) at the end of this
+> file. `.sheet-one` is centred again; the whitespace this entry was fixing no
+> longer occurs, because the art now grows to fill the room.
 
 `.sheet-one` centred vertically (`align-items: center`) in a box at least
 viewport-tall, but the artwork's rendered height is usually much shorter than
@@ -1771,3 +1779,46 @@ world tabs' own naming — `design.fig`/`tech.jsx` — so the extension is what
 tells you which half of the person a file belongs to. Short on purpose: at this
 icon size the full `resume-design.pdf` was 111px against an 81px box and
 rendered as `resume-desig…`. The `aria-label`s carry the full meaning.
+
+## One sheet, one viewport — the scrapbook fits again (2026-08-03)
+
+**Supersedes "Notes runs full-bleed…" (2026-07-27) and "Page one's whitespace
+above 'meet mini mri'" (2026-07-30).** Both of those decided the opposite of
+this; read them as history, not as rules.
+
+Each scrapbook page is one composition with a beginning and an end baked into
+the pixels — page one runs "meet mini mri" → "maybe this was half the game",
+page two "for the other half" → "all ideas started feeling real". Reading either
+of them in two scrolled pieces breaks the sentence. So the sheets fit their
+viewport again: you land on page one whole, and one scroll hands you page two
+whole.
+
+- **The cap is back to `min(native, 100%, room x aspect)`.** Both collages are
+  fixed-aspect, so a width converts straight into the height it will cost;
+  capping width by `room x aspect` is the same statement as "never taller than
+  the room". `--nw-room: 172px` on `.nw` is the one number it solves against —
+  44px toolbar + 24px top pad + 104px dock reserve. **Change `.sheet`'s padding
+  and this must change with it**, or the art runs under the dock.
+- **The two sheets no longer share a max-width, and can't.** Their aspects are
+  2.34 and 1.38, so the same available height buys page one far more width. At
+  1440×900 page one still fills the full 1425 (it would need 1706 before height
+  bound it) while page two settles at 1006 — the 210px-a-side inset the
+  2026-07-27 entry was written to kill. That inset is now the *price of seeing
+  page two whole*, and it was accepted knowingly. The cream field is one
+  continuous `--paper` across both, so it reads as two plates on one sheet of
+  paper rather than two panels of different sizes.
+- **`.sheet-one` is centred again** (`align-items: flex-start` removed). The
+  2026-07-30 complaint — dead cream above the art on a tall display — is gone
+  on its own now that the art grows to fill the room instead of sitting at its
+  native height inside it.
+- **THE COST, measured, so nobody rediscovers it as a bug:** page two's pencil
+  marginalia scale with the plate, and the plate is now narrower. The smallest
+  notes (`U(15)`, the terminal block in the right margin) render **10.2px at
+  1440×900 and 8.3px at 1366×768** — they were ~14px full-bleed. The narrative
+  copy is fine (18.3px / 15.0px). If those notes need to be readable, the fix is
+  to raise their `U()` sizes, **not** to lift the height cap — but they sit at
+  fixed Figma coordinates with `nowrap`, so re-measure for collisions first.
+
+Verified at 1440×900 and 1366×768: both stages inside the room, page two clears
+the dock by 15px, first and last lines of copy both on screen,
+`scrollWidth === clientWidth`. Build clean.

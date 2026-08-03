@@ -91,10 +91,20 @@
   color: var(--pencil);
 }
 
-/* ---- Each page of the archive is a sheet you scroll between. It fills at
-   least what's left under the toolbar, and reserves the floating dock's strip
-   at the bottom. A sheet is free to grow TALLER than the viewport now that the
-   collages are sized by width (see the stage caps below) — it just scrolls. ---- */
+/* ---- Each page of the archive is a sheet you scroll between: ONE SHEET, ONE
+   VIEWPORT. It fills exactly what's left under the toolbar and reserves the
+   floating dock's strip at the bottom, and the collage inside is capped so it
+   always fits that box (see the stage caps below) — so page one is what you
+   land on whole, and one scroll hands you page two whole. ---- */
+.nw {
+  /* The room a sheet actually has, and the single number the stage caps below
+     solve against: the fixed 44px toolbar, the 24px clearing it, and the 104px
+     the floating dock needs (dock.css: 1.9rem from the bottom + 0.4rem padding
+     + a 46px row = ~89px, plus clearance). Change the padding on .sheet and
+     this MUST change with it or the collage will run under the dock. */
+  --nw-room: 172px;
+}
+
 .nw .sheet {
   min-height: calc(100dvh - 44px);
   display: flex;
@@ -103,15 +113,6 @@
   position: relative;
   padding: 24px 0 104px;
   scroll-margin-top: 44px; /* land below the toolbar, not under it */
-}
-
-/* Page one's art is short (714px) against a sheet that is often much taller
-   than that (a normal monitor's height minus the toolbar) - centred, that
-   leaves the same dead cream above the composition as below it, and on a
-   tall display it reads as the page having forgotten to load. Top-aligned,
-   the only whitespace left is the deliberate 24px clearing the toolbar. */
-.nw .sheet-one {
-  align-items: flex-start;
 }
 
 /* Named `nw-stage`, not the original `stage`: DomeGallery.css ships an
@@ -126,29 +127,38 @@
   margin: 0 auto;
 }
 
-/* THE COLLAGES RUN THE FULL WIDTH OF THE PAGE. They used to be capped at
-   `available height x aspect` as well, so that each sheet fitted in exactly one
-   viewport with nothing under the dock — but a fixed-aspect collage can only
-   obey one of those two masters, and height won every time. Measured at
-   1425x900: page one rendered 1295px wide and page two only 1006px, throwing
-   away 210px of page on each side, while the art sat smaller than the room it
-   had. Width wins now; a sheet taller than the viewport simply scrolls, which
-   is what you were already doing between the two pages.
-   The px caps are each scene's NATIVE size (1700 and 1485), so the art fills
-   any normal screen edge to edge and never upscales past 1:1 on a huge one.
-   The sheet's 104px bottom padding still keeps the collage clear of the dock. */
-/* Both sheets share ONE max-width, so the two halves have identical left and
-   right margins on every screen — they used to cap at 1673 and 1485, which on a
-   wide display inset page two by ~94px more per side than page one and made the
-   collage look like a narrower panel. 1673 is page one's native width, so that
-   image still never upscales past 1:1; page two's centrepiece is 1474 native
-   and now fills the same column, which costs it a slight upscale on very wide
-   screens — the alignment is worth more than the last few percent of sharpness
-   on a pencil drawing. There is no per-sheet background any more: the whole
-   world is one cream (--paper), matching the artwork's own field. */
-.nw .sheet-one .nw-stage,
+/* EACH COLLAGE FITS ITS OWN VIEWPORT (3 Aug 2026, by request). Both are
+   fixed-aspect, so a width can be converted straight into the height it will
+   cost; capping the width at `room x aspect` is therefore the same statement as
+   "never taller than the room". Three limits, whichever binds first:
+
+     · 100% of the page          — never wider than the screen
+     · the scene's NATIVE width  — never upscaled past 1:1 on a huge display
+     · (100dvh - --nw-room) x aspect — never taller than one viewport
+
+   This REVERSES the width-only rule that stood here (the sheets shared a single
+   1673px cap so their side margins matched). That rule was chosen because a
+   fixed-aspect collage can only obey one master and height wins every time —
+   which is exactly what is wanted now: landing on page one means seeing all of
+   page one, and one scroll means seeing all of page two, rather than reading
+   either of them in two pieces.
+
+   The cost the old note predicted is real and accepted: the two sheets no
+   longer share a width, because their aspects differ (2.34 vs 1.38) and the
+   same available height buys page one far more of it. At 1440x900 page one
+   still fills the full 1440 (it would need 1706 before height bound it) while
+   page two settles at ~1005. Page two is the narrower plate now, and that is
+   the price of seeing it whole.
+
+   Only the widths differ — the cream field is one continuous --paper across
+   both, so this reads as two plates on one sheet of paper, not as two panels of
+   different sizes. */
+.nw .sheet-one .nw-stage {
+  max-width: min(1673px, calc((100dvh - var(--nw-room)) * (1673 / 714)));
+}
+
 .nw .sheet-two .nw-stage {
-  max-width: 1673px;
+  max-width: min(1673px, calc((100dvh - var(--nw-room)) * (1485 / 1075)));
 }
 /* ---- page one: the origin story, as one finished image ----
    Her own composition, placed exactly as exported (27 July 2026, by request).
