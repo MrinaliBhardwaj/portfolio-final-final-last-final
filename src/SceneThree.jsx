@@ -46,16 +46,16 @@ const U = (n) => `calc(${n} * var(--cu))`;
 const CX = 724.5;
 
 // The frame's height. Confirmed two ways: the yellow band is 837 tall at
-// y=1363, and the poem's copy is placed at `calc(50% + 753)` = 1853, so
-// 50% = 1100.
-const FRAME_H = 2200;
+// y=1313, and the poem's copy is placed at `calc(50% + 686)`, which puts it 26
+// units inside its card at 1735 only if 50% = 1075.
+const FRAME_H = 2150;
 
 // EQUAL THIRDS, and that is the whole reason the resize was worth doing.
-// The old frame split into 854/854/837 — a 1.70 aspect, which cannot be
+// The original frame split into 854/854/837 — a 1.70 aspect, which cannot be
 // full-bleed AND one viewport (the viewport wants 1.87 or wider on a 16:9
-// laptop). 2200/3 = 733.33 gives 1449/733.33 = 1.976 for all three panels: past
+// laptop). 2150/3 = 716.67 gives 1449/716.67 = 2.022 for all three panels: past
 // the threshold, uniform, so all three sheets are the same size and every one
-// of them fits. Seams land at 733.33 and 1466.67; both fall inside a field
+// of them fits. Seams land at 716.67 and 1433.33; both fall inside a field
 // rather than on an edge, which the windowing makes a non-issue.
 const BANDS = ["one", "two", "three"].map((key, i) => ({
   key,
@@ -95,6 +95,27 @@ function Poster({ eager }) {
     <>
       <div className="cl-ground" />
 
+      {/* The big lotus behind the M — the frame's backmost layer. Its own
+          export (lotus-big.png), not the band's tile: Figma ships two different
+          files for the same flower here and the large one is the higher
+          resolution of the two, which it needs at 1080 units.
+
+          The design has a SECOND node at the same size and rotation, 8 units
+          away (280:8390), which contains no image at all — an empty duplicate.
+          It paints nothing, so it is not reproduced. */}
+      <div
+        className="cl-rot"
+        style={{ left: U(409), top: U(-226), width: U(1343.92), height: U(1343.92) }}
+      >
+        <img
+          src="/collage/lotus-big.png"
+          alt=""
+          loading={load}
+          decoding="async"
+          style={{ width: U(1079.829), height: U(1079.829), transform: "rotate(-16.65deg)", objectFit: "cover" }}
+        />
+      </div>
+
       <img
         className="cl-abs"
         src="/collage/photo-top.png"
@@ -107,7 +128,7 @@ function Poster({ eager }) {
       {/* ============ the pink section ("Desktop - 15") ============ */}
       <div
         className="cl-rot"
-        style={{ left: U(CX + 1.97 - 742.224), top: U(678.78), width: U(1484.448), height: U(749.858) }}
+        style={{ left: U(CX + 1.97 - 742.224), top: U(659.78), width: U(1484.448), height: U(749.858) }}
       >
         <div
           className="cl-pink"
@@ -119,11 +140,11 @@ function Poster({ eager }) {
             alt=""
             loading={load}
             decoding="async"
-            style={{ left: U(540.52), top: U(-83.44), width: U(1161.183), height: U(870.887) }}
+            style={{ left: U(541.6), top: U(-120.43), width: U(1161.183), height: U(870.887) }}
           />
           <div
             className="cl-clip"
-            style={{ left: U(-261.08), top: U(-78.74), width: U(853.421), height: U(870.887) }}
+            style={{ left: U(-165.18), top: U(-73.95), width: U(853.421), height: U(870.887) }}
           >
             <img src="/collage/photo-pink.jpg" alt="" loading={load} decoding="async" />
           </div>
@@ -162,7 +183,7 @@ function Poster({ eager }) {
 
           <div
             className="cl-rot"
-            style={{ left: U(-202.78), top: U(131.19), width: U(683.266), height: U(683.266) }}
+            style={{ left: U(-194.8), top: U(157.53), width: U(683.266), height: U(683.266) }}
           >
             <img
               src="/collage/star-photo-1.png"
@@ -233,12 +254,10 @@ function Poster({ eager }) {
         </p>
       ))}
 
-      <div className="cl-darkblock" />
-
       {/* ============ ENGINEER ============ */}
       <div
         className="cl-rot"
-        style={{ left: U(567.21), top: U(575.73), width: U(886.789), height: U(228.398) }}
+        style={{ left: U(567.2), top: U(525.73), width: U(886.789), height: U(228.398) }}
       >
         <div
           className="cl-banner"
@@ -247,7 +266,7 @@ function Poster({ eager }) {
       </div>
       <div
         className="cl-rot"
-        style={{ left: U(727.48), top: U(597.91), width: U(580.251), height: U(184.002) }}
+        style={{ left: U(727.47), top: U(547.91), width: U(580.251), height: U(184.002) }}
       >
         <p className="cl-word" style={{ transform: "rotate(-4.56deg)" }}>ENGINEER</p>
       </div>
@@ -257,7 +276,7 @@ function Poster({ eager }) {
           design's own stacking — keep this order. */}
       <div
         className="cl-rot"
-        style={{ left: U(-293), top: U(486), width: U(989.166), height: U(239.163) }}
+        style={{ left: U(-293), top: U(444), width: U(989.166), height: U(239.163) }}
       >
         <div
           className="cl-banner"
@@ -286,16 +305,19 @@ function Poster({ eager }) {
           is the design, not a rounding slip. */}
       <div
         className="cl-rot"
-        style={{ left: U(108.59), top: U(524.84), width: U(442.049), height: U(182.633) }}
+        style={{ left: U(108.59), top: U(482.84), width: U(442.049), height: U(182.633) }}
       >
         <p className="cl-word" style={{ transform: "rotate(5.92deg)" }}>DESIGN</p>
       </div>
 
-      {/* ============ the lotus name card ============ */}
+      {/* ============ the lotus name card ============
+          The Devanagari मृणाली that used to open this line is gone from the
+          card — it became the repeated texture in the name panel below, so it
+          reads there instead of twice. The full stop after "lotus" is new. */}
       <div className="cl-poem" />
       <div className="cl-poemtext">
         <p>
-          <span className="cl-deva">मृणाली</span> [mṛṇālī] one who belongs to the lotus
+          [mṛṇālī] one who belongs to the lotus.
           <br />
           The Lotus is born in water,{" "}
         </p>
@@ -310,6 +332,20 @@ function Poster({ eager }) {
           <br />
           To know darkness intimately, and simply refusing to carry it into your heart.
         </p>
+      </div>
+
+      {/* ============ the name panel ============
+          Replaces the flat #1e1516 rectangle that stood here. It is a
+          photograph with her name set over it thirty times in Devanagari,
+          white, on `mix-blend-mode: overlay` — so the type takes its contrast
+          from the image underneath rather than sitting on it.
+
+          The word is aria-hidden and the panel carries a label instead: read
+          out, thirty repetitions of the same name is noise, and the one thing a
+          screen reader should get is what the panel IS. */}
+      <div className="cl-namepanel" role="img" aria-label="मृणाली — Mrinali, set over and over">
+        <img src="/collage/image68.png" alt="" loading="lazy" decoding="async" />
+        <p className="cl-nametext" aria-hidden="true">{"मृणाली ".repeat(30)}</p>
       </div>
     </>
   );

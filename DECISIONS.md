@@ -2101,3 +2101,37 @@ upscaled past 1:1:
 
 The M renders at 436.5px against its 436.542-unit design size. All seven assets
 load, no broken images, `scrollWidth === clientWidth`. Typecheck and build clean.
+
+### Collage, third pass: a lotus behind the M and a photographic name panel
+
+She kept editing 296:533, so this has now been re-read three times. **Treat the
+node as authoritative and these numbers as a snapshot.** Frame 2200 → **2150**,
+so the panels are 716.67 and the aspect is 2.022 — further past the 1.87
+threshold than before, still uniform, still fitting everywhere.
+
+Three real changes, on top of a general shift upward (the pink block, both
+banners, both words and the yellow band all moved up 19–50 units):
+
+- **A big lotus behind the M** (1079.8 units, rotated −16.65°) as the backmost
+  layer. It has its own export, `lotus-big.png` — Figma ships *two different
+  files* for the same flower here and the band's tile is the smaller one, which
+  would visibly soften at this size.
+  There is also a second node at the same size and rotation 8 units away
+  (`280:8390`) **containing no image at all** — an empty duplicate. It paints
+  nothing, so it is not reproduced.
+- **The flat `#1e1516` rectangle became a photographic name panel**
+  (`image68.png`, 420×290.5) with मृणाली set over it thirty times in white on
+  `mix-blend-mode: overlay`. **`isolation: isolate` on that panel is
+  load-bearing** — without it the blend's backdrop is the whole poster, so the
+  type would take its contrast from the lotus band and tiles instead of from the
+  photograph it is written on.
+- **The Devanagari moved off the poem card into that panel**, and the card's
+  first line gained a full stop. It reads in one place now instead of two.
+
+Accessibility note: the thirty repetitions are `aria-hidden` and the panel
+carries an `aria-label` instead. Read out, thirty copies of the same name is
+noise; what a screen reader should get is what the panel *is*.
+
+Verified: all nine assets load, no broken images, poster height 912 against 913
+expected, aspect 2.022 on all three panels with zero overflow, and panels one
+and three checked against the Figma render.

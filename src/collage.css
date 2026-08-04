@@ -1,8 +1,15 @@
 /* ============ NOTES page three: the poster collage ============ */
 /* Replicated from Figma — file drda7TnqoM3fEpbibCDIc2, node 296:533
    ("Desktop - 17"). Every number below is that frame's, in ITS coordinate
-   space: 1449 x 2200. `--cu` is one Figma unit, so a value written here is the
+   space: 1449 x 2150. `--cu` is one Figma unit, so a value written here is the
    value read off the design. Don't "tidy" them.
+
+   TRACKING A LIVE FRAME. This has been re-read three times as she edits it, so
+   assume the node is authoritative and these numbers are a snapshot. The latest
+   pass tightened it again — 2200 -> 2150 — and made three real changes: a big
+   lotus behind the M, a photographic NAME PANEL where a flat dark rectangle
+   used to be, and the Devanagari मृणाली moved off the poem card into that
+   panel.
 
    SUPERSEDES node 272:515 ("Desktop - 16"), which the first implementation was
    built from. That frame was 1449x2545 and every component was scaled down in
@@ -23,13 +30,13 @@
    it is one continuous poster shown through three windows. Anything crossing a
    seam simply continues across it, exactly as drawn.
 
-   EQUAL THIRDS, and this is what the resize bought. The old frame split
+   EQUAL THIRDS, and this is what the resizes bought. The original frame split
    854/854/837 — a 1.70 aspect, and a fixed-aspect panel cannot be both
    full-bleed and one-viewport below about 1.87 (what a 16:9 laptop's
-   `100dvh - 44` asks for against a full-width sheet). 2200/3 = 733.33 gives
-   1449/733.33 = 1.976 for all three: past the threshold, uniform, so the three
-   sheets are the same size and each one fits. The 72px overflow the old frame
-   had at 1366x768 is gone. */
+   `100dvh - 44` asks for against a full-width sheet). 2150/3 = 716.67 gives
+   1449/716.67 = 2.022 for all three: past the threshold, uniform, so the three
+   sheets are the same size and each one fits. The 72px overflow the original
+   frame had at 1366x768 is gone. */
 .nw .sheet-collage {
   /* no cream showing between the panels: each one is its own colour field,
      edge to edge, with the poster centred in it */
@@ -70,7 +77,7 @@
   position: absolute;
   left: 0;
   width: 100%;
-  height: calc(2200 * var(--cu));
+  height: calc(2150 * var(--cu));
 }
 
 /* Every child of the poster is placed by its Figma coordinates. */
@@ -262,19 +269,59 @@
   position: absolute;
   overflow: hidden;
   left: 0;
-  top: calc(1363 * var(--cu));
+  top: calc(1313 * var(--cu));
   width: calc(1449 * var(--cu));
   height: calc(837 * var(--cu));
   background: #ffdc51;
 }
 
-.nw .cl-darkblock {
+/* ---- the name panel ----
+   Replaces the flat #1e1516 rectangle that used to sit here: a photograph with
+   her name set over it thirty times, white, blended.
+
+   `isolation: isolate` is load-bearing. mix-blend-mode blends with everything
+   behind it in the nearest blending context, and without this that is the whole
+   poster — the type would take its contrast from the lotus band and the tiles
+   rather than from the photograph it is written on. Isolating the panel makes
+   the image its only backdrop, which is what the design does. */
+.nw .cl-namepanel {
   position: absolute;
-  background: #1e1516;
-  left: calc(105 * var(--cu));
-  top: calc(1438 * var(--cu));
-  width: calc(326 * var(--cu));
-  height: calc(206 * var(--cu));
+  overflow: hidden;
+  isolation: isolate;
+  left: calc(141 * var(--cu));
+  top: calc(1437 * var(--cu));
+  width: calc(420 * var(--cu));
+  height: calc(290.462 * var(--cu));
+}
+
+.nw .cl-namepanel > img {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  object-fit: cover;
+}
+
+/* Times New Roman Bold in the design, but no Times build carries Devanagari, so
+   every glyph here would fall through anyway — the platform faces are named
+   after it so the fallback is deliberate rather than the browser's last resort.
+   Same stack the poem's मृणाली used before it moved here. */
+.nw .cl-nametext {
+  position: absolute;
+  margin: 0;
+  left: calc(19 * var(--cu));
+  top: calc(55.001 * var(--cu));
+  width: calc(383 * var(--cu));
+  font-family: "Times New Roman", "Nirmala UI", "Devanagari Sangam MN",
+    "Noto Serif Devanagari", serif;
+  font-weight: 700;
+  font-size: calc(24 * var(--cu));
+  line-height: 1.232;
+  color: #fff;
+  mix-blend-mode: overlay;
+  word-break: break-word;
 }
 
 /* ---- the lotus name card ---- */
@@ -282,18 +329,20 @@
   position: absolute;
   background: #fbfde5;
   border: calc(1 * var(--cu)) solid #000;
-  left: calc(946 * var(--cu));
-  top: calc(1829 * var(--cu));
+  left: calc(911 * var(--cu));
+  top: calc(1735 * var(--cu));
   width: calc(424 * var(--cu));
   height: calc(283 * var(--cu));
 }
 
-/* `calc(50% + 247)` and `calc(50% + 753)` in the design, against a 1449x2200
-   frame — so 971.5 and 1853. */
+/* `calc(50% + 212)` and `calc(50% + 686)` in the design, against a 1449x2150
+   frame — so 936.5 and 1761. That second one is also how the frame's height is
+   known: 1761 is 26 units inside the card at 1735, which only holds if
+   50% = 1075. */
 .nw .cl-poemtext {
   position: absolute;
-  left: calc(971.5 * var(--cu));
-  top: calc(1853 * var(--cu));
+  left: calc(936.5 * var(--cu));
+  top: calc(1761 * var(--cu));
   width: calc(383 * var(--cu));
   font-family: "Times New Roman", Times, serif;
   font-size: calc(21.3 * var(--cu));
@@ -305,14 +354,6 @@
 .nw .cl-poemtext p {
   margin: 0;
   line-height: 1.232;
-}
-
-/* The one line the poster cannot set in its own face: no Times New Roman build
-   carries Devanagari, so मृणाली falls through to whatever the platform has
-   (Nirmala UI on Windows, Devanagari Sangam MN on macOS). Naming them keeps the
-   fallback deliberate instead of leaving it to the browser's last resort. */
-.nw .cl-deva {
-  font-family: "Nirmala UI", "Devanagari Sangam MN", "Noto Serif Devanagari", serif;
 }
 
 /* Reduced motion has nothing to switch off here — the poster is static. It is
