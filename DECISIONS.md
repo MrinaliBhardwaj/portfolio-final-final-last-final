@@ -2167,9 +2167,24 @@ bar**, so this belongs to the same fiction rather than arguing with it.
 - Styled from the header's existing vocabulary, not a new one: `--void-dim` →
   `--void-text` on the same 0.25s ease `.cover-social a` uses. Measured
   **7.55:1** against the cover's near-black — past AAA.
-- **Claude is absent from the menu.** It navigates nowhere; a named menu item
-  that does nothing is worse than no item. It keeps its dock tile, now labelled
-  "Claude · soon" so the tag admits it.
+- **Claude is gone from both surfaces.** It navigates nowhere, and a named item
+  that does nothing is worse than no item — first it was kept out of the menu
+  and left in the dock, then removed from the dock too (same day, by request).
+  That retires the "remove or wire it" note standing against it since July.
+  Since it was the only unwired tile, the `is-placeholder` branch and its two
+  CSS rules went with it rather than sitting dead; `ClaudeMark` is still
+  exported from `BrandIcons` if it comes back.
+- **The pond is called "Game" on both surfaces.** The route stays `#/pond`
+  (`#/game` remains an alias). The dock's `aria-label` was rewritten to *open*
+  with "Game" — voice control matches the visible word, so a label starting
+  "Lotus Pond" under a tag reading "Game" is unspeakable.
+- **The menu is centred on the viewport**, which is why `.cover-nav` is a
+  `1fr minmax(0, auto) 1fr` grid rather than `space-between`. The two `1fr`
+  tracks are equal by definition, so the middle lands on the true centre despite
+  the monogram and the social icons being different widths — `space-between`
+  would have centred it on the gap between them, a different and visibly wrong
+  place. Measured at 1440×900: centre 712.3 against a content centre of 712.5,
+  with 539px clear on both sides.
 - **The menu shrinks on mobile, it does not hide.** The dead
   `.cover-links { display: none }` rule that used to sit in the ≤768 block was
   the old links' leftover, and hiding would leave a phone with no navigation

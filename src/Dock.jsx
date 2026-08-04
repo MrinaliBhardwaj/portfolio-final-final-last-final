@@ -11,11 +11,17 @@
 // lift) — matching the source component's `hover:scale-110` exactly, not a
 // pointer-distance "magnetic" simulation. Figma → design world, VS Code →
 // tech world, Notes → the archived first drafts, Gallery → the dome, Game →
-// the Lotus Pond; Claude is still a placeholder that responds but doesn't
-// navigate.
+// the Lotus Pond.
+//
+// EVERY TILE NAVIGATES. The Claude tile was removed on request (4 Aug 2026),
+// which retires the "remove or wire it" note standing against it since July —
+// it had rendered and responded to a click while going nowhere. With it gone
+// nothing here is a placeholder, so the `is-placeholder` branch and its two CSS
+// rules went too rather than sitting dead. `ClaudeMark` is still exported from
+// BrandIcons if it ever comes back.
 import { motion } from "framer-motion";
 import { Code2, Flower2, NotebookPen } from "lucide-react";
-import { ClaudeMark, FigmaMark, GooglePhotosMark } from "./BrandIcons.jsx";
+import { FigmaMark, GooglePhotosMark } from "./BrandIcons.jsx";
 
 const EASE = [0.22, 1, 0.36, 1];
 
@@ -85,10 +91,8 @@ function DockItem({ app, active }) {
   return (
     <button
       type="button"
-      className={`dock-item${app.action ? "" : " is-placeholder"}${
-        isOn ? " is-active" : ""
-      }`}
-      onClick={app.action || undefined}
+      className={`dock-item${isOn ? " is-active" : ""}`}
+      onClick={app.action}
       aria-label={app.label}
       aria-current={isOn ? "page" : undefined}
     >
@@ -161,18 +165,12 @@ export default function Dock({ visible, onChoose, active }) {
       ),
     },
     {
-      key: "claude",
-      name: "Claude · soon",
-      label: "Claude (coming soon)",
-      action: null,
-      node: (
-        <ClaudeMark className="dock-item-icon" aria-hidden="true" />
-      ),
-    },
-    {
       key: "game",
-      name: "Pond",
-      label: "Lotus Pond — catch coding bugs with a pixel frog",
+      name: "Game",
+      // The visible tag is the accessible name's FIRST word on purpose. Voice
+      // control matches what a user can see ("click Game"), so a label that
+      // opened with "Lotus Pond" while the tag said "Game" would be unspeakable.
+      label: "Game — the Lotus Pond, catch coding bugs with a pixel frog",
       world: "pond",
       action: () => onChoose("pond"),
       node: (

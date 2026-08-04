@@ -16,16 +16,27 @@
 }
 
 /* nav */
+/* Three tracks, not `space-between`, so the menu can sit on the VIEWPORT's
+   centre line. The two 1fr tracks are equal by definition, which puts the auto
+   track between them dead centre no matter that the monogram and the social
+   icons are different widths — space-between would have centred it on the gap
+   between them instead, which is a different and visibly wrong place.
+   minmax(0, auto) rather than plain auto so the middle can shrink below its
+   content on a narrow phone; the menu scrolls inside itself there. */
 .cover-nav {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   z-index: 50;
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr minmax(0, auto) 1fr;
   align-items: center;
-  justify-content: space-between;
   padding: 1.4rem 2.2rem;
+}
+
+.cover-nav > .cover-social {
+  justify-self: end;
 }
 
 .cover-nav-left {

@@ -238,14 +238,10 @@
   opacity: 1;
 }
 
-/* placeholders read the same but hint they're not wired yet */
-.dock-item.is-placeholder .dock-item-icon {
-  opacity: 0.6;
-}
-
-.dock-item.is-placeholder:hover .dock-item-icon {
-  opacity: 0.78;
-}
+/* The `.is-placeholder` pair that used to sit here is gone with the Claude
+   tile (4 Aug 2026). It was the only unwired app, so with it removed nothing
+   could ever match these — and a rule for a state that cannot occur is worse
+   than no rule. Restore both if a future tile ships before its destination. */
 
 @media (max-width: 719px) {
   .dock {

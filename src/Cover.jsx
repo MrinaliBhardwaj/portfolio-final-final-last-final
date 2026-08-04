@@ -73,7 +73,7 @@ const WORLDS = [
   ["tech", "Tech"],
   ["notes", "Notes"],
   ["gallery", "Gallery"],
-  ["pond", "Pond"],
+  ["pond", "Game"],
 ];
 
 export default function Cover({ onChoose, onSettledChange }) {
@@ -323,36 +323,41 @@ export default function Cover({ onChoose, onSettledChange }) {
           >
             mb
           </button>
-
-          {/* THE MENU BAR. World links used to sit here and were deleted in
-              July as "a redundant third path" — the Explore CTAs plus the dock
-              were held to cover it. They didn't:
-                · the CTAs reach design and tech only, and sit below the fold
-                · the dock is HIDDEN on the cover until the scrub settles
-                  (App.jsx: visible={route === "" ? coverSettled : true})
-                · gallery, notes and pond appear in no other navigation at all
-              So until you scrolled, the cover offered a monogram, GitHub and an
-              email address. This is the fix, and it is a MENU BAR rather than a
-              website nav on purpose: a desktop has both a dock and a menu bar,
-              so it belongs to the same fiction instead of arguing with it.
-
-              It calls the same `onChoose` the CTAs and the dock do — App turns
-              that into a hash change for any of the five, so there is no second
-              navigation path here, just a second surface for the one that
-              exists. */}
-          <nav className="cover-menu" aria-label="Worlds">
-            {WORLDS.map(([world, label]) => (
-              <button
-                key={world}
-                type="button"
-                className="cover-menu-item"
-                onClick={() => onChoose(world)}
-              >
-                {label}
-              </button>
-            ))}
-          </nav>
         </div>
+
+        {/* THE MENU BAR, and it is the header's OWN child rather than part of
+            the left group — that is what lets the grid centre it on the
+            viewport instead of parking it next to the monogram.
+
+            World links used to sit here and were deleted in July as "a
+            redundant third path" — the Explore CTAs plus the dock were held to
+            cover it. They didn't:
+              · the CTAs reach design and tech only, and sit below the fold
+              · the dock is HIDDEN on the cover until the scrub settles
+                (App.jsx: visible={route === "" ? coverSettled : true})
+              · gallery, notes and the game appear in no other navigation at all
+            So until you scrolled, the cover offered a monogram, GitHub and an
+            email address. This is the fix, and it is a MENU BAR rather than a
+            website nav on purpose: a desktop has both a dock and a menu bar, so
+            it belongs to the same fiction instead of arguing with it.
+
+            It calls the same `onChoose` the CTAs and the dock do — App turns
+            that into a hash change for any of the five, so there is no second
+            navigation path here, just a second surface for the one that
+            exists. */}
+        <nav className="cover-menu" aria-label="Worlds">
+          {WORLDS.map(([world, label]) => (
+            <button
+              key={world}
+              type="button"
+              className="cover-menu-item"
+              onClick={() => onChoose(world)}
+            >
+              {label}
+            </button>
+          ))}
+        </nav>
+
         <div className="cover-social">
           <a
             className="cover-social-logo"
