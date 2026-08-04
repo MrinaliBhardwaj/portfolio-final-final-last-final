@@ -22,9 +22,9 @@ import TechLanyard from "./TechLanyard.jsx";
 import WorldTabs from "./WorldTabs.jsx";
 import useSectionSpy from "./useSectionSpy.js";
 
+import { GITHUB, LINKEDIN } from "./links.js";
+
 const EMAIL = "mrinalibhardwaj0705@gmail.com";
-const GITHUB = "https://github.com/MrinaliBhardwaj";
-const LINKEDIN = "https://www.linkedin.com/in/mrinali-bhardwaj-a340a3322/";
 
 // FILE_TREE and SECTION_IDS are built from `experience` and `projects`, so they
 // are defined AFTER those arrays rather than here — a `const` cannot be read

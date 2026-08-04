@@ -16,7 +16,8 @@ import {
   useMotionValueEvent,
 } from "framer-motion";
 import { ChevronDown, Mail, ArrowUpRight } from "lucide-react";
-import { GitHubMark } from "./BrandIcons.jsx";
+import { LinkedInMark } from "./BrandIcons.jsx";
+import { EMAIL, LINKEDIN } from "./links.js";
 import TextMorph from "./TextMorph.jsx";
 import DesktopFiles from "./DesktopFiles.jsx";
 import { createParticles } from "./particles.js";
@@ -358,17 +359,22 @@ export default function Cover({ onChoose, onSettledChange }) {
           ))}
         </nav>
 
+        {/* LinkedIn, not GitHub (5 Aug 2026, by request). The code still has a
+            front door — the desktop `github` folder sits on the cover itself and
+            the tech world's contact block links it — so this corner goes to the
+            professional profile instead, which is the one a recruiter looks for
+            first and the only one that was reachable nowhere on the cover. */}
         <div className="cover-social">
           <a
             className="cover-social-logo"
-            href="https://github.com/MrinaliBhardwaj"
+            href={LINKEDIN}
             target="_blank"
             rel="noreferrer"
-            aria-label="GitHub"
+            aria-label="LinkedIn"
           >
-            <GitHubMark size={18} aria-hidden="true" />
+            <LinkedInMark size={18} aria-hidden="true" />
           </a>
-          <a href="mailto:mrinalibhardwaj0705@gmail.com" aria-label="Email">
+          <a href={`mailto:${EMAIL}`} aria-label="Email">
             <Mail size={19} strokeWidth={1.75} />
           </a>
         </div>

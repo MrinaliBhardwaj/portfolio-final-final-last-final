@@ -110,11 +110,18 @@ function FolderIcon() {
 const FILES = [
   {
     key: "design",
-    label: "design.pdf",
+    label: "design.fig",
+    // The name is the joke, the aria is the truth: what actually opens is a
+    // PDF, and that is what a screen reader has to be told. Exactly the split
+    // tech.ts already runs.
     aria: "Design resume — PDF, opens in a new tab",
     href: "/resume-design.pdf",
     external: false,
-    art: <DocIcon ext="PDF" accent="#d8544c" gradient="dfile-sheet-pdf" />,
+    // The BADGE follows the name, not the file. It read PDF while the label
+    // said .fig for as long as it took to write this line, and the two arguing
+    // looks like a bug rather than a joke — tech.ts sets the pattern that the
+    // band matches the extension. #f24e1e is Figma's own brand orange.
+    art: <DocIcon ext="FIG" accent="#f24e1e" gradient="dfile-sheet-fig" />,
     left: 30.1,
     // sits higher than the tech sheet on purpose: level with it the pair read as
     // a row, and the scatter stops looking scattered

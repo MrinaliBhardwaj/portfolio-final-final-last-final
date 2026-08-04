@@ -17,9 +17,10 @@ import InteractiveDots from "./InteractiveDots.jsx";
 import useSectionSpy from "./useSectionSpy.js";
 import { PROJECTS, bySlug } from "./projects.js";
 
+import { LINKEDIN } from "./links.js";
+
 const EASE = [0.22, 1, 0.36, 1];
 const EMAIL = "mailto:mrinalibhardwaj0705@gmail.com";
-const LINKEDIN = "https://www.linkedin.com/in/mrinali-bhardwaj-a340a3322/";
 const BEHANCE = "https://www.behance.net/mrinalibhardwaj1";
 
 const reveal = {
