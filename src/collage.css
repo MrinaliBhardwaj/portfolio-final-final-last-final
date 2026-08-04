@@ -52,9 +52,20 @@
 .nw .cl-window {
   position: relative;
   overflow: hidden;
-  /* Full width, capped where the scrapbook pages cap, so the five sheets share
-     one margin on a wide screen. No height term: see the note above. */
-  width: min(100%, 1673px);
+  /* Full width, capped at THE POSTER'S OWN NATIVE WIDTH — 1449, the Figma
+     frame's — so it never renders larger than it was drawn.
+
+     This was 1673 and that was a bug: 1673 is PAGE ONE's native width, borrowed
+     without thinking. It meant every screen wider than ~1464 upscaled the whole
+     poster past 1:1 — 1.03x at 1512, 1.15x at 1920 — blowing up the M, the
+     banners and four bitmaps together. The rule is the same one page one
+     follows ("never upscales past 1:1"); each sheet just has to cap at its own
+     native width, not at another sheet's.
+
+     Below 1449 the poster is edge to edge. Above it, it centres — which is the
+     correct trade: at that point "full width" and "the size it was drawn" are
+     different things, and the design wins. */
+  width: min(100%, 1449px);
   aspect-ratio: var(--cl-ar);
   container-type: inline-size;
   --cu: calc(100cqw / 1449);

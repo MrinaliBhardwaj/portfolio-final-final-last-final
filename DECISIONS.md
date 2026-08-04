@@ -2036,3 +2036,29 @@ and it was accepted knowingly.
 each, a 1440×2310 frame for three — and it will be full-bleed *and*
 one-viewport on every screen in that table, with no trade at all. This one is
 1449×848 = 1.71, which is why there is one.
+
+### The collage caps at 1449, its own native width — not at 1673
+
+The full-bleed change above shipped with `min(100%, 1673px)`, and **1673 is page
+one's native width, borrowed without thinking.** The collage's Figma frame is
+1449 wide. So every screen wider than ~1464 was upscaling the whole poster past
+1:1 — 1.03× at 1512, **1.15× at 1920** — blowing up the M, the banners and four
+bitmaps together. That is what "the design has been made too large" was.
+
+Now `min(100%, 1449px)`. Measured, the M against its 478.463-unit design size:
+
+| | poster width | scale | M renders at | panel fits |
+|---|---|---|---|---|
+| 1366×768 | 1351 (full-bleed) | 0.93× | 446px | over by 72px |
+| 1440×900 | 1425 (full-bleed) | 0.98× | 470px | yes |
+| 1920×1080 | 1449 (228px margins) | **1.00×** | **478.5px** | yes |
+
+The rule is the one page one already followed — "never upscales past 1:1" — and
+the fix is simply that **each sheet caps at its OWN native width.** A consequence
+worth knowing: above 1449 the collage is narrower than the two scrapbook pages
+(1449 vs 1673), so the five sheets no longer share one margin on a large
+monitor. That is correct. Past that point "full width" and "the size it was
+drawn at" are different things, and the design wins.
+
+The 1366×768 overflow is unchanged and is the aspect problem, not a scale one —
+see the 1.87 note above.
