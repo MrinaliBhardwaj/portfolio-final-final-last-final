@@ -93,6 +93,15 @@ function DockItem({ app, active }) {
       aria-current={isOn ? "page" : undefined}
     >
       <span className="dock-item-glyph">{app.node}</span>
+      {/* the name-tag, macOS-style, on hover and on keyboard focus.
+          aria-hidden and visual-only: the button's own aria-label above is
+          already the accessible name and carries more (it says what the world
+          IS, not just what it is called), so announcing this too would just
+          repeat a worse version of it. Same split the scrapbook's milestone
+          dots use — see .nw-milestone in notes-world.css. */}
+      <span className="dock-item-name" aria-hidden="true">
+        {app.name}
+      </span>
       <span className="dock-item-dot" aria-hidden="true" />
     </button>
   );
@@ -108,6 +117,7 @@ export default function Dock({ visible, onChoose, active }) {
   const apps = [
     {
       key: "figma",
+      name: "Design",
       label: "Figma — enter the design world",
       world: "design",
       action: () => onChoose("design"),
@@ -117,6 +127,7 @@ export default function Dock({ visible, onChoose, active }) {
     },
     {
       key: "vscode",
+      name: "Tech",
       label: "VS Code — enter the tech world",
       world: "tech",
       action: () => onChoose("tech"),
@@ -127,6 +138,7 @@ export default function Dock({ visible, onChoose, active }) {
       // keeps a line glyph — a notebook mid-write, since what it holds is
       // the site's own first draft
       key: "notes",
+      name: "Notes",
       label: "Notes — the archived first drafts",
       world: "notes",
       action: () => onChoose("notes"),
@@ -140,6 +152,7 @@ export default function Dock({ visible, onChoose, active }) {
     },
     {
       key: "gallery",
+      name: "Gallery",
       label: "Gallery — open the dome gallery",
       world: "gallery",
       action: () => onChoose("gallery"),
@@ -149,6 +162,7 @@ export default function Dock({ visible, onChoose, active }) {
     },
     {
       key: "claude",
+      name: "Claude · soon",
       label: "Claude (coming soon)",
       action: null,
       node: (
@@ -157,6 +171,7 @@ export default function Dock({ visible, onChoose, active }) {
     },
     {
       key: "game",
+      name: "Pond",
       label: "Lotus Pond — catch coding bugs with a pixel frog",
       world: "pond",
       action: () => onChoose("pond"),

@@ -64,6 +64,18 @@ const EASE = [0.22, 1, 0.36, 1];
 // touching the edge, not a margin in the design sense.
 const SIDE_GUARD = 8;
 
+// The menu bar's items. Every one of the six dock apps that is a real
+// destination, in the dock's own order, so the two surfaces agree. Claude is
+// absent because it navigates nowhere — a named menu item that does nothing is
+// worse than no item.
+const WORLDS = [
+  ["design", "Design"],
+  ["tech", "Tech"],
+  ["notes", "Notes"],
+  ["gallery", "Gallery"],
+  ["pond", "Pond"],
+];
+
 export default function Cover({ onChoose, onSettledChange }) {
   const particlesRef = useRef(null);
   const trackRef = useRef(null);
@@ -294,10 +306,7 @@ export default function Cover({ onChoose, onSettledChange }) {
       <header className={`cover-nav${split ? " is-split" : ""}`}>
         <div className="cover-nav-left">
           {/* the monogram is the one home gesture, shared with every world:
-              on the cover (already home) it lifts you back to the top. The
-              world links that used to sit here were a third path into the
-              disciplines — the Explore CTAs below and the dock already carry
-              that, so they're gone. */}
+              on the cover (already home) it lifts you back to the top. */}
           <button
             type="button"
             className="cover-mark"
@@ -314,6 +323,35 @@ export default function Cover({ onChoose, onSettledChange }) {
           >
             mb
           </button>
+
+          {/* THE MENU BAR. World links used to sit here and were deleted in
+              July as "a redundant third path" — the Explore CTAs plus the dock
+              were held to cover it. They didn't:
+                · the CTAs reach design and tech only, and sit below the fold
+                · the dock is HIDDEN on the cover until the scrub settles
+                  (App.jsx: visible={route === "" ? coverSettled : true})
+                · gallery, notes and pond appear in no other navigation at all
+              So until you scrolled, the cover offered a monogram, GitHub and an
+              email address. This is the fix, and it is a MENU BAR rather than a
+              website nav on purpose: a desktop has both a dock and a menu bar,
+              so it belongs to the same fiction instead of arguing with it.
+
+              It calls the same `onChoose` the CTAs and the dock do — App turns
+              that into a hash change for any of the five, so there is no second
+              navigation path here, just a second surface for the one that
+              exists. */}
+          <nav className="cover-menu" aria-label="Worlds">
+            {WORLDS.map(([world, label]) => (
+              <button
+                key={world}
+                type="button"
+                className="cover-menu-item"
+                onClick={() => onChoose(world)}
+              >
+                {label}
+              </button>
+            ))}
+          </nav>
         </div>
         <div className="cover-social">
           <a

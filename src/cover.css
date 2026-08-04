@@ -61,6 +61,44 @@
   opacity: 0.72;
 }
 
+/* ---- the menu bar ----
+   Deliberately quiet. It is system chrome sitting over an editorial cover, so
+   it borrows the vocabulary already in this header rather than introducing a
+   nav style: --void-dim resting and --void-text on hover, the same pair
+   .cover-social's links use, on the same 0.25s ease. Small, letterspaced and
+   uppercase so five words read as a menu strip and not as five buttons
+   competing with the Explore CTAs further down the page.
+
+   min-height 44px for the tap target while the type stays at 12px — the same
+   trick .cover-social a uses. */
+.cover-menu {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.cover-menu-item {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  font-family: var(--font-ui);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--void-dim);
+  transition: color 0.25s var(--ease-soft);
+}
+
+.cover-menu-item:hover,
+.cover-menu-item:focus-visible {
+  color: var(--void-text);
+}
+
 .cover-social {
   display: flex;
   align-items: center;
@@ -715,8 +753,26 @@
     gap: 1.1rem;
   }
 
-  .cover-links {
+  /* The menu SHRINKS on a phone, it does not hide. The rule that used to live
+     here was `.cover-links { display: none }` — a leftover from the world links
+     that were deleted in July, and hiding is exactly the wrong move now: the
+     dock is still invisible on the cover until the scrub settles, so a hidden
+     menu would leave a phone with no navigation at all, which is the problem
+     this was built to fix. Five short words fit at this size; the row scrolls
+     rather than wrapping if a longer one is ever added. */
+  .cover-menu {
+    gap: 0.95rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .cover-menu::-webkit-scrollbar {
     display: none;
+  }
+
+  .cover-menu-item {
+    font-size: 10.5px;
+    letter-spacing: 0.1em;
   }
 
   /* Only the size changes here — the bottom margin is em-based, so it retunes

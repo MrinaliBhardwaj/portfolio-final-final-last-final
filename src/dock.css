@@ -20,12 +20,19 @@
 }
 
 /* the glass slab — premium black glass, thin and quiet */
+/* OVERFLOW IS VISIBLE, and that is a change with a reason.
+   It was `hidden`, purely to round the three glass layers off to the slab's
+   radius. But the name-tags hang ABOVE the tiles, and the tiles live in here —
+   clipped, they never appeared at all. The layers round themselves now
+   (`border-radius: inherit` on each, below), so the clip has nothing left to do
+   and the tags can escape. If the glass ever looks square-cornered again, that
+   inherit is what went missing. */
 .dock-glass {
   position: relative;
   display: flex;
   padding: 0.4rem 0.55rem;
   border-radius: 1.4rem;
-  overflow: hidden;
+  overflow: visible;
   border: 1px solid rgba(255, 255, 255, 0.09);
   box-shadow: 0 22px 55px rgba(0, 0, 0, 0.55),
     0 3px 12px rgba(0, 0, 0, 0.4);
@@ -36,6 +43,8 @@
   position: absolute;
   inset: 0;
   z-index: 0;
+  border-radius: inherit;
+  overflow: hidden; /* the backdrop-filter has to be clipped to the radius */
   backdrop-filter: blur(5px) saturate(1.05);
   -webkit-backdrop-filter: blur(5px) saturate(1.05);
   filter: url(#dock-glass-distortion);
@@ -47,6 +56,7 @@
   position: absolute;
   inset: 0;
   z-index: 1;
+  border-radius: inherit;
   background: linear-gradient(
     to bottom,
     rgba(16, 17, 23, 0.34),
@@ -124,6 +134,55 @@
 
 .dock-item:hover .dock-item-glyph {
   transform: scale(1.35);
+}
+
+/* ---- the name-tag ----
+   Six unlabelled glyphs were the whole navigation for three of the site's
+   worlds — gallery, notes and the pond appear nowhere else — so what the icons
+   are called stopped being optional. macOS puts the name above the tile; so
+   does this.
+
+   Focus-visible as well as hover, because a keyboard user gets exactly the same
+   guessing game and none of the hover. pointer-events: none so the tag can
+   never eat the click meant for the icon it describes, and nowrap so a two-word
+   name doesn't fold into the tile above it. */
+.dock-item-name {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 10px);
+  z-index: 4;
+  transform: translate(-50%, 4px);
+  padding: 4px 9px 5px;
+  border-radius: 7px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(8, 9, 13, 0.72);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  font-family: var(--font-ui);
+  font-size: 11.5px;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  line-height: 1.2;
+  color: rgba(255, 255, 255, 0.92);
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.18s var(--ease-soft), transform 0.18s var(--ease-soft);
+}
+
+.dock-item:hover .dock-item-name,
+.dock-item:focus-visible .dock-item-name {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+/* it settles the last few px into place, so nothing travels when travel is
+   what the visitor asked us not to do */
+@media (prefers-reduced-motion: reduce) {
+  .dock-item-name {
+    transform: translate(-50%, 0);
+    transition-duration: 0.01ms;
+  }
 }
 
 /* Every icon here is now an inline <svg> — the three brand marks from

@@ -2135,3 +2135,60 @@ noise; what a screen reader should get is what the panel *is*.
 Verified: all nine assets load, no broken images, poster height 912 against 913
 expected, aspect 2.022 on all three panels with zero overflow, and panels one
 and three checked against the Figma render.
+
+## The cover gets a menu bar, and the dock gets names (2026-08-04)
+
+**Supersedes the 2026-07-18 bullet "the cover has exactly two entry systems"**,
+which deleted the design/tech text links from the cover header on the grounds
+that "the Explore CTAs are the narrative primary, the dock is the system layer".
+That held for design and tech. It did not hold for the site.
+
+The audit that prompted this:
+
+- **Three of six destinations were dock-only.** Gallery, Notes and the Pond
+  appeared in *no other navigation anywhere*.
+- **The dock had no labels** — six unlabelled glyphs. Already logged in that
+  same July entry as deferred: "no dock hover name-tags yet".
+- **The cover had no navigation at all until the scroll-scrub settled.**
+  `App.jsx` passes `visible={route === "" ? coverSettled : true}`. Land and
+  don't scroll and you had a monogram, a GitHub icon and an email address.
+- **`WorldTabs` covers 2 of 6.** It is a design↔tech switcher, not site nav.
+
+### A menu bar, not a nav bar
+
+A conventional top nav was rejected: the dock-as-navigation is a deliberate OS
+conceit, and re-adding world links to the header re-creates exactly the
+"redundant third path" July deleted. **A desktop has both a dock and a menu
+bar**, so this belongs to the same fiction rather than arguing with it.
+
+- It calls the **same `onChoose`** the Explore CTAs and the dock already use —
+  `App` turns that into a hash change for any of the five worlds. No second
+  navigation path, just a second surface for the one that exists.
+- Styled from the header's existing vocabulary, not a new one: `--void-dim` →
+  `--void-text` on the same 0.25s ease `.cover-social a` uses. Measured
+  **7.55:1** against the cover's near-black — past AAA.
+- **Claude is absent from the menu.** It navigates nowhere; a named menu item
+  that does nothing is worse than no item. It keeps its dock tile, now labelled
+  "Claude · soon" so the tag admits it.
+- **The menu shrinks on mobile, it does not hide.** The dead
+  `.cover-links { display: none }` rule that used to sit in the ≤768 block was
+  the old links' leftover, and hiding would leave a phone with no navigation
+  before the scrub — the exact problem being fixed.
+- **The dock's reveal is unchanged.** It still surfaces at the divergence; with
+  the menu bar present the cover is no longer navigation-less while it waits.
+
+### The dock's name-tags cost `.dock-glass` its `overflow: hidden`
+
+The tags hang above the tiles and the tiles live inside the slab, so they were
+clipped to nothing. That `hidden` existed only to round the three glass layers
+off to the slab's radius, so **each layer now carries `border-radius: inherit`**
+(and the distortion layer keeps its own `overflow: hidden`, since a
+`backdrop-filter` still has to be clipped) and the slab is `overflow: visible`.
+**If the dock ever looks square-cornered again, that inherit is what went
+missing.** Verified: all three layers compute 22.4px, and the tag's box clears
+the slab's top edge.
+
+Tags are `aria-hidden`; the button's existing `aria-label` stays the accessible
+name and says more than the tag does. Same split `.nw-milestone` uses. They
+respond to `:focus-visible` as well as `:hover`, because a keyboard user gets
+the same guessing game and none of the hover.
