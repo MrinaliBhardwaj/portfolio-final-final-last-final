@@ -30,6 +30,7 @@ import "./file-tree.css";
 import "./tech-world.css";
 import "./gallery-world.css";
 import "./notes-world.css";
+import "./collage.css";
 import "./pond-world.css";
 
 const TITLES = {

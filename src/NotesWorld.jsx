@@ -16,6 +16,7 @@
 import { Smartphone, X } from "lucide-react";
 import Scene from "./Scene.jsx";
 import SceneTwo from "./SceneTwo.jsx";
+import SceneThree from "./SceneThree.jsx";
 
 export default function NotesWorld() {
   // The PROFILE.TXT / PROFILE.DOC file tabs and their "pull for profile"
@@ -60,6 +61,12 @@ export default function NotesWorld() {
 
       <Scene />
       <SceneTwo />
+      {/* Page three is the poster collage, and it arrives as THREE sheets, not
+          one — it is a Figma frame about three screens tall, shown through three
+          viewport windows. See SceneThree.jsx. It is also the first dark thing
+          in this world; the note at the top of this file about Notes being the
+          one LIGHT world was written before it existed. */}
+      <SceneThree />
 
       <p className="nw-coda">
         drawn june 2026 &mdash; the first draft of this site, kept.

@@ -1944,3 +1944,66 @@ closing line bottom-right and right-aligned.
 Verified at 1366×768, 1440×900 and 1920×1080: both sheets fit the room, sheet
 margins match, padding symmetric, 6 and 3 lines with no re-wrap anywhere,
 `scrollWidth === clientWidth`. Typecheck and build clean.
+
+## Notes page three: the poster collage, and the light-world rule falls (2026-08-03)
+
+Replicated from Figma — file `drda7TnqoM3fEpbibCDIc2`, node `272:515`
+("Desktop - 16") — by request, exactly rather than reinterpreted.
+
+- **This overturns "Notes is the portfolio's one LIGHT world on purpose"**
+  (2026-07-17). That rule existed because the scrapbook is paper and Apple Notes
+  is paper, so the app and its contents agreed. Page three is `#1e1516` dark,
+  hot pink and yellow. Confirmed as intentional before building — the scrapbook
+  now goes cream, cream, then poster.
+- **THREE VIEWPORT PANELS, ONE POSTER.** The frame is ~3 screens tall and its
+  sections do not separate: the ENGINEER banner crosses the first seam and the
+  pink block overhangs the yellow band by 79 units. So this is one continuous
+  poster shown through three windows, each one viewport, rather than three
+  compositions. Anything crossing a seam continues across it — which only works
+  because they are windows.
+- **Seams at 854 / 1708.** 1708 is the yellow band's own top edge, so the second
+  seam lands on a real boundary; that leaves panels one and two identical and
+  the third within 17 units.
+- **The poster is narrower than the two scrapbook pages, and that is the trade.**
+  It is scaled so the tallest panel fits the room (1449/854 = 1.6967) — 1235px
+  wide at 1440×900 against the scrapbook's full-bleed 1425. A fixed-aspect
+  poster cannot be both full-width and one-viewport-tall; here the design is the
+  thing being replicated, so fitting wins.
+- **The poster renders three times, once per panel.** ~60 extra DOM nodes each,
+  in exchange for exact continuity. The four bitmaps are the same four files in
+  all three panels, so the browser decodes each once however many tags point at
+  it; everything below panel one is `loading="lazy"`.
+- **`subtract.svg` is one path filled `#FF54AD`** — a pink rectangle with "trust
+  the process" / "and the artist" KNOCKED OUT, so the photograph behind is what
+  you read the letters in. Its `alt` carries those words because they exist
+  nowhere else in the DOM.
+- **Figma's `-scale-y-100 rotate(175.42deg)` on the banners is a REFLECTION, not
+  a rotation** (determinant −1). For an axis-symmetric rectangle the visible
+  result is a plain rotation; solving the reflection axis gives **−4.58°** for
+  ENGINEER and **+4.74°** for DESIGN, which is why they match the −4.56 / +4.66
+  the type inside them carries. Written as the rotations they actually are.
+- **Type substitutions, deliberate:** Helvetica → `--font-ui` (Inter), the
+  project's grotesque — no webfont downloaded for four words. Times New Roman is
+  named FIRST rather than using `--font-serif`, which leads with Cormorant
+  Garamond; its high stroke contrast and small x-height would read as a
+  different typeface entirely. मृणाली falls to `Nirmala UI` / `Devanagari Sangam
+  MN` — no Times build carries Devanagari.
+- **"ICON ICON ICON…" is kept verbatim**, including the two runs the design
+  breaks mid-word ("ICICON", "ON ICON"). Confirmed: the repeated word is a type
+  texture on the pink card, not placeholder copy.
+
+**ONE THING IS NOT EXACT.** The front M's fill does not come out of Figma —
+node `274:543` returns no colour at all, asked twice, which is what the exporter
+does when a text fill is an image or gradient rather than a solid. The M in the
+design is visibly textured. It is set to the same `#ffe991` as the layer behind
+it: a made-up gradient would read as an intentional choice that is not hers, and
+flat gold is honestly "the fill we know about" — the black layer behind still
+supplies the offset edge. **To finish it, export `274:543` alone as a PNG and
+swap it in;** the two layers behind are exact.
+
+Assets live in `public/collage/` and were committed ahead of the build because
+Figma's asset URLs are signed and expire in ~7 days.
+
+Verified at 1366×768, 1440×900 and 1920×1080: all five sheets fit the room,
+`scrollWidth === clientWidth`, 12 lotus tiles per panel, panel three's band
+filling its window exactly. Typecheck and build clean.
