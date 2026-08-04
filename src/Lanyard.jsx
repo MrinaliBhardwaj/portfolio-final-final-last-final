@@ -174,6 +174,25 @@ function BandWhenPlaced(props) {
 // That independence is why zooming in ALONE pushes the badge down the screen —
 // the drop stays put while the viewport shrinks around it. 1.9 keeps the gap at
 // ~21% of viewport height (0.5 would have been 41% at this camera distance).
+
+// ---- the entrance ----
+// How far above its home the hook is born, and how long it takes to come down.
+//
+// 5 is measured, not picked: the viewport is 6.21 world units tall at this
+// camera (2 * 14 * tan(12.5deg)), so its top edge is at +3.105, and the card
+// rests at hook - 4.5 = +0.505 with a half-height of 1.125. Lifting the rig by
+// 5 puts the card's centre at 5.505 — 2.4 units clear ABOVE the top edge, so it
+// genuinely starts off-screen and falls in, rather than fading up a bit.
+// Anything under 3.73 would begin with the card already partly visible.
+const ENTRY_LIFT = 5;
+// 0.75, not 0.62, and the reason is the ±0.8-per-frame clamp on the hook below.
+// easeOutCubic is steepest at t=0, at 3*LIFT/SECONDS units per second: 24.2 at
+// 0.62s, which is 0.40 per frame at 60fps but 0.81 at 30fps — just over the
+// clamp, so on a slow machine the first frames would be flattened and the ease
+// would come out linear. 0.75s peaks at 20 units/s: 0.33 per frame at 60fps and
+// 0.67 at 30fps, clear of the clamp on both.
+const ENTRY_SECONDS = 0.75;
+
 function Band({
   maxSpeed = 50,
   minSpeed = 0,
@@ -194,6 +213,10 @@ function Band({
   // where and when the current press started, so pointerup can tell a tap from
   // a fling. Held in a ref, not state: it must not re-render the physics rig.
   const tap = useRef(null);
+  // when the entrance began, stamped on the first frame the rig runs. A ref so
+  // it survives re-renders and never restarts — once the fall has landed it
+  // stays landed through resizes and scrolling.
+  const entryT0 = useRef(null);
   const vec = new THREE.Vector3(),
     ang = new THREE.Vector3(),
     rot = new THREE.Vector3(),
@@ -332,9 +355,32 @@ function Band({
       // the badge rides up and off with the buffer. Rapier reads the implied
       // velocity through the rope, which is why it sways when you scroll rather
       // than sliding rigidly. The same line re-seats the hook after a resize.
+      // THE ENTRANCE. The rig is BORN with the hook ENTRY_LIFT units above its
+      // real home (see the seeding note below), and this walks it down —
+      // easeOutCubic, so it comes in fast and decelerates into place instead of
+      // arriving at a constant crawl.
+      //
+      // The hook is what moves; the card is never animated. It hangs off the
+      // rope and gravity does the rest, which is why it trails, overshoots
+      // slightly and settles rather than sliding down rigidly. Moving the hook
+      // is also the only way to get a LONG fall out of this rig: every joint is
+      // satisfied on frame 0 and stays satisfied, so there is nothing to snap.
+      // Seeding the card high on its own cannot work — its spherical joint pins
+      // it exactly 1.5 under j3, and violating that is what made the old first
+      // fall lurch.
+      //
+      // Clock time, not frame count, so a slow machine gets the same 0.62s.
+      if (entryT0.current === null) entryT0.current = state.clock.elapsedTime;
+      const t = Math.min(1, (state.clock.elapsedTime - entryT0.current) / ENTRY_SECONDS);
+      const lift = ENTRY_LIFT * (1 - t) ** 3; // = ENTRY_LIFT * (1 - easeOutCubic(t))
+
       const target = {
         x: state.viewport.width / 2 - rightInset,
-        y: state.viewport.height / 2 + topLift + scrolled.current / state.viewport.factor,
+        y:
+          state.viewport.height / 2 +
+          topLift +
+          scrolled.current / state.viewport.factor +
+          lift,
       };
       const at = fixed.current.translation();
       // Clamped per frame: a jump-to-top on a long page would otherwise hand
@@ -439,35 +485,48 @@ function Band({
           Absolute world positions instead, seeded from `home`.
           The hook is `kinematicPosition` rather than `fixed` so it can be
           driven; both are infinite-mass as far as the joints care. */}
-      {/* SEEDED IN THE REST POSE — hanging straight down, one rope-length apart.
+      {/* SEEDED IN THE REST POSE, LIFTED — hanging straight down, one
+       * rope-length apart, and the WHOLE chain born ENTRY_LIFT above its home.
        *
-       * These used to be strung out HORIZONTALLY (hx+0.5, +1, +1.5, +2, all at
-       * hy), which made the first fall a spectacle: the chain started stretched
-       * sideways from the hook and gravity swung the whole thing down through
-       * 90°. Worse, the card's spherical joint anchors it 1.5 BELOW j3, so
-       * seeding it 0.5 to the RIGHT violated that joint by ~1.6 units and the
-       * solver snapped it out in a single step. Traced at 1440x900: the card
-       * entered at (1518, -349) — off screen, above and right — jumped, then
-       * slid 399px left and 831px down over ~6s before settling.
+       * The shape is what matters. These used to be strung out HORIZONTALLY
+       * (hx+0.5, +1, +1.5, +2, all at hy), which made the first fall a
+       * spectacle: the chain started stretched sideways from the hook and
+       * gravity swung the whole thing down through 90°. Worse, the card's
+       * spherical joint anchors it 1.5 BELOW j3, so seeding it 0.5 to the RIGHT
+       * violated that joint by ~1.6 units and the solver snapped it out in a
+       * single step. Traced at 1440x900: the card entered at (1518, -349) — off
+       * screen, above and right — jumped, then slid 399px left and 831px down
+       * over ~6s before settling.
        *
        * The ropes are max-distance constraints of length 1 each and the card
        * hangs 1.5 under j3, so the resting chain is exactly hook, -1, -2, -3,
-       * -4.5. Seeding those values means every constraint is already satisfied
-       * on frame 0: nothing to snap, nothing to swing. The settled position is
-       * unchanged — physics reached it either way, this only removes the
-       * journey. */}
-      <RigidBody ref={fixed} position={[hx, hy, 0]} {...segmentProps} type="kinematicPosition" />
-      <RigidBody position={[hx, hy - 1, 0]} ref={j1} {...segmentProps}>
+       * -4.5. Seeding those RELATIVE values means every constraint is satisfied
+       * on frame 0: nothing to snap, nothing to swing.
+       *
+       * THE LIFT IS WHAT MAKES IT FALL. Adding the same offset to all five
+       * bodies moves the rig without deforming it, so frame 0 is still
+       * consistent — and the frame loop then walks the hook down to its home,
+       * with the card following on the rope under gravity. Fixing the lurch had
+       * removed the fall along with it; this puts the fall back without the
+       * lurch. Lifting the card ALONE would just reintroduce the old bug, since
+       * its spherical joint would be violated by exactly the lift. */}
+      <RigidBody
+        ref={fixed}
+        position={[hx, hy + ENTRY_LIFT, 0]}
+        {...segmentProps}
+        type="kinematicPosition"
+      />
+      <RigidBody position={[hx, hy + ENTRY_LIFT - 1, 0]} ref={j1} {...segmentProps}>
         <BallCollider args={[0.1]} />
       </RigidBody>
-      <RigidBody position={[hx, hy - 2, 0]} ref={j2} {...segmentProps}>
+      <RigidBody position={[hx, hy + ENTRY_LIFT - 2, 0]} ref={j2} {...segmentProps}>
         <BallCollider args={[0.1]} />
       </RigidBody>
-      <RigidBody position={[hx, hy - 3, 0]} ref={j3} {...segmentProps}>
+      <RigidBody position={[hx, hy + ENTRY_LIFT - 3, 0]} ref={j3} {...segmentProps}>
         <BallCollider args={[0.1]} />
       </RigidBody>
       <RigidBody
-        position={[hx, hy - 4.5, 0]}
+        position={[hx, hy + ENTRY_LIFT - 4.5, 0]}
         ref={card}
         {...segmentProps}
         type={dragged ? "kinematicPosition" : "dynamic"}
