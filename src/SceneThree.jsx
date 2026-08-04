@@ -1,18 +1,32 @@
 // PAGE THREE of the scrapbook — the poster collage: who she is now.
 //
-// Replicated from Figma (file drda7TnqoM3fEpbibCDIc2, node 272:515,
-// "Desktop - 16"), by request, on 3 August 2026. Unlike pages one and two this
-// is NOT a recovered artifact — it is a live design, and every coordinate below
-// is read off that frame rather than invented. The frame is 1449 x 2545 and
-// `U(n)` is one of its units, so a number here is the number in the file.
+// Replicated from Figma (file drda7TnqoM3fEpbibCDIc2), by request. Unlike pages
+// one and two this is NOT a recovered artifact — it is a live design, and every
+// coordinate below is read off the frame rather than invented. `U(n)` is one
+// frame unit, so a number here is the number in the file.
+//
+// NOW TRACKING node 296:533 ("Desktop - 17"), the resized pass. It supersedes
+// 272:515 ("Desktop - 16"), which is what the first implementation was built
+// from. The frame went 1449x2545 -> 1449x2200 and essentially every component
+// was scaled down with it, so nothing below is a tweak of the old numbers —
+// they were all re-read. Two changes are worth naming because they are
+// decisions rather than resizes:
+//
+//   · THE GROUND IS CREAM NOW. #1e1516 -> #f8f7f4, which is exactly the Notes
+//     world's own --paper. The first pass was a dark poster dropped into the
+//     portfolio's one deliberately LIGHT world; this one agrees with it, and
+//     the poster's margins on a wide screen now blend into the page instead of
+//     cutting a dark band out of it.
+//   · The yellow went #ffe991 -> #ffdc51, and the role bar went white ->
+//     #1e1516 to sit on the new ground.
 //
 // ---- THREE WINDOWS, ONE POSTER ----
 // The frame is about three screens tall and its sections do not separate: the
-// ENGINEER banner crosses the first seam, and the pink block overhangs the
-// yellow band by 79 units. So this renders ONE poster and shows it through
-// three viewport-sized windows. Anything crossing a seam continues across it,
-// exactly as drawn — which is only true because each panel is a window rather
-// than its own composition.
+// ENGINEER banner crosses the first seam and the pink block overhangs the
+// yellow band. So this renders ONE poster and shows it through three
+// viewport-sized windows. Anything crossing a seam continues across it, exactly
+// as drawn — which is only true because each panel is a window rather than its
+// own composition.
 //
 // The poster is rendered three times, once per panel, and each window clips it.
 // That is deliberate: it costs about 60 extra DOM nodes per panel and buys
@@ -23,7 +37,7 @@
 // page is four bitmaps and one of them is tiled twelve times.
 //
 // ---- ONE THING IS NOT EXACT, AND IT IS FLAGGED ----
-// The front M's fill did not come out of Figma (see .cl-m--front in
+// The front M's fill does not come out of Figma (see .cl-m--front in
 // collage.css). Everything else is measured.
 const U = (n) => `calc(${n} * var(--cu))`;
 
@@ -31,20 +45,28 @@ const U = (n) => `calc(${n} * var(--cu))`;
 // can be written as plain numbers here: 1449 / 2 = 724.5.
 const CX = 724.5;
 
-// Seams at 854 and 1708. 1708 is the yellow band's own top edge, so the second
-// seam lands on a real boundary rather than through one; that leaves the first
-// two panels identical and the third within 17 units of them. The poster is
-// scaled so the tallest of these fits the room (collage.css).
-const BANDS = [
-  { key: "one", top: 0, height: 854 },
-  { key: "two", top: 854, height: 854 },
-  { key: "three", top: 1708, height: 837 },
-];
+// The frame's height. Confirmed two ways: the yellow band is 837 tall at
+// y=1363, and the poem's copy is placed at `calc(50% + 753)` = 1853, so
+// 50% = 1100.
+const FRAME_H = 2200;
+
+// EQUAL THIRDS, and that is the whole reason the resize was worth doing.
+// The old frame split into 854/854/837 — a 1.70 aspect, which cannot be
+// full-bleed AND one viewport (the viewport wants 1.87 or wider on a 16:9
+// laptop). 2200/3 = 733.33 gives 1449/733.33 = 1.976 for all three panels: past
+// the threshold, uniform, so all three sheets are the same size and every one
+// of them fits. Seams land at 733.33 and 1466.67; both fall inside a field
+// rather than on an edge, which the windowing makes a non-issue.
+const BANDS = ["one", "two", "three"].map((key, i) => ({
+  key,
+  top: (i * FRAME_H) / 3,
+  height: FRAME_H / 3,
+}));
 
 // Twelve lotus tiles, three staggered rows of four, each 555 units rotated
 // 9.44deg inside a 638.473 box. Straight from the design — the rows step left
 // by 149 and 166 rather than a constant, so this is a list, not a loop over a
-// formula that would quietly regularise it.
+// formula that would quietly regularise it. Unchanged in the resize.
 const LOTUS = [
   [-89, -233], [375, -233], [839, -233], [1297, -233],
   [-238, 67], [226, 67], [690, 67], [1153, 67],
@@ -79,17 +101,17 @@ function Poster({ eager }) {
         alt="Mrinali, lit against a dark ground"
         loading={load}
         decoding="async"
-        style={{ left: U(0), top: U(0), width: U(699.2), height: U(874) }}
+        style={{ left: U(-46), top: U(-64.25), width: U(634.6), height: U(793.25) }}
       />
 
       {/* ============ the pink section ("Desktop - 15") ============ */}
       <div
         className="cl-rot"
-        style={{ left: U(-34.5), top: U(799.56), width: U(1517.623), height: U(987.704) }}
+        style={{ left: U(CX + 1.97 - 742.224), top: U(678.78), width: U(1484.448), height: U(749.858) }}
       >
         <div
           className="cl-pink"
-          style={{ width: U(1490.791), height: U(944.769), transform: "rotate(-1.67deg)" }}
+          style={{ width: U(1464.499), height: U(707.588), transform: "rotate(-1.67deg)" }}
         >
           <img
             className="cl-abs cl-cover"
@@ -97,11 +119,11 @@ function Poster({ eager }) {
             alt=""
             loading={load}
             decoding="async"
-            style={{ left: U(309.55), top: U(-86), width: U(1550.408), height: U(1162.806) }}
+            style={{ left: U(540.52), top: U(-83.44), width: U(1161.183), height: U(870.887) }}
           />
           <div
             className="cl-clip"
-            style={{ left: U(-348.6), top: U(-105.13), width: U(1139.486), height: U(1162.806) }}
+            style={{ left: U(-261.08), top: U(-78.74), width: U(853.421), height: U(870.887) }}
           >
             <img src="/collage/photo-pink.jpg" alt="" loading={load} decoding="async" />
           </div>
@@ -109,43 +131,45 @@ function Poster({ eager }) {
           {/* A pink rectangle with the words CUT OUT of it — one path, so the
               photograph behind is what you read the letters in. That is why it
               sits above both photos and why the alt carries the words: they
-              exist nowhere else. */}
+              exist nowhere else. Redrawn in the resize (it was 809.6x1060.1). */}
           <img
             className="cl-abs"
             src="/collage/subtract.svg"
             alt="trust the process — and the artist"
             loading={load}
             decoding="async"
-            style={{ left: U(0), top: U(0), width: U(809.582), height: U(1060.118) }}
+            style={{ left: U(0), top: U(0), width: U(841.855), height: U(793.979) }}
           />
 
+          {/* Two stars. The small one is a NEW node in this pass (Vector 21);
+              the large one kept its name and was rescaled. */}
+          <img
+            className="cl-abs"
+            src="/collage/vector21.svg"
+            alt=""
+            loading={load}
+            decoding="async"
+            style={{ left: U(965.45), top: U(282.53), width: U(161.673), height: U(137.028) }}
+          />
           <img
             className="cl-abs"
             src="/collage/vector18.svg"
             alt=""
             loading={load}
             decoding="async"
-            style={{ left: U(1092.26), top: U(469.68), width: U(350.782), height: U(341.484) }}
-          />
-          <img
-            className="cl-abs"
-            src="/collage/vector19.svg"
-            alt=""
-            loading={load}
-            decoding="async"
-            style={{ left: U(939.9), top: U(400.4), width: U(215.866), height: U(182.96) }}
+            style={{ left: U(1045.96), top: U(358.39), width: U(262.719), height: U(255.756) }}
           />
 
           <div
             className="cl-rot"
-            style={{ left: U(-273.31), top: U(263.25), width: U(912.296), height: U(912.296) }}
+            style={{ left: U(-202.78), top: U(131.19), width: U(683.266), height: U(683.266) }}
           >
             <img
               src="/collage/star-photo-1.png"
               alt=""
               loading={load}
               decoding="async"
-              style={{ width: U(736), height: U(736), transform: "rotate(16.22deg)", objectFit: "cover" }}
+              style={{ width: U(551.229), height: U(551.229), transform: "rotate(16.22deg)", objectFit: "cover" }}
             />
           </div>
         </div>
@@ -176,24 +200,27 @@ function Poster({ eager }) {
           give it its edge. */}
       <div
         className="cl-rot"
-        style={{ left: U(CX - 389.07), top: U(165.76), width: U(859.073), height: U(745.53) }}
+        style={{ left: U(CX - 333.15), top: U(86.99), width: U(784.264), height: U(680.595) }}
       >
         <p className="cl-m cl-m--back" style={{ transform: "rotate(-15.09deg)" }} aria-hidden="true">M</p>
       </div>
       <div
         className="cl-rot"
-        style={{ left: U(CX - 382.76), top: U(161.58), width: U(859.073), height: U(745.53) }}
+        style={{ left: U(CX - 327.39), top: U(83.18), width: U(784.264), height: U(680.595) }}
       >
         <p className="cl-m cl-m--mid" style={{ transform: "rotate(-15.09deg)" }} aria-hidden="true">M</p>
       </div>
       <div
         className="cl-rot"
-        style={{ left: U(CX - 370.37), top: U(157), width: U(859.073), height: U(745.53) }}
+        style={{ left: U(CX - 316.09), top: U(79), width: U(784.264), height: U(680.595) }}
       >
         <p className="cl-m cl-m--front" style={{ transform: "rotate(-15.09deg)" }}>M</p>
       </div>
 
-      {/* ============ the ICON card ============ */}
+      {/* ============ the ICON card ============
+          The wrapper IS the card now — in the old frame it was a 1304x1569 clip
+          box with the card floating inside it, which was doing nothing the card
+          could not do itself. */}
       <div className="cl-iconwrap">
         <div className="cl-iconcard" />
         <p className="cl-icontext">{ICON_TEXTURE}</p>
@@ -211,16 +238,16 @@ function Poster({ eager }) {
       {/* ============ ENGINEER ============ */}
       <div
         className="cl-rot"
-        style={{ left: U(503.54), top: U(640.46), width: U(1052.127), height: U(270.982) }}
+        style={{ left: U(567.21), top: U(575.73), width: U(886.789), height: U(228.398) }}
       >
         <div
           className="cl-banner"
-          style={{ width: U(1040.395), height: U(188.434), transform: "rotate(-4.58deg)" }}
+          style={{ width: U(876.901), height: U(158.823), transform: "rotate(-4.58deg)" }}
         />
       </div>
       <div
         className="cl-rot"
-        style={{ left: U(662.83), top: U(666.74), width: U(688.901), height: U(217.438) }}
+        style={{ left: U(727.48), top: U(597.91), width: U(580.251), height: U(184.002) }}
       >
         <p className="cl-word" style={{ transform: "rotate(-4.56deg)" }}>ENGINEER</p>
       </div>
@@ -230,35 +257,38 @@ function Poster({ eager }) {
           design's own stacking — keep this order. */}
       <div
         className="cl-rot"
-        style={{ left: U(-511), top: U(534), width: U(1173.593), height: U(283.754) }}
+        style={{ left: U(-293), top: U(486), width: U(989.166), height: U(239.163) }}
       >
         <div
           className="cl-banner"
-          style={{ width: U(1162), height: U(188.434), transform: "rotate(4.74deg)" }}
+          style={{ width: U(979.396), height: U(158.823), transform: "rotate(4.74deg)" }}
         />
       </div>
 
       {/* ============ the two stamped labels ============ */}
       <div
         className="cl-label"
-        style={{ left: U(1124), top: U(496.16), width: U(265), height: U(42.57) }}
+        style={{ left: U(1110.44), top: U(388.55), width: U(241.782), height: U(38.84) }}
       />
-      <p className="cl-labeltext" style={{ left: U(1138.9), top: U(505.74), fontSize: U(19.582) }}>
+      <p className="cl-labeltext" style={{ left: U(1124.03), top: U(397.29), fontSize: U(17.867) }}>
         WHICH BRINGS US HERE
       </p>
       <div
         className="cl-label"
-        style={{ left: U(1212.33), top: U(551.27), width: U(176.667), height: U(37.249) }}
+        style={{ left: U(1191.03), top: U(438.83), width: U(161.188), height: U(33.985) }}
       />
-      <p className="cl-labeltext" style={{ left: U(1227.23), top: U(559.78), fontSize: U(17.066) }}>
+      <p className="cl-labeltext" style={{ left: U(1204.62), top: U(446.6), fontSize: U(15.571) }}>
         PORTFOLIO 2026
       </p>
 
+      {/* The word's own tilt went 4.66 -> 5.92deg in the resize; its banner
+          stayed at 4.74, so DESIGN now sits very slightly across its bar. That
+          is the design, not a rounding slip. */}
       <div
         className="cl-rot"
-        style={{ left: U(55.79), top: U(596.21), width: U(521.634), height: U(204.874) }}
+        style={{ left: U(108.59), top: U(524.84), width: U(442.049), height: U(182.633) }}
       >
-        <p className="cl-word" style={{ transform: "rotate(4.66deg)" }}>DESIGN</p>
+        <p className="cl-word" style={{ transform: "rotate(5.92deg)" }}>DESIGN</p>
       </div>
 
       {/* ============ the lotus name card ============ */}

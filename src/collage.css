@@ -1,39 +1,35 @@
 /* ============ NOTES page three: the poster collage ============ */
-/* Replicated from Figma — file drda7TnqoM3fEpbibCDIc2, node 272:515
-   ("Desktop - 16"). Every number below is that frame's, in ITS coordinate
-   space: 1449 x 2545. `--cu` is one Figma unit, so a value written here is the
+/* Replicated from Figma — file drda7TnqoM3fEpbibCDIc2, node 296:533
+   ("Desktop - 17"). Every number below is that frame's, in ITS coordinate
+   space: 1449 x 2200. `--cu` is one Figma unit, so a value written here is the
    value read off the design. Don't "tidy" them.
 
-   THREE VIEWPORT PANELS, ONE POSTER. The frame is about three screens tall, and
+   SUPERSEDES node 272:515 ("Desktop - 16"), which the first implementation was
+   built from. That frame was 1449x2545 and every component was scaled down in
+   this pass, so none of these numbers is a tweak of an old one — they were all
+   re-read. Two are decisions rather than resizes:
+
+     · THE GROUND IS CREAM. #1e1516 -> #f8f7f4, which is exactly the Notes
+       world's own --paper (notes-world.css). The first pass was a dark poster
+       dropped into the portfolio's one deliberately LIGHT world; this one
+       agrees with it, and on a screen wider than the poster the margins now
+       blend into the page instead of cutting a dark band across it.
+     · The yellow went #ffe991 -> #ffdc51, and the role bar white -> #1e1516 to
+       sit on the new ground.
+
+   THREE VIEWPORT PANELS, ONE POSTER. The frame is about three screens tall and
    the sections are not separable — the ENGINEER banner crosses the first seam,
-   the pink block overhangs the yellow band by 79 units. So this is NOT three
-   compositions; it is one continuous poster shown through three windows, each
-   window one viewport. Anything crossing a seam simply continues across it,
-   exactly as drawn.
+   the pink block overhangs the yellow band. So this is NOT three compositions;
+   it is one continuous poster shown through three windows. Anything crossing a
+   seam simply continues across it, exactly as drawn.
 
-   The seams are 854 / 1708, chosen so the second one lands on the yellow band's
-   own top edge (1708) rather than through it, which leaves the first two panels
-   the same height and the third within 17 units of them.
-
-   THE POSTER RUNS THE FULL WIDTH OF THE PAGE, like the two scrapbook pages, and
-   is capped at the same 1673px so all five sheets share one margin.
-
-   It used to be scaled to fit the room's HEIGHT instead (1449/854 = 1.6967),
-   which fitted but left it 1235px wide on a 1440 screen against the scrapbook's
-   1425. A fixed-aspect poster cannot be both full-width and one-viewport-tall;
-   width is the one that was asked for.
-
-   What that costs, and it is small: the dock's 104px reserve is dropped for
-   these sheets — it is a FLOATING dock and it already passes over the cover's
-   artwork, so reserving a strip of a full-bleed poster was over-cautious. With
-   that back, a panel at full width is 834px tall on a 1440x900 screen against
-   856px of room, so it still fits. On a 16:9 laptop (1366x768) a panel comes out
-   about 66px taller than the room and that sheet scrolls by that much, which is
-   the honest trade for edge-to-edge.
-
-   To get full-bleed AND one-viewport on every screen the panels would need to
-   be drawn at an aspect of 1.87 or wider (e.g. 1440x770 each, a 1440x2310
-   frame). This one is 1.71. */
+   EQUAL THIRDS, and this is what the resize bought. The old frame split
+   854/854/837 — a 1.70 aspect, and a fixed-aspect panel cannot be both
+   full-bleed and one-viewport below about 1.87 (what a 16:9 laptop's
+   `100dvh - 44` asks for against a full-width sheet). 2200/3 = 733.33 gives
+   1449/733.33 = 1.976 for all three: past the threshold, uniform, so the three
+   sheets are the same size and each one fits. The 72px overflow the old frame
+   had at 1366x768 is gone. */
 .nw .sheet-collage {
   /* no cream showing between the panels: each one is its own colour field,
      edge to edge, with the poster centred in it */
@@ -42,11 +38,11 @@
 
 .nw .sheet-collage--one,
 .nw .sheet-collage--two {
-  background: #1e1516; /* the frame's own ground */
+  background: #f8f7f4; /* the frame's own ground, and the Notes world's --paper */
 }
 
 .nw .sheet-collage--three {
-  background: #ffe991; /* the lotus band fills the frame's full width */
+  background: #ffdc51; /* the lotus band fills the frame's full width */
 }
 
 .nw .cl-window {
@@ -55,16 +51,15 @@
   /* Full width, capped at THE POSTER'S OWN NATIVE WIDTH — 1449, the Figma
      frame's — so it never renders larger than it was drawn.
 
-     This was 1673 and that was a bug: 1673 is PAGE ONE's native width, borrowed
-     without thinking. It meant every screen wider than ~1464 upscaled the whole
-     poster past 1:1 — 1.03x at 1512, 1.15x at 1920 — blowing up the M, the
-     banners and four bitmaps together. The rule is the same one page one
-     follows ("never upscales past 1:1"); each sheet just has to cap at its own
-     native width, not at another sheet's.
+     This was briefly 1673, which is PAGE ONE's native width borrowed without
+     thinking, and it upscaled the whole poster past 1:1 on every screen wider
+     than ~1464 (1.15x at 1920), blowing up the M, the banners and four bitmaps
+     together. The rule is the one page one already follows ("never upscales
+     past 1:1"); each sheet just has to cap at its OWN native width.
 
      Below 1449 the poster is edge to edge. Above it, it centres — which is the
-     correct trade: at that point "full width" and "the size it was drawn" are
-     different things, and the design wins. */
+     correct trade: at that point "full width" and "the size it was drawn at"
+     are different things, and the design wins. */
   width: min(100%, 1449px);
   aspect-ratio: var(--cl-ar);
   container-type: inline-size;
@@ -75,7 +70,7 @@
   position: absolute;
   left: 0;
   width: 100%;
-  height: calc(2545 * var(--cu));
+  height: calc(2200 * var(--cu));
 }
 
 /* Every child of the poster is placed by its Figma coordinates. */
@@ -104,7 +99,7 @@
 .nw .cl-ground {
   position: absolute;
   inset: 0;
-  background: #1e1516;
+  background: #f8f7f4;
 }
 
 /* ---- the pink section ("Desktop - 15", rotated -1.67deg) ---- */
@@ -134,25 +129,24 @@
 }
 
 /* ---- the M ----
-   Three Ballet M's at 478.463 units, tracking -43.0617, each rotated -15.09deg
+   Three Ballet M's at 436.542 units, tracking -39.2888, each rotated -15.09deg
    and offset a few units from the last: black behind, gold, then the front one.
 
-   THE FRONT M'S FILL DID NOT COME OUT OF FIGMA. Its node (274:543) returns no
-   colour at all, asked twice — which is what the exporter does when a text fill
-   is an image or a gradient rather than a solid, and the M in the design is
-   visibly textured.
+   THE FRONT M'S FILL DOES NOT COME OUT OF FIGMA. Its node returns no colour at
+   all — which is what the exporter does when a text fill is an image or a
+   gradient rather than a solid, and the M in the design is visibly textured.
 
-   It is set to the SAME #ffe991 as the layer behind it, deliberately. A
-   made-up gradient would look like an intentional choice that is not hers;
-   flat gold is honestly "the fill we know about", and it still reads correctly
-   because the black layer behind supplies the offset edge. To get the real
-   thing, export 274:543 on its own as a PNG and swap it in — the two layers
-   behind it are already exact. */
+   It is set to the SAME #ffdc51 as the layer behind it, deliberately. A made-up
+   gradient would look like an intentional choice that is not hers; flat gold is
+   honestly "the fill we know about", and it still reads correctly because the
+   black layer behind supplies the offset edge. To get the real thing, export
+   296:564 on its own as a PNG and swap it in — the two layers behind it are
+   already exact. */
 .nw .cl-m {
   margin: 0;
   font-family: var(--font-script);
-  font-size: calc(478.463 * var(--cu));
-  letter-spacing: calc(-43.0617 * var(--cu));
+  font-size: calc(436.542 * var(--cu));
+  letter-spacing: calc(-39.2888 * var(--cu));
   line-height: 1.2;
   white-space: nowrap;
 }
@@ -162,16 +156,17 @@
 }
 
 .nw .cl-m--mid {
-  color: #ffe991;
+  color: #ffdc51;
 }
 
 .nw .cl-m--front {
-  color: #ffe991;
+  color: #ffdc51;
 }
 
 /* ---- the role bar ----
    Helvetica in the design; Inter is the project's grotesque and the closest
-   thing it ships. No Helvetica is downloaded for four words. */
+   thing it ships. No Helvetica is downloaded for four words. Ink is #1e1516
+   now, not white — the ground went cream in the resize. */
 .nw .cl-role {
   position: absolute;
   margin: 0;
@@ -180,44 +175,44 @@
   font-weight: 400;
   font-size: calc(14 * var(--cu));
   line-height: normal;
-  color: #fff;
+  color: #1e1516;
   white-space: nowrap;
 }
 
 /* ---- the ICON block ----
    The repeated word IS the artwork here — a type texture on the pink card, kept
    verbatim from the design including its two broken runs ("ICICON", "ON ICON").
+   The card clips it, which is why the copy is wider (374.99) than its box
+   (333.021): the design overflows it on purpose and the overflow is cut.
+
    Times New Roman FIRST, not the project's --font-serif: that leads with
    Cormorant Garamond, whose high stroke contrast and small x-height would read
    as a different typeface entirely at this size. */
 .nw .cl-iconwrap {
   position: absolute;
   overflow: hidden;
-  left: calc(105 * var(--cu));
-  top: calc(444 * var(--cu));
-  width: calc(1303.998 * var(--cu));
-  height: calc(1569 * var(--cu));
+  left: calc(1001.86 * var(--cu));
+  top: calc(334.57 * var(--cu));
+  width: calc(333.021 * var(--cu));
+  height: calc(236.308 * var(--cu));
 }
 
 .nw .cl-iconcard {
   position: absolute;
+  inset: 0;
   background: #ff54ad;
-  left: calc(900 * var(--cu));
-  top: calc(-7 * var(--cu));
-  width: calc(365 * var(--cu));
-  height: calc(259 * var(--cu));
 }
 
 .nw .cl-icontext {
   position: absolute;
   margin: 0;
-  left: calc(902 * var(--cu));
-  top: 0;
-  width: calc(411 * var(--cu));
-  height: calc(223 * var(--cu));
+  left: calc(1.83 * var(--cu));
+  top: calc(6.39 * var(--cu));
+  width: calc(374.99 * var(--cu));
+  height: calc(203.462 * var(--cu));
   font-family: "Times New Roman", Times, serif;
   font-weight: 700;
-  font-size: calc(24 * var(--cu));
+  font-size: calc(21.897 * var(--cu));
   line-height: normal;
   color: #1e1516;
   word-break: break-word;
@@ -226,20 +221,20 @@
 /* ---- the two yellow banners ----
    Figma exports these as `-scale-y-100 rotate(175.42deg)`, which is a
    REFLECTION, not a rotation (its determinant is -1). For an axis-symmetric
-   rectangle the visible result is a plain rotation: solving the reflection axis
-   gives -4.58deg for the ENGINEER bar and +4.74deg for the DESIGN bar, which is
-   why those match the -4.56 / +4.66 the type inside them carries. Written as
-   the rotations they actually are. */
+   rectangle the visible result is a plain rotation: a reflection about a line
+   at angle a sends the long axis to 2a, so 175.42 lands at -4.58deg and
+   -175.26 at +4.74deg — which is why those match the -4.56 / +5.92 the type
+   inside them carries. Written as the rotations they actually are. */
 .nw .cl-banner {
-  background: #ffe991;
-  border: calc(3 * var(--cu)) solid #000;
+  background: #ffdc51;
+  border: calc(2.529 * var(--cu)) solid #000;
 }
 
 .nw .cl-word {
   margin: 0;
   font-family: var(--font-ui);
   font-weight: 600;
-  font-size: calc(135.889 * var(--cu));
+  font-size: calc(114.535 * var(--cu));
   line-height: normal;
   color: #1e1516;
   white-space: nowrap;
@@ -249,7 +244,7 @@
 .nw .cl-label {
   position: absolute;
   background: #fff6ed;
-  border: calc(2.129 * var(--cu)) solid #000;
+  border: calc(1.942 * var(--cu)) solid #000;
 }
 
 .nw .cl-labeltext {
@@ -267,17 +262,17 @@
   position: absolute;
   overflow: hidden;
   left: 0;
-  top: calc(1708 * var(--cu));
+  top: calc(1363 * var(--cu));
   width: calc(1449 * var(--cu));
   height: calc(837 * var(--cu));
-  background: #ffe991;
+  background: #ffdc51;
 }
 
 .nw .cl-darkblock {
   position: absolute;
   background: #1e1516;
   left: calc(105 * var(--cu));
-  top: calc(1807 * var(--cu));
+  top: calc(1438 * var(--cu));
   width: calc(326 * var(--cu));
   height: calc(206 * var(--cu));
 }
@@ -288,15 +283,17 @@
   background: #fbfde5;
   border: calc(1 * var(--cu)) solid #000;
   left: calc(946 * var(--cu));
-  top: calc(2198 * var(--cu));
+  top: calc(1829 * var(--cu));
   width: calc(424 * var(--cu));
   height: calc(283 * var(--cu));
 }
 
+/* `calc(50% + 247)` and `calc(50% + 753)` in the design, against a 1449x2200
+   frame — so 971.5 and 1853. */
 .nw .cl-poemtext {
   position: absolute;
   left: calc(971.5 * var(--cu));
-  top: calc(2225 * var(--cu));
+  top: calc(1853 * var(--cu));
   width: calc(383 * var(--cu));
   font-family: "Times New Roman", Times, serif;
   font-size: calc(21.3 * var(--cu));

@@ -2062,3 +2062,42 @@ drawn at" are different things, and the design wins.
 
 The 1366×768 overflow is unchanged and is the aspect problem, not a scale one —
 see the 1.87 note above.
+
+### The collage tracks node 296:533, the resized frame — and it now fits everywhere
+
+She resized every component in Figma to fit better heightwise, and that solved
+the aspect problem the two entries above were working around. Re-read from
+scratch rather than tweaked: **1449×2545 → 1449×2200.**
+
+**Equal thirds is what the resize bought.** The old frame split 854/854/837 — a
+1.70 aspect, and a fixed-aspect panel cannot be both full-bleed and one viewport
+below about 1.87. 2200/3 = 733.33 gives **1449/733.33 = 1.976** for all three
+panels: past the threshold, uniform, so the three sheets are the same size and
+each one fits. The 72px overflow at 1366×768 is gone.
+
+Two changes in that pass are decisions, not resizes:
+
+- **The ground is cream.** `#1e1516` → `#f8f7f4`, which is exactly the Notes
+  world's own `--paper`. This retires the conflict flagged when page three was
+  first placed — a dark poster in the portfolio's one deliberately LIGHT world.
+  It now agrees with it, and on a screen wider than 1449 the poster's margins
+  blend into the page instead of cutting a dark band across it.
+- **The yellow went `#ffe991` → `#ffdc51`**, and the role bar white → `#1e1516`
+  to sit on the new ground.
+
+Asset churn worth knowing: `subtract.svg` was **redrawn**, not just rescaled
+(809.6×1060.1 → 841.9×794.0), `photo-top.png` was re-exported, `vector19` is
+gone and **`vector21` is new** (the small star). All replaced in
+`public/collage/`.
+
+Measured after the change — full-bleed and fitting at every size, and never
+upscaled past 1:1:
+
+| | poster width | scale | panel h | room | over |
+|---|---|---|---|---|---|
+| 1366×768 | 1351 | 0.93× | 684 | 724 | **0** |
+| 1440×900 | 1425 | 0.98× | 721 | 856 | **0** |
+| 1920×1080 | 1449 | **1.00×** | 733 | 1036 | **0** |
+
+The M renders at 436.5px against its 436.542-unit design size. All seven assets
+load, no broken images, `scrollWidth === clientWidth`. Typecheck and build clean.
