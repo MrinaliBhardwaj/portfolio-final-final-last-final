@@ -63,14 +63,16 @@ export default function NotesWorld() {
       <SceneTwo />
       {/* Page three is the poster collage, and it arrives as THREE sheets, not
           one — it is a Figma frame about three screens tall, shown through three
-          viewport windows. See SceneThree.jsx. It is also the first dark thing
-          in this world; the note at the top of this file about Notes being the
-          one LIGHT world was written before it existed. */}
-      <SceneThree />
+          viewport windows. See SceneThree.jsx. Its ground is the same #f8f7f4
+          this world is built on, so the note at the top of this file still
+          holds: the scrapbook is paper, all the way through.
 
-      <p className="nw-coda">
-        drawn june 2026 &mdash; the first draft of this site, kept.
-      </p>
+          It is also the LAST thing on the page. The "drawn june 2026" coda that
+          used to close the scrapbook was removed 4 August 2026 by request,
+          along with the 7rem tail it carried — the collage ends the world now,
+          and the floating dock passes over its yellow band the same way it
+          passes over the cover. */}
+      <SceneThree />
     </div>
   );
 }

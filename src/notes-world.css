@@ -83,14 +83,6 @@
   background: rgba(60, 55, 45, 0.07);
 }
 
-.nw-coda {
-  padding: 0 24px 7rem; /* deep tail: the dock floats over the bottom */
-  text-align: center;
-  font-family: "Caveat", cursive;
-  font-size: 21px;
-  color: var(--pencil);
-}
-
 /* ---- Each page of the archive is a sheet you scroll between: ONE SHEET, ONE
    VIEWPORT. It fills exactly what's left under the toolbar and reserves the
    floating dock's strip at the bottom, and the collage inside is capped so it
@@ -519,8 +511,7 @@
 }
 
 @media (max-width: 700px) and (orientation: portrait) {
-  .nw .sheet,
-  .nw-coda {
+  .nw .sheet {
     display: none;
   }
 
