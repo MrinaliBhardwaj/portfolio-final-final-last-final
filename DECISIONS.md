@@ -2007,3 +2007,32 @@ Figma's asset URLs are signed and expire in ~7 days.
 Verified at 1366×768, 1440×900 and 1920×1080: all five sheets fit the room,
 `scrollWidth === clientWidth`, 12 lotus tiles per panel, panel three's band
 filling its window exactly. Typecheck and build clean.
+
+### …and then the collage went full-bleed after all
+
+The bullet above — "the poster is narrower than the two scrapbook pages, and
+that is the trade" — is **reversed**. Width was the priority, not fitting.
+
+`.cl-window` is now `min(100%, 1673px)`, the same cap the scrapbook stages use,
+so **all five sheets render at exactly the same width and margin** on every
+screen. The height term is gone.
+
+**The dock's 104px reserve is dropped for these sheets**, which is what makes it
+work. It is a *floating* dock and it already passes over the cover's artwork;
+reserving a strip of a full-bleed poster was over-cautious on my part, and it
+was costing 128px of height. With it back, a full-width panel still fits:
+
+| | width | panel h | room (`100dvh − 44`) | fits |
+|---|---|---|---|---|
+| 1366×768 | 1351 | 796 / 796 / 780 | 724 | **no — over by ~72px** |
+| 1440×900 | 1425 | 840 / 840 / 823 | 856 | yes |
+| 1920×1080 | 1673 | 986 / 986 / 966 | 1036 | yes |
+
+On a 16:9 laptop a panel is ~72px taller than the viewport and that sheet
+scrolls by that much. That is the honest cost of edge-to-edge on a 1.71 poster,
+and it was accepted knowingly.
+
+**For any future panel, draw it at an aspect of 1.87 or wider** — e.g. 1440×770
+each, a 1440×2310 frame for three — and it will be full-bleed *and*
+one-viewport on every screen in that table, with no trade at all. This one is
+1449×848 = 1.71, which is why there is one.

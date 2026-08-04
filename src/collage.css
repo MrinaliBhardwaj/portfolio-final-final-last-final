@@ -15,10 +15,25 @@
    own top edge (1708) rather than through it, which leaves the first two panels
    the same height and the third within 17 units of them.
 
-   The poster is sized so the TALLEST panel fits the room: 1449/854 = 1.6967. It
-   is therefore a little narrower than the two scrapbook pages, which are
-   full-bleed — a fixed-aspect poster cannot be both, and here the design is the
-   thing being replicated, so fitting wins. */
+   THE POSTER RUNS THE FULL WIDTH OF THE PAGE, like the two scrapbook pages, and
+   is capped at the same 1673px so all five sheets share one margin.
+
+   It used to be scaled to fit the room's HEIGHT instead (1449/854 = 1.6967),
+   which fitted but left it 1235px wide on a 1440 screen against the scrapbook's
+   1425. A fixed-aspect poster cannot be both full-width and one-viewport-tall;
+   width is the one that was asked for.
+
+   What that costs, and it is small: the dock's 104px reserve is dropped for
+   these sheets — it is a FLOATING dock and it already passes over the cover's
+   artwork, so reserving a strip of a full-bleed poster was over-cautious. With
+   that back, a panel at full width is 834px tall on a 1440x900 screen against
+   856px of room, so it still fits. On a 16:9 laptop (1366x768) a panel comes out
+   about 66px taller than the room and that sheet scrolls by that much, which is
+   the honest trade for edge-to-edge.
+
+   To get full-bleed AND one-viewport on every screen the panels would need to
+   be drawn at an aspect of 1.87 or wider (e.g. 1440x770 each, a 1440x2310
+   frame). This one is 1.71. */
 .nw .sheet-collage {
   /* no cream showing between the panels: each one is its own colour field,
      edge to edge, with the poster centred in it */
@@ -37,9 +52,9 @@
 .nw .cl-window {
   position: relative;
   overflow: hidden;
-  /* 1.6967 = 1449/854, the tallest panel. --nw-room is the toolbar + the dock's
-     strip, same as the scrapbook sheets use. */
-  width: min(100%, calc((100dvh - var(--nw-room)) * 1.6967));
+  /* Full width, capped where the scrapbook pages cap, so the five sheets share
+     one margin on a wide screen. No height term: see the note above. */
+  width: min(100%, 1673px);
   aspect-ratio: var(--cl-ar);
   container-type: inline-size;
   --cu: calc(100cqw / 1449);
