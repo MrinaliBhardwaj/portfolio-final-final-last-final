@@ -1,8 +1,9 @@
 /* ============ the desktop files (the MacBook screen's own files) ============ */
-/* Three icons scattered on the settled cover, arriving with the dock. The LAYER
-   spans the whole stage but is inert — only the tiles themselves take pointer
-   events. Without that, this sheet would sit over .cover-split (z-index 4) and
-   swallow both Explore CTAs across the entire screen. */
+/* A macOS grid column hanging off the top-right edge — the scatter it replaced
+   is described in DesktopFiles.jsx. The LAYER spans the whole stage but is
+   inert — only the tiles themselves take pointer events. Without that, this
+   sheet would sit over .cover-split (z-index 4) and swallow both Explore CTAs
+   across the entire screen. */
 .cover-desktop {
   position: absolute;
   inset: 0;
@@ -10,10 +11,11 @@
   pointer-events: none;
 }
 
-/* One tile: icon over a Finder-style label. Positioned by the component (the
-   scatter is data, not style), sized here. `translate: none` is deliberate —
-   Framer owns the transform for the launch, so centring or nudging a tile has
-   to happen through the position properties, never a transform. */
+/* One tile: icon over a Finder-style label. Positioned by the component off
+   the --dgrid-* knobs below, sized here. Corner-anchored (right/top), no
+   centring margins: a grid aims edges at lines, not centres at points — the
+   negative-margin trick existed for eyeballing the scatter against the lotus
+   and died with it. */
 .dfile {
   position: absolute;
   display: flex;
@@ -25,22 +27,25 @@
      and the names rendered as "resume-desig…". The icon keeps --dfile-w; only
      the naming gets the room. */
   width: var(--dfile-tile);
-  /* Pull the box back by half of itself so the component's `left`/`top` land on
-     the ICON'S CENTRE rather than the tile's top-left. The scatter is placed by
-     eye against the lotus, and aiming a corner at a point you picked visually is
-     guesswork. Margins, not a transform — Framer owns the transform here. */
-  margin-left: calc(var(--dfile-tile) / -2);
-  margin-top: calc(var(--dfile-ih) / -2);
   text-decoration: none;
   cursor: pointer;
   will-change: transform, opacity;
 }
 
 .cover-desktop {
-  /* one knob for the whole scatter; the other two derive from it */
+  /* one knob for the tiles; the next two derive from it */
   --dfile-w: clamp(42px, 3.7vw, 54px);
   --dfile-tile: calc(var(--dfile-w) * 1.55);
   --dfile-ih: calc(var(--dfile-w) * 1.25);
+  /* THE GRID. Right inset clears nothing (the column owns that band — see the
+     .cover-split padding note in cover.css); first row clears the menu bar
+     (~66px tall) with air; pitch is the tile's own height (icon + gap + label
+     ≈ 92 at full size) plus a Finder-ish gutter, tied to --dfile-w so the
+     short-window media query below retunes the whole column by turning its
+     one knob. */
+  --dgrid-right: 26px;
+  --dgrid-top: 96px;
+  --dgrid-pitch: calc(var(--dfile-ih) + 0.44rem + 17px + 26px);
 }
 
 /* A FIXED box, bottom-aligned. The two artworks have different aspect ratios —
@@ -103,18 +108,17 @@
   transition: background 0.3s var(--ease-soft), color 0.3s var(--ease-soft);
 }
 
-/* Hover/focus: the file LEANS. That tilt used to be a resting pose, which made
-   three permanently crooked icons on an otherwise precise stage; as a hover it
-   costs nothing until you point at one, and then it reads as picking the thing
-   up. Each file leans its own way and amount (--tilt, set per file in
-   DesktopFiles.jsx) so pointing along the row doesn't look mechanical.
+/* Hover/focus: a straight lift, no lean. The per-file --tilt went with the
+   scatter — grid-aligned icons that rotate when pointed at contradict the
+   alignment that is now the whole statement. The selection plate on the label
+   (below) is the macOS half of the feedback; this is the "picking it up" half.
    It rides on .dfile-icon rather than the tile because Framer owns the tile's
-   transform for the launch — and it leaves the label straight and readable.
+   transform for the fade — and it leaves the label straight and readable.
    No colour change on the artwork: these are supposed to look like the OS drew
    them, and the OS doesn't tint your files when you point at them. */
 .dfile:hover .dfile-icon,
 .dfile:focus-visible .dfile-icon {
-  transform: rotate(var(--tilt, 0deg)) scale(1.1) translateY(-3px);
+  transform: scale(1.08) translateY(-2px);
 }
 
 .dfile:hover .dfile-label,
@@ -132,13 +136,13 @@
 }
 
 .dfile:active .dfile-icon {
-  transform: rotate(var(--tilt, 0deg)) scale(0.99);
+  transform: scale(0.99);
 }
 
-/* Below this the two 25rem discipline blocks and the CTAs already own every
-   margin on the stage, and the files would land on top of them. Nothing is lost
-   by dropping them: GitHub is in the cover's own header at every width, and both
-   résumés are linked from inside their worlds. */
+/* Below this the two discipline blocks and the CTAs already own every margin
+   on the stage, and the column would land on top of them. Nothing is lost by
+   dropping it: both résumés are linked from inside their worlds, and GitHub
+   from the tech world's contact block. */
 @media (max-width: 899px) {
   .cover-desktop {
     display: none;
@@ -146,11 +150,12 @@
 }
 
 /* A short window squeezes the vertical gap between the nav, the centred
-   discipline blocks and the dock. Pull the scatter in toward the corners and
-   shrink the tiles rather than letting them collide. */
+   discipline blocks and the dock. Shrink the tiles — the grid's pitch is
+   derived from --dfile-w, so the whole column tightens with them. */
 @media (max-height: 760px) {
   .cover-desktop {
     --dfile-w: clamp(38px, 3.1vw, 46px);
+    --dgrid-top: 88px;
   }
 }
 

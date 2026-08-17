@@ -8,7 +8,7 @@
 //   3. the identity DIVERGES — Design (left, pink) and Tech (right, blue)
 //      reveal on either side of the still lotus, and the nav labels brighten
 //      to their side colors. The two "Explore" CTAs enter each world.
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import {
   motion,
   useScroll,
@@ -76,6 +76,31 @@ const WORLDS = [
   ["gallery", "Gallery"],
   ["pond", "Game"],
 ];
+
+// HOME IS A PLACE, NOT A CORRIDOR (2026-08-18). The scrub is the front door,
+// not the hallway to every room: once a visitor has seen the ceremony, every
+// later arrival at #/ lands directly ON the settled desktop — the bloom's end
+// frame as the wallpaper, dock up, files out. sessionStorage on purpose: a
+// fresh session gets the ceremony again; tab-hopping within one doesn't.
+const INTRO_SEEN = "mb-intro-seen";
+
+// exported: App's route effect needs the same answer (see App.jsx — its
+// scroll-to-top and dock retraction are first-visit behaviours)
+export const hasSeenIntro = () => {
+  try {
+    return sessionStorage.getItem(INTRO_SEEN) === "1";
+  } catch {
+    return false;
+  }
+};
+
+const markIntroSeen = () => {
+  try {
+    sessionStorage.setItem(INTRO_SEEN, "1");
+  } catch {
+    /* private mode without storage: the ceremony replays, nothing breaks */
+  }
+};
 
 export default function Cover({ onChoose, onSettledChange }) {
   const particlesRef = useRef(null);
@@ -203,6 +228,46 @@ export default function Cover({ onChoose, onSettledChange }) {
     };
   }, [fontReady]);
 
+  // THE INSTA-LAND. If this session has already seen the ceremony, position
+  // the page at the track's end BEFORE first paint — the stage shows the
+  // bloom's final frame with the desktop assembled over it, which is her
+  // stated vision for what home IS. Layout effect so the jump is invisible;
+  // it also beats App's own scroll-to-top, which ran at route-commit time,
+  // before this component existed (AnimatePresence mounts the cover only
+  // after the old world's exit fade).
+  //
+  // Two continuity facts make the landing seamless rather than a jump:
+  //   · the poster base layer is frame 0, the OPEN lotus, and the track's end
+  //     frame is the re-bloomed OPEN lotus — so even before the frame atlas
+  //     arrives, an open flower is on screen and the canvas paint that follows
+  //     is a near-match, not a pop;
+  //   · every scroll-driven transform (name gone, chevron gone, split in)
+  //     computes from the same scroll position being set here, so the whole
+  //     stage agrees about where it is.
+  //
+  // The settle signals are pushed by hand because useMotionValueEvent only
+  // reports CHANGES — a page born at progress 1 never fires one, and the dock
+  // and files would wait forever for a scroll that isn't coming. The refs are
+  // set too, so the first real scroll event doesn't re-announce.
+  useLayoutEffect(() => {
+    if (!hasSeenIntro()) return;
+    const track = trackRef.current;
+    if (!track) return;
+    window.scrollTo(
+      0,
+      track.offsetTop + track.offsetHeight - window.innerHeight
+    );
+    progressRef.current = 1;
+    splitRef.current = true;
+    settledRef.current = true;
+    setSplit(true);
+    setSettled(true);
+    onSettledChange?.(true);
+    // deps deliberately empty: this is a mount-time decision, and
+    // onSettledChange is App's stable setter
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // scroll progress across the tall track drives everything on the stage
   const { scrollYProgress } = useScroll({
     target: trackRef,
@@ -226,10 +291,13 @@ export default function Cover({ onChoose, onSettledChange }) {
     if (nextSettled !== settledRef.current) {
       settledRef.current = nextSettled;
       // once the divergence scene has fully settled, the dock (owned by App,
-      // where it persists across routes) surfaces — and the desktop files fly
-      // up onto the screen alongside it
+      // where it persists across routes) surfaces — and the desktop files
+      // fade in alongside it
       onSettledChange?.(nextSettled);
       setSettled(nextSettled);
+      // the ceremony has been seen to its end: from here on, #/ lands on the
+      // settled desktop directly (see the layout effect above)
+      if (nextSettled) markIntroSeen();
     }
   });
 
@@ -500,9 +568,10 @@ export default function Cover({ onChoose, onSettledChange }) {
             >
               <p className="cover-side-label">Design</p>
               <h2 className="cover-side-title">What blooms in sight</h2>
+              {/* one line each, caption voice — the sentence-length bodies read
+                  as a marketing section over the desktop (2026-08-18) */}
               <p className="cover-side-body">
-                Design is how ideas breathe—through motion, typography, and
-                interaction.
+                Motion, typography, interaction—how ideas breathe.
               </p>
               <a
                 className="cover-side-cta"
@@ -521,8 +590,7 @@ export default function Cover({ onChoose, onSettledChange }) {
               <p className="cover-side-label">Tech</p>
               <h2 className="cover-side-title">What roots beneath</h2>
               <p className="cover-side-body">
-                Engineering gives form to possibility—through systems,
-                structure, and reason.
+                Systems, structure, reason—how they stand.
               </p>
               <a
                 className="cover-side-cta"

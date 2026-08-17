@@ -196,27 +196,48 @@
    marks stay exactly as they looked, and the glyphs come up to meet them. They
    still read subordinate — that's the job of the smaller size below, which is
    what the note under this rule always said it was for. */
+/* NO SHARED TINT ANY MORE (2026-08-18). `color: #e8e8ec` used to sit here and
+   grey out all five icons — deliberately, for a quiet glass surface — and it
+   is superseded: a dock reads as a dock because its icons are colourful and
+   distinct. The two brand marks carry their own multicolor fills now (see
+   BrandIcons.jsx), so a `color` here would do nothing to them and everything
+   to the glyphs; each glyph gets its brand's colour in the modifiers below.
+   Opacity still does the resting dim so the row sits INTO the glass rather
+   than on it, and hover brings the one you're on to full strength. */
 .dock-item-icon {
   position: relative;
   z-index: 1;
   width: 52%;
   height: 52%;
   opacity: 0.82;
-  color: #e8e8ec;
   transition: opacity 0.3s var(--ease-soft), color 0.3s var(--ease-soft);
   pointer-events: none;
 }
 
 .dock-item:hover .dock-item-icon {
   opacity: 1;
-  color: #fff;
 }
 
-/* the one non-image glyph (VS Code has no brand mark in our icon set) reads
-   a touch thinner so it doesn't outweigh the photographic logos beside it */
+/* the stroke glyphs (no usable brand mark — trademark-restricted) read a touch
+   thinner so they don't outweigh the multicolor logos beside them */
 .dock-item-icon--glyph {
   width: 48%;
   height: 48%;
+}
+
+/* Each glyph in its brand's colour, nudged for the dark glass: VS Code's
+   #007ACC is too deep against near-black, so it runs one step brighter;
+   Notes is Apple's system yellow; the game is the pond's own lotus pink. */
+.dock-item-icon--code {
+  color: #2f9fe8;
+}
+
+.dock-item-icon--notes {
+  color: #ffd60a;
+}
+
+.dock-item-icon--game {
+  color: #ff54ad;
 }
 
 /* macOS-style indicator: a dot beneath the app whose world is open */

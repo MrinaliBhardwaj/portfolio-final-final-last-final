@@ -9,7 +9,7 @@
 // between them like tabs (a quick crossfade, no wipe ceremony).
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, MotionConfig } from "framer-motion";
-import Cover from "./Cover.jsx";
+import Cover, { hasSeenIntro } from "./Cover.jsx";
 import DesignWorld from "./DesignWorld.jsx";
 import TechWorld from "./TechWorld.jsx";
 import { WorldOpening } from "./world-open.js";
@@ -198,9 +198,20 @@ export default function App() {
       ? `${named.name} — Mrinali Bhardwaj`
       : TITLES[route];
     document.documentElement.dataset.world = route || "void";
-    window.scrollTo(0, 0);
-    // back on the cover, the dock retracts until the divergence settles again
-    if (route === "") setCoverSettled(false);
+    // The scroll reset and the dock retraction are FIRST-VISIT behaviours on
+    // the cover. Once the ceremony has been seen, Cover lands itself at the
+    // settled desktop in a layout effect and announces settled — and THIS
+    // effect is passive, so it runs after that and was stomping both signals:
+    // scrollTo(0,0) un-landed the page and setCoverSettled(false) retracted
+    // the dock Cover had just surfaced. Home is a place now, not a corridor;
+    // the corridor behaviours only apply while the ceremony is still owed.
+    if (route === "" && hasSeenIntro()) {
+      // Cover owns the scroll position and the settled signal on this route
+    } else {
+      window.scrollTo(0, 0);
+      // back on the cover, the dock retracts until the divergence settles
+      if (route === "") setCoverSettled(false);
+    }
     // `project` is in the deps so moving BETWEEN pages of the design file still
     // retitles and scrolls to the top — the route doesn't change on those.
   }, [route, project]);

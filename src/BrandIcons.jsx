@@ -53,3 +53,36 @@ export const GooglePhotosMark = (props) => <Mark d={GOOGLE_PHOTOS} {...props} />
 export const ClaudeMark = (props) => <Mark d={CLAUDE} {...props} />;
 export const GitHubMark = (props) => <Mark d={GITHUB} {...props} />;
 export const LinkedInMark = (props) => <Mark d={LINKEDIN} {...props} />;
+
+/* ---- the multicolor variants (dock only) ----
+   The dock reads as a Mac dock because its icons are colourful and DISTINCT —
+   the shared monochrome tint was quiet but it cost the metaphor (2026-08-18,
+   superseding the single-tint decision; see DECISIONS.md). Everything else
+   (WorldTabs, the design world's chrome) keeps the monochrome marks above:
+   those surfaces are UI chrome, not a desktop.
+
+   These aren't Simple Icons paths. Simple Icons ships monochrome outlines
+   only, so both are the brands' own geometry: Figma's canonical 38x57 logo
+   (five solid shapes, five colours), and Google Photos' 2020 pinwheel as
+   published (59x59, four petals — yellow left, red top, blue right, green
+   bottom; fetched from the source rather than recalled, because the petal
+   order is exactly the kind of thing memory gets wrong). Non-square viewBoxes
+   centre themselves in the square icon box via the default xMidYMid meet. */
+export const FigmaMarkColor = ({ size = 24, ...rest }) => (
+  <svg viewBox="0 0 38 57" width={size} height={size} {...rest}>
+    <path fill="#0acf83" d="M9.5 57a9.5 9.5 0 0 0 9.5-9.5V38H9.5a9.5 9.5 0 1 0 0 19z" />
+    <path fill="#a259ff" d="M0 28.5A9.5 9.5 0 0 1 9.5 19H19v19H9.5A9.5 9.5 0 0 1 0 28.5z" />
+    <path fill="#f24e1e" d="M0 9.5A9.5 9.5 0 0 1 9.5 0H19v19H9.5A9.5 9.5 0 0 1 0 9.5z" />
+    <path fill="#ff7262" d="M19 0h9.5a9.5 9.5 0 1 1 0 19H19V0z" />
+    <path fill="#1abcfe" d="M38 28.5a9.5 9.5 0 1 1-19 0 9.5 9.5 0 0 1 19 0z" />
+  </svg>
+);
+
+export const GooglePhotosMarkColor = ({ size = 24, ...rest }) => (
+  <svg viewBox="0 0 59 59" width={size} height={size} {...rest}>
+    <path fill="#FBBC04" d="M14.75 13.41c8.146 0 14.75 6.603 14.75 14.75v1.34H1.34C.6 29.5 0 28.9 0 28.16c0-8.147 6.604-14.75 14.75-14.75z" />
+    <path fill="#EA4335" d="M45.59 14.75c0 8.146-6.603 14.75-14.75 14.75H29.5V1.34C29.5.6 30.1 0 30.84 0c8.147 0 14.75 6.604 14.75 14.75z" />
+    <path fill="#4285F4" d="M44.25 45.59c-8.146 0-14.75-6.603-14.75-14.75V29.5h28.16c.74 0 1.34.6 1.34 1.34 0 8.147-6.604 14.75-14.75 14.75z" />
+    <path fill="#34A853" d="M13.41 44.25c0-8.146 6.603-14.75 14.75-14.75h1.34v28.16c0 .74-.6 1.34-1.34 1.34-8.147 0-14.75-6.604-14.75-14.75z" />
+  </svg>
+);

@@ -2207,3 +2207,67 @@ Tags are `aria-hidden`; the button's existing `aria-label` stays the accessible
 name and says more than the tag does. Same split `.nw-milestone` uses. They
 respond to `:focus-visible` as well as `:hover`, because a keyboard user gets
 the same guessing game and none of the hover.
+
+## The cover commits to being a desktop (2026-08-18)
+
+Her verdict on the landing was "more maze than map," and the audit agreed: the
+settled state was two fictions fighting (poetic cards over OS chrome), home was
+the end of a 320vh corridor re-walked on every return, the files were scattered
+and tilted, and the dock's five same-grey glyphs didn't read as a dock. Four
+decisions, all hers:
+
+### Home is a place, not a corridor
+
+**The bloom's end frame is the desktop wallpaper — "no jumping."** First visit
+gets the full ceremony; the moment it settles, `sessionStorage["mb-intro-seen"]`
+is written and every later arrival at `#/` lands directly ON the settled
+desktop (Cover positions itself at track end in a `useLayoutEffect`, pushes the
+settle signals by hand — a page born at progress 1 never fires a motion event —
+and the poster/frame continuity makes the landing seamless: frame 0 and the end
+frame are both the open lotus).
+
+**`App.jsx`'s scroll-to-top and dock retraction are first-visit behaviours
+now.** Its passive effect runs after Cover's layout effect and was stomping
+both signals; it exempts `route === "" && hasSeenIntro()`. sessionStorage, not
+localStorage: a fresh session gets the ceremony again.
+
+### The split cards are captions, not a marketing section
+
+Titles stay ("What blooms in sight" / "What roots beneath" is the voice). The
+title dropped from hero scale to ~60% (`clamp(1.7rem, 2.5vw, 2.4rem)`), the
+bodies to one line each ("Motion, typography, interaction—how ideas breathe." /
+"Systems, structure, reason—how they stand."), spacing tightened throughout.
+The words stay; the shouting stops.
+
+### The dock is colorful — supersedes the single-monochrome-tint decision
+
+Figma and Photos carry their real multicolor geometry now (`FigmaMarkColor`,
+`GooglePhotosMarkColor` in BrandIcons — the brands' own published shapes, NOT
+Simple Icons paths, which are monochrome-only; the Photos petal order was
+fetched from the source, not recalled). VS Code and Notes cannot become brand
+marks (trademark-restricted), so their glyphs carry brand COLOUR: VS Code blue
+(brightened one step for the dark glass), Apple system yellow, lotus pink for
+the game. The shared `color: #e8e8ec` tint is gone; resting dim is opacity
+only. Monochrome marks remain for WorldTabs and world chrome — those surfaces
+are UI, not a desktop.
+
+### The files are a macOS grid — supersedes the art-directed scatter
+
+One column hanging off the top-right edge: `--dgrid-right / -top / -pitch` in
+desktop-files.css, pitch derived from `--dfile-w` so the short-window query
+retunes the column by turning one knob. No tilt (grid-aligned icons that
+rotate on hover contradict the alignment), no 2.15s flight (a desktop's files
+don't arrive — 0.45s fade, faint stagger). The tech card cedes the right band:
+`.cover-split` gains 96px right padding at ≥900px, and the column fills it.
+
+Verified by probe at 1366/1440/1920: insta-land hits track end exactly, column
+right-aligned to 0.1px with even pitch, clear of both cards, five distinct icon
+colorways (5-fill Figma, 4-fill Photos, three distinct glyph colours), first
+visit still starts at 0 with the dock hidden, no horizontal overflow anywhere.
+
+**Not verifiable in the preview pane, needs a real-browser look:** the
+world→cover round trip (the pane's rAF loop is fully stalled when not
+displayed, so AnimatePresence cannot complete the cover's exit there at all —
+the landing code is the same path as the verified fresh-load case) and the two
+scroll-driven beats' feel. Same caveat already standing on the tech world's
+badge fall.

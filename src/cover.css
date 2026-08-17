@@ -432,11 +432,21 @@
   padding: 0 clamp(2rem, 6vw, 6.5rem);
 }
 
+/* The file column (desktop-files.css) owns a ~112px band down the right edge
+   at ≥900px, and the tech card is right-aligned text — without this it runs
+   under the column's third tile at 1366-1440. The asymmetry doesn't read as
+   one: the column fills the band the card cedes. */
+@media (min-width: 900px) {
+  .cover-split {
+    padding-right: calc(clamp(2rem, 6vw, 6.5rem) + 96px);
+  }
+}
+
 .cover-side {
   position: relative;
   display: flex;
   flex-direction: column;
-  max-width: 25rem;
+  max-width: 21rem;
 }
 
 /* design reads left-aligned (overrides the stage's inherited text-align) */
@@ -487,7 +497,7 @@
   font-size: 0.72rem;
   letter-spacing: 0.42em;
   text-transform: uppercase;
-  margin-bottom: 1.7rem;
+  margin-bottom: 1.1rem;
 }
 
 .cover-side--design .cover-side-label {
@@ -499,14 +509,18 @@
   margin-right: -0.42em; /* absorb trailing letter-spacing for a flush edge */
 }
 
-/* editorial serif heading, softly glowing in its tint */
+/* editorial serif heading, softly glowing in its tint.
+   CAPTION-SIZED (2026-08-18): this was clamp(2.6rem, 4vw, 4rem) — landing-page
+   hero scale, which is what made the settled state read as a marketing section
+   sitting ON a desktop instead of part of one. At ~60% it reads as a caption
+   over the wallpaper: the words stay, the shouting stops. */
 .cover-side-title {
   font-family: var(--font-serif);
   font-weight: 500;
-  font-size: clamp(2.6rem, 4vw, 4rem);
-  line-height: 1.02;
+  font-size: clamp(1.7rem, 2.5vw, 2.4rem);
+  line-height: 1.12;
   letter-spacing: 0.005em;
-  max-width: 7em;
+  max-width: 9em;
 }
 
 .cover-side--design .cover-side-title {
@@ -520,13 +534,13 @@
 }
 
 .cover-side-body {
-  margin-top: 1.7rem;
+  margin-top: 0.9rem;
   font-family: var(--font-serif);
   font-weight: 400;
-  font-size: clamp(1.08rem, 1.35vw, 1.3rem);
-  line-height: 1.78;
-  color: rgba(237, 236, 234, 0.74);
-  max-width: 23rem;
+  font-size: clamp(0.98rem, 1.05vw, 1.08rem);
+  line-height: 1.6;
+  color: rgba(237, 236, 234, 0.7);
+  max-width: 21rem;
 }
 
 /* delicate, not button-like: a letter-spaced mono line with a hairline rule */
@@ -534,7 +548,7 @@
   display: inline-flex;
   align-items: center;
   gap: 0.55rem;
-  margin-top: 2.5rem;
+  margin-top: 1.6rem;
   padding-bottom: 0.4rem;
   font-family: var(--font-mono-alt);
   font-size: 0.72rem;

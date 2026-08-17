@@ -21,7 +21,7 @@
 // BrandIcons if it ever comes back.
 import { motion } from "framer-motion";
 import { Code2, Flower2, NotebookPen } from "lucide-react";
-import { FigmaMark, GooglePhotosMark } from "./BrandIcons.jsx";
+import { FigmaMarkColor, GooglePhotosMarkColor } from "./BrandIcons.jsx";
 
 const EASE = [0.22, 1, 0.36, 1];
 
@@ -112,12 +112,15 @@ function DockItem({ app, active }) {
 }
 
 export default function Dock({ visible, onChoose, active }) {
-  // real brand marks, vendored as inline SVG in BrandIcons.jsx — a single
-  // monochrome tint keeps them from reading as "colorful app icons" and closer
-  // to a quiet, premium glass surface. That tint is now the CSS `color` on
-  // .dock-item-icon rather than a hex baked into a URL. VS Code has no Simple
-  // Icons entry (Microsoft's mark is trademark-restricted there, the same
-  // reason lucide-react dropped it too), so it keeps a line glyph.
+  // COLORFUL, LIKE A REAL DOCK (2026-08-18). The single monochrome tint was a
+  // deliberate premium-glass choice, and it is superseded: five same-grey
+  // glyphs read as "icon row", and a dock reads as a dock because its icons
+  // are colourful and distinct. The two brand marks use their real multicolor
+  // geometry (FigmaMarkColor / GooglePhotosMarkColor in BrandIcons.jsx). The
+  // lucide glyphs CANNOT become brand marks — VS Code's and Apple Notes' are
+  // trademark-restricted, the same reason Simple Icons and lucide dropped
+  // them — so they carry their brand's COLOUR instead, set per-icon in
+  // dock.css (--code, --notes, --game modifiers).
   const apps = [
     {
       key: "figma",
@@ -126,7 +129,7 @@ export default function Dock({ visible, onChoose, active }) {
       world: "design",
       action: () => onChoose("design"),
       node: (
-        <FigmaMark className="dock-item-icon" aria-hidden="true" />
+        <FigmaMarkColor className="dock-item-icon" aria-hidden="true" />
       ),
     },
     {
@@ -135,12 +138,15 @@ export default function Dock({ visible, onChoose, active }) {
       label: "VS Code — enter the tech world",
       world: "tech",
       action: () => onChoose("tech"),
-      node: <Code2 className="dock-item-icon dock-item-icon--glyph" strokeWidth={1.4} aria-hidden="true" />,
+      node: (
+        <Code2
+          className="dock-item-icon dock-item-icon--glyph dock-item-icon--code"
+          strokeWidth={1.4}
+          aria-hidden="true"
+        />
+      ),
     },
     {
-      // Apple Notes has no Simple Icons mark either, so like VS Code it
-      // keeps a line glyph — a notebook mid-write, since what it holds is
-      // the site's own first draft
       key: "notes",
       name: "Notes",
       label: "Notes — the archived first drafts",
@@ -148,7 +154,7 @@ export default function Dock({ visible, onChoose, active }) {
       action: () => onChoose("notes"),
       node: (
         <NotebookPen
-          className="dock-item-icon dock-item-icon--glyph"
+          className="dock-item-icon dock-item-icon--glyph dock-item-icon--notes"
           strokeWidth={1.4}
           aria-hidden="true"
         />
@@ -161,7 +167,7 @@ export default function Dock({ visible, onChoose, active }) {
       world: "gallery",
       action: () => onChoose("gallery"),
       node: (
-        <GooglePhotosMark className="dock-item-icon" aria-hidden="true" />
+        <GooglePhotosMarkColor className="dock-item-icon" aria-hidden="true" />
       ),
     },
     {
@@ -175,7 +181,7 @@ export default function Dock({ visible, onChoose, active }) {
       action: () => onChoose("pond"),
       node: (
         <Flower2
-          className="dock-item-icon dock-item-icon--glyph"
+          className="dock-item-icon dock-item-icon--glyph dock-item-icon--game"
           strokeWidth={1.4}
           aria-hidden="true"
         />
