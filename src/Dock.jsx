@@ -86,8 +86,12 @@ function GlassFilter() {
 // grow or shift, and no other icon is affected. The glyph itself just scales
 // up, centred, on its own :hover — a plain CSS transition, no JS physics.
 // A macOS-style dot beneath the icon marks the world currently open.
-function DockItem({ app, active }) {
-  const isOn = app.world && app.world === active;
+function DockItem({ app, active, minimised }) {
+  // The dot means "open", which now covers two states: the world you are IN,
+  // and a world you left with the yellow light — minimised, still open, its
+  // icon still marked in the dock, exactly as macOS does it.
+  const isOn =
+    !!app.world && (app.world === active || minimised.includes(app.world));
   return (
     <button
       type="button"
@@ -111,7 +115,7 @@ function DockItem({ app, active }) {
   );
 }
 
-export default function Dock({ visible, onChoose, active }) {
+export default function Dock({ visible, onChoose, active, minimised = [] }) {
   // COLORFUL, LIKE A REAL DOCK (2026-08-18). The single monochrome tint was a
   // deliberate premium-glass choice, and it is superseded: five same-grey
   // glyphs read as "icon row", and a dock reads as a dock because its icons
@@ -208,7 +212,7 @@ export default function Dock({ visible, onChoose, active }) {
         <div className="dock-glass-bevel" aria-hidden="true" />
         <div className="dock-row">
           {apps.map((a) => (
-            <DockItem key={a.key} app={a} active={active} />
+            <DockItem key={a.key} app={a} active={active} minimised={minimised} />
           ))}
         </div>
       </div>

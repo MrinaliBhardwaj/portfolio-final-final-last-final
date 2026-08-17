@@ -110,6 +110,19 @@
   color: var(--void-text);
 }
 
+/* the menu bar clock — same quiet ink as the links beside it, tabular figures
+   so the minute changing doesn't shift the row's width */
+.cover-clock {
+  margin-left: 0.55rem;
+  font-family: var(--font-ui);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  font-variant-numeric: tabular-nums;
+  color: var(--void-dim);
+  white-space: nowrap;
+}
+
 .cover-social {
   display: flex;
   align-items: center;
@@ -422,164 +435,13 @@
 /* absolutely placed inside the pinned stage so the two blocks float in the
    side margins, vertically centred relative to the flower. No cards, no
    panels — text floating in space. */
-.cover-split {
-  position: absolute;
-  inset: 0;
-  z-index: 4;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 clamp(2rem, 6vw, 6.5rem);
-}
-
-/* The file column (desktop-files.css) owns a ~112px band down the right edge
-   at ≥900px, and the tech card is right-aligned text — without this it runs
-   under the column's third tile at 1366-1440. The asymmetry doesn't read as
-   one: the column fills the band the card cedes. */
-@media (min-width: 900px) {
-  .cover-split {
-    padding-right: calc(clamp(2rem, 6vw, 6.5rem) + 96px);
-  }
-}
-
-.cover-side {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  max-width: 21rem;
-}
-
-/* design reads left-aligned (overrides the stage's inherited text-align) */
-.cover-side--design {
-  align-items: flex-start;
-  text-align: left;
-}
-
-.cover-side--tech {
-  align-items: flex-end;
-  text-align: right;
-}
-
-/* a whisper of a scrim keeps the serif legible over the darker side regions
-   of the video without reading as a box */
-.cover-side::before {
-  content: "";
-  position: absolute;
-  top: 50%;
-  width: 150%;
-  height: 160%;
-  transform: translateY(-50%);
-  z-index: -1;
-  pointer-events: none;
-}
-
-.cover-side--design::before {
-  left: -25%;
-  background: radial-gradient(
-    58% 50% at 42% 50%,
-    rgba(1, 1, 4, 0.66),
-    transparent 74%
-  );
-}
-
-.cover-side--tech::before {
-  right: -25%;
-  background: radial-gradient(
-    58% 50% at 58% 50%,
-    rgba(1, 1, 4, 0.66),
-    transparent 74%
-  );
-}
-
-/* mono discipline label */
-.cover-side-label {
-  font-family: var(--font-mono-alt);
-  font-size: 0.72rem;
-  letter-spacing: 0.42em;
-  text-transform: uppercase;
-  margin-bottom: 1.1rem;
-}
-
-.cover-side--design .cover-side-label {
-  color: var(--design-tint);
-}
-
-.cover-side--tech .cover-side-label {
-  color: var(--tech-tint);
-  margin-right: -0.42em; /* absorb trailing letter-spacing for a flush edge */
-}
-
-/* editorial serif heading, softly glowing in its tint.
-   CAPTION-SIZED (2026-08-18): this was clamp(2.6rem, 4vw, 4rem) — landing-page
-   hero scale, which is what made the settled state read as a marketing section
-   sitting ON a desktop instead of part of one. At ~60% it reads as a caption
-   over the wallpaper: the words stay, the shouting stops. */
-.cover-side-title {
-  font-family: var(--font-serif);
-  font-weight: 500;
-  font-size: clamp(1.7rem, 2.5vw, 2.4rem);
-  line-height: 1.12;
-  letter-spacing: 0.005em;
-  max-width: 9em;
-}
-
-.cover-side--design .cover-side-title {
-  color: var(--design-tint);
-  text-shadow: 0 0 46px rgba(242, 199, 211, 0.3);
-}
-
-.cover-side--tech .cover-side-title {
-  color: var(--tech-tint);
-  text-shadow: 0 0 46px rgba(167, 199, 255, 0.28);
-}
-
-.cover-side-body {
-  margin-top: 0.9rem;
-  font-family: var(--font-serif);
-  font-weight: 400;
-  font-size: clamp(0.98rem, 1.05vw, 1.08rem);
-  line-height: 1.6;
-  color: rgba(237, 236, 234, 0.7);
-  max-width: 21rem;
-}
-
-/* delicate, not button-like: a letter-spaced mono line with a hairline rule */
-.cover-side-cta {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.55rem;
-  margin-top: 1.6rem;
-  padding-bottom: 0.4rem;
-  font-family: var(--font-mono-alt);
-  font-size: 0.72rem;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  text-decoration: none;
-  color: rgba(237, 236, 234, 0.82);
-  border-bottom: 1px solid rgba(237, 236, 234, 0.22);
-  transition: color 0.4s var(--ease-soft), border-color 0.4s var(--ease-soft);
-}
-
-.cover-side-cta svg {
-  transition: transform 0.4s var(--ease-soft);
-}
-
-.cover-side--design .cover-side-cta:hover,
-.cover-side--design .cover-side-cta:focus-visible {
-  color: var(--design-tint);
-  border-color: var(--design-tint);
-}
-
-.cover-side--tech .cover-side-cta:hover,
-.cover-side--tech .cover-side-cta:focus-visible {
-  color: var(--tech-tint);
-  border-color: var(--tech-tint);
-}
-
-.cover-side-cta:hover svg,
-.cover-side-cta:focus-visible svg {
-  transform: translate(2px, -2px);
-}
+/* The two discipline cards that lived here — .cover-split / .cover-side and
+   their labels, serif titles, bodies, radial scrims and Explore CTAs — were
+   deleted on 18 Aug 2026 with the copy they carried. The settled cover is a
+   desktop; the work is scattered across it as files, and a landing page's
+   two-column pitch on top of that was the last of the other fiction.
+   Navigation lost nothing: design and tech are in the menu bar, in the dock,
+   and on the desktop as design.fig / tech.ts. */
 
 /* ============ the margin notes ============ */
 /* Two annotations pinned to the vertical centre of the stage's left and right
@@ -823,47 +685,8 @@
   }
 
 
-  /* the split stacks: Design near the top, Tech near the bottom, flower
-     centred behind — the two disciplines still frame the bloom */
-  .cover-split {
-    flex-direction: column;
-    justify-content: space-between;
-    align-items: center;
-    /* extra bottom room so the tech block clears the floating dock */
-    padding: 6rem 1.5rem 9rem;
-    text-align: center;
-  }
-
-  .cover-side,
-  .cover-side--tech {
-    max-width: 100%;
-    align-items: center;
-    text-align: center;
-  }
-
-  .cover-side--tech .cover-side-label {
-    margin-right: 0;
-  }
-
-  .cover-side::before {
-    left: 50%;
-    right: auto;
-    width: 130%;
-    transform: translate(-50%, -50%);
-    background: radial-gradient(
-      60% 50% at 50% 50%,
-      rgba(1, 1, 4, 0.66),
-      transparent 74%
-    );
-  }
-
-  .cover-side-title {
-    font-size: clamp(2.1rem, 9vw, 2.9rem);
-    max-width: 12ch;
-  }
-
-  .cover-side-body {
-    font-size: 1rem;
-    max-width: 34ch;
-  }
+  /* The narrow-screen stacking rules for .cover-split / .cover-side went with
+     the cards themselves (18 Aug 2026). Below 900px the desktop files are
+     hidden too, so a phone gets the bloom, the name, the menu bar and the
+     dock — which is the whole of what this cover is now. */
 }

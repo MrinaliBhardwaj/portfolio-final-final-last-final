@@ -18,6 +18,10 @@
 .wt-home {
   display: inline-flex;
   align-items: center;
+  /* holds the RIGHT end of the bar (18 Aug 2026) — it used to lead the row
+     next to the traffic lights, which made the top-left corner read as one
+     crowded cluster of identity + window controls */
+  margin-left: auto;
   padding: 0 0.85rem;
   font-family: var(--font-monogram);
   font-weight: 400;

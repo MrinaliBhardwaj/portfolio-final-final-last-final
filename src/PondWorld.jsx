@@ -9,7 +9,7 @@
 // (React owns it here; upstream it was static markup in froggie's index.html),
 // and the portfolio's chrome. The game itself is untouched under froggie/.
 import { useEffect, useRef, useState } from "react";
-import { X } from "lucide-react";
+import WindowLights from "./WindowLights.jsx";
 import { Game } from "./froggie/engine/Game";
 import { ambience } from "./froggie/audio/Ambience";
 
@@ -60,9 +60,6 @@ export default function PondWorld() {
     };
   }, []);
 
-  const back = () => {
-    window.location.hash = "/";
-  };
 
   return (
     <div className="pw">
@@ -71,17 +68,10 @@ export default function PondWorld() {
       </div>
 
       <header className="pw-top">
+        <WindowLights world="pond" label="the Game" />
         <a className="pw-mark" href="#/" aria-label="Mrinali Bhardwaj — home">
           mb
         </a>
-        <button
-          type="button"
-          className="pw-close"
-          onClick={back}
-          aria-label="Close the pond and return to the start"
-        >
-          <X size={18} strokeWidth={1.6} aria-hidden="true" />
-        </button>
       </header>
 
       {/* the one piece of non-canvas UI: what this is, and how it's going */}

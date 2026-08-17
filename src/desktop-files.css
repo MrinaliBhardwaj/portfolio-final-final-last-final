@@ -11,11 +11,12 @@
   pointer-events: none;
 }
 
-/* One tile: icon over a Finder-style label. Positioned by the component off
-   the --dgrid-* knobs below, sized here. Corner-anchored (right/top), no
-   centring margins: a grid aims edges at lines, not centres at points — the
-   negative-margin trick existed for eyeballing the scatter against the lotus
-   and died with it. */
+/* One tile: icon over a Finder-style label. Positioned by the component as a
+   percentage of the stage, sized here. The negative margins pull the box back
+   by half of itself so the component's left/top land on the ICON'S CENTRE —
+   the scatter is placed by eye against the lotus, and aiming a corner at a
+   point you picked visually is guesswork. Margins, not a transform: Framer
+   owns the transform here for the fade. */
 .dfile {
   position: absolute;
   display: flex;
@@ -27,9 +28,20 @@
      and the names rendered as "resume-desig…". The icon keeps --dfile-w; only
      the naming gets the room. */
   width: var(--dfile-tile);
+  margin-left: calc(var(--dfile-tile) / -2);
+  margin-top: calc(var(--dfile-ih) / -2);
   text-decoration: none;
   cursor: pointer;
   will-change: transform, opacity;
+}
+
+/* A project thumbnail is landscape, so its tile gets more room than a document
+   tile — otherwise the cover shrinks to the width of a PDF icon and stops
+   being legible as a picture of the work. */
+.dfile--wide {
+  --dfile-w: clamp(76px, 6.6vw, 98px);
+  --dfile-tile: calc(var(--dfile-w) * 1.18);
+  --dfile-ih: calc(var(--dfile-w) * 0.78);
 }
 
 .cover-desktop {
@@ -37,15 +49,27 @@
   --dfile-w: clamp(42px, 3.7vw, 54px);
   --dfile-tile: calc(var(--dfile-w) * 1.55);
   --dfile-ih: calc(var(--dfile-w) * 1.25);
-  /* THE GRID. Right inset clears nothing (the column owns that band — see the
-     .cover-split padding note in cover.css); first row clears the menu bar
-     (~66px tall) with air; pitch is the tile's own height (icon + gap + label
-     ≈ 92 at full size) plus a Finder-ish gutter, tied to --dfile-w so the
-     short-window media query below retunes the whole column by turning its
-     one knob. */
-  --dgrid-right: 26px;
-  --dgrid-top: 96px;
-  --dgrid-pitch: calc(var(--dfile-ih) + 0.44rem + 17px + 26px);
+}
+
+/* ---- a project cover, framed like a macOS image file ----
+   White border, picture inside, real shadow under the whole card. The frame is
+   what turns a screenshot into a FILE — without it the covers read as images
+   floating on the wallpaper rather than as things sitting on a desktop. */
+.dfile-shot {
+  display: block;
+  width: 100%;
+  padding: 4px 4px 5px;
+  background: #fdfdfb;
+  border-radius: 2px;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.5), 0 2px 5px rgba(0, 0, 0, 0.4);
+}
+
+.dfile-shot img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 1px;
 }
 
 /* A FIXED box, bottom-aligned. The two artworks have different aspect ratios —
@@ -65,7 +89,7 @@
   transition: transform 0.4s var(--ease-soft);
 }
 
-.dfile-art {
+.dfile-art:not(.dfile-shot) {
   width: 100%;
   height: auto;
   /* a real drop shadow, not a box-shadow: the icons are cut-out shapes (a folded
@@ -155,7 +179,6 @@
 @media (max-height: 760px) {
   .cover-desktop {
     --dfile-w: clamp(38px, 3.1vw, 46px);
-    --dgrid-top: 88px;
   }
 }
 

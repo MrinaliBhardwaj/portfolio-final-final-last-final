@@ -8,8 +8,9 @@
 // document shouldn't eject you from the editor, so the per-tab × is gone and
 // the single app-close × owns that job. Hidden on mobile, where the dock alone
 // carries switching and each world's own mobile header carries home.
-import { Code2, X } from "lucide-react";
+import { Code2 } from "lucide-react";
 import { FigmaMark } from "./BrandIcons.jsx";
+import WindowLights from "./WindowLights.jsx";
 
 // file-flavoured labels in BOTH chromes now — the filenames are the charm, and
 // keeping them identical kills the old "design.fig here, plain 'design' there"
@@ -27,9 +28,6 @@ export default function WorldTabs({ world }) {
   const go = (w) => {
     if (w !== world) window.location.hash = "/" + w;
   };
-  const home = () => {
-    window.location.hash = "/";
-  };
 
   const tabs = [
     {
@@ -46,13 +44,12 @@ export default function WorldTabs({ world }) {
 
   return (
     <nav className={`wt wt--${chrome}`} aria-label="Open pages">
-      {/* home: the same badge, same corner, same destination as every world.
-          The span is the optical-centring hook — Pinyon sits low in its em box
-          and needs a nudge, but transforming the anchor would drag its hover
-          background along with it. */}
-      <a className="wt-home" href="#/" aria-label="Mrinali Bhardwaj — home">
-        <span>mb</span>
-      </a>
+      {/* The lights own the top-LEFT corner alone, the way a Mac window's do —
+          nothing else shares that end of the bar. The monogram used to sit
+          immediately after them and now sits at the far right (18 Aug 2026, by
+          request): it is the identity mark, not a window control, and the two
+          reading as one cluster was what made the corner feel crowded. */}
+      <WindowLights world={world} label={LABELS[world]} />
 
       {tabs.map((t) => {
         const isActive = t.world === world;
@@ -70,15 +67,14 @@ export default function WorldTabs({ world }) {
         );
       })}
 
-      {/* one close for the whole app; sits at the far right of the title bar */}
-      <button
-        type="button"
-        className="wt-close"
-        onClick={home}
-        aria-label="Close and return to the start"
-      >
-        <X size={14} strokeWidth={1.6} aria-hidden="true" />
-      </button>
+      {/* home, now at the FAR RIGHT — `margin-left: auto` in world-tabs.css is
+          what pushes it there, the same trick the old close × used to hold that
+          end. The span is the optical-centring hook: Pinyon sits low in its em
+          box and needs a nudge, but transforming the anchor would drag its
+          hover background along with it. */}
+      <a className="wt-home" href="#/" aria-label="Mrinali Bhardwaj — home">
+        <span>mb</span>
+      </a>
     </nav>
   );
 }

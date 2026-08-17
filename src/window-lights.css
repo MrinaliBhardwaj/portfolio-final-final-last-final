@@ -1,0 +1,87 @@
+/* ============ the traffic lights ============ */
+/* One set of three, shared by every world's title bar (WindowLights.jsx).
+   Colours are macOS's own, not approximations: #ff5f57 / #febc2e / #28c840.
+
+   They sit at the FAR LEFT of the bar, ahead of the monogram, because that is
+   where a Mac window puts them — a close button parked on the right is the
+   Windows arrangement, and the whole point of this pass is that the chrome
+   reads as the right operating system. */
+.wlights {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-right: 4px;
+}
+
+/* The design/tech title bar has no padding of its own, so the lights landed
+   flush against the window edge — measured 0px. macOS insets them; 18px is the
+   distance that stops them reading as if they had fallen off the corner. The
+   three thin world headers (Notes, Gallery, the Game) already carry their own
+   padding, so this is scoped rather than global. */
+.wt .wlights {
+  padding-left: 18px;
+}
+
+.wlight {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 12px;
+  height: 12px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  cursor: pointer;
+  /* the glyph inside is hidden until the group is hovered — see below */
+  color: rgba(0, 0, 0, 0.55);
+  transition: filter 0.2s var(--ease-soft);
+}
+
+.wlight--close {
+  background: #ff5f57;
+}
+
+.wlight--min {
+  background: #febc2e;
+}
+
+.wlight--max {
+  background: #28c840;
+}
+
+/* THE SYMBOLS ONLY APPEAR ON HOVER OF THE WHOLE GROUP — the detail that makes
+   these read as macOS rather than as three coloured circles. Point anywhere at
+   the cluster and all three reveal their glyphs together; the dots are bare at
+   rest. `:focus-within` so a keyboard user tabbing in gets the same reveal. */
+.wlight svg {
+  opacity: 0;
+  transition: opacity 0.15s var(--ease-soft);
+}
+
+.wlights:hover .wlight svg,
+.wlights:focus-within .wlight svg {
+  opacity: 1;
+}
+
+.wlight:hover {
+  filter: brightness(0.92);
+}
+
+.wlight:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.85);
+  outline-offset: 2px;
+}
+
+/* On the design world's light Figma toolbar the lights sit on a pale surface,
+   where full-strength macOS colours are louder than the rest of that chrome.
+   A hair of desaturation settles them without changing the hues. */
+.wt--figma .wlights .wlight {
+  filter: saturate(0.92);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wlight,
+  .wlight svg {
+    transition: none;
+  }
+}

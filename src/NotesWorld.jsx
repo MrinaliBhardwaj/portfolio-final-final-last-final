@@ -13,35 +13,23 @@
 // Notes is the portfolio's one LIGHT world on purpose. Design, tech, gallery
 // and the pond are all dark; the scrapbook is paper, and Apple Notes is paper
 // too, so the app and its contents agree instead of fighting.
-import { Smartphone, X } from "lucide-react";
+import { Smartphone } from "lucide-react";
 import Scene from "./Scene.jsx";
 import SceneTwo from "./SceneTwo.jsx";
 import SceneThree from "./SceneThree.jsx";
+import WindowLights from "./WindowLights.jsx";
 
 export default function NotesWorld() {
-  // The PROFILE.TXT / PROFILE.DOC file tabs and their "pull for profile"
-  // pencil notes are gone (27 July 2026, by request), so the scenes no longer
-  // take an `onOpen` — the scrapbook is now purely something you read, and the
-  // dock is the way out of it.
-  const back = () => {
-    window.location.hash = "/";
-  };
-
   return (
     <div className="nw">
+      {/* The lone × on the right became the three lights on the left
+          (18 Aug 2026) — see WindowLights.jsx; all three do something real. */}
       <header className="nw-top">
+        <WindowLights world="notes" label="Notes" />
         <a className="nw-mark" href="#/" aria-label="Mrinali Bhardwaj — home">
           mb
         </a>
         <span className="nw-app">Notes</span>
-        <button
-          type="button"
-          className="nw-close"
-          onClick={back}
-          aria-label="Close Notes and return to the start"
-        >
-          <X size={18} strokeWidth={1.6} aria-hidden="true" />
-        </button>
       </header>
 
       {/* Portrait phones only (see notes-world.css): both pages are wide

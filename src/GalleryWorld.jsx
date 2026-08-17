@@ -1,8 +1,8 @@
 // GALLERY WORLD: the dock's Gallery app. A full-viewport immersive dome of
 // images floating in the void — drag to rotate, click a tile to enlarge.
-// Minimal chrome (monogram + close) so the dome owns the screen; the dock
+// Minimal chrome (traffic lights + monogram) so the dome owns the screen; the dock
 // (owned by App) still floats over it as the OS layer.
-import { X } from "lucide-react";
+import WindowLights from "./WindowLights.jsx";
 import DomeGallery from "./DomeGallery.jsx";
 
 // the dome's outer radial fade blends into this exact colour, so the sphere
@@ -27,9 +27,6 @@ const IMAGES = Array.from({ length: 28 }, (_, i) => ({
 }));
 
 export default function GalleryWorld() {
-  const back = () => {
-    window.location.hash = "/";
-  };
 
   return (
     <div className="gw" style={{ background: GALLERY_BG }}>
@@ -48,18 +45,11 @@ export default function GalleryWorld() {
       </div>
 
       <header className="gw-top">
+        <WindowLights world="gallery" label="Gallery" />
         <a className="gw-mark" href="#/" aria-label="Mrinali Bhardwaj — home">
           mb
         </a>
         <span className="gw-label">Gallery</span>
-        <button
-          type="button"
-          className="gw-close"
-          onClick={back}
-          aria-label="Close gallery and return to the start"
-        >
-          <X size={18} strokeWidth={1.6} aria-hidden="true" />
-        </button>
       </header>
 
       <p className="gw-hint" aria-hidden="true">

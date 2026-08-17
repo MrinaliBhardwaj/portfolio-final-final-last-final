@@ -10,6 +10,7 @@
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, MotionConfig } from "framer-motion";
 import Cover, { hasSeenIntro } from "./Cover.jsx";
+import { clearMinimised, minimisedWorlds } from "./WindowLights.jsx";
 import DesignWorld from "./DesignWorld.jsx";
 import TechWorld from "./TechWorld.jsx";
 import { WorldOpening } from "./world-open.js";
@@ -23,6 +24,7 @@ import "./cover.css";
 import "./desktop-files.css";
 import "./dock.css";
 import "./world-tabs.css";
+import "./window-lights.css";
 import "./design-world.css";
 import "./project-page.css";
 import "./figma-panel.css";
@@ -167,6 +169,9 @@ export default function App() {
   const [route, setRoute] = useState(getRoute);
   const [project, setProject] = useState(getProject);
   const [coverSettled, setCoverSettled] = useState(false);
+  // worlds the yellow light was used on: still "open", so the dock keeps their
+  // dot even though you are back on the desktop (see WindowLights.jsx)
+  const [minimised, setMinimised] = useState(minimisedWorlds);
 
   useEffect(() => {
     const onHash = () => {
@@ -198,6 +203,10 @@ export default function App() {
       ? `${named.name} — Mrinali Bhardwaj`
       : TITLES[route];
     document.documentElement.dataset.world = route || "void";
+    // Opening a world un-minimises it; landing anywhere re-reads the set, which
+    // is how the lights' sessionStorage writes reach the dock without threading
+    // a setter down through five unrelated world components.
+    setMinimised(route ? clearMinimised(route) : minimisedWorlds());
     // The scroll reset and the dock retraction are FIRST-VISIT behaviours on
     // the cover. Once the ceremony has been seen, Cover lands itself at the
     // settled desktop in a layout effect and announces settled — and THIS
@@ -300,6 +309,7 @@ export default function App() {
         visible={route === "" ? coverSettled : true}
         onChoose={dockChoose}
         active={route || null}
+        minimised={minimised}
       />
     </MotionConfig>
   );

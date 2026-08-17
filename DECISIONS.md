@@ -2271,3 +2271,65 @@ displayed, so AnimatePresence cannot complete the cover's exit there at all —
 the landing code is the same path as the verified fresh-load case) and the two
 scroll-driven beats' feel. Same caveat already standing on the tech world's
 badge fall.
+
+## The desktop becomes the portfolio (2026-08-18, second pass)
+
+After going through the macOS-folio reference's screenshots. The lesson from
+them was not the chrome — it was that **the scattered files ARE the portfolio**:
+each one is a thumbnail of the actual work, framed like a macOS image file, and
+opening one opens the project. Ours were chrome.
+
+- **The desktop carries her real covers** from `projects.js` — Meal Maestro,
+  Layover, Futurepreneurs — in white photo frames, scattered down the left.
+  The résumés, the work folder and GitHub keep drawn icons down the right: a
+  PDF is not a picture, and a folder showing a preview stops reading as a
+  folder. Clicking a project opens its case study.
+- **This is the third arrangement in two days** (art-directed scatter → tidy
+  top-right grid → scattered project art) and supersedes both.
+
+**THE LOTUS OWNS THE MIDDLE, and the box is measured, not guessed.** The
+wallpaper is the bloom's LAST frame, so `public/lotus/f39.webp` was profiled at
+luminance > 130 in 5% bins: the flower's mass is **x 40–65%, y 30–65%**, and
+every bin outside that holds under 80 stray pixels (starfield, petal tips). A
+naive 1–99 percentile box said x 13–88% — those specks nearly cost us the whole
+screen. `NO_GO` in DesktopFiles.jsx pads it to x 36–69 / y 26–69, and a DEV-only
+assertion logs any file placed inside it.
+
+**The two discipline cards are gone** — "What blooms in sight", "What roots
+beneath", both bodies, both Explore CTAs, their radial scrims and every type
+style, plus the narrow-screen stacking block. They were the last of the
+landing-page fiction sitting on the machine one, and with the work scattered
+across the screen there was nothing left for them to do but compete.
+Navigation lost nothing: design and tech are in the menu bar, in the dock, and
+on the desktop as `design.fig` / `tech.ts`.
+
+### The Mac details taken from the reference
+
+- **A live menu-bar clock**, macOS's own format via `Intl` (no date library),
+  ticking on the real minute boundary rather than a drifting 60s interval.
+  `aria-hidden` — a clock that re-renders every minute is noise to a reader.
+- **Dock name-tags wait 150ms** before showing and vanish instantly, because
+  the delay sits only on the hover rule. macOS makes you *mean* the hover.
+- **The dock row is `align-items: flex-end`** with a bottom `transform-origin`,
+  so magnification grows icons UPWARD off a shared floor.
+- **Traffic lights on every world's title bar** (`WindowLights.jsx`), replacing
+  the lone ×. macOS colours, macOS order, symbols revealed only on hover of the
+  group. On design/tech they own the top-left corner alone and the `mb`
+  monogram moved to the far right, by request.
+
+**All three lights do something real**, which is the constraint the reference
+fails: it paints three dots and wires only the red one. Red closes to the
+desktop; **yellow minimises — the world stays "open" and its dock icon keeps
+its dot**, exactly as a minimised Mac window lives on in the dock; green
+toggles real browser fullscreen. The minimised set rides in `sessionStorage`
+because `WindowLights` sits deep inside each world and the `Dock` is a sibling
+of the routes up in `App`.
+
+Verified at 1366×768 and 1920×1080: seven files, zero inside the no-go box,
+zero colliding with each other, none under the menu bar or over the dock, no
+horizontal overflow; lights inset 18px, correct colours and order, symbols
+hidden at rest; `mb` at the far right after the tabs.
+
+**Still to do:** files open their case-study *page*. The reference opens them
+as draggable windows ON the desktop, which is the bigger idea and the obvious
+next pass.

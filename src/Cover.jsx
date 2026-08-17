@@ -5,9 +5,10 @@
 // The narrative runs in one pinned stage, in three beats driven by scroll:
 //   1. the name "Mrinali Bhardwaj" (one identity) rises and fades away
 //   2. the bloomed lotus holds alone for a beat
-//   3. the identity DIVERGES — Design (left, pink) and Tech (right, blue)
-//      reveal on either side of the still lotus, and the nav labels brighten
-//      to their side colors. The two "Explore" CTAs enter each world.
+//   3. the identity DIVERGES — and what reveals is the DESKTOP: the dock
+//      surfaces, and her work scatters across the screen as files. The two
+//      discipline cards that used to fill this beat were deleted on
+//      18 Aug 2026; see the note where .cover-split used to be rendered.
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import {
   motion,
@@ -15,7 +16,7 @@ import {
   useTransform,
   useMotionValueEvent,
 } from "framer-motion";
-import { ChevronDown, Mail, ArrowUpRight } from "lucide-react";
+import { ChevronDown, Mail } from "lucide-react";
 import { LinkedInMark } from "./BrandIcons.jsx";
 import { EMAIL, LINKEDIN } from "./links.js";
 import TextMorph from "./TextMorph.jsx";
@@ -54,8 +55,8 @@ const POSTER_URL = "/lotus-still.webp";
 // fully open at the top → folds closed (~progress 0.3) → the bud turns
 // (0.3–0.5) → blooms back open toward the bottom. The arc spans the WHOLE
 // track (0 → 1) so there's no frozen held frame at the end. Beat timings below
-// are unchanged: the name is gone while the flower is closed; the split text
-// reveals as it re-opens past progress ~0.5.
+// are unchanged: the name is gone while the flower is closed; the desktop
+// settles as it re-opens past progress ~0.77.
 const SCRUB_END = 1;
 
 const EASE = [0.22, 1, 0.36, 1];
@@ -93,6 +94,49 @@ export const hasSeenIntro = () => {
     return false;
   }
 };
+
+// THE MENU BAR CLOCK. The strongest "this is a machine, not a website" signal
+// available for the price — macOS's own format, live. Intl rather than a date
+// library: two calls against the platform's formatter, no dependency, and the
+// month/weekday names come out localised for free.
+//
+// It ticks on the MINUTE, not on an interval: a naive setInterval(60s) drifts
+// off the real minute boundary and the displayed time lags by up to a minute.
+// Each tick schedules the next one for the top of the following minute.
+function MenuClock() {
+  const [now, setNow] = useState(() => new Date());
+
+  useEffect(() => {
+    let timer;
+    const tick = () => {
+      const d = new Date();
+      setNow(d);
+      // ms remaining in the current minute, +50 so we land just past the edge
+      timer = setTimeout(tick, 60000 - (d.getSeconds() * 1000 + d.getMilliseconds()) + 50);
+    };
+    tick();
+    return () => clearTimeout(timer);
+  }, []);
+
+  const day = now.toLocaleDateString("en-GB", {
+    weekday: "short",
+    day: "numeric",
+    month: "short",
+  });
+  const time = now.toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+  });
+
+  // aria-hidden: a clock that re-renders every minute is noise to a screen
+  // reader, and it carries no information about the portfolio. It is set
+  // dressing, and set dressing should stay quiet.
+  return (
+    <span className="cover-clock" aria-hidden="true">
+      {day} {time}
+    </span>
+  );
+}
 
 const markIntroSeen = () => {
   try {
@@ -318,14 +362,9 @@ export default function Cover({ onChoose, onSettledChange }) {
     v > 0.14 ? "paused" : "running"
   );
 
-  // beat 3: ~0.5s after the name is gone, as the flower STARTS re-blooming
-  // (~T5.1, progress ~0.51), the two disciplines drift in from their sides —
-  // tech a touch after design — settling as the bloom opens. The flower keeps
-  // opening past the settle point to full bloom at the very bottom.
-  const designOpacity = useTransform(scrollYProgress, [0.51, 0.67], [0, 1]);
-  const designX = useTransform(scrollYProgress, [0.51, 0.74], [-40, 0]);
-  const techOpacity = useTransform(scrollYProgress, [0.55, 0.71], [0, 1]);
-  const techX = useTransform(scrollYProgress, [0.55, 0.78], [40, 0]);
+  // Beat 3's four scroll-driven transforms (designOpacity/X, techOpacity/X)
+  // went with the discipline cards they animated. `split` survives them: it
+  // still pauses the two TextMorph columns at the divergence.
 
   // Paint the frame matching scroll progress, and drive the starfield from the
   // SAME loop — one requestAnimationFrame for the whole cover. Two independent
@@ -362,10 +401,6 @@ export default function Cover({ onChoose, onSettledChange }) {
     };
   }, []);
 
-  const choose = (side) => (e) => {
-    e.preventDefault();
-    onChoose(side);
-  };
 
   return (
     <div className="cover">
@@ -445,6 +480,8 @@ export default function Cover({ onChoose, onSettledChange }) {
           <a href={`mailto:${EMAIL}`} aria-label="Email">
             <Mail size={19} strokeWidth={1.75} />
           </a>
+          {/* far right, after the status icons — macOS's own order */}
+          <MenuClock />
         </div>
       </header>
 
@@ -557,56 +594,18 @@ export default function Cover({ onChoose, onSettledChange }) {
             </motion.div>
           </motion.aside>
 
-          {/* beat 3: the split — one identity diverging into two disciplines */}
-          <div
-            className="cover-split"
-            style={{ pointerEvents: split ? "auto" : "none" }}
-          >
-            <motion.div
-              className="cover-side cover-side--design"
-              style={{ opacity: designOpacity, x: designX }}
-            >
-              <p className="cover-side-label">Design</p>
-              <h2 className="cover-side-title">What blooms in sight</h2>
-              {/* one line each, caption voice — the sentence-length bodies read
-                  as a marketing section over the desktop (2026-08-18) */}
-              <p className="cover-side-body">
-                Motion, typography, interaction—how ideas breathe.
-              </p>
-              <a
-                className="cover-side-cta"
-                href="#/design"
-                onClick={choose("design")}
-              >
-                Explore Design
-                <ArrowUpRight size={15} strokeWidth={1.5} aria-hidden="true" />
-              </a>
-            </motion.div>
+          {/* BEAT 3 IS NOW THE DESKTOP ITSELF. The two discipline cards that
+              lived here — "Design / What blooms in sight / …" and "Tech / What
+              roots beneath / …", with their two Explore CTAs — were deleted on
+              18 Aug 2026 by request. They were the last of the landing-page
+              fiction sitting on top of the machine one, and with the files
+              scattered across the screen as the hero there is nothing for them
+              to do but compete.
 
-            <motion.div
-              className="cover-side cover-side--tech"
-              style={{ opacity: techOpacity, x: techX }}
-            >
-              <p className="cover-side-label">Tech</p>
-              <h2 className="cover-side-title">What roots beneath</h2>
-              <p className="cover-side-body">
-                Systems, structure, reason—how they stand.
-              </p>
-              <a
-                className="cover-side-cta"
-                href="#/tech"
-                onClick={choose("tech")}
-              >
-                Explore Tech
-                <ArrowUpRight size={15} strokeWidth={1.5} aria-hidden="true" />
-              </a>
-            </motion.div>
-          </div>
-
-          {/* the screen's own files, arriving with the dock: this half of the
-              cover is a desktop, and a desktop with a dock but nothing on it is
-              a screenshot. Two résumés and GitHub, scattered into the corners
-              the split text doesn't claim. */}
+              Navigation lost nothing: design and tech are in the menu bar, in
+              the dock, and on the desktop as design.fig / tech.ts. The whole
+              `.cover-split` block, its scrims and its type styles are gone from
+              cover.css too rather than left orphaned. */}
           <DesktopFiles visible={settled} />
 
           <motion.div
