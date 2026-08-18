@@ -2333,3 +2333,58 @@ hidden at rest; `mb` at the far right after the tabs.
 **Still to do:** files open their case-study *page*. The reference opens them
 as draggable windows ON the desktop, which is the bigger idea and the obvious
 next pass.
+
+## The top bar becomes the operating system (2026-08-18, third pass)
+
+The brief: make the top of the page read as a real Mac menu bar, so a visitor
+thinks *"I'm looking at someone's Mac desktop"* rather than *"this is a
+portfolio with a Mac-style navbar."* `.cover-nav` — monogram, centred
+DESIGN/TECH/NOTES/GALLERY/GAME strip, social icons — is replaced by
+`MenuBar.jsx` + `menu-bar.css`.
+
+**Left:**  `mb` (Pinyon, the frontmost app's name) · File · Edit · View ·
+Go · Window · Help. **Right:** Wi-Fi · Spotlight · Control Centre · Battery ·
+a live clock.
+
+**Where the navigation went, and why it is better there.** The centred strip was
+built four days ago to fix a real problem: gallery, notes and the game appear in
+no other navigation, and the dock is hidden on the cover until the scrub
+settles. Deleting it outright would have reopened that. **macOS already has the
+right drawer — the Go menu is where a Mac keeps its locations** — so the five
+worlds live there. More authentic than the strip, not a compromise.
+
+**Every menu item does something real**, which is the same constraint that
+retired the Claude dock tile: File opens design/tech/GitHub, Edit copies her
+email to the clipboard, View drives real fullscreen and **replays the intro**
+(clears `mb-intro-seen` *and* scrolls to the top — the flag alone does nothing
+when you are standing at the bottom of the track), Go navigates, Window returns
+to the desktop, Help opens mail and LinkedIn.
+
+**The four status icons are the deliberate exception.** Wi-Fi, Spotlight,
+Control Centre and the battery are inert set dressing — a fake Wi-Fi panel is
+the "unnecessary functionality" the brief rules out. They are `aria-hidden`
+spans rather than buttons, so a screen reader is not told there are four
+controls that do nothing, and they keep a hover plate because a Mac's do.
+
+**What makes it read as system chrome is what it lacks:** no border, no radius,
+no gradient, no shadow, no glow — a 28px translucent film
+(`rgba(10,10,12,0.42)` + `blur(22px) saturate(1.6)`) welded to the top edge with
+the wallpaper visibly behind it. `saturate` is load-bearing: without it the
+lotus goes grey through the blur. The one place an edge is allowed is a dropped
+menu, because a real menu is a floating panel.
+
+**One bug worth remembering: `height: 100%` does not survive nested flex.**
+`.mb-menu` measured **0px** tall, which anchored every dropdown to the top of
+the *viewport* instead of the bar's underside. A percentage height only
+resolves against a definite container height, and two levels in it did not.
+`align-self: stretch` has no such dependency.
+
+Verified at 1440×900: bar 28px, full width, at y=0; order Apple → mb → File →
+Edit → View → Go → Window → Help … Wi-Fi → Spotlight → Control Centre →
+Battery → `Tue 18 Aug 11:52 AM`; no border/radius/shadow/gradient; hover plate
+`rgba(255,255,255,0.15)`; Go opens 3px below the bar, aligned to its title,
+200×126, on screen; the pointer switches menus without a second click, Escape
+closes, and every item is a real `<a href>` or `<button>`. At ≤720px the menus
+and the first three status icons drop, leaving the Apple mark, `mb` and the
+clock — the chrome that still says "machine" — with the dock carrying
+navigation.

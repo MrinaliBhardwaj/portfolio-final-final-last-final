@@ -1,0 +1,203 @@
+/* ============ the macOS menu bar ============ */
+/* A SYSTEM LAYER, not a navbar, and every rule here is in service of that one
+   distinction. What makes a real menu bar read as the OS is what it does NOT
+   have: no rounded container, no border, no gradient, no glow, no shadow — it
+   is a thin translucent film welded to the top edge of the screen, and the
+   wallpaper is visibly behind it. Anything that gives it an edge of its own
+   turns it back into a website header sitting on a page.
+
+   28px: macOS's own is 24 at default scaling and 28 with a notch, and 28 holds
+   13px type without the items feeling pinched. */
+.mb-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 28px;
+  padding: 0 10px;
+  /* the film. saturate() is what keeps the wallpaper's colour alive through it
+     rather than going grey — the same trick the real one uses */
+  background: rgba(10, 10, 12, 0.42);
+  backdrop-filter: blur(22px) saturate(1.6);
+  -webkit-backdrop-filter: blur(22px) saturate(1.6);
+  font-family: var(--font-ui);
+  font-size: 13px;
+  line-height: 1;
+  color: rgba(255, 255, 255, 0.92);
+  user-select: none;
+}
+
+/* `align-self: stretch`, NOT `height: 100%`. A percentage height on a flex
+   item only resolves against a definite container height, and nested two deep
+   it did not: .mb-menu measured 0px tall, which anchored every dropdown to the
+   top of the VIEWPORT instead of to the bar's underside. Stretch has no such
+   dependency — each row fills the bar's 28px and the menus fill the row. */
+.mb-left,
+.mb-right {
+  display: flex;
+  align-items: center;
+  align-self: stretch;
+}
+
+.mb-left {
+  gap: 1px;
+}
+
+.mb-right {
+  gap: 2px;
+}
+
+/* ---- the Apple mark ---- */
+.mb-apple {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 9px;
+  color: rgba(255, 255, 255, 0.94);
+}
+
+/* ---- a menu title ----
+   The highlight is the macOS one: a small translucent grey plate with a 5px
+   radius, hugging the text rather than filling the bar's full height. Padding
+   carries the "generous but realistic" spacing the brief asks for — 11px is
+   what a Mac uses between titles. */
+.mb-menu {
+  position: relative;
+  display: flex;
+  align-self: stretch;
+}
+
+.mb-title {
+  height: 100%;
+  padding: 0 11px;
+  border: 0;
+  border-radius: 5px;
+  background: none;
+  cursor: default;
+  font: inherit;
+  color: inherit;
+  transition: background-color 0.12s ease;
+}
+
+/* The frontmost app's name is the one bold thing on the left, exactly as macOS
+   sets it — and here it is her monogram, in the same Pinyon the worlds carry.
+   It needs more size than 13px to read as a script at all, and the translate
+   is the optical-centring hook the other monograms use: Pinyon hangs low in
+   its em box. */
+.mb-title--app {
+  font-family: var(--font-monogram);
+  font-size: 18px;
+  padding: 0 12px;
+}
+
+.mb-title--app span,
+.mb-title--app {
+  transform: translateY(0);
+}
+
+.mb-title:hover,
+.mb-title:focus-visible,
+.mb-title.is-open {
+  background: rgba(255, 255, 255, 0.15);
+  outline: none;
+}
+
+/* ---- a dropped menu ----
+   Same film as the bar but denser, because a menu sits over content rather
+   than over wallpaper and has to stay readable. This one DOES get a radius and
+   a hairline — a real menu is a floating panel, and that is the one place the
+   OS allows itself an edge. */
+.mb-drop {
+  position: absolute;
+  top: calc(100% + 3px);
+  left: 0;
+  min-width: 200px;
+  padding: 5px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  background: rgba(28, 28, 32, 0.82);
+  backdrop-filter: blur(30px) saturate(1.7);
+  -webkit-backdrop-filter: blur(30px) saturate(1.7);
+  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.55);
+}
+
+.mb-item {
+  display: block;
+  width: 100%;
+  padding: 5px 10px;
+  border: 0;
+  border-radius: 5px;
+  background: none;
+  cursor: default;
+  font: inherit;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.92);
+  text-align: left;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background-color 0.1s ease;
+}
+
+.mb-item:hover,
+.mb-item:focus-visible {
+  background: rgba(255, 255, 255, 0.16);
+  outline: none;
+}
+
+.mb-sep {
+  height: 1px;
+  margin: 5px 8px;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+/* ---- the status items ----
+   Inert by design (see MenuBar.jsx), so these are spans, not buttons — but
+   they take the same plate on hover, because a Mac's do and the brief asks
+   for it. */
+.mb-status {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 7px;
+  height: 20px;
+  border-radius: 5px;
+  color: rgba(255, 255, 255, 0.9);
+  transition: background-color 0.12s ease;
+}
+
+.mb-status:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+/* tabular figures so the minute changing never shifts the row's width */
+.mb-clock {
+  padding: 0 8px 0 6px;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  color: rgba(255, 255, 255, 0.92);
+  white-space: nowrap;
+}
+
+/* A phone has no room for seven menu titles beside the status items. Keep the
+   system chrome that says "this is a machine" — the Apple mark, the app name
+   and the clock — and drop the menus; the dock is the navigation at that width
+   anyway, and Go's contents are all in it. */
+@media (max-width: 720px) {
+  .mb-menu:not(:first-of-type) {
+    display: none;
+  }
+
+  .mb-status:not(:last-of-type) {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mb-title,
+  .mb-item,
+  .mb-status {
+    transition: none;
+  }
+}

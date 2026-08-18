@@ -16,9 +16,8 @@ import {
   useTransform,
   useMotionValueEvent,
 } from "framer-motion";
-import { ChevronDown, Mail } from "lucide-react";
-import { LinkedInMark } from "./BrandIcons.jsx";
-import { EMAIL, LINKEDIN } from "./links.js";
+import { ChevronDown } from "lucide-react";
+import MenuBar from "./MenuBar.jsx";
 import TextMorph from "./TextMorph.jsx";
 import DesktopFiles from "./DesktopFiles.jsx";
 import { createParticles } from "./particles.js";
@@ -66,18 +65,6 @@ const EASE = [0.22, 1, 0.36, 1];
 // touching the edge, not a margin in the design sense.
 const SIDE_GUARD = 8;
 
-// The menu bar's items. Every one of the six dock apps that is a real
-// destination, in the dock's own order, so the two surfaces agree. Claude is
-// absent because it navigates nowhere — a named menu item that does nothing is
-// worse than no item.
-const WORLDS = [
-  ["design", "Design"],
-  ["tech", "Tech"],
-  ["notes", "Notes"],
-  ["gallery", "Gallery"],
-  ["pond", "Game"],
-];
-
 // HOME IS A PLACE, NOT A CORRIDOR (2026-08-18). The scrub is the front door,
 // not the hallway to every room: once a visitor has seen the ceremony, every
 // later arrival at #/ lands directly ON the settled desktop — the bloom's end
@@ -94,49 +81,6 @@ export const hasSeenIntro = () => {
     return false;
   }
 };
-
-// THE MENU BAR CLOCK. The strongest "this is a machine, not a website" signal
-// available for the price — macOS's own format, live. Intl rather than a date
-// library: two calls against the platform's formatter, no dependency, and the
-// month/weekday names come out localised for free.
-//
-// It ticks on the MINUTE, not on an interval: a naive setInterval(60s) drifts
-// off the real minute boundary and the displayed time lags by up to a minute.
-// Each tick schedules the next one for the top of the following minute.
-function MenuClock() {
-  const [now, setNow] = useState(() => new Date());
-
-  useEffect(() => {
-    let timer;
-    const tick = () => {
-      const d = new Date();
-      setNow(d);
-      // ms remaining in the current minute, +50 so we land just past the edge
-      timer = setTimeout(tick, 60000 - (d.getSeconds() * 1000 + d.getMilliseconds()) + 50);
-    };
-    tick();
-    return () => clearTimeout(timer);
-  }, []);
-
-  const day = now.toLocaleDateString("en-GB", {
-    weekday: "short",
-    day: "numeric",
-    month: "short",
-  });
-  const time = now.toLocaleTimeString("en-US", {
-    hour: "numeric",
-    minute: "2-digit",
-  });
-
-  // aria-hidden: a clock that re-renders every minute is noise to a screen
-  // reader, and it carries no information about the portfolio. It is set
-  // dressing, and set dressing should stay quiet.
-  return (
-    <span className="cover-clock" aria-hidden="true">
-      {day} {time}
-    </span>
-  );
-}
 
 const markIntroSeen = () => {
   try {
@@ -172,6 +116,25 @@ export default function Cover({ onChoose, onSettledChange }) {
   // "rinali"/"hardwaj" pop from the fallback a beat later. allSettled, not all,
   // so one failed fetch cannot leave the name hidden behind the timeout.
   const [fontReady, setFontReady] = useState(false);
+
+  // The View menu's "Replay Intro". Forgetting the flag is only half of it —
+  // the visitor is standing at the BOTTOM of the track on a settled desktop, so
+  // the ceremony cannot start until they are back at the top. Scrolling there
+  // is what actually replays it; clearing the flag is what stops the layout
+  // effect from snapping them straight back down on the next arrival.
+  const replayIntro = () => {
+    try {
+      sessionStorage.removeItem(INTRO_SEEN);
+    } catch {
+      /* nothing stored, nothing to forget */
+    }
+    window.scrollTo({
+      top: 0,
+      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
+        ? "auto"
+        : "smooth",
+    });
+  };
 
   useEffect(() => {
     let alive = true;
@@ -407,83 +370,11 @@ export default function Cover({ onChoose, onSettledChange }) {
       {/* starfield spans the whole cover as ambient connective tissue */}
       <canvas ref={particlesRef} className="cover-particles" aria-hidden="true" />
 
-      <header className={`cover-nav${split ? " is-split" : ""}`}>
-        <div className="cover-nav-left">
-          {/* the monogram is the one home gesture, shared with every world:
-              on the cover (already home) it lifts you back to the top. */}
-          <button
-            type="button"
-            className="cover-mark"
-            onClick={() =>
-              window.scrollTo({
-                top: 0,
-                behavior: window.matchMedia("(prefers-reduced-motion: reduce)")
-                  .matches
-                  ? "auto"
-                  : "smooth",
-              })
-            }
-            aria-label="Mrinali Bhardwaj — back to top"
-          >
-            mb
-          </button>
-        </div>
-
-        {/* THE MENU BAR, and it is the header's OWN child rather than part of
-            the left group — that is what lets the grid centre it on the
-            viewport instead of parking it next to the monogram.
-
-            World links used to sit here and were deleted in July as "a
-            redundant third path" — the Explore CTAs plus the dock were held to
-            cover it. They didn't:
-              · the CTAs reach design and tech only, and sit below the fold
-              · the dock is HIDDEN on the cover until the scrub settles
-                (App.jsx: visible={route === "" ? coverSettled : true})
-              · gallery, notes and the game appear in no other navigation at all
-            So until you scrolled, the cover offered a monogram, GitHub and an
-            email address. This is the fix, and it is a MENU BAR rather than a
-            website nav on purpose: a desktop has both a dock and a menu bar, so
-            it belongs to the same fiction instead of arguing with it.
-
-            It calls the same `onChoose` the CTAs and the dock do — App turns
-            that into a hash change for any of the five, so there is no second
-            navigation path here, just a second surface for the one that
-            exists. */}
-        <nav className="cover-menu" aria-label="Worlds">
-          {WORLDS.map(([world, label]) => (
-            <button
-              key={world}
-              type="button"
-              className="cover-menu-item"
-              onClick={() => onChoose(world)}
-            >
-              {label}
-            </button>
-          ))}
-        </nav>
-
-        {/* LinkedIn, not GitHub (5 Aug 2026, by request). The code still has a
-            front door — the desktop `github` folder sits on the cover itself and
-            the tech world's contact block links it — so this corner goes to the
-            professional profile instead, which is the one a recruiter looks for
-            first and the only one that was reachable nowhere on the cover. */}
-        <div className="cover-social">
-          <a
-            className="cover-social-logo"
-            href={LINKEDIN}
-            target="_blank"
-            rel="noreferrer"
-            aria-label="LinkedIn"
-          >
-            <LinkedInMark size={18} aria-hidden="true" />
-          </a>
-          <a href={`mailto:${EMAIL}`} aria-label="Email">
-            <Mail size={19} strokeWidth={1.75} />
-          </a>
-          {/* far right, after the status icons — macOS's own order */}
-          <MenuClock />
-        </div>
-      </header>
+      {/* The macOS menu bar — a system layer, not a header. It replaced
+          `.cover-nav` (monogram + centred DESIGN/TECH/NOTES/GALLERY/GAME strip
+          + social icons) on 18 Aug 2026; see MenuBar.jsx for where the
+          navigation went. */}
+      <MenuBar onChoose={onChoose} onReplayIntro={replayIntro} />
 
       {/* one pinned stage carries the whole cover narrative */}
       <section className="cover-track" ref={trackRef} aria-label="Intro">

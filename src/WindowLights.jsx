@@ -51,6 +51,19 @@ const home = () => {
   window.location.hash = "/";
 };
 
+// Exported so the menu bar's View menu drives the same one — fullscreen is a
+// user-gesture-gated API that REJECTS rather than throws, so the catch matters:
+// a browser that refuses (iOS Safari has never supported it on non-video
+// elements) must not put an unhandled rejection in the console every time
+// someone pokes it.
+export const toggleFullscreen = () => {
+  if (document.fullscreenElement) {
+    document.exitFullscreen?.().catch(() => {});
+  } else {
+    document.documentElement.requestFullscreen?.().catch(() => {});
+  }
+};
+
 export default function WindowLights({ world, label }) {
   const close = () => {
     clearMinimised(world);
@@ -63,18 +76,7 @@ export default function WindowLights({ world, label }) {
     home();
   };
 
-  // Fullscreen is a user-gesture-gated API and it rejects rather than throws,
-  // so the catch matters: a browser that refuses (iOS Safari has never
-  // supported it on non-video elements) must not put an unhandled rejection in
-  // the console every time someone pokes the green dot.
-  const maximise = () => {
-    const el = document.documentElement;
-    if (document.fullscreenElement) {
-      document.exitFullscreen?.().catch(() => {});
-    } else {
-      el.requestFullscreen?.().catch(() => {});
-    }
-  };
+  const maximise = toggleFullscreen;
 
   return (
     <div className="wlights">
