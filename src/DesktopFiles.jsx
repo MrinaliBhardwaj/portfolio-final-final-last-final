@@ -1,40 +1,77 @@
 // The desktop files: the second half of the cover is a MacBook screen, and a
 // desktop with a dock but no files on it is a screenshot, not a machine.
 //
-// SCATTERED PROJECT ART, not a grid of generic icons (18 Aug 2026, by request,
-// after the macOS-folio reference). Two passes ago these were an art-directed
-// scatter of three doc icons; one pass ago a tidy top-right grid column. Both
-// were the same mistake in opposite directions: the files were CHROME. In the
+// SCATTERED PROJECT ART, not a grid of generic icons. In the macOS-folio
 // reference the scattered files ARE the portfolio — each one is a thumbnail of
 // the actual work, framed like a macOS image file, and opening one opens the
-// project. So the desktop now carries her real covers from projects.js, and
-// clicking a project opens its case-study page.
+// project. So the desktop carries her real covers from projects.js, and the
+// résumés and folders keep drawn icons: a PDF is not a picture, and a folder
+// showing a preview stops reading as a folder.
 //
-// The résumés and the folders keep drawn icons — a PDF is not a picture, and a
-// folder that showed a preview would stop reading as a folder.
-//
-// THE LOTUS OWNS THE MIDDLE. Every position below is outside a measured no-go
-// box; see NO_GO. Nothing here may drift into it.
+// THE LOTUS OWNS THE MIDDLE, and it owns a DIFFERENT middle on a phone — see
+// NO_GO. Nothing here may drift into it.
 //
 // They live INSIDE .cover-stage rather than beside the dock in App: they leave
 // with the cover's own fade instead of popping out the instant a world opens.
 // The dock is the one thing that genuinely outlives the route — these belong
 // to the cover.
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { GitHubMark } from "./BrandIcons.jsx";
 import { PROJECTS } from "./projects.js";
 import { GITHUB } from "./links.js";
 
-// The wallpaper is the bloom's LAST frame, and its painted mass was measured
-// off public/lotus/f39.webp at a luminance threshold of 130, binned into 5%
-// columns and rows: the flower occupies x 40–65%, y 30–65%, and everything
-// outside that is under 80 stray pixels per bin (starfield, petal tips).
-// Padded to x 36–69 / y 26–69 here, which is the box no file may enter.
-// Re-measure if the frame sequence is ever re-rendered.
-const NO_GO = { x0: 36, x1: 69, y0: 26, y1: 69 };
+// THE FLOWER'S FOOTPRINT, MEASURED — and it is not the same shape on a phone.
+//
+// The wallpaper is the bloom's LAST frame drawn with object-fit: cover (see
+// coverDraw in lotus.js), so the crop — and therefore where the flower lands on
+// screen — depends entirely on the viewport's aspect. public/lotus/f39.webp was
+// profiled at luminance > 130, binned into 5% columns and rows, keeping bins
+// holding more than 1% of the ink:
+//
+//   1440x900 (and every landscape ratio)   x 35-65%   y 30-65%
+//   320x568 / 375x667 / 390x844 / 430x932  x 20-95%   y 30-65%
+//
+// A portrait phone crops hard into the flower's sides, so it stops being a
+// central column and becomes a BAND ACROSS THE MIDDLE at essentially full
+// width. That is why the phone composition puts files above it and below it and
+// never beside it — there is no beside. Re-measure if the frames are re-rendered.
+const NO_GO = {
+  desktop: { x0: 36, x1: 69, y0: 26, y1: 69 },
+  phone: { x0: -1, x1: 101, y0: 27, y1: 68 },
+};
 
-const clears = (left, top) =>
-  left < NO_GO.x0 || left > NO_GO.x1 || top < NO_GO.y0 || top > NO_GO.y1;
+const clears = (box, left, top) =>
+  left < box.x0 || left > box.x1 || top < box.y0 || top > box.y1;
+
+// The phone treatment starts here. 640 rather than the 899 the files used to
+// hide at: 641-899 is a tablet, it keeps the desktop composition, and the brief
+// was explicit that the desktop breakpoint must not move.
+const PHONE = "(max-width: 640px)";
+
+function useIsPhone() {
+  const [isPhone, setIsPhone] = useState(
+    () => typeof window !== "undefined" && window.matchMedia(PHONE).matches
+  );
+  useEffect(() => {
+    // Re-read the query FRESH each time rather than trusting a stored
+    // MediaQueryList, and listen to `resize` as well as `change`. A held MQL
+    // that never re-evaluates is not hypothetical — it is exactly what happens
+    // under a devtools device-metrics override, where the width changes, a new
+    // matchMedia() call reports the new answer, and the old object's `change`
+    // never fires. Reading fresh costs nothing and cannot go stale.
+    const sync = () => setIsPhone(window.matchMedia(PHONE).matches);
+    const mq = window.matchMedia(PHONE);
+    sync();
+    mq.addEventListener("change", sync);
+    window.addEventListener("resize", sync);
+    return () => {
+      mq.removeEventListener("change", sync);
+      window.removeEventListener("resize", sync);
+    };
+  }, []);
+  return isPhone;
+}
 
 // A macOS-style document sheet: rounded page, folded top-right corner, two
 // lines of "content", and a coloured band carrying the extension. One shape for
@@ -115,21 +152,37 @@ function ShotIcon({ src, alt }) {
   );
 }
 
-// `left`/`top` are the ICON'S CENTRE as a percentage of the stage, so the
-// arrangement holds its proportions on any width; the CSS pulls each tile back
-// by half its own box. Placed by eye into the quiet bands the lotus leaves —
-// a left column and a right column — and every one of them is asserted against
-// NO_GO below, so a future nudge into the flower fails loudly in the console
-// instead of quietly looking wrong.
+// `at` / `phone` are the ICON'S CENTRE as [left, top] percentages of the stage,
+// so each arrangement holds its proportions on any screen; the CSS pulls the
+// tile back by half its own box. `phone: null` means the file is not on the
+// phone desktop at all.
+//
+// THE PHONE COMPOSITION is placed, not listed, and it is built around the band
+// the flower occupies (y 27-68%). Three files sit in the open air above it and
+// two below it, staggered rather than aligned so the arrangement reads as
+// someone's desk instead of a column:
+//
+//     Meal Maestro           design.fig
+//                                    tech.ts
+//     ~~~~~~~~~~~~~ the bloom ~~~~~~~~~~~~~
+//              Layover
+//    [dock]                  Futurepreneurs
+//
+// TWO FILES ARE DROPPED ON THE PHONE, and neither loses a destination:
+// "Selected Work" opens #/design, which is exactly what the dock's Figma tile
+// already does — a duplicate is the first thing to cut when space is the
+// constraint; and GitHub is linked from the tech world's own contact block.
 const byslug = (s) => PROJECTS.find((p) => p.slug === s);
 
 const FILES = [
-  // ---- her work, down the left ----
+  // ---- her work ----
+  // objects rather than tuples: checkJs widens a mixed `[string, number[]]`
+  // to `(string | number[])[]`, and `key` then refuses the slug
   ...[
-    ["meal-maestro", 13, 21],
-    ["layover", 26, 44],
-    ["futurepreneurs", 11, 67],
-  ].map(([slug, left, top]) => {
+    { slug: "meal-maestro", at: [13, 21], phone: [29, 15] },
+    { slug: "layover", at: [26, 44], phone: [44, 73] },
+    { slug: "futurepreneurs", at: [11, 67], phone: [76, 80] },
+  ].map(({ slug, at, phone }) => {
     const p = byslug(slug);
     return {
       key: slug,
@@ -140,12 +193,12 @@ const FILES = [
       newTab: false,
       art: <ShotIcon src={p.cover} alt="" />,
       wide: true,
-      left,
-      top,
+      at,
+      phone,
     };
   }),
 
-  // ---- the papers and the folders, down the right ----
+  // ---- the papers and the folders ----
   {
     key: "design",
     label: "design.fig",
@@ -160,8 +213,8 @@ const FILES = [
     // it: checkJs infers the array's type from its members, and a field present
     // on some of them and absent on others is a union it will not let us read.
     wide: false,
-    left: 76,
-    top: 20,
+    at: [76, 20],
+    phone: [67, 12],
   },
   {
     key: "tech",
@@ -174,8 +227,8 @@ const FILES = [
     // on disk is a PDF, the icon is the joke.
     art: <DocIcon ext="TS" accent="#3178c6" gradient="dfile-sheet-ts" />,
     wide: false,
-    left: 89,
-    top: 38,
+    at: [89, 38],
+    phone: [85, 17],
   },
   {
     key: "work",
@@ -186,8 +239,8 @@ const FILES = [
     newTab: false,
     art: <FolderIcon />,
     wide: false,
-    left: 74,
-    top: 61,
+    at: [74, 61],
+    phone: null,
   },
   {
     key: "github",
@@ -202,56 +255,70 @@ const FILES = [
       />
     ),
     wide: false,
-    left: 88,
-    top: 77,
+    at: [88, 77],
+    phone: null,
   },
 ];
 
-// Dev-only guard. The scatter is hand-placed and the lotus is the one thing on
-// this screen that cannot be sat on; a silent overlap is exactly the kind of
-// regression that survives a redesign because nobody re-measures the flower.
+// Dev-only guard, now covering BOTH compositions. The arrangements are
+// hand-placed and the lotus is the one thing on this screen that cannot be sat
+// on; a silent overlap is exactly the kind of regression that survives a
+// redesign because nobody re-measures the flower — and the phone's no-go box is
+// a different shape from the desktop's, which makes it twice as easy to miss.
 if (import.meta.env.DEV) {
-  const bad = FILES.filter((f) => !clears(f.left, f.top));
+  const bad = [];
+  for (const f of FILES) {
+    if (!clears(NO_GO.desktop, f.at[0], f.at[1])) bad.push(`${f.key} (desktop)`);
+    if (f.phone && !clears(NO_GO.phone, f.phone[0], f.phone[1]))
+      bad.push(`${f.key} (phone)`);
+  }
   if (bad.length) {
-    console.error(
-      "[DesktopFiles] these sit on the lotus:",
-      bad.map((f) => `${f.key} (${f.left}%, ${f.top}%)`).join(", ")
-    );
+    console.error("[DesktopFiles] these sit on the lotus:", bad.join(", "));
   }
 }
 
 export default function DesktopFiles({ visible }) {
+  const isPhone = useIsPhone();
+  const shown = isPhone ? FILES.filter((f) => f.phone) : FILES;
+
   return (
-    <div className="cover-desktop" aria-hidden={!visible}>
-      {FILES.map((f, i) => (
-        <motion.a
-          key={f.key}
-          className={`dfile${f.wide ? " dfile--wide" : ""}`}
-          style={{
-            left: `${f.left}%`,
-            top: `${f.top}%`,
-            pointerEvents: visible ? "auto" : "none",
-          }}
-          href={f.href}
-          target={f.newTab ? "_blank" : undefined}
-          rel={f.external ? "noreferrer" : undefined}
-          aria-label={f.aria}
-          tabIndex={visible ? 0 : -1}
-          initial={false}
-          // No flight. A desktop's files don't arrive, they're there when the
-          // screen is — a short fade in place, faintly staggered, is all the
-          // entrance a machine that was already on gets.
-          animate={visible ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.97 }}
-          transition={{
-            duration: 0.45,
-            ease: "easeOut",
-            delay: visible ? 0.1 + i * 0.06 : 0,
-          }}
-        >
-          <span className="dfile-icon">{f.art}</span>
-          <span className="dfile-label">{f.label}</span>
-        </motion.a>
-      ))}
+    <div className={`cover-desktop${isPhone ? " is-phone" : ""}`} aria-hidden={!visible}>
+      {shown.map((f, i) => {
+        const [left, top] = isPhone ? f.phone : f.at;
+        return (
+          <motion.a
+            key={f.key}
+            className={`dfile${f.wide ? " dfile--wide" : ""}`}
+            style={{
+              left: `${left}%`,
+              top: `${top}%`,
+              pointerEvents: visible ? "auto" : "none",
+            }}
+            href={f.href}
+            target={f.newTab ? "_blank" : undefined}
+            rel={f.external ? "noreferrer" : undefined}
+            aria-label={f.aria}
+            tabIndex={visible ? 0 : -1}
+            initial={false}
+            // No flight. A desktop's files don't arrive, they're there when the
+            // screen is — a short fade in place, faintly staggered, is all the
+            // entrance a machine that was already on gets.
+            animate={visible ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.97 }}
+            // The press is the touch device's only feedback — there is no hover
+            // to lean on — so it lives on the element Framer owns rather than in
+            // CSS, where it would fight this transform.
+            whileTap={{ scale: 0.93 }}
+            transition={{
+              duration: 0.45,
+              ease: "easeOut",
+              delay: visible ? 0.1 + i * 0.06 : 0,
+            }}
+          >
+            <span className="dfile-icon">{f.art}</span>
+            <span className="dfile-label">{f.label}</span>
+          </motion.a>
+        );
+      })}
     </div>
   );
 }

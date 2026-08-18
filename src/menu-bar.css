@@ -180,16 +180,32 @@
   white-space: nowrap;
 }
 
-/* A phone has no room for seven menu titles beside the status items. Keep the
+/* A tablet has no room for seven menu titles beside the status items. Keep the
    system chrome that says "this is a machine" — the Apple mark, the app name
    and the clock — and drop the menus; the dock is the navigation at that width
    anyway, and Go's contents are all in it. */
-@media (max-width: 720px) {
+@media (min-width: 641px) and (max-width: 720px) {
   .mb-menu:not(:first-of-type) {
     display: none;
   }
 
   .mb-status:not(:last-of-type) {
+    display: none;
+  }
+}
+
+/* THE PHONE HAS NO MENU BAR AT ALL, and that is the point rather than a
+   concession. A phone home screen has open sky at the top; a strip of chrome up
+   there is the single thing that would make this read as a website with a
+   mobile header instead of as somebody's machine. Nothing replaces it — no
+   hamburger, no logo, no condensed navbar. Navigation is the files, the
+   vertical dock, and exploration.
+
+   Everything the menus reached is still reachable: the five worlds are the
+   dock, both résumés are files on the desktop, and GitHub and LinkedIn are in
+   the tech world's contact block. */
+@media (max-width: 640px) {
+  .mb-bar {
     display: none;
   }
 }

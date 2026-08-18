@@ -274,7 +274,7 @@
    could ever match these — and a rule for a state that cannot occur is worse
    than no rule. Restore both if a future tile ships before its destination. */
 
-@media (max-width: 719px) {
+@media (min-width: 641px) and (max-width: 719px) {
   .dock {
     bottom: 1.2rem;
   }
@@ -286,6 +286,76 @@
 
   .dock-row {
     gap: 0.35rem;
+  }
+}
+
+/* ============ THE PHONE DOCK ============
+   A small VERTICAL launcher floating in the bottom-left corner, not a bar. The
+   horizontal dock cannot survive here: five tiles plus glass is wider than a
+   320px screen, and centring it across the bottom would put it straight under
+   the files. Stood on its end in the corner it becomes what the brief asks
+   for — a floating utility rather than the main navigation — and it frees the
+   whole bottom-right for the composition.
+
+   `left`, and `right: auto` to cancel the desktop rule's `right: 0`: that pair
+   plus `margin: 0 auto` is what centres it on desktop, and leaving either in
+   place would fight this. Framer still owns `transform` for the rise, so the
+   corner is set with position, never a translate. */
+@media (max-width: 640px) {
+  .dock {
+    left: 12px;
+    right: auto;
+    margin: 0;
+    /* clears the home indicator on a notched phone and sits on a sensible
+       margin everywhere else */
+    bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .dock-row {
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+
+  .dock-glass {
+    padding: 0.4rem 0.35rem;
+    border-radius: 1.1rem;
+  }
+
+  .dock-item {
+    width: 38px;
+    height: 38px;
+  }
+
+  /* The magnification and the name-tags both belong to a pointer. On a touch
+     screen :hover latches on tap and stays there, so a tapped icon would sit
+     enlarged with its label showing long after you had navigated away — and
+     the brief rules out hover-dependent behaviour outright. The press
+     animation below is the feedback instead. */
+  .dock-item:hover .dock-item-glyph {
+    transform: none;
+  }
+
+  .dock-item-name {
+    display: none;
+  }
+
+  .dock-item {
+    -webkit-tap-highlight-color: transparent;
+    transition: transform 0.12s var(--ease-soft);
+  }
+
+  .dock-item:active {
+    transform: scale(0.88);
+  }
+
+  /* the open-app dot moves to the INSIDE edge, because the bar is vertical now
+     and "beneath the icon" would put it on top of its neighbour */
+  .dock-item-dot {
+    bottom: auto;
+    left: auto;
+    right: -6px;
+    top: 50%;
+    transform: translateY(-50%);
   }
 }
 

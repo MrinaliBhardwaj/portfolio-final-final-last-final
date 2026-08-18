@@ -167,9 +167,67 @@
    on the stage, and the column would land on top of them. Nothing is lost by
    dropping it: both résumés are linked from inside their worlds, and GitHub
    from the tech world's contact block. */
-@media (max-width: 899px) {
+/* TABLET ONLY. The phone gets its own composition below; between 641 and 899
+   there is neither enough width for the desktop arrangement nor a phone layout
+   to fall back to, so the files stay hidden exactly as they were. Both résumés
+   are linked from inside their worlds and GitHub from the tech world's contact
+   block, so nothing is unreachable at that width. */
+@media (min-width: 641px) and (max-width: 899px) {
   .cover-desktop {
     display: none;
+  }
+}
+
+/* ============ THE PHONE DESKTOP ============
+   Not a responsive portfolio — a condensed version of the same machine. The
+   files stay files: placed in the open wallpaper above and below the bloom's
+   band, never listed, never stacked. Positions come from DesktopFiles.jsx
+   (`phone`), which is also where the band is documented.
+
+   Everything here is smaller rather than rearranged: the tile keeps its shape,
+   its centre anchoring and its label, so the phone reads as the same desk seen
+   closer, which is the whole brief. */
+@media (max-width: 640px) {
+  .cover-desktop {
+    --dfile-w: 42px;
+    --dfile-tile: calc(var(--dfile-w) * 1.55);
+    --dfile-ih: calc(var(--dfile-w) * 1.25);
+  }
+
+  .cover-desktop .dfile--wide {
+    --dfile-w: 66px;
+    --dfile-tile: calc(var(--dfile-w) * 1.18);
+    --dfile-ih: calc(var(--dfile-w) * 0.78);
+  }
+
+  /* A COMFORTABLE TAP TARGET WITHOUT A BIGGER TILE. The visible icon stays the
+     art-directed size; this grows the touchable box around it to at least 44px
+     in both axes and centres the growth, so the composition's spacing is
+     untouched while every file is comfortably hittable. */
+  .dfile {
+    min-width: 44px;
+    min-height: 44px;
+    /* the tap flash is Safari's, and it paints a grey rectangle over a cut-out
+       icon — the press animation in DesktopFiles.jsx replaces it */
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .dfile-label {
+    font-size: 9.5px;
+  }
+
+  /* Hover belongs to a pointer. On a touch screen these fire on tap and then
+     STICK until something else is tapped, which left a file lit and lifted
+     after you had already navigated away. The press animation is the feedback
+     here. */
+  .dfile:hover .dfile-icon,
+  .dfile:focus-visible .dfile-icon {
+    transform: none;
+  }
+
+  .dfile:hover .dfile-label {
+    background: none;
+    color: rgba(240, 240, 246, 0.88);
   }
 }
 

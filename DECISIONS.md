@@ -2388,3 +2388,70 @@ closes, and every item is a real `<a href>` or `<button>`. At ≤720px the menus
 and the first three status icons drop, leaving the Apple mark, `mb` and the
 clock — the chrome that still says "machine" — with the dock carrying
 navigation.
+
+## The phone gets its own desktop (2026-08-18, fourth pass)
+
+Not a responsive portfolio — a condensed version of the same machine. The phone
+breakpoint is **≤640px**; 641–899 stays a tablet with the files hidden, and the
+desktop composition is untouched (verified below).
+
+**THE FLOWER IS A DIFFERENT SHAPE ON A PHONE, and this is the fact the whole
+layout turns on.** The wallpaper is the bloom's last frame drawn with
+`object-fit: cover` (`coverDraw` in lotus.js), so the crop depends on the
+viewport's aspect. Profiling `public/lotus/f39.webp` at luminance > 130 in 5%
+bins, keeping bins over 1% of the ink:
+
+| viewport | flower occupies |
+|---|---|
+| 1440×900 and every landscape ratio | x 35–65%, y 30–65% |
+| 320×568 · 375×667 · 390×844 · 430×932 | **x 20–95%**, y 30–65% |
+
+A portrait phone crops hard into the flower's sides, so it stops being a central
+column and becomes a **band across the middle at essentially full width**. There
+is no "beside the flower" on a phone — files go above it or below it, and that
+constraint produced the composition rather than being checked after the fact.
+`NO_GO` in DesktopFiles.jsx now holds both boxes and the DEV assertion checks
+each layout against its own.
+
+**No menu bar at all on the phone**, and nothing replaces it — no hamburger, no
+logo, no condensed navbar. A strip of chrome at the top is the single thing that
+would make this read as a website with a mobile header. Everything the menus
+reached is still reachable: the worlds are the dock, both résumés are files, and
+GitHub/LinkedIn are in the tech world's contact block.
+
+**The dock stands on its end in the bottom-left** — 51×223, 12px in, and
+`bottom: calc(14px + env(safe-area-inset-bottom))`. The horizontal bar could not
+survive: five tiles plus glass is wider than a 320px screen, and centring it
+would put it under the files. Vertical in the corner it becomes the floating
+utility the brief asked for and frees the whole bottom-right. The open-app dot
+moves to the tile's right edge, since "beneath the icon" would land on its
+neighbour.
+
+**Five files, not seven.** "Selected Work" opens `#/design`, which is exactly
+what the dock's Figma tile does — a duplicate is the first thing to cut when
+space is the constraint — and GitHub is linked from the tech world. Neither
+loses a destination.
+
+**Hover is removed rather than left to rot.** On touch, `:hover` latches on tap
+and stays, so a tapped file sat lit and lifted after you had navigated away. Dock
+magnification and name-tags are off; the feedback is a press animation
+(`whileTap` on the file, `:active` on the dock tile) plus a transparent
+`-webkit-tap-highlight-color`.
+
+**Two positions were wrong and the measurement caught them**: `tech.ts` at 23%
+crossed the band, and `Layover` cleared its lower edge by 1%. The tiles are a
+fixed pixel height, so on a short 568px screen they eat a far larger share of
+the height than on an 844px one — which is exactly why this was verified at four
+sizes rather than one.
+
+**A bug worth remembering:** a stored `MediaQueryList` can go stale. Under a
+devtools device-metrics override the width changes and a fresh `matchMedia()`
+call reports the new answer, but the held object's `change` never fires — the
+phone layout silently never engaged. `useIsPhone` re-reads the query fresh on
+every event and listens to `resize` as well as `change`.
+
+Verified at 320×568, 375×667, 390×844 and 430×932: five files, zero on the
+flower band, zero on the dock, zero colliding, none off-screen, smallest tap
+target 57px, no horizontal overflow, dock in the lower-left with a 14px bottom
+gap at every size. And at 1440×900 the desktop is unchanged — seven files, dock
+horizontal and centred, 28px menu bar, name-tags live.
