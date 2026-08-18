@@ -2455,3 +2455,51 @@ flower band, zero on the dock, zero colliding, none off-screen, smallest tap
 target 57px, no horizontal overflow, dock in the lower-left with a 14px bottom
 gap at every size. And at 1440×900 the desktop is unchanged — seven files, dock
 horizontal and centred, 28px menu bar, name-tags live.
+
+## Case studies open as windows on the desktop (2026-08-18, fifth pass)
+
+The reference's big idea, and the one thing that separates a site that *looks*
+like a desktop from one that *behaves* like one: clicking a project file opens a
+**macOS window over the wallpaper**. The desktop, the files and the dock all
+stay behind it, several windows can be open at once, and you drag them by the
+title bar.
+
+`CaseWindow.jsx` + `case-window.css`. Structure follows the reference: traffic
+lights, `‹ ›`, a centred "Case Study : {name}", then thumbnail + name + role, a
+white copy card, and blue-bulleted **Details** and **Preview** sections.
+
+- **Everything is real data** from `projects.js` — `summary`, `facts`, `cover`,
+  `external`. No placeholder copy.
+- **The chevrons browse the work.** In the reference they are back/forward on a
+  single study, which here would be dead; instead they step to the previous/next
+  project *in the same window*, replacing its contents rather than opening a
+  third. That makes them worth having.
+- **All three lights act on the window**, same rule as the title-bar lights: red
+  closes, yellow rolls it up into just its bar (the classic Mac window shade),
+  green toggles it large. The rolled body is `hidden`, not unmounted, so scroll
+  position and decoded images survive.
+- **The array IS the z-order** — last is frontmost. Opening an already-open
+  project raises it instead of duplicating, exactly as a dock icon does.
+- **Dragged by the title bar only** (`dragListener={false}` + `dragControls`),
+  because grabbing a real window's body selects text, it doesn't move it.
+- **Rendered outside `.cover-stage`**, which is `overflow: hidden` — a window
+  you can drag has to be able to leave the box it was born in.
+- **The full page survives.** `#/design/<slug>` is unchanged, linked from inside
+  the window, and still reached by middle-click or ⌘-click on the file: the tile
+  stays a real anchor and only a *plain* left click is intercepted.
+- **On a phone it is a bottom sheet** — full width, bottom-anchored, rounded
+  top only, not draggable. Dragging a window that already fills the screen only
+  fights the page.
+
+**A CSS trap worth remembering: `min()` on negative margins picks the MOST
+negative.** Centring wants `margin-left: -(width/2)` where the width is itself
+`min(640px, 100vw - 40px)`. Writing the margin as `min(-320px, -50vw + 20px)`
+chose −700px at 1440 and pinned the window to the left edge (measured at x=12
+instead of 392). `max()` picks the candidate nearer zero, which is always the
+half matching whichever width `min()` resolved.
+
+Verified at 1440×900: a click opens the window with the hash unchanged — no
+navigation; two files give two windows at z 20/21, cascaded; the next chevron
+switches the front window's project without opening a third; yellow hides the
+body; red closes it. At 390×844 the sheet is full-width, bottom-anchored,
+`14px 14px 0 0`, drag off, no horizontal overflow.

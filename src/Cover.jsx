@@ -11,6 +11,7 @@
 //      18 Aug 2026; see the note where .cover-split used to be rendered.
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import {
+  AnimatePresence,
   motion,
   useScroll,
   useTransform,
@@ -18,6 +19,8 @@ import {
 } from "framer-motion";
 import { ChevronDown } from "lucide-react";
 import MenuBar from "./MenuBar.jsx";
+import CaseWindow from "./CaseWindow.jsx";
+import { PROJECTS } from "./projects.js";
 import TextMorph from "./TextMorph.jsx";
 import DesktopFiles from "./DesktopFiles.jsx";
 import { createParticles } from "./particles.js";
@@ -116,6 +119,21 @@ export default function Cover({ onChoose, onSettledChange }) {
   // "rinali"/"hardwaj" pop from the fallback a beat later. allSettled, not all,
   // so one failed fetch cannot leave the name hidden behind the timeout.
   const [fontReady, setFontReady] = useState(false);
+
+  // OPEN CASE-STUDY WINDOWS, in stacking order — the array IS the z-order, last
+  // is frontmost, which is how a window manager actually works and saves
+  // carrying a separate z per window. Opening one that is already open raises it
+  // instead of adding a duplicate, exactly as clicking a dock icon does.
+  const [openCases, setOpenCases] = useState([]);
+
+  const openCase = (slug) =>
+    setOpenCases((list) => [...list.filter((s) => s !== slug), slug]);
+  const closeCase = (slug) =>
+    setOpenCases((list) => list.filter((s) => s !== slug));
+  // switching with the window's own chevrons REPLACES the front window rather
+  // than opening a second one — it is the same window looking at another project
+  const switchCase = (from) => (to) =>
+    setOpenCases((list) => [...list.filter((s) => s !== from && s !== to), to]);
 
   // The View menu's "Replay Intro". Forgetting the flag is only half of it —
   // the visitor is standing at the BOTTOM of the track on a settled desktop, so
@@ -497,7 +515,7 @@ export default function Cover({ onChoose, onSettledChange }) {
               the dock, and on the desktop as design.fig / tech.ts. The whole
               `.cover-split` block, its scrims and its type styles are gone from
               cover.css too rather than left orphaned. */}
-          <DesktopFiles visible={settled} />
+          <DesktopFiles visible={settled} onOpenCase={openCase} />
 
           <motion.div
             className="cover-scroll"
@@ -508,6 +526,29 @@ export default function Cover({ onChoose, onSettledChange }) {
           </motion.div>
         </div>
       </section>
+
+      {/* THE OPEN WINDOWS, rendered OUTSIDE .cover-stage on purpose: the stage
+          is `overflow: hidden`, and a window you can drag has to be able to
+          leave the box it was born in. They sit above the files and below the
+          dock, which is the macOS order. */}
+      <AnimatePresence>
+        {openCases.map((slug, i) => {
+          const p = PROJECTS.find((x) => x.slug === slug);
+          if (!p) return null;
+          return (
+            <CaseWindow
+              key={slug}
+              project={p}
+              index={i}
+              // the array's own order is the stacking order — last is frontmost
+              z={20 + i}
+              onClose={() => closeCase(slug)}
+              onFocus={() => openCase(slug)}
+              onSwitch={switchCase(slug)}
+            />
+          );
+        })}
+      </AnimatePresence>
     </div>
   );
 }

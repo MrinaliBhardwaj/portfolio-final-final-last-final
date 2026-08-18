@@ -290,25 +290,43 @@
 }
 
 /* ============ THE PHONE DOCK ============
-   A small VERTICAL launcher floating in the bottom-left corner, not a bar. The
-   horizontal dock cannot survive here: five tiles plus glass is wider than a
-   320px screen, and centring it across the bottom would put it straight under
-   the files. Stood on its end in the corner it becomes what the brief asks
-   for — a floating utility rather than the main navigation — and it frees the
-   whole bottom-right for the composition.
+   A VERTICAL rail down the left edge, not a bar. The horizontal dock cannot
+   survive here: five tiles plus glass is wider than a 320px screen, and centring
+   it across the bottom would put it straight under the files. Stood on its end
+   it becomes a floating launcher rather than the main navigation, and it frees
+   the whole right of the screen for the composition.
 
-   `left`, and `right: auto` to cancel the desktop rule's `right: 0`: that pair
-   plus `margin: 0 auto` is what centres it on desktop, and leaving either in
-   place would fight this. Framer still owns `transform` for the rise, so the
-   corner is set with position, never a translate. */
+   It was a puck in the bottom-left for one pass; the reference image has a tall
+   centred column, so it is one now — see the note on the rule below.
+
+   `right: auto` cancels the desktop rule's `right: 0`: that pair plus
+   `margin: 0 auto` is what centres it horizontally on desktop, and leaving
+   either in place would fight this. */
 @media (max-width: 640px) {
+  /* VERTICALLY CENTRED ON THE LEFT EDGE, as the reference has it: a tall column
+     hugging the side of the screen, not a puck parked in the corner. It reads as
+     a rail the desktop is built around rather than a widget sitting on top of
+     one, and it clears the whole bottom of the screen for the composition —
+     every file sits to its RIGHT, the way they do in the reference.
+
+     Centred with auto margins on the BLOCK axis, the exact mirror of how the
+     desktop dock centres itself on the inline axis (`left: 0; right: 0;
+     margin: 0 auto`), because that leaves `transform` untouched for Framer's
+     entrance. A translateY would fight it.
+
+     `env(safe-area-inset-bottom)` went with the bottom anchoring — centred, the
+     dock is nowhere near the home indicator. The max-height keeps that true on a
+     very short screen, where a tall column could otherwise reach both edges. */
   .dock {
     left: 12px;
     right: auto;
-    margin: 0;
-    /* clears the home indicator on a notched phone and sits on a sensible
-       margin everywhere else */
-    bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+    top: 0;
+    bottom: 0;
+    height: max-content;
+    max-height: calc(
+      100% - 28px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)
+    );
+    margin: auto 0;
   }
 
   .dock-row {

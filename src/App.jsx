@@ -23,6 +23,7 @@ import DesignCursor from "./DesignCursor.jsx";
 import "./cover.css";
 import "./menu-bar.css";
 import "./desktop-files.css";
+import "./case-window.css";
 import "./dock.css";
 import "./world-tabs.css";
 import "./window-lights.css";

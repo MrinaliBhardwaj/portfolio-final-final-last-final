@@ -1,0 +1,321 @@
+/* ============ the case-study window ============ */
+/* A light Mac window floating over the dark desktop. `position: fixed` and
+   rendered OUTSIDE .cover-stage on purpose — the stage is `overflow: hidden`,
+   and a window you can drag has to be able to leave the box it was born in.
+
+   z-index sits above the files (5) and below the dock (60): windows cover the
+   desktop, the dock covers everything, which is the macOS order. The per-window
+   z is set inline by Cover so clicking one raises it. */
+.cw {
+  position: fixed;
+  top: 12vh;
+  left: 50%;
+  width: min(640px, calc(100vw - 40px));
+  max-height: 76vh;
+  /* MAX, not min. The margin has to be minus HALF the width above, and both
+     candidates are negative — `min()` picks the more negative of the two, which
+     at 1440 chose -700px (the viewport half) over -320px (the real half) and
+     shoved the window against the left edge. `max()` picks the one nearer zero,
+     which is always the half that matches the width `min()` actually resolved. */
+  margin-left: max(-320px, calc(-50vw + 20px));
+  display: flex;
+  flex-direction: column;
+  border-radius: 11px;
+  overflow: hidden;
+  background: #f2f2f4;
+  border: 1px solid rgba(0, 0, 0, 0.18);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6), 0 6px 18px rgba(0, 0, 0, 0.4);
+  color: #1c1c1e;
+  font-family: var(--font-ui);
+}
+
+.cw.is-big {
+  width: min(880px, calc(100vw - 40px));
+  max-height: 88vh;
+  margin-left: max(-440px, calc(-50vw + 20px));
+  top: 6vh;
+}
+
+/* rolled up: the title bar alone, the classic Mac window shade */
+.cw.is-rolled {
+  max-height: none;
+}
+
+/* ---- the title bar ----
+   Three columns so the title is centred on the WINDOW rather than on whatever
+   space the controls leave — the lights and the chevrons are different widths,
+   and centring between them would put the title visibly off-axis. */
+.cw-bar {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto auto 1fr;
+  align-items: center;
+  gap: 12px;
+  height: 38px;
+  padding: 0 12px;
+  background: linear-gradient(to bottom, #f7f7f8, #ebebee);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+  cursor: grab;
+  user-select: none;
+  touch-action: none; /* the pointer drag owns this bar, not the page scroll */
+}
+
+.cw-bar:active {
+  cursor: grabbing;
+}
+
+.cw-lights {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cw-light {
+  width: 12px;
+  height: 12px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.cw-light--close {
+  background: #ff5f57;
+}
+
+.cw-light--min {
+  background: #febc2e;
+}
+
+.cw-light--max {
+  background: #28c840;
+}
+
+.cw-light:focus-visible {
+  outline: 2px solid #1c1c1e;
+  outline-offset: 2px;
+}
+
+.cw-nav {
+  display: flex;
+  gap: 2px;
+}
+
+.cw-nav button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 22px;
+  padding: 0;
+  border: 0;
+  border-radius: 5px;
+  background: none;
+  color: #6a6a70;
+  cursor: pointer;
+}
+
+.cw-nav button:hover {
+  background: rgba(0, 0, 0, 0.07);
+  color: #1c1c1e;
+}
+
+/* absolutely centred on the bar, so neither control cluster can push it */
+.cw-title {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 13px;
+  font-weight: 600;
+  color: #3a3a3e;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 55%;
+  pointer-events: none;
+}
+
+/* ---- the body ---- */
+.cw-body {
+  overflow-y: auto;
+  padding: 18px 20px 22px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.cw-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.cw-thumb {
+  width: 62px;
+  height: 62px;
+  object-fit: cover;
+  border-radius: 4px;
+  border: 3px solid #fff;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25);
+  flex: none;
+}
+
+.cw-head h2 {
+  margin: 0;
+  font-size: 21px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.cw-sub {
+  margin: 3px 0 0;
+  font-size: 13px;
+  color: #6a6a70;
+}
+
+/* the white content card the reference sets its copy on */
+.cw-card {
+  padding: 14px 16px;
+  border-radius: 7px;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.cw-card p {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.62;
+  color: #2c2c30;
+}
+
+/* the blue bullet before each section heading, straight from the reference */
+.cw-section {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 18px 0 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #1c1c1e;
+}
+
+.cw-section::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #2f7cf6;
+  flex: none;
+}
+
+.cw-facts {
+  margin: 0;
+  display: grid;
+  gap: 5px;
+}
+
+.cw-facts > div {
+  display: flex;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.cw-facts dt {
+  color: #6a6a70;
+  min-width: 84px;
+}
+
+.cw-facts dd {
+  margin: 0;
+  color: #1c1c1e;
+}
+
+.cw-preview {
+  border-radius: 7px;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.cw-preview img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.cw-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.cw-open {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 13px;
+  border-radius: 7px;
+  background: #2f7cf6;
+  color: #fff;
+  font-size: 12.5px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.cw-open:hover {
+  background: #2668d4;
+}
+
+.cw-open--quiet {
+  background: rgba(0, 0, 0, 0.07);
+  color: #1c1c1e;
+}
+
+.cw-open--quiet:hover {
+  background: rgba(0, 0, 0, 0.12);
+}
+
+/* ---- the phone ----
+   A near-fullscreen sheet, and NOT draggable: dragging a window that already
+   fills the screen does nothing but fight the page, and a phone has no desktop
+   to drag it around on. The title bar stays because it is what says "window",
+   and the lights stay real — close and roll-up both still mean something. */
+@media (max-width: 640px) {
+  .cw {
+    top: auto;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    margin-left: 0;
+    max-height: 86vh;
+    border-radius: 14px 14px 0 0;
+    border-bottom: 0;
+  }
+
+  .cw.is-big {
+    top: auto;
+    width: 100%;
+    margin-left: 0;
+    max-height: 94vh;
+  }
+
+  .cw-bar {
+    cursor: default;
+  }
+
+  .cw-title {
+    max-width: 48%;
+    font-size: 12.5px;
+  }
+
+  .cw-body {
+    padding: 16px 16px calc(20px + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cw-nav button,
+  .cw-open {
+    transition: none;
+  }
+}

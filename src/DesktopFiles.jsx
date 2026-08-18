@@ -162,11 +162,16 @@ function ShotIcon({ src, alt }) {
 // two below it, staggered rather than aligned so the arrangement reads as
 // someone's desk instead of a column:
 //
-//     Meal Maestro           design.fig
-//                                    tech.ts
-//     ~~~~~~~~~~~~~ the bloom ~~~~~~~~~~~~~
-//              Layover
-//    [dock]                  Futurepreneurs
+//     |         Meal Maestro    design.fig
+//     |                             tech.ts
+//     | dock  ~~~~~~ the bloom ~~~~~~~~~~~~
+//     |             Layover
+//     |                       Futurepreneurs
+//
+// The dock is a full-height RAIL down the left edge now (see dock.css), so every
+// file has to clear it. Meal Maestro moved from 29% to 34% for that: at 320px
+// wide its tile reached x 53.8px while the rail ends at 63px, and the two only
+// ever missed each other while the dock was a puck in the bottom corner.
 //
 // TWO FILES ARE DROPPED ON THE PHONE, and neither loses a destination:
 // "Selected Work" opens #/design, which is exactly what the dock's Figma tile
@@ -179,7 +184,7 @@ const FILES = [
   // objects rather than tuples: checkJs widens a mixed `[string, number[]]`
   // to `(string | number[])[]`, and `key` then refuses the slug
   ...[
-    { slug: "meal-maestro", at: [13, 21], phone: [29, 15] },
+    { slug: "meal-maestro", at: [13, 21], phone: [34, 15] },
     { slug: "layover", at: [26, 44], phone: [44, 73] },
     { slug: "futurepreneurs", at: [11, 67], phone: [76, 80] },
   ].map(({ slug, at, phone }) => {
@@ -188,7 +193,12 @@ const FILES = [
       key: slug,
       label: p.name,
       aria: `${p.name} — ${p.what}, open the case study`,
+      // A PROJECT OPENS A WINDOW, not a page (see CaseWindow.jsx): the desktop
+      // stays behind it. The href is kept and honoured on middle-click,
+      // cmd-click and "open in new tab" — the anchor stays a real link so those
+      // still reach the full case study — but a plain click is intercepted.
       href: `#/design/${slug}`,
+      opensWindow: slug,
       external: false,
       newTab: false,
       art: <ShotIcon src={p.cover} alt="" />,
@@ -213,6 +223,8 @@ const FILES = [
     // it: checkJs infers the array's type from its members, and a field present
     // on some of them and absent on others is a union it will not let us read.
     wide: false,
+    // documents and folders navigate; only projects open a window
+    opensWindow: null,
     at: [76, 20],
     phone: [67, 12],
   },
@@ -227,6 +239,8 @@ const FILES = [
     // on disk is a PDF, the icon is the joke.
     art: <DocIcon ext="TS" accent="#3178c6" gradient="dfile-sheet-ts" />,
     wide: false,
+    // documents and folders navigate; only projects open a window
+    opensWindow: null,
     at: [89, 38],
     phone: [85, 17],
   },
@@ -239,6 +253,8 @@ const FILES = [
     newTab: false,
     art: <FolderIcon />,
     wide: false,
+    // documents and folders navigate; only projects open a window
+    opensWindow: null,
     at: [74, 61],
     phone: null,
   },
@@ -255,6 +271,8 @@ const FILES = [
       />
     ),
     wide: false,
+    // documents and folders navigate; only projects open a window
+    opensWindow: null,
     at: [88, 77],
     phone: null,
   },
@@ -277,7 +295,7 @@ if (import.meta.env.DEV) {
   }
 }
 
-export default function DesktopFiles({ visible }) {
+export default function DesktopFiles({ visible, onOpenCase }) {
   const isPhone = useIsPhone();
   const shown = isPhone ? FILES.filter((f) => f.phone) : FILES;
 
@@ -299,6 +317,17 @@ export default function DesktopFiles({ visible }) {
             rel={f.external ? "noreferrer" : undefined}
             aria-label={f.aria}
             tabIndex={visible ? 0 : -1}
+            // Only a PLAIN left click opens the window. Modified clicks and the
+            // middle button are how people open things in new tabs, and
+            // swallowing those would break the one habit an anchor promises —
+            // so they fall through to the href and the full case-study page.
+            onClick={(e) => {
+              if (!f.opensWindow || !onOpenCase) return;
+              if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0)
+                return;
+              e.preventDefault();
+              onOpenCase(f.opensWindow);
+            }}
             initial={false}
             // No flight. A desktop's files don't arrive, they're there when the
             // screen is — a short fade in place, faintly staggered, is all the
