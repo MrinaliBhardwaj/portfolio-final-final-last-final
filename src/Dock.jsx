@@ -20,8 +20,18 @@
 // rules went too rather than sitting dead. `ClaudeMark` is still exported from
 // BrandIcons if it ever comes back.
 import { motion } from "framer-motion";
-import { Code2, Flower2, NotebookPen } from "lucide-react";
-import { FigmaMarkColor, GooglePhotosMarkColor } from "./BrandIcons.jsx";
+import {
+  AppleNotesMark,
+  FigmaMarkColor,
+  GmailMark,
+  GitHubMark,
+  GooglePhotosMarkColor,
+  InstagramMark,
+  LinkedInMarkColor,
+  VSCodeMark,
+} from "./BrandIcons.jsx";
+import FroggieMark from "./FroggieMark.jsx";
+import { EMAIL, GITHUB, INSTAGRAM, LINKEDIN } from "./links.js";
 
 const EASE = [0.22, 1, 0.36, 1];
 
@@ -92,14 +102,9 @@ function DockItem({ app, active, minimised }) {
   // icon still marked in the dock, exactly as macOS does it.
   const isOn =
     !!app.world && (app.world === active || minimised.includes(app.world));
-  return (
-    <button
-      type="button"
-      className={`dock-item${isOn ? " is-active" : ""}`}
-      onClick={app.action}
-      aria-label={app.label}
-      aria-current={isOn ? "page" : undefined}
-    >
+  const className = `dock-item${isOn ? " is-active" : ""}`;
+  const inside = (
+    <>
       <span className="dock-item-glyph">{app.node}</span>
       {/* the name-tag, macOS-style, on hover and on keyboard focus.
           aria-hidden and visual-only: the button's own aria-label above is
@@ -111,6 +116,39 @@ function DockItem({ app, active, minimised }) {
         {app.name}
       </span>
       <span className="dock-item-dot" aria-hidden="true" />
+    </>
+  );
+
+  // A social tile is a LINK, not a button — it leaves the site, so it has to be
+  // a real anchor: middle-click, ⌘-click and "copy link address" all have to
+  // work, and a button gives you none of them. Written as two explicit branches
+  // rather than a dynamic tag with a spread props object, because checkJs widens
+  // `type: "button"` in such an object to `string` and then refuses it.
+  if (app.href) {
+    const external = !app.href.startsWith("mailto:");
+    return (
+      <a
+        className={className}
+        href={app.href}
+        // mailto stays in this tab; the three profiles open in a new one
+        target={external ? "_blank" : undefined}
+        rel={external ? "noreferrer" : undefined}
+        aria-label={app.label}
+      >
+        {inside}
+      </a>
+    );
+  }
+
+  return (
+    <button
+      type="button"
+      className={className}
+      onClick={app.action}
+      aria-label={app.label}
+      aria-current={isOn ? "page" : undefined}
+    >
+      {inside}
     </button>
   );
 }
@@ -133,7 +171,7 @@ export default function Dock({ visible, onChoose, active, minimised = [] }) {
       world: "design",
       action: () => onChoose("design"),
       node: (
-        <FigmaMarkColor className="dock-item-icon" aria-hidden="true" />
+        <FigmaMarkColor className="dock-item-icon dock-item-icon--bare" aria-hidden="true" />
       ),
     },
     {
@@ -142,13 +180,7 @@ export default function Dock({ visible, onChoose, active, minimised = [] }) {
       label: "VS Code — enter the tech world",
       world: "tech",
       action: () => onChoose("tech"),
-      node: (
-        <Code2
-          className="dock-item-icon dock-item-icon--glyph dock-item-icon--code"
-          strokeWidth={1.4}
-          aria-hidden="true"
-        />
-      ),
+      node: <VSCodeMark className="dock-item-icon" aria-hidden="true" />,
     },
     {
       key: "notes",
@@ -156,13 +188,7 @@ export default function Dock({ visible, onChoose, active, minimised = [] }) {
       label: "Notes — the archived first drafts",
       world: "notes",
       action: () => onChoose("notes"),
-      node: (
-        <NotebookPen
-          className="dock-item-icon dock-item-icon--glyph dock-item-icon--notes"
-          strokeWidth={1.4}
-          aria-hidden="true"
-        />
-      ),
+      node: <AppleNotesMark className="dock-item-icon" aria-hidden="true" />,
     },
     {
       key: "gallery",
@@ -183,13 +209,41 @@ export default function Dock({ visible, onChoose, active, minimised = [] }) {
       label: "Game — the Lotus Pond, catch coding bugs with a pixel frog",
       world: "pond",
       action: () => onChoose("pond"),
-      node: (
-        <Flower2
-          className="dock-item-icon dock-item-icon--glyph dock-item-icon--game"
-          strokeWidth={1.4}
-          aria-hidden="true"
-        />
-      ),
+      node: <FroggieMark className="dock-item-icon" aria-hidden="true" />,
+    },
+  ];
+
+  // HER CONTACTS, as a second group behind a divider — the way a real dock keeps
+  // its apps and its shortcuts apart. Real marks, real destinations: the three
+  // profiles open in a new tab, the mail tile is a mailto and stays in this one.
+  const socials = [
+    {
+      key: "github",
+      name: "GitHub",
+      label: "GitHub — mrinali's code",
+      href: GITHUB,
+      node: <GitHubMark className="dock-item-icon dock-item-icon--mono" aria-hidden="true" />,
+    },
+    {
+      key: "linkedin",
+      name: "LinkedIn",
+      label: "LinkedIn — mrinali's profile",
+      href: LINKEDIN,
+      node: <LinkedInMarkColor className="dock-item-icon" aria-hidden="true" />,
+    },
+    {
+      key: "email",
+      name: "Email",
+      label: "Email mrinali",
+      href: `mailto:${EMAIL}`,
+      node: <GmailMark className="dock-item-icon" aria-hidden="true" />,
+    },
+    {
+      key: "instagram",
+      name: "Instagram",
+      label: "Instagram — @mrinalii._",
+      href: INSTAGRAM,
+      node: <InstagramMark className="dock-item-icon" aria-hidden="true" />,
     },
   ];
 
@@ -212,6 +266,10 @@ export default function Dock({ visible, onChoose, active, minimised = [] }) {
         <div className="dock-glass-bevel" aria-hidden="true" />
         <div className="dock-row">
           {apps.map((a) => (
+            <DockItem key={a.key} app={a} active={active} minimised={minimised} />
+          ))}
+          <span className="dock-sep" aria-hidden="true" />
+          {socials.map((a) => (
             <DockItem key={a.key} app={a} active={active} minimised={minimised} />
           ))}
         </div>

@@ -2503,3 +2503,53 @@ navigation; two files give two windows at z 20/21, cascaded; the next chevron
 switches the front window's project without opening a third; yellow hides the
 body; red closes it. At 390×844 the sheet is full-width, bottom-anchored,
 `14px 14px 0 0`, drag off, no horizontal overflow.
+
+## The dock gets real logos and her contacts (2026-08-19)
+
+Every dock icon is now the actual logo, and a second group behind a divider
+carries GitHub, LinkedIn, Email and Instagram — the reference's arrangement.
+
+**The stand-ins are gone.** VS Code was a lucide `Code2` (a line drawing of a
+laptop, not the logo), Notes was `NotebookPen`, the game a `Flower2`. All three
+are replaced with vendored assets she supplied. Figma and Google Photos already
+carried their real multicolour geometry and were untouched.
+
+**Every internal ID is namespaced (`vs-`, `an-`, `ig-`, `fg-`), and that is not
+tidiness.** Inlined SVGs share one global id space: Instagram shipped its
+gradients as `id="0"`/`id="1"` and Apple Notes used `a`–`e`. Two icons defining
+`#a` means one silently renders with the other's gradient, and `url(#0)` is not
+a valid CSS selector. Verified at runtime: nine ids in the dock, zero duplicates.
+
+**Dropped, and not an approximation:** the drop-shadow `feGaussianBlur` filters
+inside VS Code and under Notes' header band. Invisible at ~20px, a filter pass
+each per paint. Every path, colour and gradient of the real logos is intact.
+
+**The frog is drawn, not borrowed** (`FroggieMark.jsx`). It is the one tile with
+no brand behind it, because the Lotus Pond is hers — a third-party mark would be
+wrong and a generic flower said nothing. Every colour is lifted from
+`src/froggie/config/theme.ts` (`frogBody #7cbf74`, `frogBodyLit #9bd68c`,
+`frogBelly #f2ead0`, `frogCheek #e79ab0`, `frogEye #232f3a`, `frogEyeHi #eaf2ff`,
+`frogMouth #3a4a3f`, with `skyLow`/`waterDeep`, `moon` and `bambooLeaf` behind),
+and it is built from ellipses and discs because that is how the game itself
+draws (`FrogPose.ts` — `fillEllipse`, `disc`, limbs as "a run of discs"). Open
+the game and it is the same creature in the same light.
+
+- **Social tiles are `<a>`, app tiles are `<button>`.** A link that leaves the
+  site has to be a real anchor or middle-click, ⌘-click and "copy link address"
+  all break. Written as two explicit branches because checkJs widens
+  `type: "button"` inside a spread props object to `string` and rejects it.
+- **The three profiles open in a new tab; mail is a `mailto:` and stays.**
+- **Icons went 52% → 76%.** They are app icons with their own tiles now; inset
+  to half their button they floated. Figma and GitHub keep the smaller size
+  (`--bare` / `--mono`) since they are bare marks and would otherwise out-weigh
+  the tiled ones. GitHub is `currentColor`, so it is told to be light or it
+  paints black on black.
+- **The divider follows the dock's axis** — a vertical hairline in the desktop
+  bar, horizontal in the phone's rail.
+
+Verified at 1440×900: nine tiles in order Design · Tech · Notes · Gallery ·
+Game │ GitHub · LinkedIn · Email · Instagram; the four socials are anchors with
+the right hrefs, `target="_blank"` and `rel="noreferrer"` on the three profiles
+and neither on the mailto. At 390×844 and 320×568 the rail is vertical and
+centred, 51×410, the divider turns horizontal, nothing is clipped and no file
+collides with it.

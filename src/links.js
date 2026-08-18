@@ -10,4 +10,5 @@
 // are hashes and belong to the router, not to this file.
 export const LINKEDIN = "https://www.linkedin.com/in/mrinali-bhardwaj-a340a3322/";
 export const GITHUB = "https://github.com/MrinaliBhardwaj";
+export const INSTAGRAM = "https://www.instagram.com/mrinalii._/";
 export const EMAIL = "mrinalibhardwaj0705@gmail.com";

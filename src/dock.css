@@ -214,11 +214,15 @@
    to the glyphs; each glyph gets its brand's colour in the modifiers below.
    Opacity still does the resting dim so the row sits INTO the glass rather
    than on it, and hover brings the one you're on to full strength. */
+/* 76%, not 52%. These are APP ICONS now, not glyphs: VS Code, Notes, Gmail,
+   Instagram and the frog each carry their own tile, and a tile inset to half of
+   its button floats in the middle of the glass looking undersized. The two bare
+   marks get the smaller size back via --bare/--mono below. */
 .dock-item-icon {
   position: relative;
   z-index: 1;
-  width: 52%;
-  height: 52%;
+  width: 76%;
+  height: 76%;
   opacity: 0.82;
   transition: opacity 0.3s var(--ease-soft), color 0.3s var(--ease-soft);
   pointer-events: none;
@@ -228,26 +232,36 @@
   opacity: 1;
 }
 
-/* the stroke glyphs (no usable brand mark — trademark-restricted) read a touch
-   thinner so they don't outweigh the multicolor logos beside them */
-.dock-item-icon--glyph {
-  width: 48%;
-  height: 48%;
+/* The two marks with NO tile of their own — Figma's five shapes and GitHub's
+   silhouette — sit smaller so they carry the same visual weight as the tiled
+   icons rather than more.
+   (`--glyph` and the per-brand colour modifiers that stood here went with the
+   lucide stand-ins on 19 Aug 2026. There is no longer any icon whose colour we
+   have to invent: every one is the real logo, and real logos bring their own.) */
+.dock-item-icon--bare {
+  width: 56%;
+  height: 56%;
 }
 
-/* Each glyph in its brand's colour, nudged for the dark glass: VS Code's
-   #007ACC is too deep against near-black, so it runs one step brighter;
-   Notes is Apple's system yellow; the game is the pond's own lotus pink. */
-.dock-item-icon--code {
-  color: #2f9fe8;
+/* GitHub ships as a silhouette on `currentColor`; on dark glass it has to be
+   told to be light, or it paints itself black on black. */
+.dock-item-icon--mono {
+  width: 56%;
+  height: 56%;
+  color: #f2f2f5;
 }
 
-.dock-item-icon--notes {
-  color: #ffd60a;
-}
-
-.dock-item-icon--game {
-  color: #ff54ad;
+/* ---- the divider between the apps and the contacts ----
+   A hairline, the way macOS separates its apps from the Trash. It follows the
+   dock's axis: a vertical rule in the horizontal desktop bar, and a horizontal
+   one in the phone's vertical rail (see the phone block below). */
+.dock-sep {
+  flex: none;
+  align-self: center;
+  width: 1px;
+  height: 26px;
+  margin: 0 0.3rem;
+  background: rgba(255, 255, 255, 0.16);
 }
 
 /* macOS-style indicator: a dot beneath the app whose world is open */
@@ -355,6 +369,13 @@
 
   .dock-item-name {
     display: none;
+  }
+
+  /* the rail runs vertically, so the rule between the groups turns with it */
+  .dock-sep {
+    width: 26px;
+    height: 1px;
+    margin: 0.3rem 0;
   }
 
   .dock-item {
