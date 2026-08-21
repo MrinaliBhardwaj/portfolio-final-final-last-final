@@ -1,0 +1,385 @@
+/* ============ the README window (the editor half of the desk) ============ */
+/* Geometry is CaseWindow's, to the pixel: the two window kinds share a desktop
+   and a stacking order, so they have to be the same size, land on the same
+   cascade and behave the same at every breakpoint. Only the SKIN differs —
+   this one is VS Code's, drawn from the --tw-* variables the tech world
+   already uses (index.css), so opening the world and opening this file put you
+   in visibly the same editor.
+
+   Fixed and rendered outside .cover-stage, which is overflow:hidden — a window
+   you can drag has to be able to leave the box it was born in. */
+.rw {
+  position: fixed;
+  top: 12vh;
+  left: 50%;
+  width: min(640px, calc(100vw - 40px));
+  max-height: 76vh;
+  /* MAX, not min — both candidates are negative and min() would pick the more
+     negative one, pinning the window to the left edge. See case-window.css. */
+  margin-left: max(-320px, calc(-50vw + 20px));
+  display: flex;
+  flex-direction: column;
+  border-radius: 11px;
+  overflow: hidden;
+  background: var(--tw-bg);
+  border: 1px solid rgba(255, 255, 255, 0.11);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.66), 0 6px 18px rgba(0, 0, 0, 0.45);
+  color: var(--tw-text);
+  font-family: var(--font-ui);
+}
+
+.rw.is-big {
+  width: min(880px, calc(100vw - 40px));
+  max-height: 88vh;
+  margin-left: max(-440px, calc(-50vw + 20px));
+  top: 6vh;
+}
+
+/* rolled up: the title bar alone, the classic Mac window shade */
+.rw.is-rolled {
+  max-height: none;
+}
+
+/* ---- the title bar ----
+   Three columns so the title is centred on the WINDOW and not on the space the
+   controls happen to leave. */
+.rw-bar {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto auto 1fr;
+  align-items: center;
+  gap: 12px;
+  height: 38px;
+  padding: 0 12px;
+  background: var(--tw-activity);
+  border-bottom: 1px solid #000;
+  cursor: grab;
+  user-select: none;
+  touch-action: none; /* the pointer drag owns this bar, not the page scroll */
+}
+
+.rw-bar:active {
+  cursor: grabbing;
+}
+
+.rw-lights {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.rw-light {
+  width: 12px;
+  height: 12px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.rw-light--close { background: #ff5f57; }
+.rw-light--min { background: #febc2e; }
+.rw-light--max { background: #28c840; }
+
+.rw-light:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+.rw-nav {
+  display: flex;
+  gap: 2px;
+}
+
+.rw-nav button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 22px;
+  padding: 0;
+  border: 0;
+  border-radius: 5px;
+  background: none;
+  color: var(--tw-dim);
+  cursor: pointer;
+}
+
+.rw-nav button:hover {
+  background: rgba(255, 255, 255, 0.09);
+  color: #fff;
+}
+
+/* absolutely centred on the bar, so neither control cluster can push it.
+   Monospace: it is a file path, and an editor titles its window with one. */
+.rw-title {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: #b9b9b9;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 55%;
+  pointer-events: none;
+}
+
+/* ---- the tab strip and breadcrumb: fixed chrome, outside the scroll ----
+   In an editor the tab and the breadcrumb stay put while the document moves
+   under them, which is the whole reason they are useful. */
+.rw-pane {
+  display: flex;
+  flex-direction: column;
+  min-height: 0; /* so .rw-doc can actually shrink and scroll inside the flex */
+}
+
+.rw-tabs {
+  display: flex;
+  background: var(--tw-side);
+  border-bottom: 1px solid var(--tw-line);
+  flex: none;
+}
+
+.rw-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 14px;
+  background: var(--tw-bg);
+  border-right: 1px solid var(--tw-line);
+  /* the accent line over the active tab, exactly where VS Code puts it */
+  box-shadow: inset 0 1px 0 var(--tw-accent);
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: #e6e6e6;
+  white-space: nowrap;
+}
+
+.rw-tab-icon {
+  width: 15px;
+  height: 10px;
+  flex: none;
+  color: var(--syn-md);
+}
+
+.rw-crumbs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 5px;
+  margin: 0;
+  padding: 5px 14px;
+  background: var(--tw-bg);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: #6d6d6d;
+  flex: none;
+}
+
+/* the chevron between segments, drawn by CSS so the markup stays three plain
+   spans and nothing has to be threaded between them in JSX */
+.rw-crumbs span + span::before {
+  content: "\203A";
+  margin-right: 5px;
+  color: #4a4a4a;
+}
+
+/* ---- the rendered document ---- */
+.rw-doc {
+  overflow-y: auto;
+  padding: 20px 22px 24px;
+  -webkit-overflow-scrolling: touch;
+  min-height: 0;
+}
+
+/* The dimmed hash before a heading. It is the one piece of markup left
+   visible: without it this is just a styled page, and with it the window is
+   obviously showing a .md file. Never announced — a screen reader reading
+   "hash hash Stack" is worse than useless, hence aria-hidden in the JSX. */
+.rw-hash {
+  margin-right: 0.5em;
+  font-family: var(--font-mono);
+  font-weight: 400;
+  color: var(--syn-md);
+  opacity: 0.75;
+}
+
+.rw-h1 {
+  margin: 0;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--tw-line);
+  font-size: 23px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  /* the tech world's single saturated accent, and the only one in here */
+  color: var(--tw-gold);
+}
+
+.rw-h2 {
+  margin: 22px 0 9px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #e8e8e8;
+}
+
+/* markdown's blockquote: the bar on the left is the whole signature */
+.rw-quote {
+  margin: 12px 0 0;
+  padding: 2px 0 2px 12px;
+  border-left: 3px solid #3f4650;
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: #9aa3ad;
+}
+
+/* the stat row — a README's badges, built by splitting `impact` */
+.rw-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin: 14px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.rw-stats li {
+  padding: 4px 10px;
+  border-radius: 4px;
+  background: rgba(231, 211, 145, 0.1);
+  border: 1px solid rgba(231, 211, 145, 0.22);
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--tw-gold);
+}
+
+/* the stack, as inline code spans */
+.rw-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.rw-chips li {
+  padding: 3px 8px;
+  border-radius: 4px;
+  background: var(--tw-card);
+  border: 1px solid var(--tw-line);
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--syn-str);
+}
+
+/* the bullet list, with markdown's own dash rather than a disc */
+.rw-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 8px;
+}
+
+.rw-list li {
+  position: relative;
+  padding-left: 18px;
+  font-size: 13px;
+  line-height: 1.62;
+  color: #c3c3c3;
+}
+
+.rw-list li::before {
+  content: "\2013";
+  position: absolute;
+  left: 2px;
+  color: var(--syn-md);
+}
+
+.rw-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid var(--tw-line);
+}
+
+.rw-open {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 13px;
+  border-radius: 6px;
+  background: var(--tw-accent);
+  color: #fff;
+  font-size: 12.5px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.rw-open:hover {
+  background: #0e8ae0;
+}
+
+.rw-open--quiet {
+  background: var(--tw-card);
+  border: 1px solid var(--tw-line);
+  color: #d6d6d6;
+}
+
+.rw-open--quiet:hover {
+  background: #2f2f31;
+}
+
+/* ---- the phone ----
+   A bottom sheet, not draggable: a window that already fills the screen has
+   nowhere to be dragged to, and the drag would only fight the page scroll. The
+   title bar and its three lights stay, because they are what says "window". */
+@media (max-width: 640px) {
+  .rw {
+    top: auto;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    margin-left: 0;
+    max-height: 86vh;
+    border-radius: 14px 14px 0 0;
+    border-bottom: 0;
+  }
+
+  .rw.is-big {
+    top: auto;
+    width: 100%;
+    margin-left: 0;
+    max-height: 94vh;
+  }
+
+  .rw-bar {
+    cursor: default;
+  }
+
+  .rw-title {
+    max-width: 46%;
+    font-size: 11.5px;
+  }
+
+  /* the breadcrumb is the first thing to go: three path segments in a 320px
+     window wrap to two lines and say nothing the tab hasn't already said */
+  .rw-crumbs {
+    display: none;
+  }
+
+  .rw-doc {
+    padding: 16px 16px calc(20px + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rw-nav button,
+  .rw-open {
+    transition: none;
+  }
+}

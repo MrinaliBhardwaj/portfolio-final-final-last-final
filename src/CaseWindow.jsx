@@ -7,9 +7,17 @@
 // That is the difference between a site that looks like a desktop and one that
 // behaves like one, so the window is what a project file opens now.
 //
-// The full page at #/design/<slug> is untouched and still linked from inside the
-// window ("Open full case study"). Deep links keep working; this is a second,
-// lighter way in, not a replacement.
+// IT IS THE WHOLE CASE STUDY NOW (19 Aug 2026), not a teaser for one. It used
+// to show the cover twice — once as a thumbnail, once as a "Preview" — and then
+// hand you to #/design/<slug> for the actual artwork, which meant the same three
+// projects had three entry points and two different formats. The exported
+// artboards render in here instead, the "Open full case study" button is gone,
+// ProjectPage.jsx is deleted, and #/design/<slug> redirects to this window's own
+// address (#/?case=<slug>) so every link already in circulation still lands on
+// the work. One case study, one format, one place.
+//
+// The design canvas keeps its boards — a Figma file IS an index of frames — but
+// they now open this window rather than a second page of themselves.
 //
 // LIGHT, on a dark site, deliberately: a Mac window is a light panel and this
 // one is quoting a Mac window. Notes is already a light world, so the vocabulary
@@ -130,16 +138,85 @@ export default function CaseWindow({ project, index, z, onClose, onFocus, onSwit
           ))}
         </dl>
 
-        <h3 className="cw-section">Preview</h3>
-        <div className="cw-preview">
-          <img src={p.cover} alt={`${p.name} — cover`} loading="lazy" />
-        </div>
+        <h3 className="cw-section">Case study</h3>
+        {p.shots.length > 0 ? (
+          <div className="cw-shots">
+            {p.shots.map((shot, i) => (
+              <figure className="cw-shot" key={shot.frame || shot.src}>
+                {/* Named and dimensioned like the artboard it is — this is a
+                    picture OF a Figma frame, so it wears frame chrome rather
+                    than reading as a photo dropped into a window. */}
+                {shot.frame && (
+                  <div className="cw-shot-frame" aria-hidden="true">
+                    <span>{shot.frame}</span>
+                    {shot.dims && <span className="cw-shot-dims">{shot.dims}</span>}
+                  </div>
+                )}
+                {shot.strip ? (
+                  /* One tall presentation, delivered in slices — WebP tops out
+                     at 16383px and this artboard is 22306 tall. They carry no
+                     rim or radius of their own, which would draw a line at
+                     every seam; the wrapper holds the frame and the slices just
+                     stack. width/height on each is what reserves the space, so
+                     the lazy ones below the fold cannot collapse the window's
+                     scroll height and make it twitch as they arrive. */
+                  <div className="cw-strip">
+                    {shot.strip.map((src, s) => {
+                      // the last slice is short — the source height rarely
+                      // divides evenly — so it declares its own size
+                      const [w, h] =
+                        s === shot.strip.length - 1 && shot.lastSliceSize
+                          ? shot.lastSliceSize
+                          : shot.sliceSize;
+                      return (
+                        <img
+                          key={src}
+                          src={src}
+                          alt={s === 0 ? shot.alt : ""}
+                          aria-hidden={s === 0 ? undefined : "true"}
+                          loading="lazy"
+                          decoding="async"
+                          width={w}
+                          height={h}
+                          draggable="false"
+                        />
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <img
+                    src={shot.src}
+                    alt={shot.alt}
+                    // every shot is lazy in here, including the first: a window
+                    // opens over a desktop the visitor is already looking at,
+                    // so nothing in it is above the fold at open time
+                    loading="lazy"
+                    decoding="async"
+                    width="1600"
+                    height="900"
+                    draggable="false"
+                  />
+                )}
+                <figcaption>{shot.caption}</figcaption>
+              </figure>
+            ))}
+          </div>
+        ) : (
+          /* Honest rather than decorative: an empty frame would imply the work
+             doesn't exist. It does — the shots just aren't exported yet. */
+          <p className="cw-empty">
+            The shots for this one aren&rsquo;t exported yet — the full set is on
+            Behance in the meantime.
+          </p>
+        )}
 
         <div className="cw-actions">
-          <a className="cw-open" href={`#/design/${p.slug}`}>
-            Open full case study
-            <ArrowUpRight size={14} strokeWidth={1.8} aria-hidden="true" />
-          </a>
+          {p.live && (
+            <a className="cw-open" href={p.live} target="_blank" rel="noreferrer">
+              Visit the live site
+              <ArrowUpRight size={14} strokeWidth={1.8} aria-hidden="true" />
+            </a>
+          )}
           {p.external && (
             <a
               className="cw-open cw-open--quiet"

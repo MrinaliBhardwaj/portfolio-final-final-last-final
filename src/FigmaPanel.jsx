@@ -7,7 +7,6 @@
 // the app's chrome, not the portfolio's palette.
 import { useState } from "react";
 import { FigmaMark } from "./BrandIcons.jsx";
-import { PROJECTS } from "./projects.js";
 
 function cx(...parts) {
   return parts.filter(Boolean).join(" ");
@@ -147,25 +146,20 @@ export default function FigmaPanel({
   onSelect,
   open = false,
   onClose,
-  project = null,
 }) {
-  // Pages is a REAL switcher now, and only because what it switches changed.
-  // It used to list "design" and "tech" as display-only text: the two worlds
-  // are switched by the file tabs in the title bar (WorldTabs), so making these
-  // clickable would have been a second, competing control for the same job.
+  // ONE PAGE, WHICH IS THE TRUTH ABOUT THIS FILE (19 Aug 2026).
   //
-  // "tech" is gone from here — it is a different file, not a page of this one,
-  // and the tab bar already carries it. What replaced it are the design file's
-  // actual pages: the canvas, then one page per project. Those have no other
-  // control, so the panel is their home and clicking them navigates.
-  const pages = [
-    { name: "design", href: "#/design", current: !project },
-    ...PROJECTS.map((p) => ({
-      name: p.slug,
-      href: `#/design/${p.slug}`,
-      current: project === p.slug,
-    })),
-  ];
+  // This list has been wrong twice in opposite directions. It first showed
+  // "design" and "tech" as display-only text, which was two files pretending to
+  // be two pages — the file tabs in the title bar (WorldTabs) already switch
+  // those. It then listed one page per project, because #/design/<slug> really
+  // did exist. Those pages are gone: the case study is a window on the desktop
+  // now, and listing pages that resolve to a redirect would be the panel lying
+  // about the file again.
+  //
+  // A one-page file showing one page is not a dead control — it is what Figma
+  // draws for a one-page file, and it is the page you are on.
+  const pages = [{ name: "design", href: "#/design", current: true }];
 
   // On phones the panel is a bottom SHEET pulled up from the toolbar's Layers
   // button (Figma mobile's own gesture). Picking a layer jumps to the frame and

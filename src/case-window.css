@@ -229,17 +229,74 @@
   color: #1c1c1e;
 }
 
-.cw-preview {
+/* ---- the case study itself ----
+   This replaced a single .cw-preview thumbnail (the cover, shown a second time)
+   when the window absorbed the full study. Her exported artboards carry their
+   own composition and their own background, so the job here is a quiet card
+   under each one and nothing else. */
+.cw-shots {
+  display: grid;
+  gap: 14px;
+}
+
+.cw-shot {
+  margin: 0;
   border-radius: 7px;
   overflow: hidden;
   background: #fff;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-.cw-preview img {
+.cw-shot > img {
   display: block;
   width: 100%;
   height: auto;
+}
+
+/* the artboard's name and size, the same chrome a frame wears on the canvas */
+.cw-shot-frame {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 7px 10px 6px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.07);
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: #7a7a80;
+}
+
+.cw-shot-dims {
+  margin-left: auto;
+  color: #a8a8ae;
+}
+
+/* One tall artboard, arriving as stacked slices. No gap and no radius on the
+   slices themselves — either would draw a visible line at every seam, and there
+   are seventeen of them in the Meal Maestro study. `vertical-align` is not
+   enough on its own here; the images are display:block so no baseline gap can
+   open between them either. */
+.cw-strip img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.cw-shot figcaption {
+  padding: 9px 12px 11px;
+  border-top: 1px solid rgba(0, 0, 0, 0.07);
+  font-size: 12px;
+  line-height: 1.55;
+  color: #5c5c63;
+}
+
+.cw-empty {
+  margin: 0;
+  padding: 13px 15px;
+  border-radius: 7px;
+  background: rgba(0, 0, 0, 0.045);
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: #6a6a70;
 }
 
 .cw-actions {

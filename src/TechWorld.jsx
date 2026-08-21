@@ -21,6 +21,7 @@ import FileTree from "./FileTree.jsx";
 import TechLanyard from "./TechLanyard.jsx";
 import WorldTabs from "./WorldTabs.jsx";
 import useSectionSpy from "./useSectionSpy.js";
+import { TECH_PROJECTS as projects } from "./tech-projects.js";
 
 import { GITHUB, LINKEDIN } from "./links.js";
 
@@ -209,45 +210,11 @@ const experience = [
   },
 ];
 
-const projects = [
-  {
-    key: "regis",
-    name: "Regis",
-    what: "AI-assisted compliance platform for Indian NBFCs",
-    stack: ["FastAPI", "PostgreSQL", "Next.js", "TypeScript"],
-    impact: "137 tests · 84% coverage",
-    proof: [
-      "34 REST endpoints · 9 modules · 27 tables · multi-tenant isolation · maker-checker approvals",
-      "5 rule engines over 106 obligation templates across 29 Indian laws — 367+ dated obligations from one profile in <2s",
-      "98.4% AI evidence-classification accuracy",
-    ],
-    repo: "github.com/MrinaliBhardwaj/compliance-checker",
-  },
-  {
-    key: "lexa",
-    name: "Lexa",
-    what: "large-document intelligence (RAG) for 500–1,000-page PDFs",
-    stack: ["FastAPI", "PostgreSQL", "vector search", "Anthropic / OpenAI"],
-    impact: "0 type errors · 54 modules",
-    proof: [
-      "citation-grounded Q&A, clause & risk extraction, semantic version diffs",
-      "82% test coverage · CI gate on every commit",
-    ],
-    repo: "github.com/MrinaliBhardwaj/Lotus",
-  },
-  {
-    key: "publicPulse",
-    name: "Public Pulse",
-    what: "civic-issue reporting platform, cross-platform",
-    stack: ["React Native (Expo)", "Express", "PostgreSQL", "LangGraph"],
-    impact: "SIH national finalist",
-    proof: [
-      "camera-first capture, feeds, voting on Firebase auth + S3 media",
-      "LangChain/LangGraph agent pipeline for AI triage of citizen reports",
-    ],
-    repo: "github.com/MrinaliBhardwaj/public-pulse",
-  },
-];
+// THE PROJECTS MOVED OUT to tech-projects.js (19 Aug 2026), unchanged. The
+// desktop carries a README file per project now, and the window it opens
+// (CodeWindow.jsx) draws the same three — so the list has three consumers and
+// could no longer be a private const in this file. The buffer below still
+// renders them exactly as it did.
 
 // ---- the explorer tree ----
 // EXPLORER ONLY. The buffer beside it is unchanged: it still renders a single

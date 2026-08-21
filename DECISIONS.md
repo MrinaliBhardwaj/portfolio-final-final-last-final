@@ -2553,3 +2553,106 @@ the right hrefs, `target="_blank"` and `rel="noreferrer"` on the three profiles
 and neither on the mailto. At 390×844 and 320×568 the rail is vertical and
 centred, 51×410, the divider turns horizontal, nothing is clipped and no file
 collides with it.
+
+## One case study, and the desk gets its engineering half (2026-08-19, second pass)
+
+Her read: *"the case study lies in two different formats on the landing page as
+well as the figma page. i think it should only be on the landing page and the
+figma page can have project uis"* — and *"on the landing page there are only
+design case studies and nothing for tech."*
+
+**It was three entry points, not two formats.** A desktop file opened
+`CaseWindow`; a board on the Figma canvas opened `#/design/<slug>`; and the
+window's own "Open full case study" opened that same page. The window showed the
+cover twice (thumbnail, then "Preview") and the page held the actual artwork.
+
+### The window IS the case study now
+
+`ProjectPage.jsx` and `project-page.css` are **deleted**. Her exported artboards
+render inside the window instead — Meal Maestro's 18-slice strip (the artboard is
+1400×22306 and WebP tops out at 16383px, so it cannot be one file), Layover's
+five, and an honest empty note for Futurepreneurs rather than a placeholder
+frame. The window's inner scroll height on Meal Maestro is 9802px: the whole
+study is in there.
+
+- **Windows are addressable:** `#/?case=<slug>` and `#/?readme=<key>`. The query
+  rides on the *hash* so `getRoute` — which already splits on `?` — still reads
+  `""` and still renders the desktop. The address names the **frontmost** window
+  only, the way a window manager's title bar does.
+- **`history.replaceState`, never `location.hash`.** Assigning to the hash fires
+  `hashchange`, App re-runs its route effect, and on a first visit that effect
+  scrolls the ceremony back to the top under the visitor.
+- **A deep-linked window marks the intro seen.** Someone arriving at
+  `#/?case=layover` asked for that window, not for the bloom — otherwise it opens
+  over a scrubbing lotus with the desk several screens below.
+- **`#/design/<slug>` redirects** rather than 404-ing to the canvas. Links live
+  outside the app — bookmarks, messages, a CV already sent. Done by assigning
+  `location.hash` at module scope, because it has to land *before* `getRoute`
+  reads the hash on the first render, and `location.hash` updates synchronously
+  even though the event is deferred.
+
+### The Figma canvas keeps its boards, and they point here
+
+A canvas of frames is what a Figma file *is*, so the boards stay as the index —
+what changed is where they go (`#/?case=<slug>`, "Open case study"). The Pages
+list in the layers panel drops to a single `design` entry: listing pages that
+resolve to a redirect would be the panel lying about the file. **Pending: her UI
+screens.** Once those are exported the section grows into the screens themselves
+rather than three cover images.
+
+### A README, open in an editor
+
+Not a project report. The desk already carries two résumé PDFs; a third document
+nobody opens is the most generic thing a portfolio can offer. And her
+engineering work is *evidential*, not visual — 137 tests at 84% coverage, 34
+endpoints across 9 modules, 98.4% classification accuracy, SIH national finalist
+— with not one screenshot of Regis, Lexa or Public Pulse in the repo to build a
+case study from.
+
+`CodeWindow.jsx` is CaseWindow's geometry to the pixel — same size, same
+cascade, same three working lights, same chevrons — wearing VS Code's skin from
+the `--tw-*` variables the tech world already uses. The dock establishes two
+applications, so a file opens in the one that made it: design work light, code
+dark. It is a **markdown preview**, which is a real thing VS Code does, so the
+window can carry editor chrome (tab, breadcrumb) and still be readable prose;
+the dimmed `#`/`##` are the only markup left visible, and they are `aria-hidden`.
+
+**Everything on screen is hers.** `impact` is authored ` · `-separated precisely
+so the window can split it into stat chips while the tech world prints it as one
+line. No invented timings, no fabricated terminal output. The three projects
+moved out of `TechWorld.jsx` into `tech-projects.js` — three consumers now, and
+a second copy of a stat is how one of them goes stale.
+
+### Both folders are gone
+
+"Selected Work" and "github" were the two tiles that opened somewhere *else*
+rather than opening something — the first went to `#/design`, which the dock's
+Figma tile already does, and the second left the site, which the dock's GitHub
+tile now does. A desktop file should open a thing, not act as a second
+navigation bar. `FolderIcon`, its two gradients and the `GitHubMark` import went
+with them rather than staying as dead shapes.
+
+Three READMEs took the vacated right side: **graphite bands** where the résumés
+get Figma orange and TypeScript blue — those two are documents *about* her,
+these are files *from* the work, and markdown has no brand colour anyway. Each
+sheet declares its **own gradient id**; three files sharing `dfile-sheet-md`
+would have two of them painting with whichever the browser resolved first, the
+same collision the dock icons had.
+
+**One README on the phone, not three,** and nothing is lost: the window's
+chevrons reach the other two. Regis is the one on the desk because it is the
+largest — 34 endpoints, 9 modules, 137 tests.
+
+Verified at 1440×900: eight tiles, zero pairwise overlaps, none touching the
+dock, five distinct gradient ids and no duplicates. At 320×568: six tiles, the
+rail cleared by 56px, `regis.md` clearing Layover by 16px and Futurepreneurs by
+29px. Deep links `#/?case=meal-maestro` (18 slices), `#/?case=layover` (5 shots,
+live + Behance) and the legacy `#/design/layover` → `#/?case=layover` all land on
+the settled desktop with the right window open. `#/?readme=regis` renders the
+right stats, stack, bullets and repo link, and the chevrons cycle
+regis → lexa → publicPulse → regis. typecheck and build clean.
+
+*(The window count grows on each chevron press when measured in the preview
+pane. That is the pane freezing rAF — AnimatePresence exits never complete, so
+the outgoing node stays in the DOM. All the ghosts carry `z-index: 20`, i.e.
+index 0: there is only ever one window in React state.)*

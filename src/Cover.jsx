@@ -20,7 +20,9 @@ import {
 import { ChevronDown } from "lucide-react";
 import MenuBar from "./MenuBar.jsx";
 import CaseWindow from "./CaseWindow.jsx";
+import CodeWindow from "./CodeWindow.jsx";
 import { PROJECTS } from "./projects.js";
+import { TECH_PROJECTS } from "./tech-projects.js";
 import TextMorph from "./TextMorph.jsx";
 import DesktopFiles from "./DesktopFiles.jsx";
 import { createParticles } from "./particles.js";
@@ -93,6 +95,48 @@ const markIntroSeen = () => {
   }
 };
 
+// ---- windows are addressable ----
+// #/?case=layover and #/?readme=regis. The query rides on the hash rather than
+// on the real query string so it costs no server round-trip and so getRoute in
+// App.jsx — which splits the hash on "?" already — keeps reading "" and keeps
+// rendering the cover.
+//
+// One window in the address, not all of them: the URL names the FRONTMOST one,
+// the way a window manager's title bar does. Reopening a shared link restores
+// that window, not somebody else's whole session.
+const WINDOW_PARAM = { case: "case", readme: "readme" };
+
+/** @returns {{kind: string, id: string}[]} */
+function deepLinkedWindows() {
+  if (typeof window === "undefined") return [];
+  const query = window.location.hash.split("?")[1];
+  if (!query) return [];
+  const params = new URLSearchParams(query);
+  const slug = params.get(WINDOW_PARAM.case);
+  // Validated against the real lists. A stale or hand-typed id has to land on a
+  // plain desktop, not on a window rendering `undefined`.
+  if (slug && PROJECTS.some((p) => p.slug === slug))
+    return [{ kind: "case", id: slug }];
+  const key = params.get(WINDOW_PARAM.readme);
+  if (key && TECH_PROJECTS.some((p) => p.key === key))
+    return [{ kind: "readme", id: key }];
+  return [];
+}
+
+// The address of a window stack. replaceState, never location.hash: assigning
+// to the hash fires hashchange, App re-runs its route effect, and on a first
+// visit that effect scrolls the ceremony back to the top under the visitor.
+// replaceState fires nothing and leaves the scroll alone.
+function syncWindowAddress(windows) {
+  const top = windows[windows.length - 1];
+  const query = top ? `?${WINDOW_PARAM[top.kind]}=${top.id}` : "";
+  try {
+    history.replaceState(null, "", `#/${query}`);
+  } catch {
+    /* a sandboxed frame may refuse replaceState; the windows still work */
+  }
+}
+
 export default function Cover({ onChoose, onSettledChange }) {
   const particlesRef = useRef(null);
   const trackRef = useRef(null);
@@ -120,20 +164,35 @@ export default function Cover({ onChoose, onSettledChange }) {
   // so one failed fetch cannot leave the name hidden behind the timeout.
   const [fontReady, setFontReady] = useState(false);
 
-  // OPEN CASE-STUDY WINDOWS, in stacking order — the array IS the z-order, last
-  // is frontmost, which is how a window manager actually works and saves
-  // carrying a separate z per window. Opening one that is already open raises it
-  // instead of adding a duplicate, exactly as clicking a dock icon does.
-  const [openCases, setOpenCases] = useState([]);
+  // OPEN WINDOWS, in stacking order — the array IS the z-order, last is
+  // frontmost, which is how a window manager actually works and saves carrying
+  // a separate z per window. Opening one that is already open raises it instead
+  // of adding a duplicate, exactly as clicking a dock icon does.
+  //
+  // ONE LIST FOR BOTH KINDS, not a list of case studies beside a list of
+  // READMEs. There is a single desktop and therefore a single stack: a design
+  // window has to be able to sit on top of an engineering one and vice versa,
+  // and two arrays could only ever interleave by accident.
+  const [windows, setWindows] = useState(deepLinkedWindows);
 
-  const openCase = (slug) =>
-    setOpenCases((list) => [...list.filter((s) => s !== slug), slug]);
-  const closeCase = (slug) =>
-    setOpenCases((list) => list.filter((s) => s !== slug));
-  // switching with the window's own chevrons REPLACES the front window rather
+  const same = (a, kind, id) => a.kind === kind && a.id === id;
+  const openWindow = (kind, id) =>
+    setWindows((list) => [...list.filter((w) => !same(w, kind, id)), { kind, id }]);
+  const closeWindow = (kind, id) =>
+    setWindows((list) => list.filter((w) => !same(w, kind, id)));
+  // switching with a window's own chevrons REPLACES the front window rather
   // than opening a second one — it is the same window looking at another project
-  const switchCase = (from) => (to) =>
-    setOpenCases((list) => [...list.filter((s) => s !== from && s !== to), to]);
+  const switchWindow = (kind, from) => (to) =>
+    setWindows((list) => [
+      ...list.filter((w) => w.kind !== kind || (w.id !== from && w.id !== to)),
+      { kind, id: to },
+    ]);
+
+  // the address follows the stack, so the front window is always the one a
+  // copied URL will reopen
+  useEffect(() => {
+    syncWindowAddress(windows);
+  }, [windows]);
 
   // The View menu's "Replay Intro". Forgetting the flag is only half of it —
   // the visitor is standing at the BOTTOM of the track on a settled desktop, so
@@ -275,6 +334,13 @@ export default function Cover({ onChoose, onSettledChange }) {
   // and files would wait forever for a scroll that isn't coming. The refs are
   // set too, so the first real scroll event doesn't re-announce.
   useLayoutEffect(() => {
+    // A DEEP-LINKED WINDOW SKIPS THE CEREMONY. Someone arriving at
+    // #/?case=layover asked for that window, not for the bloom: leaving the
+    // intro owed would open the window over a scrubbing lotus and put the
+    // visitor at the TOP of the track, several screens above the desk it is
+    // supposed to be sitting on. Marking it seen here (before the check below)
+    // lands them on the settled desktop with the window on it.
+    if (windows.length) markIntroSeen();
     if (!hasSeenIntro()) return;
     const track = trackRef.current;
     if (!track) return;
@@ -515,7 +581,11 @@ export default function Cover({ onChoose, onSettledChange }) {
               the dock, and on the desktop as design.fig / tech.ts. The whole
               `.cover-split` block, its scrims and its type styles are gone from
               cover.css too rather than left orphaned. */}
-          <DesktopFiles visible={settled} onOpenCase={openCase} />
+          <DesktopFiles
+            visible={settled}
+            onOpenCase={(slug) => openWindow("case", slug)}
+            onOpenCode={(key) => openWindow("readme", key)}
+          />
 
           <motion.div
             className="cover-scroll"
@@ -532,21 +602,23 @@ export default function Cover({ onChoose, onSettledChange }) {
           leave the box it was born in. They sit above the files and below the
           dock, which is the macOS order. */}
       <AnimatePresence>
-        {openCases.map((slug, i) => {
-          const p = PROJECTS.find((x) => x.slug === slug);
-          if (!p) return null;
-          return (
-            <CaseWindow
-              key={slug}
-              project={p}
-              index={i}
-              // the array's own order is the stacking order — last is frontmost
-              z={20 + i}
-              onClose={() => closeCase(slug)}
-              onFocus={() => openCase(slug)}
-              onSwitch={switchCase(slug)}
-            />
-          );
+        {windows.map((w, i) => {
+          // the array's own order is the stacking order — last is frontmost
+          const shared = {
+            index: i,
+            z: 20 + i,
+            onClose: () => closeWindow(w.kind, w.id),
+            onFocus: () => openWindow(w.kind, w.id),
+            onSwitch: switchWindow(w.kind, w.id),
+          };
+          if (w.kind === "case") {
+            const p = PROJECTS.find((x) => x.slug === w.id);
+            // key is prefixed by kind: the two id spaces are separate lists and
+            // nothing stops a slug and a project key from colliding one day
+            return p ? <CaseWindow key={`case:${w.id}`} project={p} {...shared} /> : null;
+          }
+          const p = TECH_PROJECTS.find((x) => x.key === w.id);
+          return p ? <CodeWindow key={`readme:${w.id}`} project={p} {...shared} /> : null;
         })}
       </AnimatePresence>
     </div>

@@ -5,8 +5,14 @@
 // reference the scattered files ARE the portfolio — each one is a thumbnail of
 // the actual work, framed like a macOS image file, and opening one opens the
 // project. So the desktop carries her real covers from projects.js, and the
-// résumés and folders keep drawn icons: a PDF is not a picture, and a folder
-// showing a preview stops reading as a folder.
+// résumés and READMEs keep drawn icons: a PDF is not a picture, and neither is
+// a text file.
+//
+// BOTH DISCIPLINES ARE ON THE DESK. Design work opens as a light Mac window
+// (CaseWindow.jsx), engineering work as an editor (CodeWindow.jsx) — the dock
+// already establishes those two applications, so a file opens in the one that
+// made it. Before 19 Aug 2026 the desk was three design covers and nothing at
+// all for the code.
 //
 // THE LOTUS OWNS THE MIDDLE, and it owns a DIFFERENT middle on a phone — see
 // NO_GO. Nothing here may drift into it.
@@ -17,9 +23,8 @@
 // to the cover.
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { GitHubMark } from "./BrandIcons.jsx";
 import { PROJECTS } from "./projects.js";
-import { GITHUB } from "./links.js";
+import { TECH_PROJECTS } from "./tech-projects.js";
 
 // THE FLOWER'S FOOTPRINT, MEASURED — and it is not the same shape on a phone.
 //
@@ -111,35 +116,14 @@ function DocIcon({ ext, accent, gradient }) {
   );
 }
 
-// The classic two-tone folder — back panel with the tab, lighter front panel
-// over it. `mark` rides on the front panel when the folder needs to say what
-// is in it (GitHub); the work folder is left plain, the way a real one is.
-function FolderIcon({ mark = null }) {
-  return (
-    <svg viewBox="0 0 64 54" className="dfile-art" aria-hidden="true">
-      <defs>
-        <linearGradient id="dfile-folder-back" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#7ec8f2" />
-          <stop offset="1" stopColor="#4f9fd8" />
-        </linearGradient>
-        <linearGradient id="dfile-folder-front" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#8fd4fa" />
-          <stop offset="1" stopColor="#57ade6" />
-        </linearGradient>
-      </defs>
-      <path
-        d="M3 10a4 4 0 0 1 4-4h15.4a4 4 0 0 1 2.83 1.17L29 11h28a4 4 0 0 1 4 4v31a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4z"
-        fill="url(#dfile-folder-back)"
-      />
-      <path
-        d="M7 17h50a4 4 0 0 1 4 4v25a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V21a4 4 0 0 1 4-4z"
-        fill="url(#dfile-folder-front)"
-      />
-      {mark}
-    </svg>
-  );
-}
-
+// BOTH FOLDERS ARE GONE (19 Aug 2026). "Selected Work" and "github" were the
+// two tiles here that opened somewhere ELSE rather than opening something — the
+// first went to #/design, which the dock's Figma tile already does, and the
+// second left the site entirely, which the dock's GitHub tile now does. A
+// desktop file should open a thing, not act as a second navigation bar. With
+// them went FolderIcon, its two gradients and the GitHubMark import, rather
+// than being left in the file as dead shapes.
+//
 // A project's cover, framed the way macOS frames an image file: a white border
 // with the picture inside and a real drop shadow under the whole card. This is
 // the piece that makes the desktop read as a portfolio rather than as a folder
@@ -167,17 +151,21 @@ function ShotIcon({ src, alt }) {
 //     | dock  ~~~~~~ the bloom ~~~~~~~~~~~~
 //     |             Layover
 //     |                       Futurepreneurs
+//     |              regis.md
 //
 // The dock is a full-height RAIL down the left edge now (see dock.css), so every
 // file has to clear it. Meal Maestro moved from 29% to 34% for that: at 320px
 // wide its tile reached x 53.8px while the rail ends at 63px, and the two only
 // ever missed each other while the dock was a puck in the bottom corner.
 //
-// TWO FILES ARE DROPPED ON THE PHONE, and neither loses a destination:
-// "Selected Work" opens #/design, which is exactly what the dock's Figma tile
-// already does — a duplicate is the first thing to cut when space is the
-// constraint; and GitHub is linked from the tech world's own contact block.
+// ONE README ON THE PHONE, NOT THREE, and nothing is lost by it. Three more
+// tiles do not fit in the open air the bloom leaves, and picking one would
+// normally mean hiding the other two — except the window that opens has working
+// chevrons (see CodeWindow.jsx), so Lexa and Public Pulse are one tap away from
+// the file that IS shown. Regis is the one on the desk because it is the
+// largest of the three: 34 endpoints, 9 modules, 137 tests.
 const byslug = (s) => PROJECTS.find((p) => p.slug === s);
+const bykey = (k) => TECH_PROJECTS.find((p) => p.key === k);
 
 const FILES = [
   // ---- her work ----
@@ -194,11 +182,13 @@ const FILES = [
       label: p.name,
       aria: `${p.name} — ${p.what}, open the case study`,
       // A PROJECT OPENS A WINDOW, not a page (see CaseWindow.jsx): the desktop
-      // stays behind it. The href is kept and honoured on middle-click,
-      // cmd-click and "open in new tab" — the anchor stays a real link so those
-      // still reach the full case study — but a plain click is intercepted.
-      href: `#/design/${slug}`,
+      // stays behind it. The href is a real link so middle-click, cmd-click and
+      // "open in new tab" still work — and it now points at the window's own
+      // address rather than at #/design/<slug>, because the window IS the case
+      // study since 19 Aug 2026 and there is no second page behind it.
+      href: `#/?case=${slug}`,
       opensWindow: slug,
+      opensCode: null,
       external: false,
       newTab: false,
       art: <ShotIcon src={p.cover} alt="" />,
@@ -223,8 +213,9 @@ const FILES = [
     // it: checkJs infers the array's type from its members, and a field present
     // on some of them and absent on others is a union it will not let us read.
     wide: false,
-    // documents and folders navigate; only projects open a window
+    // the résumés navigate; the project files open windows
     opensWindow: null,
+    opensCode: null,
     at: [76, 20],
     phone: [67, 12],
   },
@@ -239,43 +230,53 @@ const FILES = [
     // on disk is a PDF, the icon is the joke.
     art: <DocIcon ext="TS" accent="#3178c6" gradient="dfile-sheet-ts" />,
     wide: false,
-    // documents and folders navigate; only projects open a window
+    // the résumés navigate; the project files open windows
     opensWindow: null,
+    opensCode: null,
     at: [89, 38],
     phone: [85, 17],
   },
-  {
-    key: "work",
-    label: "Selected Work",
-    aria: "Selected work — open the design file",
-    href: "#/design",
-    external: false,
-    newTab: false,
-    art: <FolderIcon />,
-    wide: false,
-    // documents and folders navigate; only projects open a window
-    opensWindow: null,
-    at: [74, 61],
-    phone: null,
-  },
-  {
-    key: "github",
-    label: "github",
-    aria: "GitHub — opens in a new tab",
-    href: GITHUB,
-    external: true,
-    newTab: true,
-    art: (
-      <FolderIcon
-        mark={<GitHubMark x={21} y={22} size={22} fill="rgba(255,255,255,0.94)" />}
-      />
-    ),
-    wide: false,
-    // documents and folders navigate; only projects open a window
-    opensWindow: null,
-    at: [88, 77],
-    phone: null,
-  },
+
+  // ---- the engineering work ----
+  // The desk was half a portfolio: three design covers and nothing at all for
+  // the code. These are READMEs, and they open in an EDITOR (CodeWindow.jsx)
+  // rather than in the light Mac window her design work uses — the dock already
+  // says this person works in two applications, so a file opens in the one that
+  // made it.
+  //
+  // A plain graphite band, where the résumés get Figma orange and TypeScript
+  // blue. That is the hierarchy stated in colour: those two are documents about
+  // her, these are files from the work. It is also simply what a .md file is —
+  // markdown has no brand colour, it has black text on a page.
+  //
+  // They occupy the two positions the folders vacated plus one below, so the
+  // right side of the desk reads as a run of engineering files under the two
+  // résumés, facing the design covers across the bloom.
+  ...[
+    { key: "regis", at: [74, 57], phone: [46, 88] },
+    { key: "lexa", at: [88, 72], phone: null },
+    { key: "publicPulse", at: [76, 86], phone: null },
+  ].map(({ key, at, phone }) => {
+    const p = bykey(key);
+    return {
+      key,
+      label: p.file,
+      aria: `${p.name} — ${p.what}, open the README`,
+      href: `#/?readme=${key}`,
+      opensWindow: null,
+      opensCode: key,
+      external: false,
+      newTab: false,
+      // Each sheet needs its OWN gradient id. Inlined SVGs share one global id
+      // space, so three files all declaring `dfile-sheet-md` would leave two of
+      // them painting with whichever one the browser resolved first — the same
+      // collision the dock icons had (see BrandIcons.jsx).
+      art: <DocIcon ext="MD" accent="#2f3437" gradient={`dfile-sheet-md-${key}`} />,
+      wide: false,
+      at,
+      phone,
+    };
+  }),
 ];
 
 // Dev-only guard, now covering BOTH compositions. The arrangements are
@@ -295,7 +296,7 @@ if (import.meta.env.DEV) {
   }
 }
 
-export default function DesktopFiles({ visible, onOpenCase }) {
+export default function DesktopFiles({ visible, onOpenCase, onOpenCode }) {
   const isPhone = useIsPhone();
   const shown = isPhone ? FILES.filter((f) => f.phone) : FILES;
 
@@ -317,16 +318,22 @@ export default function DesktopFiles({ visible, onOpenCase }) {
             rel={f.external ? "noreferrer" : undefined}
             aria-label={f.aria}
             tabIndex={visible ? 0 : -1}
-            // Only a PLAIN left click opens the window. Modified clicks and the
+            // Only a PLAIN left click opens a window. Modified clicks and the
             // middle button are how people open things in new tabs, and
             // swallowing those would break the one habit an anchor promises —
-            // so they fall through to the href and the full case-study page.
+            // so they fall through to the href, which is that window's own
+            // shareable address and lands on the desktop with it already open.
             onClick={(e) => {
-              if (!f.opensWindow || !onOpenCase) return;
+              const open = f.opensWindow
+                ? () => onOpenCase?.(f.opensWindow)
+                : f.opensCode
+                  ? () => onOpenCode?.(f.opensCode)
+                  : null;
+              if (!open) return;
               if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0)
                 return;
               e.preventDefault();
-              onOpenCase(f.opensWindow);
+              open();
             }}
             initial={false}
             // No flight. A desktop's files don't arrive, they're there when the

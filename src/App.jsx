@@ -24,11 +24,11 @@ import "./cover.css";
 import "./menu-bar.css";
 import "./desktop-files.css";
 import "./case-window.css";
+import "./code-window.css";
 import "./dock.css";
 import "./world-tabs.css";
 import "./window-lights.css";
 import "./design-world.css";
-import "./project-page.css";
 import "./figma-panel.css";
 import "./file-tree.css";
 import "./tech-world.css";
@@ -75,10 +75,11 @@ function hashPath() {
 }
 
 function getRoute() {
-  // FIRST SEGMENT only. The design file has project pages under it
-  // (#/design/layover), and those are still the design world — same tab bar,
-  // same layers panel, same pink cursor, different page on the canvas. Matching
-  // the whole path here would drop them to the cover.
+  // FIRST SEGMENT only, and it still matters after the project pages went: a
+  // legacy #/design/<slug> is redirected below, but it is read HERE first on
+  // the render that precedes it, and matching the whole path would flash the
+  // cover on the way through. The query is already stripped by hashPath, which
+  // is what lets #/?case=layover resolve to "" and render the desktop.
   const hash = hashPath().split("/")[0];
   if (hash === "design") return "design";
   // "engineering" kept as an alias for links already in circulation
@@ -91,14 +92,26 @@ function getRoute() {
   return "";
 }
 
-// The design file's selected PAGE: null on the canvas itself, otherwise the
-// project slug from #/design/<slug>. Unknown slugs return null, so a stale or
-// mistyped link lands on the canvas rather than on a blank page.
-function getProject() {
+// #/design/<slug> USED TO BE A PAGE. It is now the case-study window on the
+// desktop, and that window has its own address (#/?case=<slug>, read by
+// Cover.jsx). Every link in the app was repointed, but links do not only live
+// in the app — one may be in someone's bookmarks, in a message, or in a CV that
+// was sent out — so the old shape is caught here and forwarded rather than
+// dropping those visitors on a canvas with no explanation.
+//
+// Assigning to location.hash rather than replaceState: this has to run BEFORE
+// getRoute reads the hash on the very first render, and location.hash updates
+// synchronously (only the hashchange EVENT is deferred), so the initial state
+// is computed from the new address. Unknown slugs are left alone and fall
+// through to the design canvas, which is what a stale link should do.
+function redirectLegacyProjectPage() {
   const [world, slug] = hashPath().split("/");
-  if (world !== "design" || !slug) return null;
-  return bySlug(slug) ? slug : null;
+  if (world !== "design" || !slug || !bySlug(slug)) return false;
+  window.location.hash = `/?case=${slug}`;
+  return true;
 }
+
+if (typeof window !== "undefined") redirectLegacyProjectPage();
 
 // A world opens the way a Mac app window opens: it unfolds out of the dock
 // icon that launched it, scaling up from that point to fill the screen while
@@ -169,7 +182,6 @@ function WorldWindow({ children }) {
 
 export default function App() {
   const [route, setRoute] = useState(getRoute);
-  const [project, setProject] = useState(getProject);
   const [coverSettled, setCoverSettled] = useState(false);
   // worlds the yellow light was used on: still "open", so the dock keeps their
   // dot even though you are back on the desktop (see WindowLights.jsx)
@@ -177,8 +189,10 @@ export default function App() {
 
   useEffect(() => {
     const onHash = () => {
+      // a legacy link clicked mid-session redirects and fires a second
+      // hashchange; that one cannot match, so this terminates
+      if (redirectLegacyProjectPage()) return;
       setRoute(getRoute());
-      setProject(getProject());
     };
     window.addEventListener("hashchange", onHash);
     return () => window.removeEventListener("hashchange", onHash);
@@ -199,11 +213,7 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    // a project page names itself in the tab — it is its own page of the file
-    const named = project && bySlug(project);
-    document.title = named
-      ? `${named.name} — Mrinali Bhardwaj`
-      : TITLES[route];
+    document.title = TITLES[route];
     document.documentElement.dataset.world = route || "void";
     // Opening a world un-minimises it; landing anywhere re-reads the set, which
     // is how the lights' sessionStorage writes reach the dock without threading
@@ -223,9 +233,7 @@ export default function App() {
       // back on the cover, the dock retracts until the divergence settles
       if (route === "") setCoverSettled(false);
     }
-    // `project` is in the deps so moving BETWEEN pages of the design file still
-    // retitles and scrolls to the top — the route doesn't change on those.
-  }, [route, project]);
+  }, [route]);
 
   // launching a world is just navigation now — no slide-wipe. The world's
   // own grow-open (WorldWindow) carries the transition, unfolding from
@@ -269,7 +277,7 @@ export default function App() {
 
         {route === "design" && (
           <WorldWindow key="design">
-            <DesignWorld project={project} />
+            <DesignWorld />
           </WorldWindow>
         )}
 

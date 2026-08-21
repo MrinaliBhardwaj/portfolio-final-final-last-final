@@ -12,10 +12,9 @@ import { FigmaMark } from "./BrandIcons.jsx";
 import FigmaPanel from "./FigmaPanel.jsx";
 import WorldTabs from "./WorldTabs.jsx";
 import DesignHero from "./DesignHero.jsx";
-import ProjectPage from "./ProjectPage.jsx";
 import InteractiveDots from "./InteractiveDots.jsx";
 import useSectionSpy from "./useSectionSpy.js";
-import { PROJECTS, bySlug } from "./projects.js";
+import { PROJECTS } from "./projects.js";
 
 import { LINKEDIN } from "./links.js";
 
@@ -260,12 +259,14 @@ const capabilities = [
   "Design-to-dev handoff",
 ];
 
-// `project` is the design file's selected PAGE (a slug from #/design/<slug>),
-// or null for the canvas itself. A project page keeps every bit of this world's
-// chrome — tab bar, layers, properties, the pink cursor — because it is the
-// same file with a different page open, not somewhere else.
-export default function DesignWorld({ project = null }) {
-  const page = project ? bySlug(project) : null;
+// THE FILE HAS ONE PAGE AGAIN (19 Aug 2026). It used to take a `project` slug
+// and render ProjectPage — a second, longer case-study format living at
+// #/design/<slug>, on top of the window the desktop already opens. Two formats
+// for the same three projects is what got it deleted: the case study is the
+// window now (CaseWindow.jsx), so this world is the canvas and nothing else,
+// and every branch that swapped the layers tree, the properties panel and the
+// canvas for a project page went with it.
+export default function DesignWorld() {
   const [activeSection, selectFrame] = useSectionSpy(SECTION_IDS);
   const activeFrame =
     FRAMES.find((f) => f.id === activeSection) || FRAMES[0];
@@ -285,55 +286,14 @@ export default function DesignWorld({ project = null }) {
       <WorldTabs world="design" />
 
       {/* left: layers. right: properties. the canvas sits between. */}
-      {/* On a project page the layers tree shows THAT page's contents, not the
-          canvas's frames — listing artboards that aren't on screen would make
-          the panel lie about what you're looking at. */}
       <FigmaPanel
-        frames={
-          page
-            ? [
-                {
-                  id: "pp",
-                  name: page.file,
-                  /* A shot is EITHER a single `src` or a sliced `strip` — a
-                     strip has no `src` at all, so reading it blindly threw and
-                     took the whole world down with it. One layer per shot
-                     either way: the slices are a delivery detail, not eight
-                     things the visitor put on the page. */
-                  children: page.shots.map((s, i) => ({
-                    icon: "image",
-                    name: s.strip
-                      ? `${page.slug}-case-study`
-                      : s.src.split("/").pop().replace(".webp", ""),
-                    key: s.src || `strip-${i}`,
-                  })),
-                },
-              ]
-            : FRAMES
-        }
-        activeId={page ? "pp" : activeSection}
-        onSelect={page ? () => {} : selectFrame}
-        project={project}
+        frames={FRAMES}
+        activeId={activeSection}
+        onSelect={selectFrame}
         open={layersOpen}
         onClose={() => setLayersOpen(false)}
       />
-      {/* Same reason as the layers tree above: on a project page the canvas's
-          frames aren't on screen, so reporting the hero artboard's X/Y/W/H
-          here would be the panel describing something you cannot see. The page
-          reports its own artboard size instead. */}
-      <PropsPanel
-        frame={
-          page
-            ? {
-                name: page.file,
-                props: (() => {
-                  const [w, h] = page.dims.split(" × ").map(Number);
-                  return { x: 0, y: 0, w, h, fill: "transparent" };
-                })(),
-              }
-            : activeFrame
-        }
-      />
+      <PropsPanel frame={activeFrame} />
 
       {/* the sheet's dismiss surface (mobile only — nothing opens it above 768) */}
       {layersOpen && (
@@ -383,12 +343,6 @@ export default function DesignWorld({ project = null }) {
           </a>
         </header>
 
-        {/* One page of the file at a time. The canvas below is left at its own
-            indentation rather than re-nested under this conditional — moving
-            240 lines of artboards sideways would bury the actual change. */}
-        {page ? (
-          <ProjectPage project={page} />
-        ) : (
         <div className="dw-canvas">
           {/* ============ hero: her real Figma "PROFILE.DOC" frame ============ */}
           <Frame
@@ -450,8 +404,19 @@ export default function DesignWorld({ project = null }) {
               frames now (each its own light artboard, file-naming-joke label,
               tilt, numbered comment pin, hover-to-select chrome); this wrapper
               just holds them so they float directly on the #1E1E1E canvas.
-              TODO: real case-study shots later replace the sketch inside
-              .dw-board-art; everything else stays. */}
+
+              THEY ARE AN INDEX, NOT A SECOND CASE STUDY (19 Aug 2026). Each
+              board used to open #/design/<slug>, a full page of this file that
+              told the same story the desktop's window already tells — the same
+              three projects with two entry points and two formats. The boards
+              stay, because a canvas of frames is exactly what a Figma file is
+              and this is how the work is browsed from inside the world; what
+              changed is where they go. Clicking one lands on the desktop with
+              that case-study window open.
+
+              PENDING: her UI screens. Once those artboards are exported this
+              section grows into what a real design file holds — the screens
+              themselves, laid out as frames — instead of three cover images. */}
           <motion.section
             className="dw-work-section"
             id="dw-work"
@@ -465,10 +430,11 @@ export default function DesignWorld({ project = null }) {
                 <motion.a
                   className={`dw-board dw-board--${w.size}`}
                   key={w.name}
-                  /* its own page of this file now, not an outbound link — so
-                     no target/rel, and the label says "page" not "project" */
-                  href={`#/design/${w.slug}`}
-                  aria-label={`${w.name} — open the project page`}
+                  /* the window's own address on the desktop — a real link, so
+                     cmd-click and "copy link address" behave, and internal, so
+                     no target/rel */
+                  href={`#/?case=${w.slug}`}
+                  aria-label={`${w.name} — open the case study`}
                   initial={{ opacity: 0, y: 18 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: "-40px" }}
@@ -520,7 +486,7 @@ export default function DesignWorld({ project = null }) {
                     </p>
                     <p className="dw-board-blurb">{w.blurb}</p>
                     <p className="dw-board-open">
-                      View project
+                      Open case study
                       <ArrowUpRight size={13} strokeWidth={2} aria-hidden="true" />
                     </p>
 
@@ -644,7 +610,6 @@ export default function DesignWorld({ project = null }) {
             </div>
           </Frame>
         </div>
-        )}
       </div>
     </div>
   );
