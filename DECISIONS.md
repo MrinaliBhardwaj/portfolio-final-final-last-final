@@ -2849,3 +2849,53 @@ Both words are exported to `name-mrinali.svg` / `name-bhardwaj.svg`, one path
 per letter, viewBox in 1/1000 em with y=0 on the baseline — so a hand weld can
 be dropped straight back in without rescaling. The trim machinery stays in the
 script behind an empty `TRIM_PAIRS`.
+
+## Her hand-welded artwork is the source (2026-08-20)
+
+She welded the i→n and a→r junctions herself with a pen tool and dropped
+`name-mrinali.svg` / `name-bhardwaj.svg` into the project root. **Those files are
+the artwork now.** The build script stops being the author of the name and
+becomes its packager.
+
+**Verified before adopting**, because a returned export can carry more than the
+intended edit:
+
+| check | Mrinali | Bhardwaj |
+|---|---|---|
+| paths | 7 (M r i n a l i) | 8 (B h a r d w a j) |
+| ink size vs mine | 3232 × 1212 | 3582 × 1287 |
+| ink change | −0.55% | −0.50% |
+| where it differs | left two-thirds | **one cell at x 1751–2109** |
+
+Bhardwaj is a textbook local weld: 3,850 differing pixels, 2,812 of them in the
+single cell containing the a→r junction I had measured at x 1854. Mrinali is
+edited more broadly (30% of pixels differ even after best-fit alignment), which
+is her call to make — it is her name. Both render clean and correct, and probing
+the two junctions in the browser afterwards shows a continuous stroke with no
+step at either.
+
+**The coordinate contract, and why it is checked rather than trusted.** The
+export was written with `viewBox y = -956`, i.e. the baseline on y = 0. Figma
+re-origins a frame to `0 0`, so her files carry the same artwork with the
+baseline at +956. That single number is the whole contract, and the hero's
+deliberate clip of the j at the fold is derived from it — so the script now
+refuses to build if the frame height moves or if the deepest ink stops being
+0.3309em below the baseline. A silent re-frame would otherwise hang the name at
+the wrong height over the fold with nothing to say so.
+
+One guard was wrong on the first run and is worth recording: it checked *each
+word's* ink against the descender depth, and Mrinali has no descender — its
+lowest ink is the i's tail at 0.2570em. The per-word check is now that the ink
+stays inside its frame; the descender figure is checked **once**, against the
+shared extent, where it actually means something.
+
+Everything the CSS depends on survived: shared height 1.2869em, deepest ink
+0.3309em below the baseline, so `--name-drop` is untouched at 0.03 / −0.24. The
+width moved 7.1102em → 7.0931em and the comment in cover.css was updated with
+it. Generating from the fonts is still the fallback when the SVGs are absent —
+that is how they were produced, and the way back if they are lost.
+
+Verified: 2 words, 7 and 8 paths, 92.2% of the width with 49px clear a side, one
+line, clip line at **0.3009em** against the 0.301em it has always been at. At
+320×568: two lines, no horizontal scroll, 0.240em under the j. typecheck and
+build clean.

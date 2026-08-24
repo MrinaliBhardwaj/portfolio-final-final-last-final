@@ -15,8 +15,10 @@ per pair, which means the glyphs have to be independent objects. Hence outlines.
 
 Needs: pip install fonttools brotli   (brotli is what reads the .woff2 files)
 """
+import io
 import math
 import os
+import re
 
 import numpy as np
 from fontTools.ttLib import TTFont
@@ -25,6 +27,7 @@ from fontTools.pens.basePen import BasePen
 from fontTools.pens.svgPathPen import SVGPathPen
 from fontTools.pens.transformPen import TransformPen
 from fontTools.misc.transform import Transform
+from fontTools.svgLib.path import parse_path
 from PIL import Image, ImageDraw
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -288,6 +291,98 @@ def solve(cap, rest):
     return tucks
 
 
+# ---- her hand-welded artwork -----------------------------------------------
+# THE SVGs ARE THE SOURCE NOW, when they are present.
+#
+# Five automatic repairs were tried on the i->n and a->r junctions -- kerning
+# them closer, a morphological close, an ink-fraction fillet, a round join, and
+# a clipped trim -- and every one either missed the defect or damaged something
+# else (the close swallowed the n's counter; the trim removed the wrong 0.43%).
+# The junctions were welded by hand instead, with a pen tool, which is what they
+# always wanted.
+#
+# So this script stops being the author of the artwork and becomes its
+# packager. It still generates from the fonts when the files are absent -- that
+# is how the SVGs were produced in the first place, and it is the way back if
+# they are ever lost -- but when they exist, their paths ship verbatim. Nothing
+# here re-kerns, re-fits or re-shapes them.
+#
+# THE FRAME. The export was written with viewBox y = -956, i.e. the baseline on
+# y = 0. Figma re-origins a frame to 0 0 on export, so her files carry the same
+# artwork with the baseline at y = +956 and everything else unchanged. That one
+# number is the whole coordinate contract between her file and this script, and
+# it is CHECKED below rather than trusted: if a future export changes the frame
+# height or moves the baseline, the build stops instead of shipping a name that
+# sits at the wrong height over the fold.
+HAND_FILES = {"Mrinali": "name-mrinali.svg", "Bhardwaj": "name-bhardwaj.svg"}
+HAND_BASELINE = 956.0      # where y=0 of the export landed in her frame
+HAND_FRAME_H = 1287.0      # the export's frame height, to catch a re-frame
+HAND_TOL = 3.0             # units of slack; Figma rounds to whole units
+
+
+def read_svg(path):
+    txt = io.open(path, encoding="utf-8").read()
+    m = re.search(r'viewBox="([^"]+)"', txt)
+    if not m:
+        raise SystemExit("%s has no viewBox" % path)
+    vb = [float(v) for v in re.split(r"[\s,]+", m.group(1).strip())]
+    ds = re.findall(r'<path[^>]*\sd="([^"]+)"', txt)
+    if not ds:
+        raise SystemExit("%s has no <path> elements" % path)
+    return vb, ds
+
+
+def d_bounds(ds):
+    """Ink bounds of raw SVG path data, flattened the same way the font
+    outlines are -- so the box the CSS sizes against is still the INK box."""
+    xs, ys = [], []
+    for d in ds:
+        pen = FlattenPen({}, 24)
+        parse_path(d, pen)
+        pen._flush()
+        for c in pen.contours:
+            for x, y in c:
+                xs.append(x); ys.append(y)
+    return min(xs), min(ys), max(xs), max(ys)
+
+
+def load_hand(name):
+    """(paths, ink bounds) in a frame whose baseline is y = 0, or None."""
+    path = os.path.join(ROOT, HAND_FILES[name])
+    if not os.path.exists(path):
+        return None
+    vb, ds = read_svg(path)
+    if abs(vb[3] - HAND_FRAME_H) > HAND_TOL:
+        raise SystemExit(
+            "%s: frame is %.1f tall, expected %.1f. The baseline contract is "
+            "broken -- re-export at the original frame, or update "
+            "HAND_BASELINE/HAND_FRAME_H together." % (path, vb[3], HAND_FRAME_H))
+    x0, y0, x1, y1 = d_bounds(ds)
+    below = y1 - HAND_BASELINE
+    # NOT a per-word range check. Mrinali has no descender -- its lowest ink is
+    # the i's tail, 257 units under the baseline -- while Bhardwaj's j reaches
+    # 330. Checking each word against the descender figure fails the one that
+    # has none. The contract is the FRAME, verified above; what has to hold
+    # across the pair is checked once in build(), where the shared extent is.
+    if y1 > HAND_FRAME_H + HAND_TOL or y0 < -HAND_TOL:
+        raise SystemExit(
+            "%s: ink escapes the frame (%.1f .. %.1f against a frame of "
+            "%.1f). Re-export without resizing." % (path, y0, y1, HAND_FRAME_H))
+    print("  %s: %d paths from %s, ink %.0f x %.0f, %.4fem below the baseline"
+          % (name, len(ds), HAND_FILES[name], x1 - x0, y1 - y0, below / K))
+    # shift so y = 0 is the baseline again, matching the generated convention
+    return ds, (x0, y0 - HAND_BASELINE, x1, y1 - HAND_BASELINE), HAND_BASELINE
+
+
+def shift_d(d, dx, dy):
+    """Translate raw path data. Done through a pen rather than by rewriting
+    numbers in the string: `d` may use relative commands and arcs, and a regex
+    over the coordinates would quietly corrupt both."""
+    pen = SVGPathPen({}, ntos=lambda v: ("%.1f" % v).rstrip("0").rstrip("."))
+    parse_path(d, TransformPen(pen, Transform(1, 0, 0, 1, dx, dy)))
+    return pen.getCommands()
+
+
 # ---- the trims -------------------------------------------------------------
 # TRIMMING THE STUB, which is the only repair that actually applies here.
 #
@@ -516,30 +611,41 @@ export default function NameMark() {
 
 
 def build():
-    rows = []
+    rows, hand_used = [], []
     for name, cap, rest in WORDS:
         print(name)
+        hand = load_hand(name)
+        if hand:
+            ds, bb, _base = hand
+            # her frame has the baseline at +HAND_BASELINE; bring it back to 0
+            ds = [shift_d(d, 0.0, -HAND_BASELINE) for d in ds]
+            rows.append((name, ds, bb, {}))
+            hand_used.append(name)
+            continue
+        print("  no hand-welded svg; generating from the fonts")
         runs = runs_for(cap, rest)
-        tucks = {}   # see the note above -- the font's advances stand
-        ds, bb = word_paths(runs, tucks)
+        ds, bb = word_paths(runs, {})
         clips = {}
         for pair in TRIM_PAIRS.get(name, []):
             tr = trim_for(runs, pair)
             if tr is None:
-                print("  trim %s: nothing protruding, left alone" % (pair,))
                 continue
             sh = clip_shapes(tr)
-            if sh is None:
-                print("  trim %s: cut falls outside the disc, skipped" % (pair,))
-                continue
-            clips[tr["owner"]] = sh
-            print("  trim %s: glyph %d, %d px of corner removed"
-                  % (pair, tr["owner"], tr["removed"]))
+            if sh:
+                clips[tr["owner"]] = sh
         rows.append((name, ds, bb, clips))
 
+    # ONE shared vertical extent, so both boxes are the same height and their
+    # baselines land at the same place -- which is what lets the two words sit
+    # in a flex row without a text baseline to hang them on.
     y0 = min(b[1] for _, _, b, _c in rows)
     y1 = max(b[3] for _, _, b, _c in rows)
     H = y1 - y0
+    # cover.css --name-drop is derived from exactly this number
+    if not (0.30 * K <= y1 <= 0.36 * K):
+        raise SystemExit(
+            "the deepest ink is %.4fem below the baseline, was 0.3309em. "
+            "Update --name-drop in cover.css together with this." % (y1 / K))
     total = sum(b[2] - b[0] for _, _, b, _c in rows) / K + GAP
 
     out = [HEADER, "",
@@ -571,9 +677,15 @@ def build():
         fh.write("\n".join(out))
 
     print("")
+    if hand_used:
+        print("hand-welded artwork used for: %s" % ", ".join(hand_used))
     print("shared height %.4fem; ink runs %.4fem below the baseline" % (H / K, y1 / K))
     print("whole name %.4fem wide -> %.1fvw at the 13vw type size" % (total, 13 * total))
     print("wrote %s" % DEST)
+    print("")
+    print("NOTE: cover.css quotes both figures. If they moved, update")
+    print("      --name-drop (from the 'below the baseline' number) and the")
+    print("      multiplier in the --name-fs comment.")
 
 
 if __name__ == "__main__":

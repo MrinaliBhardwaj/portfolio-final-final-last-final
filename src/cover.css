@@ -105,14 +105,17 @@
    *
    * THE MULTIPLIER IS EXACT NOW (2026-08-20), not measured-and-hoped. The name
    * is vector artwork (NameMark.jsx) and each word's box IS its ink box, so the
-   * whole name is 3.2486 + 0.28 + 3.5815 = 7.1101em, full stop. 13vw x 7.1101
-   * fills 92.4vw, and the hero's own 2 x 1.25rem of padding brings that to
-   * 1371px at 1440 — 69px inside the viewport. It cannot be wrong the way a
+   * whole name is 3.2316 + 0.28 + 3.5815 = 7.0931em, full stop. 13vw x 7.0931
+   * fills 92.2vw, and the hero's own 2 x 1.25rem of padding brings that to
+   * 1368px at 1440 — 72px inside the viewport. It cannot be wrong the way a
    * font metric can: there is no font left to substitute. The --name-fit
    * variable that used to guard this (and the measure-and-rescale effect in
    * Cover.jsx that set it) went with the text.
    *
-   * scripts/build_name_vectors.py prints this figure on every run. */
+   * The artwork is HER hand-welded svg now, not a font render (see
+   * NameMark.jsx), so this multiplier follows whatever she exports.
+   * scripts/build_name_vectors.py prints it on every run and refuses to build
+   * if the descender the drop below is derived from has moved. */
   --name-fs: clamp(3.3rem, 13vw, 16.5rem);
   /* The stage bottom-aligns this, so the negative bottom margin sets how low
      the script sits. The stage is a sticky 100dvh box with overflow:hidden, so
