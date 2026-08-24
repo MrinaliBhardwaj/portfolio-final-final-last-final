@@ -2899,3 +2899,65 @@ Verified: 2 words, 7 and 8 paths, 92.2% of the width with 49px clear a side, one
 line, clip line at **0.3009em** against the 0.301em it has always been at. At
 320×568: two lines, no horizontal scroll, 0.240em under the j. typecheck and
 build clean.
+
+## The desk is her Figma composition now (2026-08-24)
+
+Node `306:542` of file `drda7Tnqo…` is the target, and it replaces the desk
+wholesale: the three hand-scattered project covers, the two résumé documents and
+the three README files are all gone. In their place are the artboard's own
+seventeen pieces — six folders and a jewel case on the left, the two résumés and
+a run of artwork on the right.
+
+**Every position is the artboard's, verbatim.** `PIECES` in `DesktopFiles.jsx`
+carries each piece's Figma `x, y, w, h` unrounded, and the percentages are
+derived at render. Nothing was placed by eye, so "does it match" is answerable by
+reading a table rather than by comparing two screenshots.
+
+**The seven black rectangles are not implemented.** `306:541, :543, :544, :546,
+:547, :549, :550` sit under the visible layers and were masking the previous
+folders during design. The note lives in the component so nobody restores them.
+
+**Two things the design could not tell me**, both answered by her rather than
+guessed:
+
+- The six left folders carry decorative art (gingham horse, landscape, floral,
+  caterpillars, pixel pattern, doll face) and the artboard has **no text layers**
+  — nothing says which folder is which project. Three are case studies
+  (Meal Maestro, Layover, Futurepreneurs) and open their windows; the other
+  three are unlabelled and inert until she says what they hold.
+- The two résumés are the artboard's only matching pair — the green terminal and
+  the pink DESIGNER star, both 147.837 square, side by side. Terminal → tech,
+  DESIGNER → design.
+
+**No dead affordances.** Twelve of the seventeen pieces are paint:
+`pointer-events: none`, `aria-hidden`, no label. A tile that lights up under the
+cursor and does nothing is the one thing this desk has never had, and three
+unnamed folders would have been exactly that.
+
+**The lotus was never at risk.** Measured, the bloom is x 36–69% on a landscape
+screen; the artboard's left cluster stops at 32.3% and its right starts at
+69.4%. Her composition already respected it. The dev assertion was upgraded from
+a centre-point test to a **box** test, because these pieces run to 285 artboard
+pixels and a centre that clears the flower stopped being evidence that the
+artwork does.
+
+**Assets: 15.9 MB of PNG → 291 KB of WebP**, each resized to twice the size the
+artboard renders it at. Two are deliberate crops carrying the artboard's own
+framing: the crowd's focal point sits at 59% down (from `top: −39.78%` of a
+151.9% render), and the karma card's is centred. The two stars are cut from one
+1200×1696 sheet at the exact windows the artboard uses.
+
+**The phone keeps five pieces**, not a scaled-down desktop: the three case
+studies and the two résumés, in the open air above and below the bloom's band and
+clear of the dock's rail. The artwork is dropped rather than shrunk — at 60px a
+jewel case, a dragonfly and a crowd of silhouettes are indistinguishable smudges.
+
+**The README windows are still reachable** — from the tech world and from
+`#/?readme=<key>` — they simply no longer have a tile on the desk, because the
+artboard has none.
+
+Verified at 1440×900: 17 pieces, 5 interactive, 12 paint, zero overlap with the
+lotus box, the dock, the menu bar or the viewport edges; clicking the Layover
+folder opens its window with 5 shots; 193 resources and no 4xx/5xx; the desk
+costs 282 KB over the wire. At 390×844 and 320×568: five pieces, no collisions,
+no horizontal scroll, every tap target ≥53px. typecheck and build clean.

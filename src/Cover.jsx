@@ -499,7 +499,6 @@ export default function Cover({ onChoose, onSettledChange }) {
           <DesktopFiles
             visible={settled}
             onOpenCase={(slug) => openWindow("case", slug)}
-            onOpenCode={(key) => openWindow("readme", key)}
           />
 
           <motion.div

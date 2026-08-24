@@ -1,9 +1,11 @@
-/* ============ the desktop files (the MacBook screen's own files) ============ */
-/* A macOS grid column hanging off the top-right edge — the scatter it replaced
-   is described in DesktopFiles.jsx. The LAYER spans the whole stage but is
-   inert — only the tiles themselves take pointer events. Without that, this
-   sheet would sit over .cover-split (z-index 4) and swallow both Explore CTAs
-   across the entire screen. */
+/* ============ the desktop pieces (her Figma composition) ============ */
+/* The LAYER spans the whole stage but is inert — only the two résumés and the
+   three case-study folders take pointer events, set per piece by the component.
+   Without that, this sheet would sit over everything below it at z-index 5 and
+   swallow clicks across the entire screen.
+
+   Sizing lives in DesktopFiles.jsx, not here: every piece has its own artboard
+   dimensions, so a single tile size in CSS has nothing to describe any more. */
 .cover-desktop {
   position: absolute;
   inset: 0;
@@ -11,200 +13,169 @@
   pointer-events: none;
 }
 
-/* One tile: icon over a Finder-style label. Positioned by the component as a
-   percentage of the stage, sized here. The negative margins pull the box back
-   by half of itself so the component's left/top land on the ICON'S CENTRE —
-   the scatter is placed by eye against the lotus, and aiming a corner at a
-   point you picked visually is guesswork. Margins, not a transform: Framer
-   owns the transform here for the fade. */
-.dfile {
+/* One piece. Width is a percentage of the STAGE WIDTH and the height follows
+   from the artboard's aspect, so the composition holds its proportions at any
+   width; the vertical placement is a percentage of the stage HEIGHT, which lets
+   it breathe on a tall screen instead of letterboxing.
+
+   The component supplies width, both negative margins and the aspect — the
+   margins pull the box back by half of itself so left/top land on the piece's
+   CENTRE, which is how the artboard's numbers were read. Margins, not a
+   transform: Framer owns the transform here for the entrance. */
+.dpiece {
   position: absolute;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.44rem;
-  /* The TILE is wider than the icon, the way a Finder label is allowed to run
-     past the artwork it belongs to. At icon width alone the label box was 81px
-     and the names rendered as "resume-desig…". The icon keeps --dfile-w; only
-     the naming gets the room. */
-  width: var(--dfile-tile);
-  margin-left: calc(var(--dfile-tile) / -2);
-  margin-top: calc(var(--dfile-ih) / -2);
+  display: block;
   text-decoration: none;
-  cursor: pointer;
   will-change: transform, opacity;
 }
 
-/* A project thumbnail is landscape, so its tile gets more room than a document
-   tile — otherwise the cover shrinks to the width of a PDF icon and stops
-   being legible as a picture of the work. */
-.dfile--wide {
-  --dfile-w: clamp(76px, 6.6vw, 98px);
-  --dfile-tile: calc(var(--dfile-w) * 1.18);
-  --dfile-ih: calc(var(--dfile-w) * 0.78);
+.dpiece.is-art {
+  cursor: default;
 }
 
-.cover-desktop {
-  /* one knob for the tiles; the next two derive from it */
-  --dfile-w: clamp(42px, 3.7vw, 54px);
-  --dfile-tile: calc(var(--dfile-w) * 1.55);
-  --dfile-ih: calc(var(--dfile-w) * 1.25);
+.dpiece:not(.is-art) {
+  cursor: pointer;
 }
 
-/* ---- a project cover, framed like a macOS image file ----
-   White border, picture inside, real shadow under the whole card. The frame is
-   what turns a screenshot into a FILE — without it the covers read as images
-   floating on the wallpaper rather than as things sitting on a desktop. */
-.dfile-shot {
+/* The artwork's own box. Rotation rides here rather than on the tile, so it
+   survives Framer animating the tile's transform. */
+.dpiece-art {
   display: block;
+  position: relative;
   width: 100%;
-  padding: 4px 4px 5px;
-  background: #fdfdfb;
-  border-radius: 2px;
-  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.5), 0 2px 5px rgba(0, 0, 0, 0.4);
+  height: 100%;
+  transform-origin: 50% 50%;
+  transition: transform 0.32s var(--ease-soft), filter 0.32s var(--ease-soft);
 }
 
-.dfile-shot img {
+.dpiece img {
   display: block;
   width: 100%;
   height: 100%;
-  object-fit: cover;
-  border-radius: 1px;
+  /* contain, not cover: these are cut-out folders and framed artwork, and the
+     artboard renders each at its own aspect. Only the two deliberately-cropped
+     pieces set object-fit: cover inline, with the focal point the artboard used. */
+  object-fit: contain;
+  /* a real desktop object sits ON the wallpaper rather than floating over it */
+  filter: drop-shadow(0 10px 22px rgba(0, 0, 0, 0.5));
 }
 
-/* A FIXED box, bottom-aligned. The two artworks have different aspect ratios —
-   a document is taller than it is wide (56:70), a folder is wider than it is
-   tall (64:54) — so at a shared width they came out 130px and 96px, and the
-   labels landed on three different lines. Pinning the box height to the taller
-   of the two and sitting both on its bottom edge puts every icon on one desk
-   surface and every label on one baseline, while keeping the folder honestly
-   wider and shorter the way a real one is. */
-.dfile-icon {
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  width: var(--dfile-w);
-  height: var(--dfile-ih);
-  transform-origin: center 70%;
-  transition: transform 0.4s var(--ease-soft);
-}
-
-.dfile-art:not(.dfile-shot) {
+/* The dragonfly's plate: the artboard's own 4% white, its own radius, and a
+   uniform inset expressed as padding. */
+.dpiece-glass {
+  display: block;
   width: 100%;
-  height: auto;
-  /* a real drop shadow, not a box-shadow: the icons are cut-out shapes (a folded
-     page, a folder with a tab), and a rectangular shadow behind them would give
-     away that they're <svg> boxes. Kept light — at this size a heavy one turns
-     into a smudge under the icon. */
-  filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.5))
-    drop-shadow(0 1px 3px rgba(0, 0, 0, 0.35));
+  height: 100%;
+  box-sizing: border-box;
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
 }
 
-/* the extension inside the coloured band */
-.dfile-ext {
-  font-family: var(--font-mono);
-  font-size: 9.5px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
+.dpiece-glass img {
+  filter: none;
 }
 
-/* Finder desktop label. No plate at rest — a dark pill under all three read as
-   three more boxes on a stage that is mostly empty space, and the ask here was
-   minimal. A tight shadow does the legibility work instead, which matters
-   because two of these sit near the lotus and the petals behind them are pale.
-   The selection plate arrives on hover, the way Finder's does. */
-.dfile-label {
-  max-width: 100%;
+/* The frog's plate, which its picture overhangs at both ends — so this is inset
+   INSIDE the piece rather than being the piece. It sits behind the image. */
+.dpiece-plate {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: 0;
+}
+
+.dpiece-plate + img {
+  position: relative;
+  z-index: 1;
+}
+
+/* Finder desktop label, under the artwork. No plate at rest — a dark pill under
+   every name would read as more boxes on a stage that is mostly space. A tight
+   shadow does the legibility work instead, which matters because these sit over
+   a starfield and, on the left, near the bloom's pale petals. The selection
+   plate arrives on hover, the way Finder's does.
+
+   Absolutely positioned so it cannot affect the artwork's aspect box, and wider
+   than the piece so a long name is not forced to truncate at the icon's width. */
+.dpiece-label {
+  position: absolute;
+  top: calc(100% + 0.42rem);
+  left: 50%;
+  transform: translateX(-50%);
+  max-width: 168%;
   padding: 0.16em 0.45em;
   border-radius: 0.4em;
   font-family: var(--font-ui);
-  font-size: 10px;
+  font-size: clamp(9.5px, 0.72vw, 11.5px);
   font-weight: 400;
   line-height: 1.3;
   letter-spacing: 0.01em;
-  color: rgba(240, 240, 246, 0.88);
+  color: rgba(240, 240, 246, 0.9);
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9), 0 0 8px rgba(0, 0, 0, 0.7);
   text-align: center;
-  /* Finder truncates a long name rather than reflowing the grid */
+  /* Finder truncates a long name rather than reflowing what is around it */
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
   transition: background 0.3s var(--ease-soft), color 0.3s var(--ease-soft);
 }
 
-/* Hover/focus: a straight lift, no lean. The per-file --tilt went with the
-   scatter — grid-aligned icons that rotate when pointed at contradict the
-   alignment that is now the whole statement. The selection plate on the label
-   (below) is the macOS half of the feedback; this is the "picking it up" half.
-   It rides on .dfile-icon rather than the tile because Framer owns the tile's
-   transform for the fade — and it leaves the label straight and readable.
-   No colour change on the artwork: these are supposed to look like the OS drew
-   them, and the OS doesn't tint your files when you point at them. */
-.dfile:hover .dfile-icon,
-.dfile:focus-visible .dfile-icon {
-  transform: scale(1.08) translateY(-2px);
+/* Hover/focus: a straight lift, no lean. It rides on .dpiece-art rather than
+   the tile because Framer owns the tile's transform — and it leaves the label
+   straight and readable. No colour change on the artwork: these are supposed to
+   look like the OS drew them, and the OS doesn't tint your files when you point
+   at them. */
+.dpiece:not(.is-art):hover .dpiece-art,
+.dpiece:not(.is-art):focus-visible .dpiece-art {
+  transform: scale(1.06) translateY(-3px);
+  filter: brightness(1.04);
 }
 
-.dfile:hover .dfile-label,
-.dfile:focus-visible .dfile-label {
-  background: rgba(52, 96, 168, 0.85);
+.dpiece:not(.is-art):hover .dpiece-label,
+.dpiece:not(.is-art):focus-visible .dpiece-label {
+  background: rgba(58, 110, 230, 0.9);
   color: #fff;
 }
 
-.dfile:focus-visible {
+.dpiece:focus-visible {
   outline: none;
 }
 
-.dfile:focus-visible .dfile-label {
-  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.75);
+.dpiece:focus-visible .dpiece-art {
+  outline: 2px solid rgba(255, 255, 255, 0.85);
+  outline-offset: 4px;
+  border-radius: 4px;
 }
 
-.dfile:active .dfile-icon {
-  transform: scale(0.99);
-}
-
-/* Below this the two discipline blocks and the CTAs already own every margin
-   on the stage, and the column would land on top of them. Nothing is lost by
-   dropping it: both résumés are linked from inside their worlds, and GitHub
-   from the tech world's contact block. */
-/* TABLET ONLY. The phone gets its own composition below; between 641 and 899
-   there is neither enough width for the desktop arrangement nor a phone layout
-   to fall back to, so the files stay hidden exactly as they were. Both résumés
-   are linked from inside their worlds and GitHub from the tech world's contact
-   block, so nothing is unreachable at that width. */
+/* ---- tablet ----
+   641–899 keeps the desktop composition; it only needs the labels to stop
+   growing with the viewport. */
 @media (min-width: 641px) and (max-width: 899px) {
-  .cover-desktop {
-    display: none;
+  .dpiece-label {
+    font-size: 9.5px;
   }
 }
 
-/* ============ THE PHONE DESKTOP ============
-   Not a responsive portfolio — a condensed version of the same machine. The
-   files stay files: placed in the open wallpaper above and below the bloom's
-   band, never listed, never stacked. Positions come from DesktopFiles.jsx
-   (`phone`), which is also where the band is documented.
+/* ---- the phone ----
+   NOT the desktop composition scaled down. Five pieces survive — the three case
+   studies and the two résumés — placed in the open air the bloom leaves above
+   and below its band, and clear of the dock's rail down the left edge. The
+   artwork is dropped rather than shrunk: at 60px a jewel case, a dragonfly and
+   a crowd of silhouettes are indistinguishable smudges, and the desk reads
+   better with fewer, larger objects than with all of them illegible.
 
-   Everything here is smaller rather than rearranged: the tile keeps its shape,
-   its centre anchoring and its label, so the phone reads as the same desk seen
-   closer, which is the whole brief. */
+   Widths come from the component in px here, because a percentage of a 320px
+   stage is not a usable object. */
 @media (max-width: 640px) {
-  .cover-desktop {
-    --dfile-w: 42px;
-    --dfile-tile: calc(var(--dfile-w) * 1.55);
-    --dfile-ih: calc(var(--dfile-w) * 1.25);
-  }
-
-  .cover-desktop .dfile--wide {
-    --dfile-w: 66px;
-    --dfile-tile: calc(var(--dfile-w) * 1.18);
-    --dfile-ih: calc(var(--dfile-w) * 0.78);
-  }
-
-  /* A COMFORTABLE TAP TARGET WITHOUT A BIGGER TILE. The visible icon stays the
-     art-directed size; this grows the touchable box around it to at least 44px
-     in both axes and centres the growth, so the composition's spacing is
-     untouched while every file is comfortably hittable. */
-  .dfile {
+  /* A COMFORTABLE TAP TARGET WITHOUT A BIGGER PIECE. The visible artwork stays
+     the art-directed size; this grows the touchable box around it to at least
+     44px in both axes, so the composition's spacing is untouched while every
+     file is comfortably hittable. */
+  .cover-desktop.is-phone .dpiece:not(.is-art) {
     min-width: 44px;
     min-height: 44px;
     /* the tap flash is Safari's, and it paints a grey rectangle over a cut-out
@@ -212,42 +183,36 @@
     -webkit-tap-highlight-color: transparent;
   }
 
-  .dfile-label {
+  .dpiece-label {
     font-size: 9.5px;
+    top: calc(100% + 0.3rem);
+    max-width: 210%;
   }
 
   /* Hover belongs to a pointer. On a touch screen these fire on tap and then
-     STICK until something else is tapped, which left a file lit and lifted
-     after you had already navigated away. The press animation is the feedback
+     STICK until something else is tapped, which leaves a file lit and lifted
+     after you have already navigated away. The press animation is the feedback
      here. */
-  .dfile:hover .dfile-icon,
-  .dfile:focus-visible .dfile-icon {
+  .dpiece:hover .dpiece-art,
+  .dpiece:focus-visible .dpiece-art {
     transform: none;
+    filter: none;
   }
 
-  .dfile:hover .dfile-label {
+  .dpiece:hover .dpiece-label {
     background: none;
-    color: rgba(240, 240, 246, 0.88);
-  }
-}
-
-/* A short window squeezes the vertical gap between the nav, the centred
-   discipline blocks and the dock. Shrink the tiles — the grid's pitch is
-   derived from --dfile-w, so the whole column tightens with them. */
-@media (max-height: 760px) {
-  .cover-desktop {
-    --dfile-w: clamp(38px, 3.1vw, 46px);
+    color: rgba(240, 240, 246, 0.9);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .dfile-icon,
-  .dfile-label {
+  .dpiece-art,
+  .dpiece-label {
     transition: none;
   }
 
-  .dfile:hover .dfile-icon,
-  .dfile:focus-visible .dfile-icon {
+  .dpiece:hover .dpiece-art,
+  .dpiece:focus-visible .dpiece-art {
     transform: none;
   }
 }
