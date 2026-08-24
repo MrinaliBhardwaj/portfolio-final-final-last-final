@@ -2656,3 +2656,106 @@ regis → lexa → publicPulse → regis. typecheck and build clean.
 pane. That is the pane freezing rAF — AnimatePresence exits never complete, so
 the outgoing node stays in the DOM. All the ghosts carry `z-index: 20`, i.e.
 index 0: there is only ever one window in React state.)*
+
+## The name is drawn, not set (2026-08-20)
+
+Her report: *"break the letters of my name into vectors and space them
+appropriately so theres no break. for eg currently theres a break between i and
+n in Mrinali and a and r in bhardwaj"*.
+
+**She was right, and more precisely right than the first measurement was.** The
+hero name was text in two script faces — Ballet for the capitals, Pinyon Script
+for the lowercase. Rasterising the real outlines at 600ppem and asking, per
+adjacent pair, how much of the two glyphs actually touch:
+
+| join | contact | |
+|---|---|---|
+| i→n | 0.0117em | a TANGENT — the thinnest in the name |
+| a→r | 0.0517em | the second thinnest |
+| every other lowercase pair | 0.073–0.152em | solid |
+| M→r, B→h | 0.0000em | no contact at all |
+
+The two she named are the two weakest joins in the name, in order. A tangent is
+a mathematical touch, not a visible one: 0.0117em is 2px at the shipped 185px
+and under one on a phone.
+
+### Why letter-spacing could never have fixed it
+
+It had already been tried — the old `.cover-name-script` carried
+`letter-spacing: -0.01em` and a note saying the break count was *fixed* from
++0.01em to −0.01em. That is exactly what tracking does: it moves every glyph by
+the same amount, so it either leaves a tangent alone or crashes the whole run.
+The fix has to be **per pair**, which means the glyphs have to be independent
+objects. Hence outlines.
+
+### The method, and the two times it was wrong first
+
+`scripts/build_name_vectors.py` instantiates Ballet at `opsz 72` (the axis the
+CSS sets — the default instance is a different set of outlines), lays the name
+out with the same advances and tracking the browser used, and **solves** the
+smallest leftward nudge per pair that lifts contact to a threshold.
+
+- **The metric was wrong once.** The first pass minimised the *thinnest ink
+  column* in the corridor where two glyphs overlap. That is not monotonic:
+  tucking further widens the corridor being searched, so it reports a WORSE
+  number for a better join. It produced a table saying a→r had got worse after
+  being tucked. Contact area — `a & dilate(b)` — rises as a pair closes, and is
+  what the script uses.
+- **The tucks were hard-coded once, and drifted.** They were written as a dict
+  keyed by glyph index, converted by hand from whole-name indices to per-word
+  ones, and went off by one: the i→n tuck landed on the `i` instead of the `n`,
+  so the join it existed to close never moved. The script's own report caught
+  it. **The tucks are solved on every run now** — there is no number to retype.
+- **The threshold was calibrated to her eye, not guessed.** 0.030em passed a→r
+  at 0.0517em, a join she had already said reads as broken. 0.065em is the
+  smallest threshold that catches both pairs she named **and no others**: every
+  remaining join is 0.073em or better. Final: i→n 0.0117 → 0.0783 (−0.052em),
+  a→r 0.0517 → 0.1833 (−0.076em). Two letters moved. The name is 1.2% narrower.
+
+### The capitals are left apart, deliberately
+
+M→r and B→h have zero contact and are *not* fixed. No tuck closes B→h — swept
+to −0.32em the B still never touches the h, because Ballet's B ends in a
+flourish that curves away from the baseline rather than in an exit stroke. M→r
+can be forced shut at −0.12em and it looks worse: the r climbs onto the M's last
+leg and the two crash. Swash capitals do not join the lowercase after them in
+either face. Reported by the script on every run, so the choice stays visible.
+
+### What the vectors let us delete
+
+The artwork's box IS its ink box, and that retires three separate hacks:
+
+- **The measure-and-rescale effect in `Cover.jsx` (~70 lines) is gone.** It
+  existed because the numbers in cover.css were tuned to Ballet + Pinyon and a
+  fallback face (Segoe Script, ~30% wider) sheared "hardwaj" off at the viewport
+  edge. There is no font left to substitute.
+- **The ±0.5em swash-overhang padding is gone.** It reserved mask room for ink
+  that painted outside the layout box. Nothing paints outside a viewBox.
+- **`--name-fit` is gone** from both clamps. The multiplier is now exact and
+  printed by the build script: 3.1966 + 0.28 + 3.5055 = 6.9821em.
+
+**The one number that had to be re-derived is `--name-drop`.** The deliberate
+clip of the j at the fold was specified against a LINE BOX, whose bottom sat
+0.621em under the baseline; an ink-tight box's bottom is the j itself, at
+0.3309em. So 0.32 became 0.03 on desktop, and 0.05 became −0.24 on the phone (a
+positive bottom margin — the name is lifted clear of the fold there, as it
+always was). Verified in the browser: the clip line is at **0.3009em** below the
+baseline, against the 0.301em it has always been at.
+
+Two `<svg>` elements rather than one, sharing a single vertical extent so both
+boxes are the same height and their baselines align without a text baseline to
+hang them on — which is what lets the h1 be a flex row that still **wraps to two
+lines on a phone**, the one thing the old inline markup was doing for us.
+`text-shadow` became `filter: drop-shadow` at the same offset, blur and alpha
+(filters resolve before masks, so the ink wipe still reveals the halo with the
+stroke). The visible artwork is `aria-hidden`; a `.cover-aside-sr` span carries
+the accessible name.
+
+**Cost: +10.4 kB gzipped** (517.83 kB from 495.50 kB raw). That is the path
+data, and it buys a name that cannot break, cannot flash a fallback, and cannot
+be sheared.
+
+Verified at 1440×900: one line, 1293px wide, 66px of clearance a side, clip at
+0.3009em. At 720: one line, 29px a side. At 390 and 320: two lines, no
+horizontal scroll, 0.240em of air under the j — the phone figure unchanged.
+typecheck and build clean, no console errors.

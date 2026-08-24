@@ -103,16 +103,17 @@
    * filled before. Same footprint, smaller em. Re-measure the multiplier if
    * either script changes.
    *
-   * --name-fit is the SAFETY NET on all of the above, set by Cover.jsx: every
-   * number here is tuned to Ballet+Pinyon's metrics, and the moment anything
-   * else renders the name those numbers are wrong. Segoe Script — the fallback
-   * that paints while the webfonts load, and permanently if they fail — lays
-   * out ~30% wider, which overflowed at EVERY width (241px at 1366) and, since
-   * the name is nowrap inside the stage's overflow:hidden, got sheared: 204px
-   * of "hardwaj" cut off at 1366, the j and its dot with it. The measured fit
-   * scales the name down just enough to fit whatever font actually rendered.
-   * It stays 1 for the real fonts, so nothing below changes for them. */
-  --name-fs: calc(clamp(3.3rem, 13vw, 16.5rem) * var(--name-fit, 1));
+   * THE MULTIPLIER IS EXACT NOW (2026-08-20), not measured-and-hoped. The name
+   * is vector artwork (NameMark.jsx) and each word's box IS its ink box, so the
+   * whole name is 3.1966 + 0.28 + 3.5055 = 6.9821em, full stop. 13vw x 6.9821
+   * fills 90.8vw, and the hero's own 2 x 1.25rem of padding brings that to
+   * 1347px at 1440 — 93px inside the viewport. It cannot be wrong the way a
+   * font metric can: there is no font left to substitute. The --name-fit
+   * variable that used to guard this (and the measure-and-rescale effect in
+   * Cover.jsx that set it) went with the text.
+   *
+   * scripts/build_name_vectors.py prints this figure on every run. */
+  --name-fs: clamp(3.3rem, 13vw, 16.5rem);
   /* The stage bottom-aligns this, so the negative bottom margin sets how low
      the script sits. The stage is a sticky 100dvh box with overflow:hidden, so
      the viewport bottom clips anything pushed past it — INTENTIONALLY, here:
@@ -133,11 +134,18 @@
    * j is Pinyon now, not Ballet, so it no longer reaches 0.523em:
    *     Ballet capital B ... 0.281em      Pinyon "hardwaj" j ... 0.336em
    *
-   * 0.32 puts the clip line at 0.301em, which is the point of this setting:
-   * it clears the B's curve by 0.020em so the whole flourish reads, while the
-   * j still runs 0.035em past the fold. Raising the drop above ~0.340 starts
-   * eating the B again; dropping it below ~0.285 stops the j spilling at all. */
-  --name-drop: 0.32;
+   * THE BASE CHANGED WITH THE ARTWORK, the intent did not. The relation above
+   * had a 0.621em base because the element was a LINE BOX: line-height 1.6 put
+   * its bottom edge that far under the baseline. The words are ink-tight boxes
+   * now, so the element's bottom edge is simply the lowest ink — the j, at
+   * 0.3309em below the baseline — and the relation becomes
+   *
+   *     clip line below baseline = 0.3309 - (--name-drop)
+   *
+   * 0.030 therefore puts the clip at the SAME 0.301em it has always been at:
+   * the B's flourish still clears by 0.020em and the j still spills 0.030em
+   * past the fold. Re-derive both numbers together if either is touched. */
+  --name-drop: 0.03;
   margin: 0 auto calc(-1 * var(--name-drop) * var(--name-fs));
   text-align: center;
 }
@@ -166,69 +174,48 @@
    fallback-script flash), then .is-inked writes it on left→right with an
    animated gradient mask — the script draws itself like ink. */
 .cover-name-script {
-  font-family: var(--font-script);
-  font-weight: 400;
-  font-optical-sizing: auto;
-  font-variation-settings: "opsz" 72;
+  /* A ROW OF TWO DRAWINGS, not a line of text. Flex rather than inline-block:
+     inline boxes align on a text baseline, which would drag the h1's font
+     metrics back into a name that no longer uses a font, and the strut would
+     add leading under the j that the drop above is measured against. Both
+     words carry the same viewBox height, so a flex row aligns their baselines
+     by aligning their boxes — and `wrap` still stacks them into two lines on a
+     phone, which is the one thing the old inline markup was doing for us. */
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: flex-end;
+  /* the gap the layout was drawn with; NAME_GAP in NameMark.jsx */
+  column-gap: 0.28em;
+  row-gap: 0.06em;
+  /* font-size is the ARTWORK'S SCALE, not a type size: the two svg widths are
+     authored in em, so this is what they resolve against. Nothing here renders
+     a glyph any more, which is why the family, the tracking and the nowrap are
+     gone. */
   font-size: var(--name-fs);
-  /* Ballet's capital swashes (M, B) overshoot a tight line box — harmless
-     with plain overflow:visible, but the .is-inked mask below clips
-     rendering to this box, so it must be tall enough to contain them.
-     Measured via canvas fontBoundingBox metrics: needs >= ~1.55 to stop
-     clipping the M's peak; 1.3 still cut it by ~14px at 112px font-size. */
-  line-height: 1.6;
-  /* Tightened from 0.01em to close the visible breaks in "rinali"/"hardwaj".
-     It helps, but only so far, and the measurement says why: scanning the
-     baseline join band at 300px, the number of interruptions is FIXED at 7 in
-     "rinali" and 11 in "hardwaj" at every value from +0.01em to -0.01em. Pinyon
-     does not join those pairs at all, so spacing can only narrow the gaps, not
-     remove them — this move takes ~16% off their total width. Going further
-     starts crashing the taller strokes without closing anything. */
-  letter-spacing: -0.01em;
+  line-height: 1;
+  margin: 0;
   color: #fff;
-  white-space: nowrap;
-  text-shadow: 0 2px 40px rgba(0, 0, 0, 0.55);
+  /* was text-shadow, which does nothing to an svg fill. Same offset, blur and
+     alpha, so the halo over the petals is unchanged. Filters resolve BEFORE
+     masks, so the wipe below reveals the shadow with the stroke rather than
+     leaving it hanging in mid-air. */
+  filter: drop-shadow(0 2px 40px rgba(0, 0, 0, 0.55));
   opacity: 0;
-  /* ROOM FOR THE SWASHES TO EXIST IN.
-   *
-   * The .is-inked mask below clips to this element's box, and these faces paint
-   * well outside theirs: the M's leading swash starts ~5px left of the box and
-   * the j's trailing flourish runs ~21px past its right edge (both measured at
-   * font-size 185px, and both underestimates — canvas cannot measure the
-   * `opsz 72` instance the page actually renders, so the real overhang is
-   * larger still). The mask has no idea any of that is there:
-   *   - the tile is 220% wide and opaque for its first 46%, i.e. 101.2% of the
-   *     box, so paint past the RIGHT edge fades out — the j's flourish did
-   *   - `mask-repeat` is `repeat`, so paint left of the box samples the PREVIOUS
-   *     tile's transparent tail — the M's swash tip was erased outright
-   * Both are exactly the two ends that were reported cut.
-   *
-   * Padding grows the mask box (mask-origin is border-box) so the ink lands
-   * inside it; the matching negative margin keeps layout identical, including
-   * the parent's shrink-to-fit width, since a margin box of
-   * width + 0.5em - 0.5em is unchanged. 0.5em is deliberately generous —
-   * roughly 4x the largest measured overhang — because the true extent cannot
-   * be measured here and over-reserving costs nothing: the mask's opaque run is
-   * 101.2% of whatever the box becomes, so it always covers it. */
-  padding-inline: 0.5em;
-  margin-inline: -0.5em;
+  /* The swash-overhang padding that used to live here is gone with the text.
+     It existed because the faces painted outside their layout box — Ballet's M
+     ~5px to the left, the j ~21px past the right — and the mask clipped to that
+     box and erased both ends. A viewBox is the ink box by construction, so
+     there is nothing outside it to reserve room for. */
 }
 
-/* The two scripts. Ballet keeps the capitals — its swashed M and B are the
-   reason that face is on this page at all — and Pinyon takes the lowercase.
- *
- * They do NOT agree at the same em, and the correction runs the opposite way
- * to the obvious guess: Pinyon's lowercase is the BIGGER of the two. Measured
- * on a no-ascender, no-descender run ("rn") at 200px, x-height is 0.395em in
- * Pinyon against 0.340em in Ballet, so Pinyon is scaled DOWN by 0.340/0.395 =
- * 0.861 to bring the two x-heights level. Re-measure if either face changes. */
-.cover-name-cap {
-  font-family: var(--font-script);
-}
-
-.cover-name-rest {
-  font-family: var(--font-monogram);
-  font-size: 0.861em;
+/* Each word. The width is set inline from its own viewBox (NameMark.jsx) so
+   the two keep their real proportions; height follows from the shared viewBox,
+   which makes both boxes exactly 1.2869em tall. */
+.cover-name-word {
+  display: block;
+  height: auto;
+  overflow: visible;
 }
 
 .cover-name-script.is-inked {
@@ -529,20 +516,22 @@
      against. */
   .cover-hero-inner {
     padding-bottom: 0;
-    /* wraps to two lines here (see below), so the fit measures <= 1 line box
-       and stays at 1 — carried through anyway so the two paths can't diverge */
-    --name-fs: calc(clamp(3.6rem, 22vw, 7rem) * var(--name-fit, 1));
-    /* The clearance is a fraction of the name, and the name is much smaller
-       here — 0.08 left it under a pixel clear, which subpixel rounding can
-       shear. A gentler drop buys back ~4px without reading as higher. */
-    --name-drop: 0.05;
+    --name-fs: clamp(3.6rem, 22vw, 7rem);
+    /* NOTHING SPILLS ON A PHONE — the name is much smaller here, so the
+       deliberate cut of the j would just read as a mistake. Under the old line
+       box, 0.05 put the fold 0.571em below the baseline, i.e. 0.240em of air
+       under the j. Against the ink-tight box that same air is
+       0.3309 - 0.571 = -0.240, a POSITIVE bottom margin: the name is lifted
+       clear of the fold rather than hung over it. */
+    --name-drop: -0.24;
   }
 
-  /* wrap the name to two lines on narrow screens so it stays large and legible
-     instead of being clipped at the viewport edges */
+  /* Two lines on narrow screens, so the name stays large instead of being
+     clipped at the viewport edges. The flex row wraps on its own — at 22vw the
+     pair needs 155vw and cannot fit — so this only has to open up the leading
+     between them. */
   .cover-name-script {
-    white-space: normal;
-    line-height: 1.6;
+    row-gap: 0.12em;
   }
 
 

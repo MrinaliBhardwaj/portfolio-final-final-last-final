@@ -25,6 +25,7 @@ import { PROJECTS } from "./projects.js";
 import { TECH_PROJECTS } from "./tech-projects.js";
 import TextMorph from "./TextMorph.jsx";
 import DesktopFiles from "./DesktopFiles.jsx";
+import NameMark from "./NameMark.jsx";
 import { createParticles } from "./particles.js";
 import { createLotusScrubber } from "./lotus.js";
 
@@ -64,11 +65,6 @@ const POSTER_URL = "/lotus-still.webp";
 const SCRUB_END = 1;
 
 const EASE = [0.22, 1, 0.36, 1];
-
-// px of breathing room kept between the name's outermost ink and the stage edge
-// (see the fit effect). Small on purpose: it is a guard against the swash
-// touching the edge, not a margin in the design sense.
-const SIDE_GUARD = 8;
 
 // HOME IS A PLACE, NOT A CORRIDOR (2026-08-18). The scrub is the front door,
 // not the hallway to every room: once a visitor has seen the ceremony, every
@@ -141,11 +137,6 @@ export default function Cover({ onChoose, onSettledChange }) {
   const particlesRef = useRef(null);
   const trackRef = useRef(null);
   const canvasRef = useRef(null);
-  const heroRef = useRef(null);
-  const nameRef = useRef(null);
-  // one reusable 2D context for the ink measurement below — allocating a canvas
-  // per resize tick would be the expensive part of an otherwise cheap effect
-  const fitCtx = useRef(null);
   const progressRef = useRef(0);
   // mirror the two scroll-driven booleans so we only enter React's scheduler
   // when one actually flips, not on every scroll tick (see below)
@@ -226,91 +217,14 @@ export default function Cover({ onChoose, onSettledChange }) {
     };
   }, []);
 
-  // The name's SAFETY NET. Every number in cover.css — the 13vw size, the
-  // measured 13.79vw ink ceiling, the em-based drop — is tuned to Ballet +
-  // Pinyon. The instant a different face renders the name those numbers are
-  // wrong, and the failure is silent and ugly: the name is `white-space: nowrap`
-  // inside a stage that is `overflow: hidden`, so anything too wide is not
-  // wrapped or scaled, it is SHEARED at the viewport edge.
-  //
-  // That is not hypothetical. Segoe Script — the fallback that paints while the
-  // webfonts load, and permanently if they fail — lays out ~30% wider and
-  // overflowed at every width tested (1024 through 1600). At 1366 it ran 241px
-  // past the available width and 204px of "hardwaj" was cut off, taking the j
-  // and its dot with it.
-  //
-  // So: measure what actually rendered and scale to fit, rather than trusting
-  // that the intended font is the one on screen. Re-run whenever the fonts
-  // settle (both the `fontReady` gate below AND document.fonts.ready, since the
-  // real faces can land after that gate's 2.5s timeout has already given up)
-  // and on resize, because the budget is a vw. Measurement is synchronous
-  // against a reset value so it never compounds on itself.
-  useEffect(() => {
-    const hero = heroRef.current;
-    const name = nameRef.current;
-    if (!hero || !name) return;
+  // THE FIT EFFECT IS GONE (2026-08-20). It measured whatever font actually
+  // rendered the name and scaled it down to fit, because every number in
+  // cover.css was tuned to Ballet + Pinyon and a fallback face (Segoe Script,
+  // ~30% wider) sheared "hardwaj" off at the viewport edge. The name is vector
+  // artwork now (NameMark.jsx): there is no font to substitute, its box IS its
+  // ink box, and its width is a known constant in em. A safety net against a
+  // hazard that no longer exists is just a moving part.
 
-    const fit = () => {
-      hero.style.setProperty("--name-fit", "1");
-      // flush the reset so the measurement below sees the unscaled name
-      void name.offsetWidth;
-
-      // TRUE GLYPH INK, not the advance boxes. This distinction is the whole
-      // point: `getBoundingClientRect()`/Range return layout boxes, and these
-      // faces do not stay inside theirs — Ballet's M paints 128px past its own
-      // advance at 185px, and "hardwaj" 19px past its. Measuring boxes said the
-      // name cleared the stage by 89px when the ink cleared it by 57px. Canvas
-      // `actualBoundingBox*` is the only thing here that reports where the paint
-      // actually lands, and it uses the real loaded face.
-      const ctx = (fitCtx.current ||= document
-        .createElement("canvas")
-        .getContext("2d"));
-      let inkL = Infinity;
-      let inkR = -Infinity;
-      for (const run of name.children) {
-        const k = getComputedStyle(run);
-        // first family only: this is the face that actually rendered
-        const family = k.fontFamily.split(",")[0].trim();
-        ctx.font = `${k.fontStyle} ${k.fontWeight} ${parseFloat(k.fontSize)}px ${family}`;
-        const m = ctx.measureText(run.textContent);
-        const box = run.getBoundingClientRect();
-        inkL = Math.min(inkL, box.left - m.actualBoundingBoxLeft);
-        inkR = Math.max(inkR, box.left + m.actualBoundingBoxRight);
-      }
-      if (!Number.isFinite(inkL) || !Number.isFinite(inkR)) return;
-
-      // Solve about the CENTRE, not the width. The name is centred but its ink
-      // is not symmetric (the M leads with a swash, the j trails with one), so
-      // a name that fits on width can still put one end through the edge. Both
-      // halves scale with the font, so the binding constraint is simply the
-      // longer of the two.
-      const sb = hero.parentElement.getBoundingClientRect();
-      const pad = getComputedStyle(hero);
-      const padX =
-        (parseFloat(pad.paddingLeft) || 0) + (parseFloat(pad.paddingRight) || 0);
-      const centre = sb.left + sb.width / 2;
-      const halfNeeded = Math.max(centre - inkL, inkR - centre);
-      // SIDE_GUARD keeps the outermost swash off the edge rather than exactly on
-      // it, so subpixel rounding can never shave it
-      const halfAvail = (sb.width - padX) / 2 - SIDE_GUARD;
-
-      if (halfNeeded > halfAvail && halfNeeded > 0 && halfAvail > 0) {
-        hero.style.setProperty(
-          "--name-fit",
-          (halfAvail / halfNeeded).toFixed(4)
-        );
-      }
-    };
-
-    fit();
-    window.addEventListener("resize", fit);
-    let alive = true;
-    document.fonts?.ready.then(() => alive && fit());
-    return () => {
-      alive = false;
-      window.removeEventListener("resize", fit);
-    };
-  }, [fontReady]);
 
   // THE INSTA-LAND. If this session has already seen the ceremony, position
   // the page at the track's end BEFORE first paint — the stage shows the
@@ -486,30 +400,31 @@ export default function Cover({ onChoose, onSettledChange }) {
           />
           <div className="cover-video-overlay" />
 
-          {/* beat 1: the name, alone. Nothing renders until Ballet has loaded
-              (no fallback-font flash); then the script writes itself on via a
+          {/* beat 1: the name, alone — then the script writes itself on via a
               mask wipe (see .is-inked). The "a design engineer" caption that
               used to sit under it is gone — the two margin notes below now
               carry the roles, and they say it in far more detail. */}
           <motion.div
-            ref={heroRef}
             className="cover-hero-inner"
             style={{ opacity: nameOpacity, y: nameLift }}
           >
-            {/* Two scripts, split at the capitals: the M and B stay Ballet —
-                its swashed capitals are the whole reason that face is here —
-                while the lowercase runs are set in Pinyon Script, the same
-                face as the monogram. Kept as separate spans rather than one
-                string because the split is per-glyph-run, and the mask wipe
-                on .is-inked still sweeps the h1 as a single box. */}
-            <h1
-              ref={nameRef}
-              className={`cover-name-script${fontReady ? " is-inked" : ""}`}
-            >
-              <span className="cover-name-cap">M</span>
-              <span className="cover-name-rest">rinali</span>{" "}
-              <span className="cover-name-cap">B</span>
-              <span className="cover-name-rest">hardwaj</span>
+            {/* DRAWN, NOT SET (2026-08-20). This used to be four spans in two
+                script faces — Ballet for the capitals, Pinyon for the lowercase
+                — and Pinyon does not reliably join its letters: four pairs met
+                at a tangent rather than an overlap and read as breaks. The
+                outlines are kerned per pair now; see NameMark.jsx for the
+                measurements and for why the two capitals are left apart.
+
+                The wipe still sweeps the h1 as one box, and `fontReady` still
+                gates it — not because the name needs a font any more, but
+                because it is beat 1 of a sequence the margin notes below share.
+
+                The visible artwork is aria-hidden and this line is the
+                accessible name, the same split .cover-aside-sr uses: a screen
+                reader gets the text, the screen gets the drawing. */}
+            <h1 className={`cover-name-script${fontReady ? " is-inked" : ""}`}>
+              <span className="cover-aside-sr">Mrinali Bhardwaj</span>
+              <NameMark />
             </h1>
           </motion.div>
 

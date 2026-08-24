@@ -4,3 +4,6 @@ dist/
 *.log
 .DS_Store
 pond-shot.png
+
+# python bytecode from scripts/
+__pycache__/
