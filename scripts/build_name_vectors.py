@@ -225,11 +225,15 @@ def runs_for(cap, rest):
     return [(BALLET_F, cap, 1.0), (PINYON_F, rest, 0.861)]
 
 
-def gmask(one, shape, origin):
+def gmask(one, shape, origin, ppem=None):
+    # ppem is a PARAMETER, not the module constant it used to read. Rasterising
+    # a scene at one density and its glyph masks at another silently scales
+    # every mask -- it put the first weld 0.6em from where the strokes meet.
+    ppem = PPEM if ppem is None else ppem
     ox, oy = origin
     H, W = shape
     acc = np.zeros((H, W), bool)
-    for c in ink_polys([one], PPEM):
+    for c in ink_polys([one], ppem):
         im = Image.new("1", (W, H), 0)
         ImageDraw.Draw(im).polygon([(p[0] - ox, p[1] - oy) for p in c], fill=1)
         acc ^= np.array(im, dtype=bool)
@@ -282,6 +286,73 @@ def solve(cap, rest):
     print("  %s->%-2s  %.4f              capital, left apart"
           % (text[0], text[1], contact(runs, tucks, 0)))
     return tucks
+
+
+# ---- the welds -------------------------------------------------------------
+# A ROUND JOIN, where two strokes meet at a point instead of merging.
+#
+# Reverting the kerning put the letters back where the font wants them, but it
+# did not fix what she was actually pointing at, and measuring the overlap says
+# why: at i->n the two glyphs share 38 pixels at 900ppem, and at a->r 171. That
+# is a POINT contact. The strokes touch and immediately diverge, which leaves a
+# visible step -- a notch cutting into the white -- on the outside of the join.
+#
+# It is not a spacing problem and it is not a gap: moving the letters together
+# only drives one into the body of the other (which was the last mistake), and
+# there is no enclosed sliver for a morphological close or a fillet to fill --
+# both were tried and both came back empty, because the V is wide and open.
+#
+# What a letterer does at a pinched junction is add a round join: a small disc
+# at the meeting point, sized to the strokes, which carries the ink across the
+# pinch and leaves everything else alone. 0.016em is the smallest radius that
+# closes both notches; 0.022em starts to bulge. It is anchored ON the contact
+# centroid, so it cannot wander into a counter -- which is exactly what an
+# unanchored close did, swallowing the n's counter whole.
+#
+# Per-word glyph indices. Mrinali is M-r-i-n-a-l-i, so i->n is (2, 3);
+# Bhardwaj is B-h-a-r-d-w-a-j, so a->r is (2, 3) as well.
+# OFF. The round join is measured correctly and lands on the contact point, and
+# it is still the wrong repair: checked against the browser's own rasteriser,
+# the contact at i->n sits ON THE HAIRLINE, so a 0.016em disc there beads the
+# thread instead of closing a notch. Re-enable per pair only with a browser
+# check of that junction, not a pair-only render -- a pair in isolation is not
+# what the page paints, because the rest of the word crosses through it.
+WELD_PAIRS = {}
+WELD_R = 0.016      # em
+WELD_PPEM = 900     # density the contact centroid is measured at
+
+
+def contact_centre(runs, pair):
+    """Where the two glyphs actually touch, in output units. None if they do
+    not touch at all -- then there is no join to round and we add nothing."""
+    i, j = pair
+    placed = layout(runs)
+    mask, origin = raster(ink_polys(placed, WELD_PPEM))
+    a = gmask(placed[i], mask.shape, origin, WELD_PPEM)
+    b = gmask(placed[j], mask.shape, origin, WELD_PPEM)
+    ov = a & b
+    if not ov.any():
+        return None
+    ys, xs = np.where(ov)
+    ox, oy = origin
+    return ((xs.mean() + ox) / WELD_PPEM * K, (ys.mean() + oy) / WELD_PPEM * K)
+
+
+def weld_path(runs, name):
+    """The round joins for one word, as one path of circles."""
+    out = []
+    for pair in WELD_PAIRS.get(name, []):
+        c = contact_centre(runs, pair)
+        if c is None:
+            print("  weld %s: glyphs do not touch, nothing added" % (pair,))
+            continue
+        cx, cy = c
+        r = WELD_R * K
+        # a circle as two arcs -- exact, and far smaller than a traced polygon
+        out.append("M%.1f %.1fa%.1f %.1f 0 1 0 %.1f 0a%.1f %.1f 0 1 0 %.1f 0Z"
+                   % (cx - r, cy, r, r, 2*r, r, r, -2*r))
+        print("  weld %s: round join r=%.3fem at (%.0f, %.0f)" % (pair, WELD_R, cx, cy))
+    return "".join(out)
 
 
 def word_paths(runs, tucks):
@@ -344,6 +415,11 @@ export default function NameMark() {
           focusable="false"
         >
           <path d={w.d} fill="currentColor" />
+          {/* the round joins, as a SEPARATE path element on purpose: a second
+              subpath inside the one above would share its fill rule, and a
+              contour wound the wrong way would punch a hole instead of welding
+              a join. Separate elements simply composite. */}
+          {w.weld && <path d={w.weld} fill="currentColor" />}
         </svg>
       ))}
     </>
@@ -357,26 +433,29 @@ def build():
     for name, cap, rest in WORDS:
         print(name)
         tucks = {}   # see the note above -- the font's advances stand
-        d, bb = word_paths(runs_for(cap, rest), tucks)
-        rows.append((name, d, bb))
+        runs = runs_for(cap, rest)
+        d, bb = word_paths(runs, tucks)
+        w = weld_path(runs, name)
+        rows.append((name, d, bb, w))
         report.append((name, tucks))
 
-    y0 = min(b[1] for _, _, b in rows)
-    y1 = max(b[3] for _, _, b in rows)
+    y0 = min(b[1] for _, _, b, _w in rows)
+    y1 = max(b[3] for _, _, b, _w in rows)
     H = y1 - y0
-    total = sum(b[2] - b[0] for _, _, b in rows) / K + GAP
+    total = sum(b[2] - b[0] for _, _, b, _w in rows) / K + GAP
 
     out = [HEADER, "",
            "// viewBox units are 1/1000 em; y = 0 is the baseline",
            "export const NAME_VIEW = { y: %.1f, h: %.1f };" % (y0, H), "",
            "export const NAME_WORDS = ["]
-    for name, d, bb in rows:
+    for name, d, bb, w in rows:
         out += ["  {",
                 '    word: "%s",' % name,
                 "    x: %.1f," % bb[0],
                 "    w: %.1f," % (bb[2] - bb[0]),
                 "    em: %.4f," % ((bb[2] - bb[0]) / K),
                 '    d: "%s",' % d,
+                '    weld: "%s",' % w,
                 "  },"]
     out += ["];", "",
             "// the gap between the two words, in em -- a real value from the layout,",
