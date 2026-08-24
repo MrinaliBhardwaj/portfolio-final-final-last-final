@@ -288,110 +288,170 @@ def solve(cap, rest):
     return tucks
 
 
-# ---- the welds -------------------------------------------------------------
-# A ROUND JOIN, where two strokes meet at a point instead of merging.
+# ---- the trims -------------------------------------------------------------
+# TRIMMING THE STUB, which is the only repair that actually applies here.
 #
-# Reverting the kerning put the letters back where the font wants them, but it
-# did not fix what she was actually pointing at, and measuring the overlap says
-# why: at i->n the two glyphs share 38 pixels at 900ppem, and at a->r 171. That
-# is a POINT contact. The strokes touch and immediately diverge, which leaves a
-# visible step -- a notch cutting into the white -- on the outside of the join.
+# At i->n and a->r the two glyphs meet at a POINT -- 38 and 171 pixels of shared
+# ink at 900ppem. The connector's blunt terminal reaches the next letter's stem
+# at an angle, so one corner of that flat cap lands INSIDE the stem and the
+# other pokes out past its edge. The corner that pokes out is the step she saw.
 #
-# It is not a spacing problem and it is not a gap: moving the letters together
-# only drives one into the body of the other (which was the last mistake), and
-# there is no enclosed sliver for a morphological close or a fillet to fill --
-# both were tried and both came back empty, because the V is wide and open.
+# It cannot be built up. Adding ink (a round join, a fillet, a morphological
+# close) leaves the protruding corner exactly where it was and only adds a bulge
+# somewhere else -- all three were tried and all three did. The corner has to
+# come OFF.
 #
-# What a letterer does at a pinched junction is add a round join: a small disc
-# at the meeting point, sized to the strokes, which carries the ink across the
-# pinch and leaves everything else alone. 0.016em is the smallest radius that
-# closes both notches; 0.022em starts to bulge. It is anchored ON the contact
-# centroid, so it cannot wander into a counter -- which is exactly what an
-# unanchored close did, swallowing the n's counter whole.
+# THE CUT. Take the stub glyph's ink near the contact, give it a direction (the
+# principal axis of that ink, pointed at the other glyph), and project every
+# pixel onto it. The deepest pixel that is still INSIDE the other glyph marks
+# how far the stroke genuinely penetrates the stem; everything past that is the
+# uncovered corner. Cutting there removes the corner and leaves the stroke
+# ending inside the stem, where the stem covers the cut -- so no step outside
+# and no gap inside. The cut edge is never seen.
 #
-# Per-word glyph indices. Mrinali is M-r-i-n-a-l-i, so i->n is (2, 3);
-# Bhardwaj is B-h-a-r-d-w-a-j, so a->r is (2, 3) as well.
-# OFF. The round join is measured correctly and lands on the contact point, and
-# it is still the wrong repair: checked against the browser's own rasteriser,
-# the contact at i->n sits ON THE HAIRLINE, so a 0.016em disc there beads the
-# thread instead of closing a notch. Re-enable per pair only with a browser
-# check of that junction, not a pair-only render -- a pair in isolation is not
-# what the page paints, because the rest of the word crosses through it.
-WELD_PAIRS = {}
-WELD_R = 0.016      # em
-WELD_PPEM = 900     # density the contact centroid is measured at
+# It is applied as a clip on that ONE glyph's own path, which is why the glyphs
+# are emitted separately now. A mask over the whole word would cut the stem too.
+# OFF. The cut is computed correctly and is surgical -- 0.43% of the ink, right
+# at the contact -- and checked against the browser it removes the wrong 0.43%:
+# the step in the connector survives it. Five automatic repairs were tried here
+# (kern, close, fillet, round join, trim) and every one either missed the defect
+# or damaged something else. The remaining fix is a hand weld with a pen tool,
+# which is minutes of a designer's time and evidently hours of mine.
+TRIM_PAIRS = {}
+TRIM_PPEM = 900
+TRIM_RHO = 0.045     # em; how much of the stroke around the contact is examined
+TRIM_BLEED = 0.004   # em; keep the cut this far inside the stem, never outside
 
 
-def contact_centre(runs, pair):
-    """Where the two glyphs actually touch, in output units. None if they do
-    not touch at all -- then there is no join to round and we add nothing."""
+def _pca_dir(ys, xs):
+    p = np.stack([xs - xs.mean(), ys - ys.mean()])
+    w, v = np.linalg.eigh(p @ p.T)
+    return v[:, -1]
+
+
+def trim_for(runs, pair):
+    """The half-plane that takes the protruding corner off. Returns
+    (keep_normal, offset) in output units, or None if there is nothing to cut."""
     i, j = pair
     placed = layout(runs)
-    mask, origin = raster(ink_polys(placed, WELD_PPEM))
-    a = gmask(placed[i], mask.shape, origin, WELD_PPEM)
-    b = gmask(placed[j], mask.shape, origin, WELD_PPEM)
-    ov = a & b
+    mask, origin = raster(ink_polys(placed, TRIM_PPEM))
+    A = gmask(placed[i], mask.shape, origin, TRIM_PPEM)
+    B = gmask(placed[j], mask.shape, origin, TRIM_PPEM)
+    ov = A & B
     if not ov.any():
         return None
-    ys, xs = np.where(ov)
-    ox, oy = origin
-    return ((xs.mean() + ox) / WELD_PPEM * K, (ys.mean() + oy) / WELD_PPEM * K)
+    cy, cx = np.where(ov)[0].mean(), np.where(ov)[1].mean()
+
+    rho = TRIM_RHO * TRIM_PPEM
+    Y, X = np.ogrid[:mask.shape[0], :mask.shape[1]]
+    near = ((Y - cy) ** 2 + (X - cx) ** 2) <= rho * rho
+
+    # whichever glyph pokes out past the other, near the contact, owns the stub
+    a_out = int((A & near & ~B).sum())
+    b_out = int((B & near & ~A).sum())
+    stub_is_a = a_out >= b_out
+    S, OTHER = (A, B) if stub_is_a else (B, A)
+
+    sy, sx = np.where(S & near)
+    if len(sy) < 20:
+        return None
+    u = _pca_dir(sy, sx)                      # (ux, uy) in pixel space
+    oy, ox_ = np.where(OTHER & near)
+    to_other = np.array([ox_.mean() - sx.mean(), oy.mean() - sy.mean()])
+    if u @ to_other < 0:
+        u = -u                                # point the axis INTO the other glyph
+
+    t = (sx - cx) * u[0] + (sy - cy) * u[1]
+    inside = OTHER[sy, sx]
+    if not inside.any():
+        return None
+    t_cut = t[inside].max() - TRIM_BLEED * TRIM_PPEM
+    kept_off = int((t > t_cut).sum())
+    if kept_off == 0:
+        return None
+
+    # back to output units: the plane is { p : (p - c) . u <= t_cut }
+    x0, y0 = origin
+    c_out = ((cx + x0) / TRIM_PPEM * K, (cy + y0) / TRIM_PPEM * K)
+    return dict(u=(float(u[0]), float(u[1])), c=c_out,
+                t=float(t_cut / TRIM_PPEM * K),
+                owner=(i if stub_is_a else j),
+                removed=kept_off)
 
 
-def weld_path(runs, name):
-    """The round joins for one word, as one path of circles."""
-    out = []
-    for pair in WELD_PAIRS.get(name, []):
-        c = contact_centre(runs, pair)
-        if c is None:
-            print("  weld %s: glyphs do not touch, nothing added" % (pair,))
-            continue
-        cx, cy = c
-        r = WELD_R * K
-        # a circle as two arcs -- exact, and far smaller than a traced polygon
-        out.append("M%.1f %.1fa%.1f %.1f 0 1 0 %.1f 0a%.1f %.1f 0 1 0 %.1f 0Z"
-                   % (cx - r, cy, r, r, 2*r, r, r, -2*r))
-        print("  weld %s: round join r=%.3fem at (%.0f, %.0f)" % (pair, WELD_R, cx, cy))
-    return "".join(out)
+def clip_shapes(tr):
+    """The cut, as TWO contours for an even-odd clip: a rectangle covering the
+    whole artwork, minus a small circular SEGMENT over the protruding corner.
+
+    A half-plane was the obvious construction and it is wrong -- a clip applies
+    to the entire glyph, so slicing on an infinite line took most of the n away
+    with the corner. The removal has to be local, and the segment is the
+    half-plane intersected with the same disc the measurement was made in."""
+    (ux, uy), (cx, cy), t = tr["u"], tr["c"], tr["t"]
+    rho = TRIM_RHO * K
+    if abs(t) >= rho:
+        return None
+    keep = [(-20000.0, -20000.0), (20000.0, -20000.0),
+            (20000.0, 20000.0), (-20000.0, 20000.0)]
+    # points of the disc lying past the cut, in angle order, closed by the chord
+    seg, steps = [], 96
+    base = math.atan2(uy, ux)
+    for k in range(steps + 1):
+        a = base - math.pi / 2 + math.pi * k / steps
+        px, py = cx + rho * math.cos(a), cy + rho * math.sin(a)
+        if (px - cx) * ux + (py - cy) * uy >= t:
+            seg.append((px, py))
+    if len(seg) < 3:
+        return None
+    h = math.sqrt(max(rho * rho - t * t, 0.0))
+    dx, dy = -uy, ux
+    seg = ([(cx + ux * t - dx * h, cy + uy * t - dy * h)] + seg +
+           [(cx + ux * t + dx * h, cy + uy * t + dy * h)])
+    return keep, seg
 
 
 def word_paths(runs, tucks):
+    """One path per glyph. They used to be concatenated into a single `d`, and
+    they cannot be any more: a clip has to apply to ONE letter, and a single
+    fill rule shared across every contour in a word is a hole waiting to
+    happen."""
     placed = layout(runs, deltas=tucks)
-    ds, xs, ys = [], [], []
+    out, xs, ys = [], [], []
     for font, ch, xpen, s in placed:
         gs = font.getGlyphSet()
         pen = SVGPathPen(gs, ntos=lambda v: ("%.1f" % v).rstrip("0").rstrip("."))
         # font units are y-up, SVG is y-down; y = 0 stays the baseline
         gs[glyph_name(font, ch)].draw(
             TransformPen(pen, Transform(s*K, 0, 0, -s*K, xpen*K, 0)))
-        ds.append(pen.getCommands())
+        out.append(pen.getCommands())
         for c in outline(font, ch):
             for px, py in c:
                 xs.append((xpen + px*s) * K)
                 ys.append(-(py*s) * K)
-    return "".join(ds), (min(xs), min(ys), max(xs), max(ys))
+    return out, (min(xs), min(ys), max(xs), max(ys))
 
 
 HEADER = '''// HER NAME, AS VECTOR ARTWORK -- not as text in two script fonts.
 //
-// GENERATED by scripts/build_name_vectors.py. Do not hand-edit: the kerning is
-// solved from the real outlines, and hand-editing is exactly how it last went
-// out of step with the joins it was meant to close.
+// GENERATED by scripts/build_name_vectors.py. Do not hand-edit.
 //
-// WHY IT IS DRAWN AND NOT SET. Pinyon Script does not reliably join its
-// letters. Measured on the outlines, some lowercase pairs in her name meet at a
-// TANGENT rather than an overlap -- i->n touched over 0.0117em of height. A
-// tangent is a mathematical touch, not a visible one: at the shipped ~187px
-// that is 2px of ink, and on a phone under one. Those were the reported breaks,
-// and they are in the font, not in the CSS.
+// WHY IT IS DRAWN AND NOT SET. Two junctions in her name read as breaks -- i->n
+// in Mrinali and a->r in Bhardwaj. They are not spacing: measured on the
+// outlines the glyphs there share 38 and 171 pixels at 900ppem, a POINT
+// contact. The connector's blunt terminal reaches the next letter's stem at an
+// angle, one corner of that flat cap lands inside the stem and the other pokes
+// out past its edge, and the corner that pokes out is the step you can see.
 //
-// letter-spacing cannot fix it, and was tried before this: tracking moves every
-// glyph by the same amount, so it either leaves a tangent alone or crashes the
-// whole run. The fix has to be PER PAIR, which means the glyphs have to be
-// independent objects -- so they are outlines now, kerned individually.
+// Kerning cannot fix it -- closing the pair only drives one letter into the
+// body of the other, and it was tried. Nor can anything additive: a round join,
+// a fillet and a morphological close all leave the protruding corner where it
+// is. The corner is TRIMMED instead, by clipping that one glyph on a plane that
+// sits just inside the stem, so the cut is covered and neither a step nor a gap
+// is left. See the build script for how the plane is found.
 //
-// THE CAPITALS ARE LEFT APART, deliberately -- see the note in the build
-// script. Neither face draws a swash capital that joins the lowercase after it.
+// ONE PATH PER GLYPH, and a clip belongs to one letter -- which a single merged
+// path per word could not express, and which also removes any chance of two
+// contours sharing a fill rule and cancelling into a hole.
 //
 // GEOMETRY. Both words share one vertical extent, so both boxes are the same
 // height and their baselines land at the same place -- which is what lets them
@@ -414,12 +474,39 @@ export default function NameMark() {
           aria-hidden="true"
           focusable="false"
         >
-          <path d={w.d} fill="currentColor" />
-          {/* the round joins, as a SEPARATE path element on purpose: a second
-              subpath inside the one above would share its fill rule, and a
-              contour wound the wrong way would punch a hole instead of welding
-              a join. Separate elements simply composite. */}
-          {w.weld && <path d={w.weld} fill="currentColor" />}
+          <defs>
+            {w.glyphs.map((g, i) =>
+              g.clip ? (
+                <clipPath
+                  key={i}
+                  /* namespaced by word: ids are global to the document, and two
+                     inline svgs both defining #c2 is the collision the dock
+                     icons already taught us about */
+                  id={`nm-${w.word.toLowerCase()}-${i}`}
+                  clipPathUnits="userSpaceOnUse"
+                  clipRule="evenodd"
+                >
+                  {/* even-odd: the big rectangle keeps everything, the small
+                      segment punches the corner back out of it */}
+                  {g.clip.map((poly, k) => (
+                    <polygon
+                      key={k}
+                      clipRule="evenodd"
+                      points={poly.map((p) => p.join(",")).join(" ")}
+                    />
+                  ))}
+                </clipPath>
+              ) : null
+            )}
+          </defs>
+          {w.glyphs.map((g, i) => (
+            <path
+              key={i}
+              d={g.d}
+              fill="currentColor"
+              clipPath={g.clip ? `url(#nm-${w.word.toLowerCase()}-${i})` : undefined}
+            />
+          ))}
         </svg>
       ))}
     </>
@@ -429,34 +516,51 @@ export default function NameMark() {
 
 
 def build():
-    rows, report = [], []
+    rows = []
     for name, cap, rest in WORDS:
         print(name)
-        tucks = {}   # see the note above -- the font's advances stand
         runs = runs_for(cap, rest)
-        d, bb = word_paths(runs, tucks)
-        w = weld_path(runs, name)
-        rows.append((name, d, bb, w))
-        report.append((name, tucks))
+        tucks = {}   # see the note above -- the font's advances stand
+        ds, bb = word_paths(runs, tucks)
+        clips = {}
+        for pair in TRIM_PAIRS.get(name, []):
+            tr = trim_for(runs, pair)
+            if tr is None:
+                print("  trim %s: nothing protruding, left alone" % (pair,))
+                continue
+            sh = clip_shapes(tr)
+            if sh is None:
+                print("  trim %s: cut falls outside the disc, skipped" % (pair,))
+                continue
+            clips[tr["owner"]] = sh
+            print("  trim %s: glyph %d, %d px of corner removed"
+                  % (pair, tr["owner"], tr["removed"]))
+        rows.append((name, ds, bb, clips))
 
-    y0 = min(b[1] for _, _, b, _w in rows)
-    y1 = max(b[3] for _, _, b, _w in rows)
+    y0 = min(b[1] for _, _, b, _c in rows)
+    y1 = max(b[3] for _, _, b, _c in rows)
     H = y1 - y0
-    total = sum(b[2] - b[0] for _, _, b, _w in rows) / K + GAP
+    total = sum(b[2] - b[0] for _, _, b, _c in rows) / K + GAP
 
     out = [HEADER, "",
            "// viewBox units are 1/1000 em; y = 0 is the baseline",
            "export const NAME_VIEW = { y: %.1f, h: %.1f };" % (y0, H), "",
            "export const NAME_WORDS = ["]
-    for name, d, bb, w in rows:
+    for name, ds, bb, clips in rows:
         out += ["  {",
                 '    word: "%s",' % name,
                 "    x: %.1f," % bb[0],
                 "    w: %.1f," % (bb[2] - bb[0]),
                 "    em: %.4f," % ((bb[2] - bb[0]) / K),
-                '    d: "%s",' % d,
-                '    weld: "%s",' % w,
-                "  },"]
+                "    glyphs: ["]
+        for gi, d in enumerate(ds):
+            if gi in clips:
+                keep, seg = clips[gi]
+                fmt = lambda poly: "[" + ", ".join("[%.1f, %.1f]" % (q[0], q[1]) for q in poly) + "]"
+                out.append('      { d: "%s", clip: [%s, %s] },' % (d, fmt(keep), fmt(seg)))
+            else:
+                out.append('      { d: "%s" },' % d)
+        out += ["    ],", "  },"]
     out += ["];", "",
             "// the gap between the two words, in em -- a real value from the layout,",
             "// not the space glyph of a font that no longer sets this name",
@@ -467,15 +571,9 @@ def build():
         fh.write("\n".join(out))
 
     print("")
-    for name, t in report:
-        print("%s: tucks %s" % (name, t))
     print("shared height %.4fem; ink runs %.4fem below the baseline" % (H / K, y1 / K))
     print("whole name %.4fem wide -> %.1fvw at the 13vw type size" % (total, 13 * total))
     print("wrote %s" % DEST)
-    print("")
-    print("NOTE: cover.css hard-codes two of these. If they moved, update")
-    print("      --name-drop (from the 'below the baseline' figure) and the")
-    print("      multiplier quoted in the --name-fs comment.")
 
 
 if __name__ == "__main__":

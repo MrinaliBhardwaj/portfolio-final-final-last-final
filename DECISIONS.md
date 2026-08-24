@@ -2807,3 +2807,45 @@ nothing about the descender moved. Verified at 1440×900: one line, 1317px, 54px
 clear a side, clip line at 0.3009em against the 0.301em it has always been at.
 At 320×568: two lines, no horizontal scroll, 0.240em under the j. typecheck and
 build clean.
+
+## The i→n and a→r junctions: diagnosed, not fixed (2026-08-20)
+
+She asked for the two junctions to be trimmed. **They are not fixed**, and after
+five attempts the honest conclusion is that this wants a pen tool, not a solver.
+
+**What the defect is.** Not spacing, not a gap. The glyphs at i→n share 38
+pixels at 900ppem and at a→r 171 — a *point* contact. The connector's blunt
+terminal reaches the next letter's stem at an angle: one corner of that flat cap
+lands inside the stem, the other pokes out past its edge, and the result is a
+step in the connector. It sits at about x 2.03, y −0.19 em in Mrinali and x
+1.85, y −0.15 em in Bhardwaj.
+
+**Five repairs, five failures, each informative:**
+
+| attempt | result |
+|---|---|
+| kern the pair closer | drives one letter into the body of the other — she rejected it |
+| morphological closing | fills the notch **and** swallows the `n`'s counter |
+| ink-fraction fillet | returns zero pixels — the V is wide and open, nothing enclosed to fill |
+| round join at the contact | lands correctly, but the contact is **on the hairline**, so it beads the thread |
+| half-plane trim | a clip is global — it took most of the `n` with the corner |
+| disc-segment trim | surgical (0.43% of ink, right at the contact) and removes the **wrong** 0.43% — the step survives |
+
+**Two things worth keeping from it.** First, a pair rendered in isolation is not
+what the page paints: the rest of the word crosses the junction, so a notch
+that's obvious with two glyphs on screen can already be covered, or sit
+elsewhere. Every check now goes through the browser's own rasteriser. Second, a
+real trap in the build script — `gmask` read a module-level resolution constant
+while the scene was rasterised at another, silently scaling every mask and
+putting the first weld 0.6em from the strokes. It takes a parameter now.
+
+**What did land:** the artwork is **one path per glyph** instead of one merged
+path per word. That is the prerequisite for any per-letter edit (a clip belongs
+to one letter, which a merged path cannot express) and it removes any chance of
+two contours sharing a fill rule and cancelling into a hole. Visually identical —
+verified 2 words, 7 and 8 paths, 0 clips, 1317px at 1440.
+
+Both words are exported to `name-mrinali.svg` / `name-bhardwaj.svg`, one path
+per letter, viewBox in 1/1000 em with y=0 on the baseline — so a hand weld can
+be dropped straight back in without rescaling. The trim machinery stays in the
+script behind an empty `TRIM_PAIRS`.
