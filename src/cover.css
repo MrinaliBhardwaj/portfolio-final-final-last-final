@@ -105,9 +105,9 @@
    *
    * THE MULTIPLIER IS EXACT NOW (2026-08-20), not measured-and-hoped. The name
    * is vector artwork (NameMark.jsx) and each word's box IS its ink box, so the
-   * whole name is 3.1966 + 0.28 + 3.5055 = 6.9821em, full stop. 13vw x 6.9821
-   * fills 90.8vw, and the hero's own 2 x 1.25rem of padding brings that to
-   * 1347px at 1440 — 93px inside the viewport. It cannot be wrong the way a
+   * whole name is 3.2486 + 0.28 + 3.5815 = 7.1101em, full stop. 13vw x 7.1101
+   * fills 92.4vw, and the hero's own 2 x 1.25rem of padding brings that to
+   * 1371px at 1440 — 69px inside the viewport. It cannot be wrong the way a
    * font metric can: there is no font left to substitute. The --name-fit
    * variable that used to guard this (and the measure-and-rescale effect in
    * Cover.jsx that set it) went with the text.

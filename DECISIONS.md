@@ -2759,3 +2759,51 @@ Verified at 1440×900: one line, 1293px wide, 66px of clearance a side, clip at
 0.3009em. At 720: one line, 29px a side. At 390 and 320: two lines, no
 horizontal scroll, 0.240em of air under the j — the phone figure unchanged.
 typecheck and build clean, no console errors.
+
+## The kerning is reverted — the font's spacing was right (2026-08-20, corrected)
+
+Her verdict on the pass above: *"in and ar are even worse now theyre too into
+each other. theyre supposed to join at the ends"*. She is right, and the
+correction is worth recording because the first pass was confidently wrong.
+
+**The metric rewarded the wrong thing.** "Contact area" rises as two glyphs
+overlap, so the solver closed each weak join by driving one letter into the
+body of the other — which is not joining, it is colliding. Measuring the
+TERMINALS instead says what was really there. In the baseline band, every
+lowercase pair in this name ALREADY overlaps horizontally before anything is
+moved:
+
+    r→i −0.100   i→n −0.070   n→a −0.075   a→l −0.090   l→i −0.100
+    h→a −0.075   a→r −0.053   r→d −0.067   d→w −0.100   w→a −0.075
+
+That overlap is the design. In a connected script the exit stroke of one letter
+and the entry stroke of the next are the same stroke drawn twice, and the
+advance width is where the designer intended them to superimpose. The tucks
+pushed i→n to −0.123 and a→r to −0.130, roughly doubling it.
+
+**And the join could not have been closed horizontally anyway.** The two
+hairlines *cross* at a shallow angle rather than meeting tip to tip: for i→n the
+n's entry terminal sits 0.070em to the left of AND 0.157em below the i's exit
+terminal. A horizontal nudge only changes how deeply they cross — it can never
+bring the two tips together, because they are separated vertically as well.
+Joining "at the ends", as she put it, means trimming each stroke back to the
+crossing and welding the outlines. That is letterform work, not kerning, and it
+is the open question on this.
+
+So the artwork now ships at the font's own advances, and the name is 7.1101em —
+identical geometry to the text it replaced.
+
+**The vectorisation stands on its own merits and is NOT reverted.** It was
+justified as a fix for the joins and that justification was wrong, but
+everything else it bought is real and still banked: no font left to substitute
+(which retired the ~70-line measure-and-rescale effect in Cover.jsx), no ink
+outside the layout box (which retired the ±0.5em swash-overhang padding), an
+exact width multiplier instead of a measured one, and — the reason this is worth
+keeping — per-pair control now EXISTS, so welding those two joins is an edit to
+one build script rather than a re-architecture.
+
+`--name-drop` is unchanged at 0.03 / −0.24: the ink box is the same box, since
+nothing about the descender moved. Verified at 1440×900: one line, 1317px, 54px
+clear a side, clip line at 0.3009em against the 0.301em it has always been at.
+At 320×568: two lines, no horizontal scroll, 0.240em under the j. typecheck and
+build clean.

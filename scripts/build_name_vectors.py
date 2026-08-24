@@ -119,13 +119,36 @@ def upem(font):
 K = 1000        # output units per em
 TRACK = -0.01   # the tracking the CSS used to apply, folded into the layout
 PPEM = 600      # rasterisation density for the measurements
-# THE THRESHOLD IS HER EYE, CALIBRATED. 0.030 was a guess and it passed a join
-# she had already told me reads as broken: a->r measures 0.0517em of contact,
-# which is real ink -- it is not a tangent like i->n was -- but it still reads
-# as a break at the shipped size. 0.065 is set just above it, which is the
-# smallest threshold that catches BOTH pairs she named and no others: every
-# remaining join in the name is 0.073em or better and is left untouched.
-TARGET = 0.065
+# NO TUCKS. THE FONT'S SPACING WAS RIGHT ALL ALONG (2026-08-20, second pass).
+#
+# This solver used to close each weak join by nudging the right-hand glyph left
+# until a contact threshold was met. Shipped, that read as "too into each
+# other", and measuring the TERMINALS rather than the contact area says why.
+#
+# In the baseline band, every lowercase pair in this name ALREADY overlaps
+# horizontally, by 0.05-0.10em, before anything is moved:
+#
+#     r->i -0.100   i->n -0.070   n->a -0.075   a->l -0.090   l->i -0.100
+#     h->a -0.075   a->r -0.053   r->d -0.067   d->w -0.100   w->a -0.075
+#
+# That overlap is the design: in a connected script the exit stroke of one
+# letter and the entry stroke of the next are the same stroke drawn twice, and
+# the advance width is where the designer intended them to superimpose. The
+# tucks pushed i->n to -0.123 and a->r to -0.130, roughly doubling it, which
+# does not join the letters -- it drives one into the body of the other.
+#
+# AND THE JOIN CANNOT BE CLOSED HORIZONTALLY ANYWAY. The two hairlines CROSS at
+# a shallow angle instead of meeting tip to tip: for i->n the n's entry terminal
+# sits 0.070em left of AND 0.157em below the i's exit terminal. A horizontal
+# nudge only changes how deeply they cross; it can never bring the two tips
+# together, because they are separated vertically as well. Making them meet at
+# the ends means editing the outlines -- trimming each stroke back to the
+# crossing and welding them -- which is letterform work, not kerning.
+#
+# So the artwork ships at the font's own advances. Everything vectorising bought
+# is still bought: no font to substitute, no ink outside the box, no
+# measure-and-rescale effect. Run report() to print the geometry.
+CONTACT_TARGET = 0.065   # only used by report(), to show what a solver would do
 GAP = 0.28      # em between the two words
 
 
@@ -241,7 +264,7 @@ def solve(cap, rest):
     runs, text, tucks = runs_for(cap, rest), cap + rest, {}
     for i in range(1, len(text) - 1):      # from 1: the capital is left alone
         before = contact(runs, tucks, i)
-        if before >= TARGET:
+        if before >= CONTACT_TARGET:
             print("  %s->%-2s  %.4f              ok" % (text[i], text[i+1], before))
             continue
         for step in range(1, 61):
@@ -249,7 +272,7 @@ def solve(cap, rest):
             trial = dict(tucks)
             trial[i + 1] = d
             got = contact(runs, trial, i)
-            if got >= TARGET:
+            if got >= CONTACT_TARGET:
                 tucks[i + 1] = d
                 print("  %s->%-2s  %.4f %+.3f -> %.4f"
                       % (text[i], text[i+1], before, d, got))
@@ -333,7 +356,7 @@ def build():
     rows, report = [], []
     for name, cap, rest in WORDS:
         print(name)
-        tucks = solve(cap, rest)
+        tucks = {}   # see the note above -- the font's advances stand
         d, bb = word_paths(runs_for(cap, rest), tucks)
         rows.append((name, d, bb))
         report.append((name, tucks))
