@@ -93,11 +93,22 @@
   z-index: 1;
 }
 
-/* Finder desktop label, under the artwork. No plate at rest — a dark pill under
-   every name would read as more boxes on a stage that is mostly space. A tight
-   shadow does the legibility work instead, which matters because these sit over
-   a starfield and, on the left, near the bloom's pale petals. The selection
-   plate arrives on hover, the way Finder's does.
+/* Finder desktop label, under the artwork — two lines: the NAME, and the KIND.
+   The kind line is the whole argument against putting a "View Case Study →"
+   button on an art-directed desktop. Finder has always written what a thing is
+   underneath it, so the desk can say "Case Study" in its own voice.
+
+   A PLATE AT REST, which reverses what this file used to say. The old note
+   argued a dark pill under every name would read as more boxes on a stage that
+   is mostly space, and that was right when five of seventeen pieces were live.
+   It is wrong now. Eight are live, nine are pure paint, and the label is the
+   ONLY thing separating the two — so it has to be visible before the cursor
+   arrives, not after. A plate that appears on hover is an affordance you can
+   only find by already having found it.
+
+   Kept quiet: 42% black and a small blur, so it reads as a shadow that happens
+   to have edges rather than as a UI chip. The selection blue still arrives on
+   hover, the way Finder's does.
 
    Absolutely positioned so it cannot affect the artwork's aspect box, and wider
    than the piece so a long name is not forced to truncate at the icon's width. */
@@ -106,22 +117,53 @@
   top: calc(100% + 0.42rem);
   left: 50%;
   transform: translateX(-50%);
-  max-width: 168%;
-  padding: 0.16em 0.45em;
-  border-radius: 0.4em;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.1em;
+  max-width: 176%;
+  padding: 0.22em 0.5em 0.26em;
+  border-radius: 0.45em;
+  background: rgba(12, 12, 16, 0.42);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
   font-family: var(--font-ui);
-  font-size: clamp(9.5px, 0.72vw, 11.5px);
-  font-weight: 400;
-  line-height: 1.3;
-  letter-spacing: 0.01em;
-  color: rgba(240, 240, 246, 0.9);
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9), 0 0 8px rgba(0, 0, 0, 0.7);
   text-align: center;
+  transition: background 0.3s var(--ease-soft), color 0.3s var(--ease-soft);
+}
+
+/* 12.5px, not the 9.5–11.5px clamp this used to run. At 10.78px — where the
+   clamp actually landed on a 1512 screen — the only words on the settled
+   desktop were below the readable floor, on a starfield, under the smallest
+   objects on the page. It is the menu bar's size now, near enough, which is
+   the right reference: same OS, same type. */
+.dpiece-name {
+  display: block;
+  max-width: 100%;
+  font-size: 12.5px;
+  font-weight: 450;
+  line-height: 1.25;
+  letter-spacing: 0.005em;
+  color: rgba(244, 244, 248, 0.96);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
   /* Finder truncates a long name rather than reflowing what is around it */
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
-  transition: background 0.3s var(--ease-soft), color 0.3s var(--ease-soft);
+}
+
+.dpiece-kind {
+  display: block;
+  max-width: 100%;
+  font-size: 10px;
+  font-weight: 400;
+  line-height: 1.2;
+  letter-spacing: 0.02em;
+  color: rgba(238, 238, 246, 0.62);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.85);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 /* Hover/focus: a straight lift, no lean. It rides on .dpiece-art rather than
@@ -138,7 +180,14 @@
 .dpiece:not(.is-art):hover .dpiece-label,
 .dpiece:not(.is-art):focus-visible .dpiece-label {
   background: rgba(58, 110, 230, 0.9);
+}
+
+.dpiece:not(.is-art):hover .dpiece-name,
+.dpiece:not(.is-art):focus-visible .dpiece-name,
+.dpiece:not(.is-art):hover .dpiece-kind,
+.dpiece:not(.is-art):focus-visible .dpiece-kind {
   color: #fff;
+  text-shadow: none;
 }
 
 .dpiece:focus-visible {
@@ -155,18 +204,26 @@
    641–899 keeps the desktop composition; it only needs the labels to stop
    growing with the viewport. */
 @media (min-width: 641px) and (max-width: 899px) {
-  .dpiece-label {
+  .dpiece-name {
+    font-size: 11.5px;
+  }
+
+  .dpiece-kind {
     font-size: 9.5px;
   }
 }
 
 /* ---- the phone ----
-   NOT the desktop composition scaled down. Five pieces survive — the three case
-   studies and the two résumés — placed in the open air the bloom leaves above
-   and below its band, and clear of the dock's rail down the left edge. The
-   artwork is dropped rather than shrunk: at 60px a jewel case, a dragonfly and
-   a crowd of silhouettes are indistinguishable smudges, and the desk reads
-   better with fewer, larger objects than with all of them illegible.
+   NOT the desktop composition scaled down. Six pieces survive — the three case
+   studies, About Me and the two résumés — placed in the open air the bloom
+   leaves above and below its band, and clear of the dock's rail down the left
+   edge. The artwork is dropped rather than shrunk: at 60px a jewel case, a
+   dragonfly and a crowd of silhouettes are indistinguishable smudges, and the
+   desk reads better with fewer, larger objects than with all of them illegible.
+
+   THE TWO "untitled folder" TILES ALSO GO. They are the least useful objects
+   on the desk — a folder that opens to say it is empty — and keeping them cost
+   the six that matter the vertical room their second label line needs.
 
    Widths come from the component in px here, because a percentage of a 320px
    stage is not a usable object. */
@@ -184,9 +241,17 @@
   }
 
   .dpiece-label {
-    font-size: 9.5px;
     top: calc(100% + 0.3rem);
-    max-width: 210%;
+    max-width: 215%;
+    padding: 0.18em 0.42em 0.22em;
+  }
+
+  .dpiece-name {
+    font-size: 11.5px;
+  }
+
+  .dpiece-kind {
+    font-size: 9.5px;
   }
 
   /* Hover belongs to a pointer. On a touch screen these fire on tap and then
@@ -200,8 +265,15 @@
   }
 
   .dpiece:hover .dpiece-label {
-    background: none;
-    color: rgba(240, 240, 246, 0.9);
+    background: rgba(12, 12, 16, 0.42);
+  }
+
+  .dpiece:hover .dpiece-name {
+    color: rgba(244, 244, 248, 0.96);
+  }
+
+  .dpiece:hover .dpiece-kind {
+    color: rgba(238, 238, 246, 0.62);
   }
 }
 

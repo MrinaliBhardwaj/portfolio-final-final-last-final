@@ -123,13 +123,25 @@ export default function MenuBar({ onChoose, onReplayIntro }) {
 
   const go = (world) => () => onChoose(world);
 
+  // The scrapbook opens as a WINDOW on the desktop now, not as a world —
+  // see NoteWindow.jsx. The hash is the window's own address, so this
+  // works from any world, not only from the cover.
+  const openAbout = () => {
+    window.location.hash = "/?note=about";
+  };
+
   const MENUS = [
     {
       id: "app",
-      label: "mb",
+      // HER NAME, WHERE macOS PUTS THE APP'S. The settled desktop carried no
+      // words at all — the hero name and the roles aside both belong to the
+      // ceremony and have faded long before the desk arrives, so a visitor
+      // evaluating the screen saw a monogram, six menu titles and a clock.
+      // This is the most native place on the whole page to say who it is.
+      label: "Mrinali Bhardwaj",
       app: true,
       items: [
-        { label: "About This Portfolio", onSelect: go("notes") },
+        { label: "About This Portfolio", onSelect: openAbout },
         { sep: true },
         { label: "Design Résumé", href: "/resume-design.pdf", blank: true },
         { label: "Tech Résumé", href: "/resume-tech.pdf", blank: true },
@@ -165,7 +177,7 @@ export default function MenuBar({ onChoose, onReplayIntro }) {
       items: [
         { label: "Design", onSelect: go("design") },
         { label: "Tech", onSelect: go("tech") },
-        { label: "Notes", onSelect: go("notes") },
+        { label: "About Me", onSelect: openAbout },
         { label: "Gallery", onSelect: go("gallery") },
         { label: "Game", onSelect: go("pond") },
       ],

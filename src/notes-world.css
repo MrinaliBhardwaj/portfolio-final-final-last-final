@@ -98,7 +98,15 @@
 }
 
 .nw .sheet {
-  min-height: calc(100dvh - 44px);
+  /* `--nw-vh` is the ROOM THIS WORLD HAS, and it is not always the viewport.
+     The scrapbook renders in two places now: the full-screen route at #/notes,
+     where the viewport is the room, and the About Me window on the desktop,
+     where the window's body is. NoteWindow.jsx measures its body and sets this;
+     the fallback below is the world's original value, so #/notes is untouched
+     by any of it. Every height in this file that used to read 100dvh reads
+     var(--nw-vh, 100dvh) instead — there are three, and they have to move
+     together or page two solves its layout against a room it isn't in. */
+  min-height: calc(var(--nw-vh, 100dvh) - 44px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -254,7 +262,10 @@
   align-items: baseline;
   gap: 0.36em;
   width: max-content;
-  max-width: 46vw;
+  /* cqw, not vw: .nw-stage is the container, and in a window the viewport is
+     wider than the sheet — a 46vw note would run past the paper it is pinned
+     to. 46vw of a 1673-wide sheet is what this always meant. */
+  max-width: 46cqw;
   padding: 3px 10px 4px;
   border-radius: 3px;
   background: rgba(248, 247, 244, 0.94);
@@ -328,7 +339,7 @@
    Copy 2 OVERLAPS the drawing's bottom-right corner, deliberately — see the
    note on .t2-copy--close, which is where that is shown to be safe. */
 .nw .scene-two {
-  --t2-h: min(714px, calc(100dvh - var(--nw-room)));
+  --t2-h: min(714px, calc(var(--nw-vh, 100dvh) - var(--nw-room)));
   --u: calc(var(--t2-h) / 714);
   /* THE SIDE PADDING IS PAGE ONE'S, and it is deliberately NOT in --u.
      Page one's copy sits 87px from the left edge of a 1673-wide export, and
@@ -505,7 +516,7 @@
   align-items: center;
   justify-content: center;
   gap: 16px;
-  min-height: calc(100dvh - 44px);
+  min-height: calc(var(--nw-vh, 100dvh) - 44px);
   padding: 0 14vw;
   text-align: center;
 }
@@ -533,4 +544,27 @@
   font-size: 22px;
   line-height: 1.45;
   color: var(--pencil);
+}
+
+/* ---- the same scrapbook, inside the About Me window ----
+   Two numbers in this file are about the PAGE, not the paper, and neither is
+   true in a window.
+
+   --nw-room is dock clearance: 172px of reserved space so page two's collage
+   never runs under the floating dock. A window has no dock over it — it has a
+   title bar above it, which .cw-body has already taken out of the height this
+   world is handed — so the reservation is only the sheet's own bottom padding.
+
+   The sheet's screenful of height is the other. In the world every sheet is a
+   full screen you scroll between; in a window that would mean scrolling a whole
+   window per page with the art floating in the middle of each. The sheets sit
+   to their content here and the window scrolls through all three. */
+.nw.nw-in-window {
+  --nw-room: 128px;
+}
+
+.nw.nw-in-window .sheet {
+  min-height: 0;
+  padding: 18px 0 26px;
+  scroll-margin-top: 0;
 }

@@ -16,12 +16,29 @@
 // masking the previous folders while she worked. They are deliberately not
 // implemented, and this note is here so nobody "restores" them later.
 //
-// WHAT IS INTERACTIVE, and what is only paint: the three case-study folders open
-// their windows, the two résumé cards open their PDFs. Everything else is
-// artwork — `pointer-events: none`, `aria-hidden`, no label — because a tile
-// that highlights under the cursor and then does nothing is the one thing this
-// desk has never had. The three unlabelled folders are in that category until
-// she says what they hold.
+// WHAT IS INTERACTIVE, and what is only paint. EVERY FOLDER OPENS SOMETHING —
+// that is the rule the desk teaches, and it is worth more than any badge or
+// hover hint. Six folders on the left, two résumé cards on the right, eight
+// live objects. The other nine pieces are artwork: `pointer-events: none`,
+// `aria-hidden`, no label.
+//
+// It did not start that way. Three of these folders shipped inert and
+// unlabelled, at the same size and shape as the live ones and in the same
+// cluster — folder-green sat in the same ROW as a live folder, 134px away.
+// Clicking it produced silence, which reads as a broken site rather than as
+// decoration. Folder shape has to predict behaviour or it predicts nothing.
+//
+// So the two folders whose contents are still unknown are "untitled folder"
+// and open an empty window, the way Finder's own new folder does. An honest
+// empty room beats a door that isn't a door.
+//
+// THE COVERS ARE DECORATIVE, NOT THUMBNAILS. Every one of these six is a
+// patterned folder cover — a gingham horse, a girl's face, caterpillars, two
+// florals, a landscape. None of them depicts its project. The first build
+// assigned case studies to them by reading order using filenames invented at
+// export time, which is how the girl's face — an obvious "About Me" — ended up
+// labelled Layover. The mapping below is content, set by hand; the `src` is
+// only which cover the folder wears.
 //
 // THE LOTUS STILL OWNS THE MIDDLE. Measured, the bloom is x 36–69% on a
 // landscape screen; the artboard's left cluster stops at 32.3% and its right
@@ -29,7 +46,7 @@
 // below now tests the whole BOX rather than the centre point, because these
 // pieces are much larger than the old tiles and a centre that clears the flower
 // no longer means the artwork does.
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 
 // The artboard. Positions are percentages of the stage: x against its width, y
@@ -41,49 +58,85 @@ const A = "/desk";
 
 // x, y, w, h are the Figma frame's own pixels — top-left origin, unrounded.
 // `art` false means paint only. Order is the artboard's paint order.
+//
+// THE SIX FOLDERS ARE GROWN, AND ONLY THE SIX. Every one of them was 117.4
+// artboard units — 90px on a 1512 screen — against a 285-unit CD case beside
+// them and a 486-unit crowd across the way. Measured, the artboard's decoration
+// outweighed everything clickable 5.2 : 1, and the case studies came to 1.4% of
+// the screen. In a fifteen-second scan the eye goes to size, so the three most
+// important objects on the page were the three smallest labelled ones.
+//
+// They are 154 units here — ~118px, level with the two 147.8-unit résumé cards,
+// which makes the eight things that open the eight heaviest interactive
+// objects. Each piece keeps its own aspect and its CENTRE IS HELD: the x/y
+// below are the artboard's centres minus half the new box, not positions
+// re-authored by eye. No decorative piece is resized or moved — the artboard's
+// composition is intact, its emphasis is not.
 const PIECES = [
   // ---------------- left: the folders, the case, the frog ----------------
+  // The gingham horse. Contents not decided yet, so it is an EMPTY FOLDER and
+  // says so, rather than being a folder-shaped thing that ignores the cursor.
   {
-    key: "meal-maestro",
+    key: "folder-horse",
     src: `${A}/meal-maestro.webp`,
-    x: 454, y: 112, w: 117.39, h: 99.686,
-    label: "Meal Maestro",
-    aria: "Meal Maestro — UI design, open the case study",
-    opensCase: "meal-maestro",
-    phone: [34, 15], pw: 66,
+    x: 435.695, y: 96.46, w: 154, h: 130.766,
+    label: "untitled folder",
+    kind: "Folder",
+    aria: "untitled folder — empty",
+    opensEmpty: "horse",
   },
+  // The Chinese landscape. The fourth case-study slot, holding a case study she
+  // has not handed over yet — same treatment as the horse until she does.
   {
     key: "folder-scenery",
     src: `${A}/folder-scenery.webp`,
-    x: 272.52, y: 560.93, w: 117.39, h: 117.39,
+    x: 254.215, y: 542.625, w: 154, h: 154,
+    label: "untitled folder",
+    kind: "Folder",
+    aria: "untitled folder — empty",
+    opensEmpty: "scenery",
   },
   {
     key: "folder-floral",
     src: `${A}/folder-floral.webp`,
-    x: 94.04, y: 564.71, w: 117.39, h: 117.39,
+    x: 75.735, y: 546.405, w: 154, h: 154,
+    label: "Layover",
+    kind: "Case Study",
+    aria: "Layover — brand and product design, open the case study",
+    opensCase: "layover",
+    phone: [38, 88], pw: 56,
   },
   {
     key: "futurepreneurs",
     src: `${A}/futurepreneurs.webp`,
-    x: 94.04, y: 413.08, w: 117.23, h: 99.367,
+    x: 75.655, y: 397.494, w: 154, h: 130.539,
     label: "Futurepreneurs 10.0",
+    kind: "Case Study",
     aria: "Futurepreneurs 10.0 — branding and UI, open the case study",
     opensCase: "futurepreneurs",
-    phone: [76, 80], pw: 66,
+    phone: [38, 72], pw: 56,
   },
   {
     key: "folder-green",
     src: `${A}/folder-green.webp`,
-    x: 264.95, y: 413.08, w: 117.39, h: 99.845,
+    x: 246.645, y: 397.516, w: 154, h: 130.974,
+    label: "Meal Maestro",
+    kind: "Case Study",
+    aria: "Meal Maestro — UI design, open the case study",
+    opensCase: "meal-maestro",
+    phone: [78, 72], pw: 56,
   },
+  // The girl's face — the one cover on this desk that depicts a person, which
+  // is why it is the one that opens her. The Notes scrapbook lives behind it.
   {
-    key: "layover",
+    key: "about-me",
     src: `${A}/layover.webp`,
-    x: 454, y: 256.48, w: 117.23, h: 97.772,
-    label: "Layover",
-    aria: "Layover — brand and product design, open the case study",
-    opensCase: "layover",
-    phone: [44, 73], pw: 66,
+    x: 435.615, y: 241.145, w: 154, h: 128.443,
+    label: "About Me",
+    kind: "Note",
+    aria: "About Me — the scrapbook, opens in a window",
+    opensNote: "about",
+    phone: [78, 88], pw: 56,
   },
 
   // ---------------- right: the two résumés ----------------
@@ -91,25 +144,46 @@ const PIECES = [
   // résumé, the green terminal is the engineering one. They are the artboard's
   // only matching pair and they sit side by side, which is what makes them read
   // as the two documents rather than as two more pictures.
+  //
+  // HER NAME IS ON BOTH, on the kind line. The settled desktop had no words on
+  // it at all — the hero name and the roles aside both belong to the ceremony
+  // and have faded out long before the desk arrives, so the screen a visitor
+  // actually reads carried a menu bar, a clock and nothing else.
+  //
+  // THE NAME IS THE SECOND LINE, NOT THE FIRST, and that is a measurement
+  // rather than a preference. These two cards sit 117px apart centre to
+  // centre. "Mrinali Bhardwaj" sets to 103px at 12.5px, and with the label's
+  // padding that is 119px — so two of them side by side overlap, and the desk's
+  // two most important files would have collided into one smear of text. The
+  // document name is what differs between them, so the document name goes on
+  // top; the 10px line underneath carries her name and still fits.
+  //
+  // AND NO "· PDF" ON THAT LINE. With it the kind ran 111px, which is still
+  // wider than the 117px of spacing once the label's padding is counted, and
+  // the two labels overlapped by 10px. It costs nothing to drop: the aria-label
+  // says "PDF, opens in a new tab", the card is drawn as a document, and Finder
+  // does not caption a PDF either — the icon is the file type.
   {
     key: "resume-design",
     src: `${A}/resume-design.webp`,
     x: 1476, y: 311, w: 147.837, h: 147.837,
-    label: "Design resume",
-    aria: "Design resume — PDF, opens in a new tab",
+    label: "Design résumé",
+    kind: "Mrinali Bhardwaj",
+    aria: "Mrinali Bhardwaj, design résumé — PDF, opens in a new tab",
     href: "/resume-design.pdf",
     newTab: true,
-    phone: [67, 12], pw: 56,
+    phone: [70, 8], pw: 56,
   },
   {
     key: "resume-tech",
     src: `${A}/resume-tech.webp`,
     x: 1328, y: 308, w: 147.837, h: 147.837,
-    label: "Tech resume",
-    aria: "Tech resume — PDF, opens in a new tab",
+    label: "Tech résumé",
+    kind: "Mrinali Bhardwaj",
+    aria: "Mrinali Bhardwaj, tech résumé — PDF, opens in a new tab",
     href: "/resume-tech.pdf",
     newTab: true,
-    phone: [85, 17], pw: 56,
+    phone: [30, 8], pw: 56,
   },
 
   // ---------------- the artwork ----------------
@@ -189,11 +263,24 @@ const NO_GO = {
 };
 
 const PHONE = "(max-width: 640px)";
+// A PHONE IS ALSO A HEIGHT, not only a width. The pieces are sized in PIXELS
+// on a phone and placed in PERCENTAGES, so one row costs a fixed ~95px but a
+// varying share of the screen: 11% of a 390x844, 17% of a 320x568. The bloom
+// owns the middle band at both, which leaves two strips of open air that are
+// 228px and 267px on the tall one and 153px and 182px on the short one — and
+// a layout authored against the first arrangement put two rows where only one
+// fits and stacked three files on top of each other.
+const SHORT = "(max-height: 700px)";
 
 function useIsPhone() {
-  const [isPhone, setIsPhone] = useState(
-    () => typeof window !== "undefined" && window.matchMedia(PHONE).matches
-  );
+  const read = () =>
+    typeof window === "undefined"
+      ? { phone: false, short: false }
+      : {
+          phone: window.matchMedia(PHONE).matches,
+          short: window.matchMedia(SHORT).matches,
+        };
+  const [size, setSize] = useState(read);
   useEffect(() => {
     // Re-read the query FRESH each time rather than trusting a stored
     // MediaQueryList, and listen to `resize` as well as `change`. A held MQL
@@ -201,18 +288,34 @@ function useIsPhone() {
     // devtools device-metrics override, where the width changes, a new
     // matchMedia() call reports the new answer, and the old object's `change`
     // never fires.
-    const sync = () => setIsPhone(window.matchMedia(PHONE).matches);
-    const mq = window.matchMedia(PHONE);
+    const sync = () =>
+      setSize((prev) => {
+        const next = read();
+        return prev.phone === next.phone && prev.short === next.short ? prev : next;
+      });
+    const mqs = [window.matchMedia(PHONE), window.matchMedia(SHORT)];
     sync();
-    mq.addEventListener("change", sync);
+    mqs.forEach((mq) => mq.addEventListener("change", sync));
     window.addEventListener("resize", sync);
     return () => {
-      mq.removeEventListener("change", sync);
+      mqs.forEach((mq) => mq.removeEventListener("change", sync));
       window.removeEventListener("resize", sync);
     };
   }, []);
-  return isPhone;
+  return size;
 }
+
+// Every window on this desk has its own address, and the folder that opens it
+// is a real anchor pointing at that address — which is what makes ⌘-click,
+// middle-click and "copy link" work on a piece of furniture.
+const windowHref = (p) =>
+  p.opensCase
+    ? `#/?case=${p.opensCase}`
+    : p.opensNote
+      ? `#/?note=${p.opensNote}`
+      : p.opensEmpty
+        ? `#/?folder=${p.opensEmpty}`
+        : "#/";
 
 // percentages of the stage, from the artboard's pixels
 const leftPct = (p) => ((p.x + p.w / 2) / FRAME.w) * 100;
@@ -236,6 +339,90 @@ if (import.meta.env.DEV) {
   }
   if (bad.length)
     console.error("[DesktopFiles] these sit on the lotus:", bad.join(", "));
+}
+
+/**
+ * Dev-only, and it runs on the RENDERED boxes rather than on the table above.
+ *
+ * The static check can only see what the artboard declares: artwork boxes, in
+ * artboard units, on a desktop. It cannot see the labels — which are px-sized
+ * from a stylesheet, sit outside the aspect box, and are now two lines tall —
+ * and it cannot see the dock or the menu bar, which are laid out by other
+ * components entirely. Every collision this composition has actually had was in
+ * one of those blind spots.
+ *
+ * So this measures. It is the same sweep used to verify the build by hand,
+ * kept in the code so the next person changing a coordinate finds out at once
+ * instead of three sessions later.
+ */
+function auditLayout(root, isPhone) {
+  const stage = root.parentElement;
+  if (!stage) return;
+  const st = stage.getBoundingClientRect();
+  if (!st.width || !st.height) return;
+  const ng = isPhone ? NO_GO.phone : NO_GO.desktop;
+  const chrome = [
+    [".mb-bar", "the menu bar"],
+    [".dock", "the dock"],
+  ]
+    .map(([sel, name]) => {
+      const n = document.querySelector(sel);
+      return n ? { name, r: n.getBoundingClientRect() } : null;
+    })
+    .filter(Boolean);
+
+  const hits = [];
+  /** artwork box + label box, as one union — what the piece actually occupies */
+  const occupied = (d) => {
+    const r = d.getBoundingClientRect();
+    const lab = d.querySelector(".dpiece-label");
+    if (!lab) return r;
+    const lr = lab.getBoundingClientRect();
+    return {
+      left: Math.min(r.left, lr.left),
+      right: Math.max(r.right, lr.right),
+      top: Math.min(r.top, lr.top),
+      bottom: Math.max(r.bottom, lr.bottom),
+    };
+  };
+  const meets = (a, b) =>
+    a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top;
+
+  const tiles = [...root.querySelectorAll(".dpiece")].map((d) => ({
+    key: d.getAttribute("data-key") || "?",
+    live: !d.classList.contains("is-art"),
+    box: occupied(d),
+  }));
+
+  for (const t of tiles) {
+    const b = t.box;
+    const l = ((b.left - st.left) / st.width) * 100;
+    const r = ((b.right - st.left) / st.width) * 100;
+    const tp = ((b.top - st.top) / st.height) * 100;
+    const bt = ((b.bottom - st.top) / st.height) * 100;
+    if (l < ng.x1 && r > ng.x0 && tp < ng.y1 && bt > ng.y0)
+      hits.push(`${t.key} sits on the lotus (x ${l.toFixed(1)}–${r.toFixed(1)}%)`);
+    if (b.left < 0 || b.right > st.width || b.top < 0 || b.bottom > st.height)
+      hits.push(`${t.key} runs off the stage`);
+    for (const c of chrome)
+      if (meets(b, c.r)) hits.push(`${t.key} meets ${c.name}`);
+  }
+
+  // …and each other. Two labels can collide long before their artwork does.
+  for (let i = 0; i < tiles.length; i += 1)
+    for (let j = i + 1; j < tiles.length; j += 1) {
+      // artwork is MEANT to overlap — the artboard layers it. Only the eight
+      // live tiles have to stay separable, because they have to be aimed at.
+      if (!tiles[i].live || !tiles[j].live) continue;
+      if (meets(tiles[i].box, tiles[j].box))
+        hits.push(`${tiles[i].key} overlaps ${tiles[j].key}`);
+    }
+
+  if (hits.length)
+    console.error(
+      `[DesktopFiles] layout at ${Math.round(st.width)}×${Math.round(st.height)}:\n  ` +
+        hits.join("\n  ")
+    );
 }
 
 function Art({ p }) {
@@ -288,21 +475,65 @@ function Art({ p }) {
   return img;
 }
 
-export default function DesktopFiles({ visible, onOpenCase }) {
-  const isPhone = useIsPhone();
+export default function DesktopFiles({ visible, onOpenCase, onOpenNote, onOpenEmpty }) {
+  const { phone: isPhone, short } = useIsPhone();
   const shown = isPhone ? PIECES.filter((p) => p.phone) : PIECES;
+  const layerRef = useRef(null);
+
+  // Measure once the pieces are up, and again on resize. Dev only — the whole
+  // audit is dead code in a production build.
+  useEffect(() => {
+    if (!import.meta.env.DEV || !visible) return;
+    let live = true;
+    const run = () => live && layerRef.current && auditLayout(layerRef.current, isPhone);
+    // AFTER THE FONTS, not on a timer. Every one of these boxes is sized by
+    // its label's text, and until Inter arrives the labels are laid out in the
+    // fallback face at a different width — the first version of this audit ran
+    // at 120ms and reported three collisions that did not exist, all of them
+    // just Segoe being wider than Inter. A measurement taken at the wrong
+    // moment is worse than no measurement: it costs a real investigation.
+    //
+    // A TIMEOUT, NOT requestAnimationFrame. rAF looks like the right way to
+    // wait for the next layout, and it is — in a tab that is being painted.
+    // A hidden or backgrounded view never runs a frame, so an audit chained to
+    // rAF simply never reports, which is the failure mode you notice last.
+    // AND AFTER THE ENTRANCE, which is the second thing that moves these boxes.
+    // Framer animates each tile from scale .97, staggered — the last one settles
+    // at roughly 0.1 + 16*0.035 + 0.45s. getBoundingClientRect reports the
+    // TRANSFORMED box, so an audit that runs mid-entrance measures everything
+    // 3% small and clears collisions that are real: two résumé labels looked
+    // 4px apart at .97 and overlapped at 1. Measuring early is how you certify
+    // a bug.
+    const ready = document.fonts ? document.fonts.ready : Promise.resolve();
+    ready.then(() => setTimeout(run, 1200));
+    window.addEventListener("resize", run);
+    return () => {
+      live = false;
+      window.removeEventListener("resize", run);
+    };
+  }, [visible, isPhone, short]);
 
   return (
-    <div className={`cover-desktop${isPhone ? " is-phone" : ""}`} aria-hidden={!visible}>
+    <div
+      className={`cover-desktop${isPhone ? " is-phone" : ""}`}
+      aria-hidden={!visible}
+      ref={layerRef}
+    >
       {shown.map((p, i) => {
         const [l, t] = isPhone ? p.phone : [leftPct(p), topPct(p)];
-        const interactive = !!(p.opensCase || p.href);
+        const interactive = !!(p.opensCase || p.opensNote || p.opensEmpty || p.href);
         // Sized and centred here rather than in CSS. The box has to be pulled
         // back by half its own HEIGHT, and a percentage margin resolves against
         // the container's WIDTH — so the vertical figure is width-relative too,
         // and expressing that as calc(var(--w) / var(--ar)) in the stylesheet
         // buys nothing but a division CSS is fussy about.
-        const pw = p.pw || 60;
+        // A SHORT SCREEN GETS SMALLER FILES, not fewer. 0.78 is what makes
+        // three rows of artwork-plus-label fit between the menu bar, the
+        // bloom's band and the bottom of a 568-tall screen — at full size the
+        // last row's label ran 1px off the stage. The tap target does not
+        // shrink with it: `min-width/min-height: 44px` in the stylesheet grows
+        // the touchable box back around the smaller drawing.
+        const pw = (p.pw || 60) * (short ? 0.78 : 1);
         const box = isPhone
           ? {
               width: `${pw}px`,
@@ -333,7 +564,21 @@ export default function DesktopFiles({ visible, onOpenCase }) {
             <span className="dpiece-art" style={{ transform: p.rotate ? `rotate(${p.rotate}deg)` : undefined }}>
               <Art p={p} />
             </span>
-            {p.label && <span className="dpiece-label">{p.label}</span>}
+            {p.label && (
+              <span className="dpiece-label">
+                <span className="dpiece-name">{p.label}</span>
+                {/* Finder's second line — the KIND. It is what turns a pretty
+                    folder cover into "this is a case study" without a badge,
+                    a caption or a call to action anywhere on the desk. Hidden
+                    from assistive tech because `aria` already says it, in a
+                    fuller sentence, on the link itself. */}
+                {p.kind && (
+                  <span className="dpiece-kind" aria-hidden="true">
+                    {p.kind}
+                  </span>
+                )}
+              </span>
+            )}
           </>
         );
 
@@ -344,6 +589,7 @@ export default function DesktopFiles({ visible, onOpenCase }) {
             <motion.div
               key={p.key}
               className="dpiece is-art"
+              data-key={p.key}
               style={style}
               aria-hidden="true"
               initial={false}
@@ -359,8 +605,9 @@ export default function DesktopFiles({ visible, onOpenCase }) {
           <motion.a
             key={p.key}
             className="dpiece"
+            data-key={p.key}
             style={style}
-            href={p.href || `#/?case=${p.opensCase}`}
+            href={p.href || windowHref(p)}
             target={p.newTab ? "_blank" : undefined}
             aria-label={p.aria}
             tabIndex={visible ? 0 : -1}
@@ -370,10 +617,12 @@ export default function DesktopFiles({ visible, onOpenCase }) {
             // so they fall through to the href, which is that window's own
             // shareable address.
             onClick={(e) => {
-              if (!p.opensCase) return;
+              if (p.href) return;
               if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
               e.preventDefault();
-              onOpenCase?.(p.opensCase);
+              if (p.opensCase) onOpenCase?.(p.opensCase);
+              else if (p.opensNote) onOpenNote?.(p.opensNote);
+              else if (p.opensEmpty) onOpenEmpty?.(p.opensEmpty);
             }}
             initial={false}
             // No flight. A desktop's files don't arrive, they're there when the

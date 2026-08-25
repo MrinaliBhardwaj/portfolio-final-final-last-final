@@ -21,7 +21,6 @@
 // BrandIcons if it ever comes back.
 import { motion } from "framer-motion";
 import {
-  AppleNotesMark,
   FigmaMarkColor,
   GmailMark,
   GitHubMark,
@@ -182,14 +181,11 @@ export default function Dock({ visible, onChoose, active, minimised = [] }) {
       action: () => onChoose("tech"),
       node: <VSCodeMark className="dock-item-icon" aria-hidden="true" />,
     },
-    {
-      key: "notes",
-      name: "Notes",
-      label: "Notes — the archived first drafts",
-      world: "notes",
-      action: () => onChoose("notes"),
-      node: <AppleNotesMark className="dock-item-icon" aria-hidden="true" />,
-    },
+    // NOTES IS NOT IN THE DOCK ANY MORE (2026-08-25). The scrapbook is a
+    // FOLDER on the desktop now — the girl's-face cover, labelled "About Me" —
+    // and a thing you open from the desk does not also need a permanent slot
+    // down here. The world itself is untouched: #/notes still exists, the menu
+    // bar still reaches it, and the About Me window's zoom light goes to it.
     {
       key: "gallery",
       name: "Gallery",

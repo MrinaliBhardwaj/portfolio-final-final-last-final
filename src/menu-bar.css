@@ -83,13 +83,21 @@
 }
 
 /* The frontmost app's name is the one bold thing on the left, exactly as macOS
-   sets it — and here it is her monogram, in the same Pinyon the worlds carry.
-   It needs more size than 13px to read as a script at all, and the translate
-   is the optical-centring hook the other monograms use: Pinyon hangs low in
-   its em box. */
+   sets it — and it is her NAME now, not the "mb" monogram it used to be.
+   Measured, the settled desktop had no words on it: a monogram, six menu
+   titles and a clock. The hero name belongs to the ceremony and has faded out
+   long before the desk arrives, so this is the most native surface on the page
+   still able to say who the portfolio belongs to.
+
+   THE SYSTEM FONT, NOT PINYON. The monogram ran in var(--font-monogram) at
+   18px because two script letters need the size to read as script at all.
+   Sixteen characters of Pinyon at that size is a ribbon, not a name — and
+   macOS sets the app title in the system face, semibold, at the bar's own
+   size. The native answer and the legible one are the same answer here. */
 .mb-title--app {
-  font-family: var(--font-monogram);
-  font-size: 18px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.005em;
   padding: 0 12px;
 }
 

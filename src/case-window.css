@@ -376,3 +376,121 @@
     transition: none;
   }
 }
+
+/* ============ the About Me window ============ */
+/* A CASE WINDOW THAT IS AS WIDE AS THE SCREEN ALLOWS, because its contents
+   cannot be scaled. Page one of the scrapbook is a single export with its copy
+   baked into the pixels, and notes-world.css caps the sheet at 1673px — page
+   one's native width — so that copy never upscales past 1:1. The 880px a big
+   case window offers would render her handwriting at 53%.
+
+   1673 is therefore the ceiling and the viewport is the only other limit. At
+   1512 this lands at ~88% of native. Below that it keeps shrinking, which is
+   why the green light is a link to #/notes rather than a size toggle — see
+   NoteWindow.jsx. */
+.cw.nw-win {
+  width: min(1673px, calc(100vw - 40px));
+  max-height: 88vh;
+  margin-left: max(-836.5px, calc(-50vw + 20px));
+  top: 6vh;
+}
+
+/* The sheets bring their own paper and their own padding — this is a frame, not
+   a page, so the case window's 18/20/22 padding has to come off or the
+   scrapbook sits in a grey mount. */
+.cw.nw-win .cw-body {
+  padding: 0;
+  background: #f8f7f4;
+}
+
+/* `container-type` is already on .nw-stage inside; this only has to stop the
+   world's own page-level min-height from forcing a viewport of scroll. */
+.nw-win-body .nw {
+  min-height: 0;
+}
+
+/* The world paints its own toolbar at the top of the page. In here the window's
+   title bar IS that toolbar, so the world's is redundant chrome. */
+.nw-win-body .nw-top {
+  display: none;
+}
+
+.nw-win-zoom {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 22px;
+  padding: 0 8px;
+  border-radius: 5px;
+  color: #6a6a70;
+  font-size: 11.5px;
+  font-weight: 500;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.nw-win-zoom:hover {
+  background: rgba(0, 0, 0, 0.07);
+  color: #1c1c1e;
+}
+
+/* the green light is an anchor here, not a button — it still has to be a dot */
+.cw-light--max {
+  display: block;
+  box-sizing: border-box;
+}
+
+/* ---- below a laptop, the window stops being the right container ----
+   The scrapbook needs width it cannot get here, and the world at #/notes has
+   it. Rather than serve an illegible window, the phone and small-tablet rule
+   sends the reader on: see NotesWorld's own rotate gate for the same argument
+   one step further along. */
+@media (max-width: 900px) {
+  .cw.nw-win {
+    width: calc(100vw - 24px);
+    margin-left: calc(-50vw + 12px);
+  }
+}
+
+/* ============ the empty-folder window ============ */
+/* Small on purpose. There is nothing in it. */
+.cw.ew {
+  width: min(340px, calc(100vw - 40px));
+  max-height: none;
+  margin-left: max(-170px, calc(-50vw + 20px));
+  top: 22vh;
+}
+
+/* A light that is a real dot but has no behaviour behind it: the ONE place on
+   this desk that gets one, because zoom on an empty room is meaningless. It is
+   drawn as macOS draws a disabled light — grey, not green — so it never
+   promises the click it will not take. */
+.cw-light--off {
+  background: rgba(0, 0, 0, 0.16);
+  cursor: default;
+}
+
+.ew-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 30px 26px 32px;
+  text-align: center;
+  color: #8a8a90;
+}
+
+.ew-line {
+  margin: 4px 0 0;
+  font-size: 14px;
+  font-weight: 500;
+  color: #55555c;
+}
+
+.ew-note {
+  margin: 0;
+  max-width: 25ch;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #8a8a90;
+}

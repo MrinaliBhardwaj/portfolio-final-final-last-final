@@ -21,6 +21,8 @@ import { ChevronDown } from "lucide-react";
 import MenuBar from "./MenuBar.jsx";
 import CaseWindow from "./CaseWindow.jsx";
 import CodeWindow from "./CodeWindow.jsx";
+import NoteWindow from "./NoteWindow.jsx";
+import EmptyWindow from "./EmptyWindow.jsx";
 import { PROJECTS } from "./projects.js";
 import { TECH_PROJECTS } from "./tech-projects.js";
 import TextMorph from "./TextMorph.jsx";
@@ -100,7 +102,19 @@ const markIntroSeen = () => {
 // One window in the address, not all of them: the URL names the FRONTMOST one,
 // the way a window manager's title bar does. Reopening a shared link restores
 // that window, not somebody else's whole session.
-const WINDOW_PARAM = { case: "case", readme: "readme" };
+// keyed by WINDOW KIND, valued by URL param — the two differ for `empty`,
+// whose address reads "folder=" because that is what the visitor opened
+const WINDOW_PARAM = {
+  case: "case",
+  readme: "readme",
+  note: "note",
+  empty: "folder",
+};
+
+// The two covers with nothing behind them yet. Named, so the address is
+// "#/?folder=horse" rather than an index that shifts the moment a piece is
+// added, and validated below like every other id.
+const EMPTY_FOLDERS = ["horse", "scenery"];
 
 /** @returns {{kind: string, id: string}[]} */
 function deepLinkedWindows() {
@@ -116,6 +130,13 @@ function deepLinkedWindows() {
   const key = params.get(WINDOW_PARAM.readme);
   if (key && TECH_PROJECTS.some((p) => p.key === key))
     return [{ kind: "readme", id: key }];
+  // The scrapbook has exactly one note, so the id is checked against the one
+  // value rather than a list — an unknown note is a plain desktop, same rule.
+  if (params.get(WINDOW_PARAM.note) === "about")
+    return [{ kind: "note", id: "about" }];
+  const folder = params.get(WINDOW_PARAM.empty);
+  if (folder && EMPTY_FOLDERS.includes(folder))
+    return [{ kind: "empty", id: folder }];
   return [];
 }
 
@@ -184,6 +205,33 @@ export default function Cover({ onChoose, onSettledChange }) {
   useEffect(() => {
     syncWindowAddress(windows);
   }, [windows]);
+
+  // …AND THE STACK FOLLOWS THE ADDRESS, which is the other half and was missing.
+  // deepLinkedWindows() ran once, at mount, so a window could only ever be
+  // opened by clicking its file. Anything that reached one by SETTING THE HASH
+  // — the menu bar's "About Me", a link in another world, the back button, a
+  // URL pasted into the tab that is already here — changed the address and
+  // opened nothing.
+  //
+  // syncWindowAddress uses replaceState, which fires no hashchange, so the two
+  // effects cannot chase each other: this only ever hears a navigation that
+  // came from outside the stack.
+  //
+  // GUARDED ON THE ROUTE, and it has to be. Leaving for another world is a
+  // hashchange as well, and answering that one here would set the stack empty,
+  // which re-runs the effect above, which writes "#/" — cancelling the
+  // navigation the visitor just asked for. "#/notes" survived exactly as long
+  // as it took the listener to fire. The cover owns this address only while
+  // the cover is the address.
+  useEffect(() => {
+    const onHash = () => {
+      const path = window.location.hash.replace(/^#/, "").split("?")[0];
+      if (path !== "" && path !== "/") return;
+      setWindows(deepLinkedWindows());
+    };
+    window.addEventListener("hashchange", onHash);
+    return () => window.removeEventListener("hashchange", onHash);
+  }, []);
 
   // The View menu's "Replay Intro". Forgetting the flag is only half of it —
   // the visitor is standing at the BOTTOM of the track on a settled desktop, so
@@ -499,6 +547,8 @@ export default function Cover({ onChoose, onSettledChange }) {
           <DesktopFiles
             visible={settled}
             onOpenCase={(slug) => openWindow("case", slug)}
+            onOpenNote={(id) => openWindow("note", id)}
+            onOpenEmpty={(id) => openWindow("empty", id)}
           />
 
           <motion.div
@@ -527,10 +577,15 @@ export default function Cover({ onChoose, onSettledChange }) {
           };
           if (w.kind === "case") {
             const p = PROJECTS.find((x) => x.slug === w.id);
-            // key is prefixed by kind: the two id spaces are separate lists and
+            // key is prefixed by kind: the id spaces are separate lists and
             // nothing stops a slug and a project key from colliding one day
             return p ? <CaseWindow key={`case:${w.id}`} project={p} {...shared} /> : null;
           }
+          // Neither of these browses a list, so neither takes onSwitch — the
+          // chevrons that would carry it are not in their title bars.
+          if (w.kind === "note") return <NoteWindow key="note:about" {...shared} />;
+          if (w.kind === "empty")
+            return <EmptyWindow key={`empty:${w.id}`} {...shared} />;
           const p = TECH_PROJECTS.find((x) => x.key === w.id);
           return p ? <CodeWindow key={`readme:${w.id}`} project={p} {...shared} /> : null;
         })}
