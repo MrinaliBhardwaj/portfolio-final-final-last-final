@@ -86,7 +86,7 @@ const PIECES = [
   {
     key: "folder-scenery",
     src: `${A}/folder-scenery.webp`,
-    x: 272.52, y: 560.93, w: 117.39, h: 117.39,
+    x: 258, y: 560.93, w: 117.39, h: 117.39,
     label: "untitled folder",
     kind: "Folder",
     aria: "untitled folder — empty",
@@ -106,7 +106,10 @@ const PIECES = [
     key: "futurepreneurs",
     src: `${A}/futurepreneurs.webp`,
     x: 94.04, y: 413.08, w: 117.23, h: 99.367,
-    label: "Futurepreneurs 10.0",
+    // "10.0" is an edition number and it cost 26px of label — enough that
+    // this one ran wider than the gap to Meal Maestro beside it. The edition
+    // is in the case study, where there is room to say it.
+    label: "Futurepreneurs",
     kind: "Case Study",
     aria: "Futurepreneurs 10.0 — branding and UI, open the case study",
     opensCase: "futurepreneurs",
@@ -162,7 +165,7 @@ const PIECES = [
   {
     key: "resume-design",
     src: `${A}/resume-design.webp`,
-    x: 1476, y: 311, w: 147.837, h: 147.837,
+    x: 1500.3, y: 332.6, w: 117.39, h: 101.56,
     label: "Design résumé",
     kind: "Mrinali Bhardwaj",
     aria: "Mrinali Bhardwaj, design résumé — PDF, opens in a new tab",
@@ -173,7 +176,7 @@ const PIECES = [
   {
     key: "resume-tech",
     src: `${A}/resume-tech.webp`,
-    x: 1328, y: 308, w: 147.837, h: 147.837,
+    x: 1334.3, y: 332.6, w: 117.39, h: 101.56,
     label: "Tech résumé",
     kind: "Mrinali Bhardwaj",
     aria: "Mrinali Bhardwaj, tech résumé — PDF, opens in a new tab",
@@ -384,11 +387,16 @@ function auditLayout(root, isPhone) {
   const meets = (a, b) =>
     a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top;
 
-  const tiles = [...root.querySelectorAll(".dpiece")].map((d) => ({
-    key: d.getAttribute("data-key") || "?",
-    live: !d.classList.contains("is-art"),
-    box: occupied(d),
-  }));
+  const tiles = [...root.querySelectorAll(".dpiece")].map((d) => {
+    const lab = d.querySelector(".dpiece-label");
+    return {
+      key: d.getAttribute("data-key") || "?",
+      live: !d.classList.contains("is-art"),
+      box: occupied(d),
+      art: d.getBoundingClientRect(),
+      label: lab ? lab.getBoundingClientRect() : null,
+    };
+  });
 
   for (const t of tiles) {
     const b = t.box;
@@ -413,6 +421,20 @@ function auditLayout(root, isPhone) {
       if (meets(tiles[i].box, tiles[j].box))
         hits.push(`${tiles[i].key} overlaps ${tiles[j].key}`);
     }
+
+  // TEXT ON TOP OF PICTURES, which is the one overlap that is never intended.
+  // The loop above skips any pair involving artwork, because the artboard
+  // layers its decoration deliberately — and that exemption quietly covered
+  // labels too, so a name could sit across a jewel case or a frog's jar and
+  // this reported a clean desk. Artwork may overlap artwork; nothing may
+  // overlap a label.
+  for (const t of tiles) {
+    if (!t.label) continue;
+    for (const o of tiles) {
+      if (o.key === t.key) continue;
+      if (meets(t.label, o.art)) hits.push(`${t.key}'s label sits on ${o.key}`);
+    }
+  }
 
   if (hits.length)
     console.error(
