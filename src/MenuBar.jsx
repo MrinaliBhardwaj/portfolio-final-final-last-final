@@ -131,22 +131,16 @@ export default function MenuBar({ onChoose, onReplayIntro }) {
   };
 
   const MENUS = [
-    {
-      id: "app",
-      // HER NAME, WHERE macOS PUTS THE APP'S. The settled desktop carried no
-      // words at all — the hero name and the roles aside both belong to the
-      // ceremony and have faded long before the desk arrives, so a visitor
-      // evaluating the screen saw a monogram, six menu titles and a clock.
-      // This is the most native place on the whole page to say who it is.
-      label: "Mrinali Bhardwaj",
-      app: true,
-      items: [
-        { label: "About This Portfolio", onSelect: openAbout },
-        { sep: true },
-        { label: "Design Résumé", href: "/resume-design.pdf", blank: true },
-        { label: "Tech Résumé", href: "/resume-tech.pdf", blank: true },
-      ],
-    },
+    // NO APP MENU. It used to sit here as the "mb" monogram, then briefly as
+    // her name, and either way it dropped a list holding both résumés. Both
+    // résumés are FILES ON THE DESK now, with her name under them, so the menu
+    // was a second door to the same room — and a portfolio whose top bar
+    // volunteers a résumé the moment you touch it is doing the one thing this
+    // desk is built not to do. "About This Portfolio" lived here too; it is
+    // Go → About Me, next to everywhere else you can go.
+    //
+    // The wordmark that replaces it is in the CENTRE of the bar and is not a
+    // menu at all — see .mb-wordmark below.
     {
       id: "file",
       label: "File",
@@ -243,9 +237,7 @@ export default function MenuBar({ onChoose, onReplayIntro }) {
           <div className="mb-menu" key={m.id}>
             <button
               type="button"
-              className={`mb-title${m.app ? " mb-title--app" : ""}${
-                open === m.id ? " is-open" : ""
-              }`}
+              className={`mb-title${open === m.id ? " is-open" : ""}`}
               aria-haspopup="true"
               aria-expanded={open === m.id}
               onClick={() => setOpen(open === m.id ? null : m.id)}
@@ -261,6 +253,21 @@ export default function MenuBar({ onChoose, onReplayIntro }) {
           </div>
         ))}
       </div>
+
+      {/* HER WORDMARK, CENTRED ON THE BAR — not on the space the menus leave.
+          It is absolutely positioned for that reason: the titles on the left
+          and the status icons on the right are different widths and they change
+          (a menu opening does not move it), so centring between them would put
+          the mark visibly off-axis and drifting.
+
+          Not a button, not a link, no dropdown. The bar is the one surface
+          that is on screen at every scroll position, and this is the only thing
+          on it that is hers rather than the operating system's. `aria-hidden`
+          because "mb" read aloud is a noise, and the page already carries her
+          name in its <title> and in the hero. */}
+      <span className="mb-wordmark" aria-hidden="true">
+        mb
+      </span>
 
       <div className="mb-right">
         {/* inert on purpose — see the note at the top of this file */}

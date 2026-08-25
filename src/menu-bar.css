@@ -82,28 +82,32 @@
   transition: background-color 0.12s ease;
 }
 
-/* The frontmost app's name is the one bold thing on the left, exactly as macOS
-   sets it — and it is her NAME now, not the "mb" monogram it used to be.
-   Measured, the settled desktop had no words on it: a monogram, six menu
-   titles and a clock. The hero name belongs to the ceremony and has faded out
-   long before the desk arrives, so this is the most native surface on the page
-   still able to say who the portfolio belongs to.
+/* ---- her wordmark, centred on the bar ----
+   macOS leaves the middle of the menu bar empty, and that emptiness is exactly
+   what makes it the right place for the one mark on this page that is hers
+   rather than the system's. It replaced the app menu, which used to drop a
+   list holding both résumés — see MenuBar.jsx.
 
-   THE SYSTEM FONT, NOT PINYON. The monogram ran in var(--font-monogram) at
-   18px because two script letters need the size to read as script at all.
-   Sixteen characters of Pinyon at that size is a ribbon, not a name — and
-   macOS sets the app title in the system face, semibold, at the bar's own
-   size. The native answer and the legible one are the same answer here. */
-.mb-title--app {
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 0.005em;
-  padding: 0 12px;
-}
+   ABSOLUTE, so it is centred on the BAR rather than on the gap between the
+   menu titles and the status icons. Those two clusters are different widths,
+   and flex centring would hang the mark off-axis and shift it whenever a menu
+   opened. `left: 50%` + `translateX(-50%)` cannot be pushed by either side.
 
-.mb-title--app span,
-.mb-title--app {
-  transform: translateY(0);
+   Pinyon, and it needs the size: 18px, because two script letters at the bar's
+   13px collapse into a squiggle. The translate is the optical-centring hook
+   the other monograms in this project use — Pinyon hangs low in its em box, so
+   its visual centre is above its geometric one. */
+.mb-wordmark {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%) translateY(-1px);
+  font-family: var(--font-monogram);
+  font-size: 18px;
+  line-height: 1;
+  color: rgba(255, 255, 255, 0.9);
+  pointer-events: none;
+  white-space: nowrap;
 }
 
 .mb-title:hover,
@@ -188,12 +192,24 @@
   white-space: nowrap;
 }
 
-/* A tablet has no room for seven menu titles beside the status items. Keep the
-   system chrome that says "this is a machine" — the Apple mark, the app name
+/* A tablet has no room for six menu titles beside the status items. Keep the
+   system chrome that says "this is a machine" — the Apple mark, her wordmark
    and the clock — and drop the menus; the dock is the navigation at that width
-   anyway, and Go's contents are all in it. */
-@media (min-width: 641px) and (max-width: 720px) {
-  .mb-menu:not(:first-of-type) {
+   anyway, and Go's contents are all in it.
+
+   ALL of them, not `:not(:first-of-type)`. That exception existed to keep the
+   app menu, which was the identity mark at the left end of the bar. There is
+   no app menu now and the identity is centred, so first-of-type is just File —
+   one lone menu title kept for no reason.
+
+   745, RAISED FROM 720, and the number is measured rather than picked. The
+   Apple mark plus six menu titles run to 349px, and the centred wordmark's
+   left edge sits at half the viewport minus 10 — so they touch at 718 and
+   clear by 1.5px at 721, which is not clearance, it is luck. 745 leaves ~13px
+   at the moment the menus disappear. If a menu is ever renamed, re-measure:
+   `document.querySelector('.mb-left').getBoundingClientRect().right`. */
+@media (min-width: 641px) and (max-width: 745px) {
+  .mb-menu {
     display: none;
   }
 
