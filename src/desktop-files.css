@@ -67,14 +67,15 @@
    dock.css — this is the same construction minus the SVG refraction, which is
    worth its cost on one persistent bar and not on two pieces of furniture.
 
-   WHY THE ARTBOARD'S 4% WHITE HAD TO GO. A 4% white wash over a near-black
-   starfield is arithmetically almost nothing — it reads as a faint smudge, not
-   as a pane. Apple's widgets are not a tint over the wallpaper, they are a
-   MATERIAL: a dark translucent body, a heavy blur that genuinely destroys the
-   detail behind it, saturation pushed back up so the colour it destroyed does
-   not go grey, a hairline catching the light at the top edge, and a shadow
-   that says the thing is standing off the desk. Every one of those is doing a
-   different job and the look needs all five.
+   WHY THE ARTBOARD'S 4% WHITE HAD TO GO. A 4% white wash under a 6px blur is
+   arithmetically almost nothing — it reads as a faint smudge, not as a pane.
+   Apple's widgets are not a tint over the wallpaper, they are a MATERIAL: a
+   translucent body, a heavy blur that genuinely destroys the detail behind it,
+   saturation pushed back up so the colour it destroyed does not go grey, a
+   hairline catching the light at the top edge, and a shadow that says the thing
+   is standing off the desk. Every one of those is doing a different job and the
+   look needs all five — but the BLUR is the one carrying the glass, which is
+   why the tint could come back down without the pane going flat again.
 
    The radius still comes from the artboard, inline, per piece. */
 .dpiece-glass,
@@ -88,25 +89,31 @@
      behind them; that lift is what makes a widget sit ON the desktop instead
      of being cut out of it.
 
-     13% down to 7.5% resolves to rgb(40,40,43) → rgb(27,27,30) over the same
-     starfield: unmistakably a pane, still unmistakably dark mode. It is also
-     three times less transparent than the artboard's 4%. */
+     DIALLED BACK from 13/7.5%, which resolved to rgb(40,40,44) → rgb(27,27,30)
+     and made the pane the loudest thing in its corner — the widget was reading
+     before the artwork on it, which is backwards. 8.5% down to 5% gives
+     rgb(29,29,33) → rgb(20,20,24): still a clear lift off the wallpaper, no
+     longer an announcement. The blur does the glass work; the tint only has to
+     prove the pane is there. */
   background: linear-gradient(
     to bottom,
-    rgba(255, 255, 255, 0.13),
-    rgba(255, 255, 255, 0.075)
+    rgba(255, 255, 255, 0.085),
+    rgba(255, 255, 255, 0.05)
   );
-  /* 26px genuinely dissolves the starfield behind it; 6px only softened it.
-     saturate puts back the colour the blur washes out — without it the lotus
-     showing through goes grey and the pane looks like a dead grey card. */
-  backdrop-filter: blur(26px) saturate(1.7);
-  -webkit-backdrop-filter: blur(26px) saturate(1.7);
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  /* outer: it stands off the wallpaper. inset: the bevel — bright along the
+  /* 22px genuinely dissolves the starfield behind it; the artboard's 6px only
+     softened it. saturate puts back the colour the blur washes out — without it
+     the lotus showing through goes grey and the pane looks like a dead card. */
+  backdrop-filter: blur(22px) saturate(1.5);
+  -webkit-backdrop-filter: blur(22px) saturate(1.5);
+  /* 9%, down from 16%. On a 170px box a 16% hairline is an OUTLINE, and it was
+     doing as much to make the pane shout as the body was — a rim you read as a
+     drawn border rather than as an edge catching light. */
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  /* outer: it stands off the wallpaper. inset: the bevel — brighter along the
      top-left where a real edge catches light, barely there along the bottom. */
-  box-shadow: 0 16px 38px rgba(0, 0, 0, 0.5), 0 3px 10px rgba(0, 0, 0, 0.36),
-    inset 1px 1px 1px rgba(255, 255, 255, 0.14),
-    inset -1px -1px 1px rgba(255, 255, 255, 0.045);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4), 0 2px 8px rgba(0, 0, 0, 0.26),
+    inset 1px 1px 1px rgba(255, 255, 255, 0.09),
+    inset -1px -1px 1px rgba(255, 255, 255, 0.03);
 }
 
 /* the sheen down the top of the pane, clipped to its own radius */
@@ -115,9 +122,9 @@
   content: "";
   position: absolute;
   inset: 0 0 auto 0;
-  height: 42%;
+  height: 38%;
   border-radius: inherit;
-  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.07), transparent);
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.045), transparent);
   pointer-events: none;
 }
 
