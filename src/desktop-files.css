@@ -60,20 +60,83 @@
   filter: drop-shadow(0 10px 22px rgba(0, 0, 0, 0.5));
 }
 
-/* The dragonfly's plate: the artboard's own 4% white, its own radius, and a
-   uniform inset expressed as padding. */
+/* ---- THE TWO WIDGETS: the dragonfly's plate and the frog's ----
+   THE MATERIAL IS THE DOCK'S, not a second recipe. Both of these are widgets
+   sitting on the same wallpaper as the dock, and a desktop with two different
+   ideas of what glass is has no idea what glass is. See .dock-glass in
+   dock.css — this is the same construction minus the SVG refraction, which is
+   worth its cost on one persistent bar and not on two pieces of furniture.
+
+   WHY THE ARTBOARD'S 4% WHITE HAD TO GO. A 4% white wash over a near-black
+   starfield is arithmetically almost nothing — it reads as a faint smudge, not
+   as a pane. Apple's widgets are not a tint over the wallpaper, they are a
+   MATERIAL: a dark translucent body, a heavy blur that genuinely destroys the
+   detail behind it, saturation pushed back up so the colour it destroyed does
+   not go grey, a hairline catching the light at the top edge, and a shadow
+   that says the thing is standing off the desk. Every one of those is doing a
+   different job and the look needs all five.
+
+   The radius still comes from the artboard, inline, per piece. */
+.dpiece-glass,
+.dpiece-plate {
+  /* THE BODY IS A WHITE FROST, NOT A DARK TINT, and that is the difference
+     between a widget and a hole. A dark tint over a dark wallpaper was tried
+     first and resolved to rgb(15,15,21) at the top and rgb(9,9,14) at the
+     bottom against a rgb(8,8,12) starfield — one level of separation at the
+     bottom edge, which is to say none. Apple's dark-mode materials are a dark
+     base PLUS a white overlay, and the net is always LIGHTER than what is
+     behind them; that lift is what makes a widget sit ON the desktop instead
+     of being cut out of it.
+
+     13% down to 7.5% resolves to rgb(40,40,43) → rgb(27,27,30) over the same
+     starfield: unmistakably a pane, still unmistakably dark mode. It is also
+     three times less transparent than the artboard's 4%. */
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.13),
+    rgba(255, 255, 255, 0.075)
+  );
+  /* 26px genuinely dissolves the starfield behind it; 6px only softened it.
+     saturate puts back the colour the blur washes out — without it the lotus
+     showing through goes grey and the pane looks like a dead grey card. */
+  backdrop-filter: blur(26px) saturate(1.7);
+  -webkit-backdrop-filter: blur(26px) saturate(1.7);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  /* outer: it stands off the wallpaper. inset: the bevel — bright along the
+     top-left where a real edge catches light, barely there along the bottom. */
+  box-shadow: 0 16px 38px rgba(0, 0, 0, 0.5), 0 3px 10px rgba(0, 0, 0, 0.36),
+    inset 1px 1px 1px rgba(255, 255, 255, 0.14),
+    inset -1px -1px 1px rgba(255, 255, 255, 0.045);
+}
+
+/* the sheen down the top of the pane, clipped to its own radius */
+.dpiece-glass::after,
+.dpiece-plate::after {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 42%;
+  border-radius: inherit;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.07), transparent);
+  pointer-events: none;
+}
+
+/* The dragonfly's plate IS the piece: a uniform inset expressed as padding,
+   with the artwork sitting inside it. */
 .dpiece-glass {
+  position: relative;
   display: block;
   width: 100%;
   height: 100%;
   box-sizing: border-box;
-  background: rgba(255, 255, 255, 0.04);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
 }
 
 .dpiece-glass img {
+  /* no drop-shadow on artwork that is already inside a lit pane — it would
+     read as a second object floating above the glass rather than mounted in it */
   filter: none;
+  position: relative;
+  z-index: 1;
 }
 
 /* The frog's plate, which its picture overhangs at both ends — so this is inset
@@ -82,9 +145,7 @@
   position: absolute;
   left: 0;
   width: 100%;
-  background: rgba(255, 255, 255, 0.04);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
+  box-sizing: border-box;
   z-index: 0;
 }
 
