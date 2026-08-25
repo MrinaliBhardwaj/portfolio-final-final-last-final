@@ -180,8 +180,18 @@
 
    Absolutely positioned so it cannot affect the artwork's aspect box, and wider
    than the piece so a long name is not forced to truncate at the icon's width. */
+/* ABOVE EVERY PIECE OF ARTWORK, ALWAYS. The pieces paint in the artboard's own
+   order, so the decoration on the right (the crowd is last, z 17) sits above
+   the two résumés (z 7 and 8). Their boxes clear each other at 945px tall and
+   do NOT at 720: piece sizes come from the stage's WIDTH while positions come
+   from its HEIGHT, so a shorter window closes the vertical gaps while the
+   labels stay a fixed 43.7px — and the crowd painted over both names.
+   The geometry is fixed too (the résumés lift 14.6 units), but a name is UI
+   and a picture is wallpaper, and no window shape should be able to reorder
+   those two. This is the guarantee; the spacing is the manners. */
 .dpiece-label {
   position: absolute;
+  z-index: 40;
   top: calc(100% + 0.42rem);
   left: 50%;
   transform: translateX(-50%);
@@ -302,10 +312,31 @@
      file is comfortably hittable. */
   .cover-desktop.is-phone .dpiece:not(.is-art) {
     min-width: 44px;
-    min-height: 44px;
     /* the tap flash is Safari's, and it paints a grey rectangle over a cut-out
        icon — the press animation in DesktopFiles.jsx replaces it */
     -webkit-tap-highlight-color: transparent;
+  }
+
+  /* THE TOUCH TARGET IS NOT THE TILE. `min-height: 44px` used to sit on the
+     tile itself, and on a 320-wide screen it won: the box became 44x44 while
+     the folder inside it is 44x36.7, so 7px of dead air appeared under the
+     drawing and the label — which hangs off the BOX — drifted away from the
+     folder again. That is the exact fault the assets were recropped to remove,
+     reintroduced by the rule meant to help.
+
+     So the box stays the size of the folder and this grows a transparent
+     target around it instead. It inherits the anchor's pointer events, so the
+     tappable area is >=44px in both axes while the layout is untouched. */
+  .cover-desktop.is-phone .dpiece:not(.is-art)::before {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    height: 100%;
+    min-width: 44px;
+    min-height: 44px;
   }
 
   .dpiece-label {

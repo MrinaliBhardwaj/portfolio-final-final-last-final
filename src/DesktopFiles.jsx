@@ -75,9 +75,8 @@ const PIECES = [
   {
     key: "folder-horse",
     src: `${A}/meal-maestro.webp`,
-    x: 454, y: 112, w: 117.39, h: 99.686,
+    x: 454, y: 113.1, w: 117.39, h: 97.825,
     label: "untitled folder",
-    kind: "Folder",
     aria: "untitled folder — empty",
     opensEmpty: "horse",
   },
@@ -86,16 +85,15 @@ const PIECES = [
   {
     key: "folder-scenery",
     src: `${A}/folder-scenery.webp`,
-    x: 258, y: 560.93, w: 117.39, h: 117.39,
+    x: 258, y: 570.7, w: 117.39, h: 97.825,
     label: "untitled folder",
-    kind: "Folder",
     aria: "untitled folder — empty",
     opensEmpty: "scenery",
   },
   {
     key: "folder-floral",
     src: `${A}/folder-floral.webp`,
-    x: 94.04, y: 564.71, w: 117.39, h: 117.39,
+    x: 94.04, y: 574.5, w: 117.39, h: 97.825,
     label: "Layover",
     kind: "Case Study",
     aria: "Layover — brand and product design, open the case study",
@@ -105,7 +103,7 @@ const PIECES = [
   {
     key: "futurepreneurs",
     src: `${A}/futurepreneurs.webp`,
-    x: 94.04, y: 413.08, w: 117.23, h: 99.367,
+    x: 94.11, y: 413.85, w: 117.39, h: 97.825,
     // "10.0" is an edition number and it cost 26px of label — enough that
     // this one ran wider than the gap to Meal Maestro beside it. The edition
     // is in the case study, where there is room to say it.
@@ -118,7 +116,7 @@ const PIECES = [
   {
     key: "folder-green",
     src: `${A}/folder-green.webp`,
-    x: 264.95, y: 413.08, w: 117.39, h: 99.845,
+    x: 264.95, y: 414.09, w: 117.39, h: 97.825,
     label: "Meal Maestro",
     kind: "Case Study",
     aria: "Meal Maestro — UI design, open the case study",
@@ -130,9 +128,8 @@ const PIECES = [
   {
     key: "about-me",
     src: `${A}/layover.webp`,
-    x: 454, y: 256.48, w: 117.23, h: 97.772,
+    x: 454.08, y: 256.45, w: 117.39, h: 97.825,
     label: "About Me",
-    kind: "Note",
     aria: "About Me — the scrapbook, opens in a window",
     opensNote: "about",
     phone: [78, 88], pw: 56,
@@ -165,9 +162,8 @@ const PIECES = [
   {
     key: "resume-design",
     src: `${A}/resume-design.webp`,
-    x: 1500.3, y: 332.6, w: 117.39, h: 101.56,
+    x: 1500.3, y: 318, w: 117.39, h: 97.825,
     label: "Design résumé",
-    kind: "Mrinali Bhardwaj",
     aria: "Mrinali Bhardwaj, design résumé — PDF, opens in a new tab",
     href: "/resume-design.pdf",
     newTab: true,
@@ -176,9 +172,8 @@ const PIECES = [
   {
     key: "resume-tech",
     src: `${A}/resume-tech.webp`,
-    x: 1334.3, y: 332.6, w: 117.39, h: 101.56,
+    x: 1334.3, y: 318, w: 117.39, h: 97.825,
     label: "Tech résumé",
-    kind: "Mrinali Bhardwaj",
     aria: "Mrinali Bhardwaj, tech résumé — PDF, opens in a new tab",
     href: "/resume-tech.pdf",
     newTab: true,
@@ -573,7 +568,15 @@ export default function DesktopFiles({ visible, onOpenCase, onOpenNote, onOpenEm
           top: `${t}%`,
           aspectRatio: `${p.w} / ${p.h}`,
           ...box,
-          zIndex: i + 1,
+          // FILES ABOVE PICTURES, always. The artboard's paint order put the
+          // crowd (last, so highest) over the two résumés, and on a 720-tall
+          // window it covered their names outright. A z-index on the label
+          // alone cannot fix that: each tile sets its own z, which makes it a
+          // stacking context, so the label can only ever sort INSIDE its own
+          // tile. The eight live files take a band of their own above all nine
+          // decorations instead — which is also just true: a thing you can
+          // click should never be behind a thing you cannot.
+          zIndex: interactive ? 100 + i : i + 1,
           pointerEvents,
         };
 
