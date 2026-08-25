@@ -59,19 +59,15 @@ const A = "/desk";
 // x, y, w, h are the Figma frame's own pixels — top-left origin, unrounded.
 // `art` false means paint only. Order is the artboard's paint order.
 //
-// THE SIX FOLDERS ARE GROWN, AND ONLY THE SIX. Every one of them was 117.4
-// artboard units — 90px on a 1512 screen — against a 285-unit CD case beside
-// them and a 486-unit crowd across the way. Measured, the artboard's decoration
-// outweighed everything clickable 5.2 : 1, and the case studies came to 1.4% of
-// the screen. In a fifteen-second scan the eye goes to size, so the three most
-// important objects on the page were the three smallest labelled ones.
-//
-// They are 154 units here — ~118px, level with the two 147.8-unit résumé cards,
-// which makes the eight things that open the eight heaviest interactive
-// objects. Each piece keeps its own aspect and its CENTRE IS HELD: the x/y
-// below are the artboard's centres minus half the new box, not positions
-// re-authored by eye. No decorative piece is resized or moved — the artboard's
-// composition is intact, its emphasis is not.
+// EVERY SIZE HERE IS THE ARTBOARD'S. The six folders were briefly grown to 154
+// units — the measured case being that the artboard's decoration outweighed
+// everything clickable 5.2 : 1 and the case studies came to 1.4% of the screen,
+// so the objects that matter most were the smallest labelled ones. On the
+// screen they read as too big, and that is the call that counts: the argument
+// was about attention, and attention is what the person looking at it has.
+// They are back at 117.4/117.2, and the emphasis is carried entirely by the
+// LABELS instead — which is the cheaper instrument anyway, and the one that
+// does not touch the composition.
 const PIECES = [
   // ---------------- left: the folders, the case, the frog ----------------
   // The gingham horse. Contents not decided yet, so it is an EMPTY FOLDER and
@@ -79,7 +75,7 @@ const PIECES = [
   {
     key: "folder-horse",
     src: `${A}/meal-maestro.webp`,
-    x: 435.695, y: 96.46, w: 154, h: 130.766,
+    x: 454, y: 112, w: 117.39, h: 99.686,
     label: "untitled folder",
     kind: "Folder",
     aria: "untitled folder — empty",
@@ -90,7 +86,7 @@ const PIECES = [
   {
     key: "folder-scenery",
     src: `${A}/folder-scenery.webp`,
-    x: 254.215, y: 542.625, w: 154, h: 154,
+    x: 272.52, y: 560.93, w: 117.39, h: 117.39,
     label: "untitled folder",
     kind: "Folder",
     aria: "untitled folder — empty",
@@ -99,7 +95,7 @@ const PIECES = [
   {
     key: "folder-floral",
     src: `${A}/folder-floral.webp`,
-    x: 75.735, y: 546.405, w: 154, h: 154,
+    x: 94.04, y: 564.71, w: 117.39, h: 117.39,
     label: "Layover",
     kind: "Case Study",
     aria: "Layover — brand and product design, open the case study",
@@ -109,7 +105,7 @@ const PIECES = [
   {
     key: "futurepreneurs",
     src: `${A}/futurepreneurs.webp`,
-    x: 75.655, y: 397.494, w: 154, h: 130.539,
+    x: 94.04, y: 413.08, w: 117.23, h: 99.367,
     label: "Futurepreneurs 10.0",
     kind: "Case Study",
     aria: "Futurepreneurs 10.0 — branding and UI, open the case study",
@@ -119,7 +115,7 @@ const PIECES = [
   {
     key: "folder-green",
     src: `${A}/folder-green.webp`,
-    x: 246.645, y: 397.516, w: 154, h: 130.974,
+    x: 264.95, y: 413.08, w: 117.39, h: 99.845,
     label: "Meal Maestro",
     kind: "Case Study",
     aria: "Meal Maestro — UI design, open the case study",
@@ -131,7 +127,7 @@ const PIECES = [
   {
     key: "about-me",
     src: `${A}/layover.webp`,
-    x: 435.615, y: 241.145, w: 154, h: 128.443,
+    x: 454, y: 256.48, w: 117.23, h: 97.772,
     label: "About Me",
     kind: "Note",
     aria: "About Me — the scrapbook, opens in a window",
