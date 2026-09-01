@@ -31,6 +31,13 @@ import { PROJECTS } from "./projects.js";
 // and right of the last one so the stack stays legible instead of one hiding
 // another exactly. Wrapped at 4 so the fifth doesn't march off the screen.
 const CASCADE = 26;
+
+/** the artboard's own pixel width, so a wide window can't blow it up past 1:1 */
+function nativeWidth(shot) {
+  if (shot.sliceSize) return `${shot.sliceSize[0]}px`;
+  const w = shot.dims && parseInt(shot.dims, 10);
+  return w ? `${w}px` : undefined;
+}
 const CASCADE_WRAP = 4;
 
 export default function CaseWindow({ project, index, z, onClose, onFocus, onSwitch }) {
@@ -142,7 +149,18 @@ export default function CaseWindow({ project, index, z, onClose, onFocus, onSwit
         {p.shots.length > 0 ? (
           <div className="cw-shots">
             {p.shots.map((shot, i) => (
-              <figure className="cw-shot" key={shot.frame || shot.src}>
+              <figure
+                className="cw-shot"
+                key={shot.frame || shot.src}
+                // NEVER UPSCALE AN ARTBOARD. The window is 1240 wide now and
+                // 1600 zoomed, and `.cw-shot > img` is `width: 100%` — without
+                // this, Meal Maestro's 1400px strip would render at 1560 in a
+                // zoomed window, which is 11% of pure blur on the one board
+                // that is all small type. The native width is already in the
+                // data (`sliceSize` for a strip, `dims` for a single board), so
+                // this reads it rather than inventing a number.
+                style={{ maxWidth: nativeWidth(shot) }}
+              >
                 {/* Named and dimensioned like the artboard it is — this is a
                     picture OF a Figma frame, so it wears frame chrome rather
                     than reading as a photo dropped into a window. */}

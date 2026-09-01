@@ -8,16 +8,26 @@
    z is set inline by Cover so clicking one raises it. */
 .cw {
   position: fixed;
-  top: 12vh;
+  top: 7vh;
   left: 50%;
-  width: min(640px, calc(100vw - 40px));
-  max-height: 76vh;
+  /* 1240, NOT 640. The case studies are the most important thing on this desk
+     and they were opening into the narrowest window on it. Meal Maestro's
+     artboard is 1400 wide and Layover's are 1600; inside a 640px window, minus
+     40px of padding, they rendered at 600px — 43% of native, which is a case
+     study you squint at. At 1240 the same boards land at ~1200px (86% of
+     Meal Maestro, 75% of Layover) and the green light takes them the rest of
+     the way. The preamble does NOT get to be 1200px wide — see .cw-measure. */
+  width: min(1240px, calc(100vw - 40px));
+  /* 82, not 86: at 7vh from the top, 86vh puts the window's last 24px behind
+     the dock. 82 lands it just above. (Zoomed is allowed under the dock — a
+     zoomed Mac window is too.) */
+  max-height: 82vh;
   /* MAX, not min. The margin has to be minus HALF the width above, and both
      candidates are negative — `min()` picks the more negative of the two, which
      at 1440 chose -700px (the viewport half) over -320px (the real half) and
      shoved the window against the left edge. `max()` picks the one nearer zero,
      which is always the half that matches the width `min()` actually resolved. */
-  margin-left: max(-320px, calc(-50vw + 20px));
+  margin-left: max(-620px, calc(-50vw + 20px));
   display: flex;
   flex-direction: column;
   border-radius: 11px;
@@ -29,11 +39,15 @@
   font-family: var(--font-ui);
 }
 
+/* Zoom = the artboards at their own size. 1600 is Layover's native export
+   width and sits above Meal Maestro's 1400, so at this size nothing in any
+   study is being upscaled or shrunk — which is what a macOS zoom button is
+   for, and is now a real difference rather than 240 more pixels. */
 .cw.is-big {
-  width: min(880px, calc(100vw - 40px));
-  max-height: 88vh;
-  margin-left: max(-440px, calc(-50vw + 20px));
-  top: 6vh;
+  width: min(1600px, calc(100vw - 32px));
+  max-height: 94vh;
+  margin-left: max(-800px, calc(-50vw + 16px));
+  top: 3vh;
 }
 
 /* rolled up: the title bar alone, the classic Mac window shade */
@@ -140,6 +154,17 @@
   overflow-y: auto;
   padding: 18px 20px 22px;
   -webkit-overflow-scrolling: touch;
+}
+
+/* THE COPY DOES NOT GET THE WHOLE WINDOW. Widening the window for the artwork
+   would otherwise set a 13.5px paragraph across 1200px — around 200 characters
+   a line, roughly three times a readable measure. The artboards take the full
+   width; everything above them stays a column. */
+.cw-head,
+.cw-card,
+.cw-facts,
+.cw-section {
+  max-width: 760px;
 }
 
 .cw-head {
