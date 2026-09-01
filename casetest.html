@@ -1,0 +1,50 @@
+<!doctype html>
+<!-- DEV HARNESS, not part of the site. The case window lives on a scroll-
+     scrubbed cover, so a screenshot of "/" is a black lotus frame with the
+     window's entrance animation frozen behind it — no way to actually LOOK at
+     the study. This mounts CaseWindow on its own, at a size given by ?w=/?h=.
+     Delete when the window stops changing. -->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>case window harness</title>
+    <style>
+      html, body { margin: 0; height: 100%; background: #0b0b10; }
+      /* Headless screenshots run on frozen virtual time, so Framer's entrance
+         never advances and the window shoots at opacity 0. This is the harness
+         saying "skip the animation, show me the layout". */
+      .cw { opacity: 1 !important; transform: none !important;
+            top: 20px !important; max-height: none !important; }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module">
+      import React from "react";
+      import { createRoot } from "react-dom/client";
+      import CaseWindow from "/src/CaseWindow.jsx";
+      import { PROJECTS } from "/src/projects.js";
+      import "@fontsource-variable/inter";
+      import "/src/index.css";
+      import "/src/case-window.css";
+
+      const q = new URLSearchParams(location.search);
+      const slug = q.get("case") || "layover";
+      const project = PROJECTS.find((p) => p.slug === slug) || PROJECTS[0];
+
+      createRoot(document.getElementById("root")).render(
+        React.createElement(CaseWindow, {
+          project,
+          index: 0,
+          z: 10,
+          onClose: () => {},
+          onFocus: () => {},
+          onSwitch: (s) => {
+            location.search = `?case=${s}`;
+          },
+        })
+      );
+    </script>
+  </body>
+</html>

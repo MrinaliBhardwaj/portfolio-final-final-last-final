@@ -37,6 +37,33 @@
  * @property {string} alt
  */
 
+/**
+ * THE CASE STUDY IS HTML NOW, NOT AN EXPORT.
+ *
+ * It used to be one enormous artboard scrolled inside a window - 1400x22306 for
+ * Meal Maestro - which meant a case study that could not reflow, could not be
+ * read on a phone, and whose every word was a pixel. The window renders
+ * sections instead, and the fields below are those sections.
+ *
+ * Every one is OPTIONAL. A project supplies what it has and the page omits the
+ * rest, so no slot ever has to be filled with something invented.
+ *
+ * @typedef {object} Metric   one number in the outcome band under the hero
+ * @property {string} value   "2,200+", "140", "3rd"
+ * @property {string} label   what it counts, in a few words
+ *
+ * @typedef {object} Section  a headed block of prose in the study
+ * @property {string} title   "The problem", "The approach"
+ * @property {string} body    one or two paragraphs of plain text
+ *
+ * Optional keys a project may carry, beyond the ones already here:
+ *   metrics        Metric[]   the outcome band
+ *   sections       Section[]  problem / approach / whatever the study needs
+ *   contributions  string[]   "What I did" bullets
+ *   archive        Shot       a full exported artboard, folded away at the foot
+ *                             of the study rather than BEING the study
+ */
+
 const BEHANCE = "https://www.behance.net/mrinalibhardwaj1";
 
 export const PROJECTS = [
@@ -61,8 +88,21 @@ export const PROJECTS = [
       ["Recognition", "3rd — GDG Design-a-thon"],
     ],
     external: BEHANCE,
-    shots: [
-      {
+    // Her own numbers, from the research page of the study itself - they were
+    // buried in the export's alt text, where a hiring manager scanning for
+    // thirty seconds would never find them.
+    metrics: [
+      { value: "140", label: "survey responses" },
+      { value: "12", label: "discovery interviews" },
+      { value: "3rd", label: "GDG Design-a-thon" },
+    ],
+    shots: [],
+    // NOT A SHOT ANY MORE. This is the 22,306px export the window used to BE:
+    // 18 files of one flat picture, unreflowable, unsearchable, unreadable on a
+    // phone. It stays because it is the real work and deleting it would lose
+    // it - but it is folded away at the foot of the study as an archive rather
+    // than served as the study. When the rebuilt sections arrive, it can go.
+    archive: {
         // The full case study, exported from the Figma file
         // (meal-maestro-case-study, node 429-2731) at 1400x22306 and sliced by
         // scripts/build_meal_maestro_shots.py. Slicing is REQUIRED, not an
@@ -93,8 +133,7 @@ export const PROJECTS = [
           "The full case study — research with real users, the insights it earned, the design system, and the flows it produced.",
         alt:
           "The Meal Maestro case study: a smart meal-planning app for personalized recommendations and nutrition guidance, designed in Vellore, Tamil Nadu, May 2026. It runs from the goal of making healthy eating simpler and more accessible, through branding and primary research grounded in real voices and real data (12 discovery phone interviews, 140 survey responses, 4 comparison teardowns, 5 weeks), into key insights about why people abandon meal planning, then a design system of colour and type — Poppins for display and headings, Open Sans for body — and finally the home, recipe detail, tracker and explore flows, closing on \"Thanks for watching!\".",
-      },
-    ],
+    },
   },
   {
     slug: "layover",
@@ -120,6 +159,11 @@ export const PROJECTS = [
     // Shipped as a real product — the case-study page links here instead of
     // back to Behance, since the live thing outranks mockups of it.
     live: "https://mylayover.in/",
+    metrics: [
+      { value: "4", label: "airports at launch" },
+      { value: "3", label: "surfaces: site, web app, mobile app" },
+      { value: "Live", label: "shipped at mylayover.in" },
+    ],
     shots: [
       {
         src: "/work/layover/hero.webp",
@@ -193,6 +237,11 @@ export const PROJECTS = [
     // The project's own gallery, not the general profile — same reasoning as
     // Layover's live link: point at the specific thing, not a landing page.
     external: "https://www.behance.net/gallery/221417825/FUTUREPRENEURS-100-UI-Design",
+    metrics: [
+      { value: "10,000+", label: "views across the campaign" },
+      { value: "2,200+", label: "registrations" },
+      { value: "10th", label: "edition of the event" },
+    ],
     shots: [],
   },
 ];

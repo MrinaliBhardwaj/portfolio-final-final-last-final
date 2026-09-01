@@ -2961,3 +2961,63 @@ lotus box, the dock, the menu bar or the viewport edges; clicking the Layover
 folder opens its window with 5 shots; 193 resources and no 4xx/5xx; the desk
 costs 282 KB over the wire. At 390×844 and 320×568: five pieces, no collisions,
 no horizontal scroll, every tap target ≥53px. typecheck and build clean.
+
+---
+
+## The case window is a Finder app, not a scroller (1 Sep 2026)
+
+The window held one thing under a short preamble: an exported artboard, 1400 ×
+22306 for Meal Maestro, delivered as 18 stacked slices. That is a PDF viewer
+wearing a Mac window. The study could not reflow, could not be read on a phone,
+could not be searched, selected or scanned, and every word in it was a pixel.
+Moving between projects meant two chevrons that never said what was on either
+side of you.
+
+**A 220px sidebar, always visible, current project lit.** It is a Finder source
+list — translucent grey, a hairline, macOS selection blue on the current row,
+and no other colour. It carries the projects and nothing else: no About Me, no
+Resume, no Contact, because those live on the desk and the window is about the
+work. It answers "how much work is there and how do I reach the rest of it",
+which two chevrons cannot.
+
+**The study is HTML sections at a ~1100px measure**: hero (eyebrow, title,
+lede, a meta row of Role / Timeline / Recognition), then overview beside the
+numbers, then the screens as numbered cards. The window may be 1240 or 1600
+wide; the measure does not move.
+
+**The numbers came out of the alt text.** Meal Maestro's 140 survey responses
+and 12 discovery interviews were already written down — inside the export's
+alt attribute, where a hiring manager scanning for thirty seconds would never
+find them. Same for Futurepreneurs' 10,000 views and 2,200 registrations, which
+were buried in a Details row. Nothing here is invented; it is her own figures,
+promoted to where they can be read.
+
+**The export is kept, demoted.** It is folded into a closed `<details>` at the
+foot of Meal Maestro's study, labelled as the Figma export it is. Closed means
+the browser fetches none of its 1.26 MB until asked. When the rebuilt sections
+land it can go.
+
+**Every new field is optional** — `metrics`, `sections`, `contributions`,
+`archive`. A project supplies what it has and the page omits the rest, so no
+slot ever has to be filled with something invented. Meal Maestro's "The work"
+is honestly empty today and says so.
+
+**Two containers, not one, and never a media query.** The window is 1240 at
+rest, 1600 zoomed and a full-width sheet on a phone — three widths inside one
+viewport, changed by a click on a light rather than by a resize, so a `@media`
+rule would size all three off the wrong number. `.cw` is queried for whether the
+sidebar can afford 220px (below 880 it becomes a rail across the top);
+`.cw-main` is queried for whether the study can hold two columns (below 820 it
+stacks). One container could not express a 984px window, which is wide enough to
+keep the sidebar and too narrow for a two-column hero at the same time.
+
+**A container cannot style itself** — this cost an hour. `container-type` on
+`.cw-shell` left every rule that turns the shell into a column silently dead:
+the sidebar went horizontal while still sitting in a 220px column beside a 389px
+study, and the computed values were the only way to see it.
+
+**`casetest.html` is a dev harness, not part of the site.** The case window
+lives on a scroll-scrubbed cover, so both the preview pane and headless Chrome
+screenshot it as a black lotus frame with the entrance animation frozen. The
+harness mounts CaseWindow alone so the study can actually be looked at. Vite
+builds only `index.html`, so it does not ship.
