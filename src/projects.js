@@ -280,6 +280,82 @@ export const PROJECTS = [
     ],
   },
   {
+    slug: "nextg",
+    name: "NextG Apex",
+    what: "Product & brand design · retail platform",
+    when: "2026",
+    tag: "500K+ outlets, one growth engine",
+    blurb:
+      "The phygital engine for retail: field execution, store intelligence and visibility for FMCG brands, as one site and one app.",
+    size: "wide",
+    cover: "/work/nextg/cover.webp",
+    file: "nextg-apex",
+    dims: "1440 × 900",
+    role: "Product design, brand, UI design",
+    summary:
+      "NextG sells reach — half a million retail outlets across 900 towns — and the design problem is that reach is abstract until you can see it. The site opens on the network itself, drawn as a constellation, and every number under the headline is a claim the coverage map then has to make good on. The app is the other half: the same system in the hand of someone standing in a store, where the drawer and the showcase have to work one-thumbed in a bad-signal aisle.",
+    facts: [
+      ["Role", "Product design · brand · UI"],
+      ["Timeline", "2026"],
+      ["Surfaces", "Marketing site, mobile app"],
+    ],
+    metrics: [
+      { value: "500K+", label: "retail outlets, scaling to 3M" },
+      { value: "900+", label: "towns and cities" },
+      { value: "20+", label: "challenger brands" },
+    ],
+    // A rail: a desktop board and four portrait phone screens have nothing in
+    // common but their height, which is exactly what the rail aligns them on.
+    screensAs: "rail",
+    shots: [
+      {
+        src: "/work/nextg/desktop.webp",
+        frame: "The site",
+        dims: "1440 × 951",
+        caption:
+          "The landing page. The network is the product, so the network is the artwork — and the three figures under the headline are what the rest of the site has to substantiate.",
+        alt:
+          "NextG's landing page in a browser frame: navigation, the headline \u201cEvery outlet, One growth engine.\u201d in black and blue over a constellation of linked dots, a \u201cBook a demo\u201d button, and the figures 500K+ retail outlets, 900+ towns and cities, 20+ challenger brands.",
+      },
+      {
+        src: "/work/nextg/coverage-map.webp",
+        frame: "Coverage",
+        dims: "1440 × 665",
+        caption:
+          "The claim, made good. Reach is abstract until it is a map, and this is the screen the headline's numbers are cashed against.",
+        alt: "NextG's featured coverage map view, showing retail distribution across the country.",
+      },
+      {
+        src: "/work/nextg/phone-hero.webp",
+        frame: "App · home",
+        dims: "316 × 706",
+        caption: "The same system in the hand of someone standing in a store.",
+        alt: "NextG's mobile home screen.",
+      },
+      {
+        src: "/work/nextg/phone-growth.webp",
+        frame: "App · growth",
+        dims: "316 × 706",
+        caption: "Coordinated growth — the numbers a brand manager checks first.",
+        alt: "NextG's mobile coordinated-growth screen.",
+      },
+      {
+        src: "/work/nextg/phone-showcase.webp",
+        frame: "App · showcase",
+        dims: "316 × 706",
+        caption: "The product showcase, built to be read one-thumbed in an aisle.",
+        alt: "NextG's mobile product showcase screen.",
+      },
+      {
+        src: "/work/nextg/phone-drawer.webp",
+        frame: "App · navigation",
+        dims: "316 × 706",
+        caption: "The drawer. Everything the app does, in one reachable list.",
+        alt: "NextG's mobile navigation drawer.",
+      },
+    ],
+  },
+  {
     slug: "layover",
     name: "Layover",
     what: "Brand & product design · web and mobile",
