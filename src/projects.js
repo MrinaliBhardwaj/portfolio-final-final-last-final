@@ -62,6 +62,9 @@
  *   contributions  string[]   "What I did" bullets
  *   archive        Shot       a full exported artboard, folded away at the foot
  *                             of the study rather than BEING the study
+ *   screensAs      "rail"     lay the screens across instead of down, aligned
+ *                             on a shared height. For UI screens that belong in
+ *                             sequence; the default grid suits wide boards.
  */
 
 const BEHANCE = "https://www.behance.net/mrinalibhardwaj1";
@@ -136,6 +139,147 @@ export const PROJECTS = [
     },
   },
   {
+    slug: "regis",
+    name: "Regis",
+    what: "Product design · compliance platform",
+    when: "2026",
+    tag: "29 Indian laws, one register",
+    blurb:
+      "A compliance workspace for Indian NBFCs: one entity profile in, 367 dated obligations out, and a board pack at the end of it.",
+    size: "lg",
+    cover: "/work/regis/cover.webp",
+    file: "compliance-checker-regis",
+    dims: "1440 × 900",
+    role: "Product design, UI design",
+    summary:
+      "Compliance software fails in a specific way: it tells you everything is due and nothing is urgent. Regis takes one entity profile and derives 367 dated obligations from 106 templates across 29 Indian laws, then spends the whole interface on the only question a compliance officer has at 9am — what is going to cost money today. Overdue leads every screen, the queue is ranked by risk against time rather than by date, and maker-checker is drawn into the roles rather than bolted on. Designed and built end to end; the engineering side is in the README.",
+    facts: [
+      ["Role", "Product design · UI design"],
+      ["Timeline", "2026"],
+      ["Surfaces", "Web app, light and dark"],
+      ["Engineering", "FastAPI · PostgreSQL · Next.js · TypeScript"],
+    ],
+    metrics: [
+      { value: "367", label: "obligations derived from one profile" },
+      { value: "29", label: "Indian laws covered" },
+      { value: "12", label: "screens, light and dark" },
+    ],
+    // A RAIL: twelve 1440-wide boards down a column is twelve screenfuls of
+    // scrolling. Across, at a shared height, they read as the product they are.
+    screensAs: "rail",
+    external: "https://github.com/MrinaliBhardwaj/compliance-checker",
+    shots: [
+      {
+        src: "/work/regis/today-overview.webp",
+        frame: "Today",
+        dims: "1440 × 900",
+        caption:
+          "The standing position, ranked. Every obligation past its statutory date is a penalty accruing per day, so the overdue count leads and the priority queue is ordered by risk against time rather than by date.",
+        alt:
+          "Regis, the today screen: a compliance workspace for Indian NBFCs, in the product's own restrained grey-and-red interface.",
+      },
+      {
+        src: "/work/regis/obligations-tracker.webp",
+        frame: "Obligations",
+        dims: "1440 × 900",
+        caption:
+          "346 obligations across 29 laws, filtered rather than searched — the register is too large to browse, so the controls are the interface.",
+        alt:
+          "Regis, the obligations screen: a compliance workspace for Indian NBFCs, in the product's own restrained grey-and-red interface.",
+      },
+      {
+        src: "/work/regis/obligation-detail.webp",
+        frame: "Obligation detail",
+        dims: "1440 × 900",
+        caption:
+          "One obligation, opened as a sheet over the tracker so you never lose your place in the list you were working through.",
+        alt:
+          "Regis, the obligation detail screen: a compliance workspace for Indian NBFCs, in the product's own restrained grey-and-red interface.",
+      },
+      {
+        src: "/work/regis/evidence-repository.webp",
+        frame: "Evidence",
+        dims: "1440 × 900",
+        caption:
+          "What was filed, when, and by whom. The AI classification sits beside each file rather than replacing the human column.",
+        alt:
+          "Regis, the evidence screen: a compliance workspace for Indian NBFCs, in the product's own restrained grey-and-red interface.",
+      },
+      {
+        src: "/work/regis/audit-trail.webp",
+        frame: "Audit trail",
+        dims: "1440 × 900",
+        caption:
+          "Every state change, immutable. This is the screen a regulator asks for, so it reads as a ledger and not as a feed.",
+        alt:
+          "Regis, the audit trail screen: a compliance workspace for Indian NBFCs, in the product's own restrained grey-and-red interface.",
+      },
+      {
+        src: "/work/regis/reports-board-pack.webp",
+        frame: "Reports",
+        dims: "1440 × 900",
+        caption:
+          "The board pack, generated. The quarterly report is the output the whole system exists to produce.",
+        alt:
+          "Regis, the reports screen: a compliance workspace for Indian NBFCs, in the product's own restrained grey-and-red interface.",
+      },
+      {
+        src: "/work/regis/team-roles.webp",
+        frame: "Team",
+        dims: "1440 × 900",
+        caption:
+          "Maker-checker, made visible: who can prepare, who can approve, and the rule that the two cannot be one person.",
+        alt:
+          "Regis, the team screen: a compliance workspace for Indian NBFCs, in the product's own restrained grey-and-red interface.",
+      },
+      {
+        src: "/work/regis/notifications.webp",
+        frame: "Notifications",
+        dims: "1440 × 900",
+        caption:
+          "99+ is a failure state, not a badge. The inbox groups by obligation so a single filing does not arrive as eleven separate alerts.",
+        alt:
+          "Regis, the notifications screen: a compliance workspace for Indian NBFCs, in the product's own restrained grey-and-red interface.",
+      },
+      {
+        src: "/work/regis/legal-updates.webp",
+        frame: "Legal updates",
+        dims: "1440 × 900",
+        caption:
+          "New and amended law, and what it changed in your register — the feed's job is to end at an obligation, not at an article.",
+        alt:
+          "Regis, the legal updates screen: a compliance workspace for Indian NBFCs, in the product's own restrained grey-and-red interface.",
+      },
+      {
+        src: "/work/regis/onboarding.webp",
+        frame: "Onboarding",
+        dims: "1440 × 900",
+        caption:
+          "The derived values, confirmed. The engine reads 367 obligations out of one entity profile, so the profile is where the whole system is right or wrong.",
+        alt:
+          "Regis, the onboarding screen: a compliance workspace for Indian NBFCs, in the product's own restrained grey-and-red interface.",
+      },
+      {
+        src: "/work/regis/sign-in.webp",
+        frame: "Sign in",
+        dims: "1440 × 900",
+        caption:
+          "Workspace creation, in the same restrained type as the product it opens into.",
+        alt:
+          "Regis, the sign in screen: a compliance workspace for Indian NBFCs, in the product's own restrained grey-and-red interface.",
+      },
+      {
+        src: "/work/regis/tracker-dark.webp",
+        frame: "Tracker, dark",
+        dims: "1440 × 900",
+        caption:
+          "The same tracker on the dark theme — a compliance officer's screen is open for eight hours, so both themes are first-class.",
+        alt:
+          "Regis, the tracker, dark screen: a compliance workspace for Indian NBFCs, in the product's own restrained grey-and-red interface.",
+      },
+    ],
+  },
+  {
     slug: "layover",
     name: "Layover",
     what: "Brand & product design · web and mobile",
@@ -159,6 +303,10 @@ export const PROJECTS = [
     // Shipped as a real product — the case-study page links here instead of
     // back to Behance, since the live thing outranks mockups of it.
     live: "https://mylayover.in/",
+    // HER CALL, 2 Sep 2026: a rail, not a grid. Layover is a phone product and
+    // its screens are meant to be read across, in order — a column turns one
+    // flow into eight screenfuls of scrolling.
+    screensAs: "rail",
     metrics: [
       { value: "4", label: "airports at launch" },
       { value: "3", label: "surfaces: site, web app, mobile app" },
