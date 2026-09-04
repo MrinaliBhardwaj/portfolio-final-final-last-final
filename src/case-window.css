@@ -567,121 +567,10 @@
   border-top: 1px solid rgba(0, 0, 0, 0.09);
 }
 
-.cw-screens-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-
 .cw-shots {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 22px;
-}
-
-/* ---- the rail ----
-   Screens laid across rather than down. ALIGNED BY HEIGHT, not width, which is
-   the whole reason it works: a set of UI screens is a mix of portrait phones,
-   tablets and full-bleed desktop boards, and only a shared height makes them
-   read as one sequence rather than a ransom note. Width follows from each
-   screen's own aspect. */
-.cw-rail {
-  --rail-h: 420px;
-  display: flex;
-  align-items: flex-start;
-  gap: 18px;
-  overflow-x: auto;
-  overscroll-behavior-x: contain; /* don't hand the page a horizontal swipe */
-  scroll-snap-type: x proximity; /* proximity, not mandatory — a wide board must
-                                    still be scrollable past its own left edge */
-  padding-bottom: 12px;
-  scrollbar-width: thin;
-}
-
-.cw-rail:focus-visible {
-  outline: 2px solid #2f7cf6;
-  outline-offset: 3px;
-  border-radius: 4px;
-}
-
-/* THE SCREEN SETS THE WIDTH, NOT ITS CAPTION.
-   `fit-content` alone was not enough: a flex item shrink-wraps to its widest
-   child, and a two-line caption is wider than a 672px screen — every screen in
-   the rail carried 88px of dead air on its right, which read as a gap in the
-   sequence. `width: 0; min-width: 100%` takes the caption out of that intrinsic
-   measurement entirely (it contributes nothing, then lays out at the width the
-   image resolved), so the figure is exactly as wide as the screen and the
-   caption wraps inside it. */
-.cw-rail .cw-shot {
-  flex: none;
-  scroll-snap-align: start;
-  width: fit-content;
-  /* The cap only exists so a screen cannot be wider than the rail that holds
-     it; anything tighter just letterboxes work for no reason. NextG's coverage
-     map wants 909px at this height and was being squeezed into 760 with 34px of
-     empty box above and below it. 920 is the rail's own width, which is the
-     only real limit. */
-  max-width: min(920px, 92cqw);
-}
-
-.cw-rail .cw-shot figcaption {
-  width: 0;
-  min-width: 100%;
-}
-
-/* .is-wide is a GRID instruction ("span both columns") and means nothing here —
-   left unneutralised it makes every wide board a full-width flex item and the
-   rail stops being a rail. */
-.cw-rail .cw-shot.is-wide {
-  grid-column: auto;
-}
-
-.cw-rail .cw-shot-art {
-  height: var(--rail-h);
-  max-width: 100%; /* honour the figure's cap ... */
-  display: flex;
-}
-
-/* ... and `contain` is what makes that cap safe: a board far wider than 760 is
-   letterboxed down rather than cropped, which for a UI screen is the difference
-   between "smaller" and "missing its right-hand third". */
-.cw-rail .cw-shot-art img {
-  width: auto;
-  max-width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
-
-.cw-rail-nav {
-  display: flex;
-  gap: 6px;
-}
-
-.cw-rail-nav button {
-  width: 26px;
-  height: 26px;
-  display: grid;
-  place-items: center;
-  padding: 0;
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  border-radius: 50%;
-  background: #fff;
-  color: #55555c;
-  cursor: pointer;
-  transition: background 0.13s ease, color 0.13s ease;
-}
-
-.cw-rail-nav button:hover:not(:disabled) {
-  background: #f0f0f2;
-  color: #1c1c1e;
-}
-
-/* Disabled rather than hidden: arrows that vanish at the ends make the row
-   twitch, and a greyed arrow still says "this scrolls". */
-.cw-rail-nav button:disabled {
-  opacity: 0.32;
-  cursor: default;
 }
 
 .cw-shot {
@@ -883,13 +772,6 @@
     grid-template-columns: minmax(0, 1fr);
   }
 
-  /* the rail survives the stack — it is the layout that does NOT need a wide
-     window, since sideways is where its space comes from */
-  .cw-rail {
-    --rail-h: 340px;
-    grid-template-columns: none;
-  }
-
   .cw-doc {
     padding: 0 26px 36px;
   }
@@ -906,10 +788,6 @@
 
   .cw-stats {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .cw-rail {
-    --rail-h: 270px;
   }
 }
 

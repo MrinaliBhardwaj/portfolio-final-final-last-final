@@ -24,7 +24,7 @@
 // LIGHT, on a dark site, deliberately: a Mac window is a light panel and this
 // one is quoting a Mac window. Notes is already a light world, so the vocabulary
 // exists in the project.
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion, useDragControls } from "framer-motion";
 import {
   ChevronLeft,
@@ -73,48 +73,6 @@ function factIcon(label) {
   return FACT_ICONS.find((f) => f.re.test(label))?.icon || Sparkles;
 }
 
-/**
- * Does this scroller actually overflow, and where is it?
- *
- * The rail's arrows are only honest if they can be disabled: a rail whose
- * screens all fit needs no arrows, and one scrolled to the end must not offer a
- * "next". Nothing about that is knowable from CSS, so it is measured — on
- * scroll, on resize, and once the images have decoded and changed the width.
- */
-function useRailReach(ref) {
-  const [reach, setReach] = useState({ start: false, end: false });
-  const read = useCallback(() => {
-    const el = ref.current;
-    if (!el) return;
-    const slack = el.scrollWidth - el.clientWidth;
-    setReach({
-      start: el.scrollLeft > 4,
-      // 4px of tolerance: fractional layout widths mean scrollLeft never quite
-      // equals the maximum, and a "next" arrow that stays lit at the end is a
-      // button that does nothing.
-      end: slack > 4 && el.scrollLeft < slack - 4,
-    });
-  }, [ref]);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    read();
-    el.addEventListener("scroll", read, { passive: true });
-    const ro = new ResizeObserver(read);
-    ro.observe(el);
-    for (const img of el.querySelectorAll("img")) {
-      if (!img.complete) img.addEventListener("load", read, { once: true });
-    }
-    return () => {
-      el.removeEventListener("scroll", read);
-      ro.disconnect();
-    };
-  }, [ref, read]);
-
-  return reach;
-}
-
 /** the picture that leads the study: its first real screen, else its cover */
 function heroArt(p) {
   const shot = (p.shots || []).find((s) => s.src);
@@ -150,23 +108,6 @@ export default function CaseWindow({ project, index, z, onClose, onFocus, onSwit
   const offset = (index % CASCADE_WRAP) * CASCADE;
   const hero = heroArt(p);
   const shots = p.shots || [];
-  // A RAIL WHERE THE SCREENS ASK FOR ONE. Layover is a phone app: eight portrait
-  // screens stacked down a column is eight screenfuls of scrolling to see a flow
-  // that was designed to be read across. Sideways, at a common height, they read
-  // as the sequence they are — and the grid stays for projects whose work is
-  // wide composed boards, which a rail would shrink to postcards.
-  const railed = p.screensAs === "rail" && shots.length > 0;
-  const rail = useRef(null);
-  const reach = useRailReach(rail);
-
-  // one screen per press, whatever that screen happens to be wide
-  const nudge = (dir) => () => {
-    const el = rail.current;
-    if (!el) return;
-    const first = el.querySelector(".cw-shot");
-    const step = first ? first.getBoundingClientRect().width + 18 : el.clientWidth * 0.8;
-    el.scrollBy({ left: dir * step, behavior: "smooth" });
-  };
 
   return (
     <motion.div
@@ -366,41 +307,9 @@ export default function CaseWindow({ project, index, z, onClose, onFocus, onSwit
             )}
 
             <section className="cw-screens">
-              <div className="cw-screens-head">
-                <h3 className="cw-kicker">The work</h3>
-                {railed && (
-                  <div className="cw-rail-nav">
-                    <button
-                      type="button"
-                      onClick={nudge(-1)}
-                      disabled={!reach.start}
-                      aria-label="Previous screens"
-                    >
-                      <ChevronLeft size={15} strokeWidth={2} aria-hidden="true" />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={nudge(1)}
-                      disabled={!reach.end}
-                      aria-label="More screens"
-                    >
-                      <ChevronRight size={15} strokeWidth={2} aria-hidden="true" />
-                    </button>
-                  </div>
-                )}
-              </div>
+              <h3 className="cw-kicker">The work</h3>
               {shots.length > 0 ? (
-                <div
-                  className={railed ? "cw-shots cw-rail" : "cw-shots"}
-                  ref={railed ? rail : undefined}
-                  // A scroll container is only reachable by keyboard if it can
-                  // be focused, and a region needs a name to be worth landing
-                  // on. Without both, the screens past the right edge exist for
-                  // a mouse and for nobody else.
-                  tabIndex={railed ? 0 : undefined}
-                  role={railed ? "region" : undefined}
-                  aria-label={railed ? `${p.name} screens, scroll sideways` : undefined}
-                >
+                <div className="cw-shots">
                   {shots.map((shot, i) => (
                     <figure
                       className={`cw-shot${shot.wide ? " is-wide" : ""}`}
@@ -412,11 +321,7 @@ export default function CaseWindow({ project, index, z, onClose, onFocus, onSwit
                         // 1600 zoomed, and the image is `width: 100%` — without
                         // this a 1400px export renders at 1560 in a zoomed
                         // window, which is 11% of pure blur.
-                        //
-                        // Not in the rail: there the shared HEIGHT drives the
-                        // width, so a max-width would crop the wider screens
-                        // rather than scale them.
-                        style={railed ? undefined : { maxWidth: nativeWidth(shot) }}
+                        style={{ maxWidth: nativeWidth(shot) }}
                       >
                         <img
                           src={shot.src}
