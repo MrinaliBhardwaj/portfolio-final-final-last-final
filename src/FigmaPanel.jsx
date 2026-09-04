@@ -7,6 +7,7 @@
 // the app's chrome, not the portfolio's palette.
 import { useState } from "react";
 import { FigmaMark } from "./BrandIcons.jsx";
+import { FIGMA_PAGES } from "./figma-pages.js";
 
 function cx(...parts) {
   return parts.filter(Boolean).join(" ");
@@ -146,6 +147,7 @@ export default function FigmaPanel({
   onSelect,
   open = false,
   onClose,
+  pageSlug = "",
 }) {
   // ONE PAGE, WHICH IS THE TRUTH ABOUT THIS FILE (19 Aug 2026).
   //
@@ -157,9 +159,15 @@ export default function FigmaPanel({
   // now, and listing pages that resolve to a redirect would be the panel lying
   // about the file again.
   //
-  // A one-page file showing one page is not a dead control — it is what Figma
-  // draws for a one-page file, and it is the page you are on.
-  const pages = [{ name: "design", href: "#/design", current: true }];
+  // AND NOW IT HAS MORE THAN ONE, HONESTLY (2 Sep 2026). The pages after
+  // "design" are the project pages — each one a real canvas of that project's
+  // frames at the coordinates its Figma file gives them (figma-pages.js), not a
+  // route that redirects somewhere else. The rule the two wrong versions broke
+  // is the same rule this keeps: the list may only name pages that exist.
+  const pages = [
+    { name: "design", href: "#/design", slug: "" },
+    ...FIGMA_PAGES.map((p) => ({ name: p.name, href: `#/design/${p.slug}`, slug: p.slug })),
+  ].map((p) => ({ ...p, current: p.slug === pageSlug }));
 
   // On phones the panel is a bottom SHEET pulled up from the toolbar's Layers
   // button (Figma mobile's own gesture). Picking a layer jumps to the frame and

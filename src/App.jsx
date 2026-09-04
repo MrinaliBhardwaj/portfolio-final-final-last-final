@@ -15,6 +15,7 @@ import DesignWorld from "./DesignWorld.jsx";
 import TechWorld from "./TechWorld.jsx";
 import { WorldOpening } from "./world-open.js";
 import { bySlug } from "./projects.js";
+import { pageBySlug } from "./figma-pages.js";
 import GalleryWorld from "./GalleryWorld.jsx";
 import NotesWorld from "./NotesWorld.jsx";
 import PondWorld from "./PondWorld.jsx";
@@ -29,6 +30,7 @@ import "./dock.css";
 import "./world-tabs.css";
 import "./window-lights.css";
 import "./design-world.css";
+import "./figma-canvas.css";
 import "./figma-panel.css";
 import "./file-tree.css";
 import "./tech-world.css";
@@ -106,6 +108,11 @@ function getRoute() {
 // through to the design canvas, which is what a stale link should do.
 function redirectLegacyProjectPage() {
   const [world, slug] = hashPath().split("/");
+  // A REAL PAGE OF THE FILE OUTRANKS THE LEGACY SHAPE. #/design/<slug> is a
+  // project page again for anything in FIGMA_PAGES; only the old case-study
+  // slugs are still forwarded. Without this check, the day a project gains
+  // both a page and a case study the page becomes unreachable.
+  if (pageBySlug(slug)) return false;
   if (world !== "design" || !slug || !bySlug(slug)) return false;
   window.location.hash = `/?case=${slug}`;
   return true;

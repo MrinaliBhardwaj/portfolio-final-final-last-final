@@ -5,7 +5,7 @@
 // Figma, and the layers panel + properties panel track the selection.
 // Chrome speaks Inter (Figma's UI font); the hero headline keeps the wide
 // Archivo display type — the one identity thread shared across surfaces.
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { ArrowUpRight, Layers, Mail } from "lucide-react";
 import { FigmaMark } from "./BrandIcons.jsx";
@@ -15,6 +15,8 @@ import DesignHero from "./DesignHero.jsx";
 import InteractiveDots from "./InteractiveDots.jsx";
 import useSectionSpy from "./useSectionSpy.js";
 import { PROJECTS } from "./projects.js";
+import { FIGMA_PAGES, pageBySlug } from "./figma-pages.js";
+import FigmaCanvas from "./FigmaCanvas.jsx";
 
 import { LINKEDIN } from "./links.js";
 
@@ -266,7 +268,41 @@ const capabilities = [
 // window now (CaseWindow.jsx), so this world is the canvas and nothing else,
 // and every branch that swapped the layers tree, the properties panel and the
 // canvas for a project page went with it.
+/** the second hash segment: #/design/regis -> "regis" */
+const hashPage = () =>
+  (window.location.hash.replace(/^#\/?/, "").split("?")[0].split("/")[1] || "");
+
 export default function DesignWorld() {
+  // THE FILE HAS PROJECT PAGES AGAIN — but not the ones it used to have. The
+  // deleted #/design/<slug> was a second CASE STUDY competing with the
+  // desktop's window. These are pages of the FILE: one per project, holding
+  // that project's screens as frames at the coordinates the real Figma file
+  // gives them. Nothing here re-tells a case study; it shows the artboards.
+  //
+  // App's getRoute only reads the first segment, so moving between #/design and
+  // #/design/<slug> never remounts this component — the segment is watched here
+  // instead, or the Pages list would change the address and nothing else.
+  const [pageSlug, setPageSlug] = useState(() => hashPage());
+  useEffect(() => {
+    const on = () => setPageSlug(hashPage());
+    window.addEventListener("hashchange", on);
+    return () => window.removeEventListener("hashchange", on);
+  }, []);
+  const page = pageBySlug(pageSlug);
+
+  // the selected frame on a project page, and a counter that says the pick came
+  // from the layers panel (which should move the canvas) rather than from the
+  // canvas itself (which must not)
+  const [pick, setPick] = useState({ node: "", focus: 0 });
+  useEffect(() => {
+    if (page) setPick({ node: page.frames[0].node, focus: 0 });
+  }, [page]);
+  const fromCanvas = useCallback((node) => setPick((p) => ({ ...p, node })), []);
+  const fromPanel = useCallback(
+    (node) => setPick((p) => ({ node, focus: p.focus + 1 })),
+    []
+  );
+
   const [activeSection, selectFrame] = useSectionSpy(SECTION_IDS);
   const activeFrame =
     FRAMES.find((f) => f.id === activeSection) || FRAMES[0];
@@ -279,6 +315,73 @@ export default function DesignWorld() {
     document.addEventListener("keydown", esc);
     return () => document.removeEventListener("keydown", esc);
   }, [layersOpen]);
+
+  // ---- a project page ----
+  // Same shell, same three panels, different page: the layers tree is this
+  // page's frames, the properties panel reads the selected frame's REAL Figma
+  // x/y/w/h, and the canvas is the file's own placement rather than a layout.
+  if (page) {
+    const layers = page.frames.map((f) => ({
+      id: f.node,
+      name: f.name,
+      props: { x: f.x, y: f.y, w: f.w, h: f.h, fill: { type: "image", src: f.src } },
+      children: [],
+    }));
+    const selected = layers.find((l) => l.id === pick.node) || layers[0];
+    return (
+      <div className="dw dw--page">
+        <WorldTabs world="design" />
+        <FigmaPanel
+          frames={layers}
+          activeId={selected.id}
+          onSelect={fromPanel}
+          open={layersOpen}
+          onClose={() => setLayersOpen(false)}
+          pageSlug={page.slug}
+        />
+        <PropsPanel frame={selected} />
+        {layersOpen && (
+          <div
+            className="dw-scrim"
+            onClick={() => setLayersOpen(false)}
+            aria-hidden="true"
+          />
+        )}
+        <div className="dw-content dw-content--page">
+          <header className="dw-top">
+            <a className="dw-mark" href="#/" aria-label="Mrinali Bhardwaj — home">
+              mb
+            </a>
+            <span className="dw-mfile">
+              <FigmaMark size={12} aria-hidden="true" />
+              design.fig
+            </span>
+            <button
+              type="button"
+              className={`dw-mlayers${layersOpen ? " is-on" : ""}`}
+              onClick={() => setLayersOpen((v) => !v)}
+              aria-expanded={layersOpen}
+              aria-controls="dw-layers"
+            >
+              <Layers size={15} strokeWidth={1.7} aria-hidden="true" />
+              Layers
+            </button>
+            <a className="dw-hello" href={EMAIL} aria-label="Say hello by email">
+              <Mail className="dw-hello-ico" size={16} strokeWidth={1.7} aria-hidden="true" />
+              <span>Say hello</span>
+            </a>
+          </header>
+
+          <FigmaCanvas
+            page={page}
+            activeNode={selected.id}
+            onSelect={fromCanvas}
+            focusAt={pick.focus}
+          />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="dw">

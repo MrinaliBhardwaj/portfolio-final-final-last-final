@@ -3021,3 +3021,61 @@ lives on a scroll-scrubbed cover, so both the preview pane and headless Chrome
 screenshot it as a black lotus frame with the entrance animation frozen. The
 harness mounts CaseWindow alone so the study can actually be looked at. Vite
 builds only `index.html`, so it does not ship.
+
+---
+
+## The screens are pages of the Figma file, not sections of a case study (2 Sep 2026)
+
+Her correction, and it was the right one: putting the UI screens into the
+case-study window's "The work" section made them a presentation OF screens.
+What they are is a Figma page. So they live on one.
+
+**`#/design/<slug>` is a project page of the file.** The Pages list in the
+layers panel has "design" and then one page per project, named for the project.
+This is the third version of that list and the first honest one — it showed two
+worlds as pages once, then one page per project when `#/design/<slug>` was a
+second case study. Both were the panel lying about the file. These pages exist.
+
+**Every coordinate is the real file's.** `x`, `y`, `w`, `h` come out of
+`get_metadata` on the page node, and the frame names are the layer names as she
+typed them. Regis is a 3 × 4 grid, 1540 across and 1000 down; NextG is a single
+1440-wide column with the file's own uneven gaps. Four NextG frames are called
+"row", and they are called "row" here — renaming them to read better would make
+this a second, prettier source of truth, which is the one thing a mirror of a
+design file must never be.
+
+**The chrome does not scale.** Frame names, selection rings, handles and the
+dimension pill are all sized `calc(<px> / var(--fc-s))`, where `--fc-s` is the
+live zoom. That is how Figma draws annotations, and it is the only reason a
+12-frame page is legible at 21%.
+
+**A page opens at width-fit; the Fit button fits everything.** Not the same
+thing, deliberately: Regis is wider than it is tall so the two agree, but NextG
+is a column 6347 tall and fitting all of it opens on nine frames too small to
+read. Width-fit opens it at 60%.
+
+**Three bugs the numbers caught:**
+
+- A world unfolds out of its dock icon by scaling from ~0.3, and an ancestor
+  transform scales `getBoundingClientRect` with it. The first fit measured a
+  297 × 258 "viewport" and settled the page at 6% instead of 21%; a
+  ResizeObserver never corrects it, because a transform is not a resize.
+  `offsetWidth`/`offsetHeight` are layout values and ignore it.
+- `loading="lazy"` decides by intersection with the scrollport, and this canvas
+  never scrolls — it pans by transform. The frames would have stayed blank
+  waiting for a scroll a canvas does not produce.
+- `setPointerCapture` throws for a pointer the browser does not consider
+  active, and it was running before the gesture was recorded — so a pinch did
+  nothing at all while a pan, which happened to survive, looked fine.
+
+**`touch-action: none` is a debt.** Turning the browser's own pan and pinch off
+is the only way a drag can pan a canvas, which makes the pinch this component's
+job: one pointer pans, two pinch about their midpoint, and lifting one of two
+does not jump the view.
+
+**Layover has no page yet** — its file's `get_metadata` fails identically every
+time (`EOF while parsing a string at line 1 column 137971`), so its frames
+cannot be enumerated. It needs node-specific links.
+
+**The case windows are back to waiting** for the full case studies. Nothing in
+them changed except that the screens and the rail came out.
