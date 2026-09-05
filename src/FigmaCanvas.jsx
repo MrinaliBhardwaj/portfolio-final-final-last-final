@@ -289,6 +289,27 @@ export default function FigmaCanvas({ page, activeNode, onSelect, focusAt }) {
 
   const pct = Math.round(view.z * 100);
 
+  // ONLY MOUNT THE IMAGES YOU CAN NEARLY SEE. Layover is forty-five frames and
+  // 2.3 MB, and `loading="lazy"` is no help on a canvas that pans by transform
+  // rather than scrolling (see the note on the img below). The frame BOXES all
+  // render — they are empty divs, and they carry the selection ring and the
+  // name, which must stay correct for frames off screen — but the <img> inside
+  // one only mounts when its rect is within a screen's worth of the viewport.
+  const vp = viewport.current;
+  const vw = vp?.offsetWidth || 0;
+  const vh = vp?.offsetHeight || 0;
+  const near = (f) => {
+    if (!vw) return true; // first paint, before the viewport is measured
+    const l = view.x + f.x * view.z;
+    const t = view.y + f.y * view.z;
+    return (
+      l < vw + vw * 0.6 &&
+      l + f.w * view.z > -vw * 0.6 &&
+      t < vh + vh * 0.6 &&
+      t + f.h * view.z > -vh * 0.6
+    );
+  };
+
   return (
     <div className="fc">
       {/* which page you are on, and the way back to the portfolio page — the
@@ -312,7 +333,7 @@ export default function FigmaCanvas({ page, activeNode, onSelect, focusAt }) {
         aria-label={`${page.name} — Figma canvas. Drag to pan, ctrl and scroll to zoom.`}
       >
         <div
-          className="fc-canvas"
+          className={`fc-canvas${view.z < 0.2 ? " is-far" : ""}`}
           style={{
             // `--fc-s` is read back by every annotation in the CSS to divide
             // its own size by, which is how the chrome stays screen-sized.
@@ -320,6 +341,20 @@ export default function FigmaCanvas({ page, activeNode, onSelect, focusAt }) {
             transform: `translate3d(${view.x}px, ${view.y}px, 0) scale(${view.z})`,
           }}
         >
+          {/* HER SECTION HEADERS, as text on the canvas.
+              These scale WITH the page rather than against it — unlike the frame
+              names and the selection chrome, which are Figma's annotations, this
+              is her own writing on her own page, and it belongs to the artwork.
+              Sizes come from the text nodes' measured heights in the file: the
+              number box is 23 tall, the title 74, the line under it 32. */}
+          {(page.sections || []).map((sec) => (
+            <div className="fc-sec" key={sec.num} style={{ left: sec.x, top: sec.y }}>
+              <span className="fc-sec-n">{sec.num}</span>
+              <h2 className="fc-sec-t">{sec.title}</h2>
+              <p className="fc-sec-s">{sec.sub}</p>
+            </div>
+          ))}
+
           {page.frames.map((f) => {
             const on = f.node === activeNode;
             return (
@@ -344,14 +379,16 @@ export default function FigmaCanvas({ page, activeNode, onSelect, focusAt }) {
                   aria-label={f.name}
                   aria-pressed={on}
                 >
-                  {/* NOT LAZY, and this is the reason: `loading="lazy"` decides
-                      by intersection with the SCROLLPORT, and this canvas never
-                      scrolls — it pans by transform. Ten of twelve frames stayed
-                      blank white forever, because the browser was waiting for a
-                      scroll event that a canvas does not produce. The frames are
-                      the page's whole content anyway; there is nothing here to
-                      defer to. */}
-                  <img src={f.src} alt={f.alt} decoding="async" draggable="false" />
+                  {/* NOT `loading="lazy"`: that decides by intersection with the
+                      SCROLLPORT, and this canvas never scrolls — it pans by
+                      transform, so ten of twelve frames stayed blank white
+                      forever waiting for a scroll event a canvas does not
+                      produce. `near()` above does the same job against the
+                      canvas's own geometry, which is the thing that actually
+                      moves. */}
+                  {near(f) && (
+                    <img src={f.src} alt={f.alt} decoding="async" draggable="false" />
+                  )}
                 </button>
                 {on && (
                   <>

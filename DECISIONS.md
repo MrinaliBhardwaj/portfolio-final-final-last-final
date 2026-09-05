@@ -3079,3 +3079,50 @@ cannot be enumerated. It needs node-specific links.
 
 **The case windows are back to waiting** for the full case studies. Nothing in
 them changed except that the screens and the rail came out.
+
+---
+
+## Layover's page, and what its captions turned out to be (5 Sep 2026)
+
+The file that could not be read now reads. The blocker was never access — it was
+that `get_metadata` on `204:1140` ("SCREENS") kept failing SSE reassembly at a
+byte offset that MOVED between calls (96897, 134981, 135057, 137263, 137971), so
+it was chunk-boundary corruption rather than a size cap to work under. Adding
+`mcp.figma.com` as an HTTP server returned the same tree, 1.11 MB of it, first
+try.
+
+**The page is eight numbered sections and forty-five screens.** Sections stack
+in one column, 200 units apart, and every one carries a number, a title and a
+line of argument: "01 · Marketing site — The public site and its responsive
+counterpart", "08 · Admin portal — Catching a vendor going bad before a
+traveller does."
+
+**HER CAPTIONS ARE BAKED IN, NOT RE-SET.** This is the important decision. Every
+screen on her page has a title and often a subtitle written under it, and those
+are real text nodes in her file. Each frame here is a crop of her WRAPPER — the
+screen plus the caption beneath it — taken from an export of the section at 6060
+native. So the captions arrive in her type at her placement. Re-typing them at
+sizes inferred from their bounding boxes would have put my approximation of her
+page in place of her page. The section headers ARE text, because they sit
+outside the wrappers and nothing else would carry them.
+
+**Eight calls, not forty-five.** `download_assets` caps its export at 4096px, so
+a 6060-wide section came back at 68% scale; `get_screenshot` with
+`maxDimension: 6060` returns true native. One screenshot per section, then the
+45 screens sliced locally against the coordinates the metadata gave — 2.33 MB of
+WebP for the set, each screen at its own native width.
+
+**Only what you can nearly see is mounted.** Forty-five frames is more than a
+page should fetch, and `loading="lazy"` is no help here: it decides by
+intersection with the scrollport, and this canvas pans by transform. The frame
+boxes all render — they carry the selection and the name, which must be right
+for frames off screen — but the `<img>` inside one mounts only when its rect is
+within a screen's width of the viewport. Nine of forty-five on open.
+
+**Frame names hide below 20% zoom.** A name holds its 12px screen size, which at
+16% is 75 CANVAS units — exactly where her section subtitles are, so every
+heading came up with a layer name lying across it. All of them hide, including
+the selected frame's: that one was the obvious exception and it was wrong, since
+the frame selected by default is the first on the page and its label lands on
+the first heading, the one collision that is guaranteed rather than possible.
+The ring, the handles and the dimension pill still mark the selection.
