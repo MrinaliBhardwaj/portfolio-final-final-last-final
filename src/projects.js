@@ -150,10 +150,16 @@ export const PROJECTS = [
     role: "Brand identity, UI design, product design",
     summary:
       "A layover is dead time you've already paid for. Layover turns it into something usable: enter your airport or PNR and it shows what's actually open in your terminal right now — order a meal to your gate, or book into a lounge. Built around Indian airports (Delhi, Mumbai, Bengaluru, Hyderabad) and the details that matters there: terminal-aware delivery, veg and non-veg filters as a first-class control, and a live prep timer so you know whether you have time before boarding.",
+    // CORRECTED FROM HER OWN BOARD (5 Sep 2026). The case study states the role
+    // as "Product Designer, co-lead" and names five surfaces; this said three,
+    // and the two were now contradicting each other on the same page. Her
+    // artwork is the authority on her project.
     facts: [
-      ["Role", "Brand identity · UI · product design"],
-      ["Surfaces", "Marketing site, web app, mobile app"],
+      ["Role", "Product designer, co-lead"],
+      ["Surfaces", "Marketing site · Consumer web · Consumer app · Vendor portal · Admin portal"],
       ["Timeline", "2025"],
+      ["Tool", "Figma"],
+      ["Launch airports", "Delhi IGI · Mumbai CSIA · Bengaluru KIA · Hyderabad RGIA"],
     ],
     external: BEHANCE,
     // Shipped as a real product — the case-study page links here instead of
@@ -161,57 +167,39 @@ export const PROJECTS = [
     live: "https://mylayover.in/",
     metrics: [
       { value: "4", label: "airports at launch" },
-      { value: "3", label: "surfaces: site, web app, mobile app" },
+      { value: "5", label: "surfaces, marketing site to admin portal" },
       { value: "Live", label: "shipped at mylayover.in" },
     ],
-    shots: [
-      {
-        src: "/work/layover/hero.webp",
-        frame: "hero",
-        dims: "1600 × 900",
-        wide: true,
-        caption: "The landing page. One question — which airport are you in — and the whole product follows from the answer.",
-        alt:
-          "Layover's landing page over a photograph of an airport atrium, headline \"Order Meals, Access Lounges. All In One App.\", with a panel listing Hyderabad RGIA, Bengaluru KIA, Mumbai CSIA and Delhi IGI above a field reading \"enter your airport / PNR\".",
-      },
-      {
-        src: "/work/layover/brand.webp",
-        frame: "brand",
-        dims: "1600 × 900",
-        wide: true,
-        caption:
-          "The wordmark, with the rotated ‘e’ — a plane turning back on itself, which is the whole idea of a layover in one letter.",
-        alt:
-          "The LayOver wordmark in white on a black billboard on a tree-lined street, the ‘e’ rotated 180 degrees.",
-      },
-      {
-        src: "/work/layover/app.webp",
-        frame: "app",
-        dims: "1600 × 900",
-        caption:
-          "The app's ordering surface, warm where the marketing site is dark — this is the part you use standing at a gate.",
-        alt:
-          "Two phone screens showing Layover's food ordering interface in cream and gold: a delivery destination of \"Layover office\", a greeting, a dish search field, category chips for fries and burgers, and an \"Open Stalls\" section.",
-      },
-      {
-        src: "/work/layover/order.webp",
-        frame: "order",
-        dims: "1600 × 900",
-        caption:
-          "Browse by terminal, then track the order. Every restaurant card carries its pier, because in an airport \"where\" is the only question that matters.",
-        alt:
-          "Layover's restaurant directory on desktop showing Tim Hortons, Starbucks, Theobroma, McDonald's, Berco's, Idli.com, KFC and Subway, each labelled \"t3 domestic departure piers\", beside a mobile order-confirmed screen with a twenty-minute prep timer, itemised order and a map.",
-      },
-      {
-        src: "/work/layover/system.webp",
-        frame: "system",
-        dims: "1600 × 900",
-        wide: true,
-        caption: "Site and app as one system — the dark front door, the warm room behind it.",
-        alt:
-          "Layover's marketing site and mobile app shown together, the dark landing page beside the two cream ordering screens.",
-      },
-    ],
+    // THE CASE STUDY ITSELF (5 Sep 2026), her node 171:3998 — 1600 x 20013 of
+    // written argument interleaved with the screens it argues about.
+    //
+    // SLICED AT HER OWN SLIDE BREAKS, not on a grid. The board has a consistent
+    // 200-226px gap between slides, and every cut below is the middle of one of
+    // those gaps — found by scanning for rows that are a single flat colour
+    // across all 1600px, which is the only place a cut costs nothing. Ten
+    // slices, none of them through a word or an image. (It has to be cut at all
+    // because WebP tops out at 16383px; 20013 cannot be one file. Cutting it
+    // well is what stops that being a compromise.)
+    hero: "/work/layover/hero.webp",
+    board: {
+      dims: "1600 × 20013",
+      node: "171:3998",
+      slices: [
+        { src: "/work/layover/case/s00.webp", w: 1600, h: 1611 },
+        { src: "/work/layover/case/s01.webp", w: 1600, h: 1696 },
+        { src: "/work/layover/case/s02.webp", w: 1600, h: 2400 },
+        { src: "/work/layover/case/s03.webp", w: 1600, h: 2989 },
+        { src: "/work/layover/case/s04.webp", w: 1600, h: 3215 },
+        { src: "/work/layover/case/s05.webp", w: 1600, h: 1474 },
+        { src: "/work/layover/case/s06.webp", w: 1600, h: 2005 },
+        { src: "/work/layover/case/s07.webp", w: 1600, h: 1994 },
+        { src: "/work/layover/case/s08.webp", w: 1600, h: 2085 },
+        { src: "/work/layover/case/s09.webp", w: 1600, h: 544 },
+      ],
+      alt:
+        "The Layover case study. It opens on “You have ninety minutes. Nothing tells you what fits.” and argues that a layover looks like leisure and behaves like a deadline, that both sides — traveller and counter — are solving the same equation from opposite ends, and that the work is designing for someone who is already slightly late. It runs through one number across five surfaces, the marketing site, the ordering flow, the vendor portal that is “the screen nobody screenshots and the one the product runs on”, the legal requirements that cannot be deleted only sequenced, and the admin tools for a marketplace that does not fail loudly — closing on “we kept asking for less.”",
+    },
+    shots: [],
   },
   {
     slug: "futurepreneurs",

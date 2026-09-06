@@ -3126,3 +3126,41 @@ the selected frame's: that one was the obvious exception and it was wrong, since
 the frame selected by default is the first on the page and its label lands on
 the first heading, the one collision that is guaranteed rather than possible.
 The ring, the handles and the dimension pill still mark the selection.
+
+---
+
+## Layover's case study is her board, cut at her own slide breaks (6 Sep 2026)
+
+Node `171:3998`, 1600 × 20013: a written case study, argument interleaved with
+the screens it argues about. "You have ninety minutes. Nothing tells you what
+fits." / "A layover looks like leisure and behaves like a deadline." / "The
+screen nobody screenshots is the one the product runs on."
+
+**It had to be cut — WebP tops out at 16383px, so 20013 cannot be one file.
+Cutting it WELL is what stops that being a compromise.** The board has a
+consistent 200–226px gap between slides. Scanning for rows that are a single
+flat colour across all 1600px finds those gaps exactly, and every cut is the
+middle of one: ten slices, none through a word or an image, stacked with no gap
+and no radius so the seams are invisible (measured: all nine seams 0px).
+
+This is the opposite of the Meal Maestro situation, and the difference is worth
+keeping straight. That one is an artboard **demoted** to an appendix because
+nothing had replaced it. This one is the study, and "The work" is what the
+section is for. `board` and `archive` are therefore two fields, not one.
+
+**Lazy loading earns its keep here**, unlike on the Figma canvas: a case window
+really does scroll, so 2 of 10 slices load on open and the rest arrive as you
+read. 1.3 MB for the set.
+
+**`hero` is a new field.** With a board and no `shots`, the hero image fell back
+to the folder cover — which is cropped to be a folder, not a 16/10 hero.
+
+**Her board corrected my metrics.** It states the role as "Product Designer,
+co-lead" and names FIVE surfaces (marketing site, consumer web, consumer app,
+vendor portal, admin portal); the entry said three, written from the old
+summary. The two were contradicting each other on the same page. Her artwork is
+the authority on her project, so the facts and the outcome band now follow it.
+
+**Known limit:** at 390px the board renders at 22% of native. Her display type
+survives that; the small annotation type does not. A 1600px presentation board
+has no phone answer short of a separate mobile cut.

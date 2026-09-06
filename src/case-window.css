@@ -684,6 +684,30 @@
    slices themselves — either would draw a visible line at every seam, and there
    are eighteen of them. `vertical-align` is not enough on its own here; the
    images are display:block so no baseline gap can open between them either. */
+.cw-board {
+  margin: 0;
+}
+
+.cw-board figcaption {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-top: 11px;
+  font-size: 12.5px;
+  color: #6a6a70;
+}
+
+.cw-board-dim {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: #a8a8ae;
+}
+
+.cw-board .cw-strip {
+  margin-top: 0;
+  max-width: 1600px; /* this board's own native width */
+}
+
 .cw-strip {
   margin-top: 14px;
   max-width: 1400px; /* its own native width — never upscale the export */

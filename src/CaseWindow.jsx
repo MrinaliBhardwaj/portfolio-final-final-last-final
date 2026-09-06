@@ -73,8 +73,12 @@ function factIcon(label) {
   return FACT_ICONS.find((f) => f.re.test(label))?.icon || Sparkles;
 }
 
-/** the picture that leads the study: its first real screen, else its cover */
+/** the picture that leads the study: a named hero, its first screen, else its cover */
 function heroArt(p) {
+  // `hero` exists because a project can have a full case-study BOARD and no
+  // shots at all — and then the fallback was the folder cover, which is cropped
+  // for a folder and not for a 16/10 hero.
+  if (p.hero) return { src: p.hero, alt: "" };
   const shot = (p.shots || []).find((s) => s.src);
   return shot ? { src: shot.src, alt: shot.alt } : { src: p.cover, alt: "" };
 }
@@ -308,7 +312,38 @@ export default function CaseWindow({ project, index, z, onClose, onFocus, onSwit
 
             <section className="cw-screens">
               <h3 className="cw-kicker">The work</h3>
-              {shots.length > 0 ? (
+              {p.board ? (
+                /* THE CASE STUDY AS SHE PRESENTED IT. Not the Meal Maestro
+                   situation: that one is an artboard demoted to an appendix
+                   because nothing had replaced it yet. This is the study, and it
+                   is what the section is for. It is cut at her own slide breaks
+                   (see projects.js), stacked seamlessly, and every slice carries
+                   its real width and height so the browser reserves the space
+                   before the image lands and the window's scroll never jumps.
+                   `loading="lazy"` earns its keep here — unlike the Figma canvas,
+                   a case window really does scroll. */
+                <figure className="cw-board">
+                  <div className="cw-strip">
+                    {p.board.slices.map((sl, i) => (
+                      <img
+                        key={sl.src}
+                        src={sl.src}
+                        alt={i === 0 ? p.board.alt : ""}
+                        aria-hidden={i === 0 ? undefined : "true"}
+                        loading="lazy"
+                        decoding="async"
+                        width={sl.w}
+                        height={sl.h}
+                        draggable="false"
+                      />
+                    ))}
+                  </div>
+                  <figcaption>
+                    The full case study
+                    <span className="cw-board-dim">{p.board.dims}</span>
+                  </figcaption>
+                </figure>
+              ) : shots.length > 0 ? (
                 <div className="cw-shots">
                   {shots.map((shot, i) => (
                     <figure
