@@ -3164,3 +3164,48 @@ the authority on her project, so the facts and the outcome band now follow it.
 **Known limit:** at 390px the board renders at 22% of native. Her display type
 survives that; the small annotation type does not. A 1600px presentation board
 has no phone answer short of a separate mobile cut.
+
+---
+
+## Scrolling a case study takes the screen (6 Sep 2026)
+
+Her call, with a reference: aayushvisuals.com/work/meal-maestro renders a
+1400px case study at **1345px in a 1512 viewport — 76px margins, 89% of the
+width**. Ours was rendering Layover's board at 939. That is the difference
+between looking at a case study and reading one.
+
+**The window expands on the first scroll.** The moment someone starts reading
+they have said what they came for, so the window gets out of its own way: full
+screen, sidebar folded, board from 939 to **1330 at 76px from the edge** —
+within 15px of the reference, the difference being the scrollbar.
+
+**Full screen widens the artwork, not the prose.** The copy is already capped at
+760px and the lede at 46ch, so letting the document out to 1600 with the
+reference's 76px margins buys the board its width and costs the reading nothing:
+measured, the lede stays 435px in both states.
+
+**The sidebar folds to a handle, and the handle is a real button.** Not a hover
+zone — there is no hover on a touch screen, and a projects list you cannot get
+back to is a projects list you have lost. `width: 0` rather than
+`display: none`, so the fold can be animated and the shell keeps its shape.
+
+**Two bugs, both from the same class of mistake — assuming a state change is
+one-way:**
+
+- The green light could not shrink the window. Shrinking reflows the column,
+  the reflow fires a scroll event, and the scroll handler expanded it straight
+  back. The auto-expand is an offer made once (`settled`), not a rule; the
+  moment the size is the user's decision, scroll stops deciding it.
+- Below 880 the sidebar is a rail across the TOP, so collapsing its width left a
+  61px band of empty panel above the study. The fold has to run along the axis
+  the rail actually occupies — height there, width beside it — and the handle
+  moves to the edge it folded into.
+
+**`is-big` is gone.** Three sizes (1240 / 1600 / full) was one too many, and a
+macOS zoom button means "fill the screen" anyway. The green light and the first
+scroll now do the same thing, and the light does it in both directions.
+
+**The box transition is not the cheap kind** — width, top and margin all animate
+— but it is one element, once, on a deliberate gesture, and no transform can
+turn a 1240px centred panel into a full screen without lying about where the
+text is. It is off under `prefers-reduced-motion`.

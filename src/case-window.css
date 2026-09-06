@@ -46,15 +46,98 @@
   container-name: cwwin;
 }
 
-/* Zoom = the artboards at their own size. 1600 is Layover's native export
-   width and sits above Meal Maestro's 1400, so at this size nothing in any
-   study is being upscaled or shrunk — which is what a macOS zoom button is
-   for, and is now a real difference rather than 240 more pixels. */
-.cw.is-big {
-  width: min(1600px, calc(100vw - 32px));
-  max-height: 94vh;
-  margin-left: max(-800px, calc(-50vw + 16px));
-  top: 3vh;
+/* ---- full screen ----
+   Reached by scrolling, or by the green light. A study being read has earned
+   the whole screen, and the numbers say how much that is worth: the board goes
+   from 939px to ~1360, which is what the reference renders a 1400px case study
+   at (1345 in a 1512 viewport). That is the difference between looking at a
+   case study and reading one.
+
+   The transition is on the box, which is not the cheap kind — but it is one
+   element, once, on a deliberate gesture, and there is no transform that can
+   turn a 1240px centred panel into a full screen without lying about where the
+   text is. */
+.cw.is-full {
+  top: 0;
+  left: 0;
+  width: 100vw;
+  max-height: none;
+  height: 100dvh;
+  margin-left: 0;
+  border-radius: 0;
+  border: 0;
+}
+
+.cw {
+  transition: width 0.26s cubic-bezier(0.32, 0.72, 0, 1),
+    max-height 0.26s cubic-bezier(0.32, 0.72, 0, 1),
+    margin-left 0.26s cubic-bezier(0.32, 0.72, 0, 1),
+    top 0.26s cubic-bezier(0.32, 0.72, 0, 1),
+    border-radius 0.26s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cw {
+    transition: none;
+  }
+}
+
+/* ---- the sidebar, folded ----
+   Not hidden — folded, with a handle left behind. `width: 0` rather than
+   `display: none` so the shell's flex row keeps its shape and the fold can be
+   animated at all. */
+.cw.is-side-shut .cw-side {
+  width: 0;
+  min-width: 0;
+  padding-left: 0;
+  padding-right: 0;
+  border-right-width: 0;
+  overflow: hidden;
+}
+
+.cw-side {
+  transition: width 0.24s cubic-bezier(0.32, 0.72, 0, 1),
+    height 0.24s cubic-bezier(0.32, 0.72, 0, 1),
+    padding 0.24s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.cw-side-tab {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 4;
+  width: 15px;
+  height: 62px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-left: 0;
+  border-radius: 0 7px 7px 0;
+  background: #e6e6e9;
+  color: #6a6a70;
+  cursor: pointer;
+  transition: width 0.14s ease, background 0.14s ease, color 0.14s ease;
+}
+
+.cw-side-tab:hover {
+  width: 21px;
+  background: #dcdce0;
+  color: #1c1c1e;
+}
+
+.cw-side-tab:focus-visible {
+  outline: 2px solid #2f7cf6;
+  outline-offset: 1px;
+}
+
+/* A 15px tab is a fine target for a mouse and a poor one for a thumb, so the
+   hit area is widened past the paint rather than the tab being made ugly. */
+.cw-side-tab::before {
+  content: "";
+  position: absolute;
+  inset: -12px -14px;
 }
 
 /* rolled up: the title bar alone, the classic Mac window shade */
@@ -345,6 +428,15 @@
   max-width: 1100px;
   margin: 0 auto;
   padding: 0 40px 44px;
+}
+
+/* FULL SCREEN WIDENS THE ARTWORK, NOT THE PROSE. The copy is already capped at
+   760px and the lede at 46ch, so letting the document out to 1600 with the
+   reference's 76px margins buys the board its width and costs the reading
+   nothing. */
+.cw.is-full .cw-doc {
+  max-width: 1600px;
+  padding: 0 76px 72px;
 }
 
 /* ---- hero ---- */
@@ -772,6 +864,42 @@
   .cw-side-kind {
     display: none;
   }
+
+  /* SHUT MEANS SHORT HERE, NOT NARROW. Below 880 the sidebar is a rail across
+     the top, so collapsing its WIDTH left a 61px band of empty panel above the
+     study — the fold has to run along the axis the rail actually occupies. */
+  .cw.is-side-shut .cw-side {
+    width: auto;
+    height: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    border-bottom-width: 0;
+  }
+
+  .cw.is-side-shut .cw-side-list {
+    display: none;
+  }
+
+  /* and the handle moves to the edge it folded into */
+  .cw-side-tab {
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 62px;
+    height: 15px;
+    border-radius: 0 0 7px 7px;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    border-top: 0;
+  }
+
+  .cw-side-tab:hover {
+    width: 62px;
+    height: 21px;
+  }
+
+  .cw-side-tab svg {
+    transform: rotate(90deg);
+  }
 }
 
 /* One column: the hero art below the words, the numbers below the overview.
@@ -865,11 +993,17 @@
     border-bottom: 0;
   }
 
-  .cw.is-big {
-    top: auto;
+  .cw.is-full {
+    top: 0;
     width: 100%;
     margin-left: 0;
-    max-height: 94vh;
+    height: 100dvh;
+    max-height: none;
+    border-radius: 0;
+  }
+
+  .cw.is-full .cw-doc {
+    padding: 0 16px calc(28px + env(safe-area-inset-bottom, 0px));
   }
 
   .cw-bar {
