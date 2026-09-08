@@ -3238,3 +3238,40 @@ being able to reach the other two at any moment is worth 220px.
 
 The green light still shrinks to the 1240 window and restores, and scrolling in
 either state now changes nothing at all.
+
+---
+
+## One scrollbar, and no jump paying for it (8 Sep 2026)
+
+Two bars were showing at once: the study's, and the desktop's own — the cover is
+320vh of scroll-scrubbed lotus underneath, and it kept scrolling behind a window
+you cannot see past. The page now locks while a window fills the screen
+(`html.has-fullwin { overflow: hidden }`, set by a COUNTER in CaseWindow so the
+first of several windows to close cannot unlock the page under the others).
+
+Getting there cost three wrong attempts, all the same misunderstanding of
+`scrollbar-gutter: stable`:
+
+1. **`stable` does not survive the lock.** It reserves the gutter only while the
+   element is a scroll container, and html carries `overflow-x: clip` — so the
+   moment the other axis went `hidden` the reserved 15px collapsed and the page
+   jumped right.
+2. **Paying it back as padding on `html` was worse.** Padding there shrinks the
+   INITIAL CONTAINING BLOCK, and every `position: fixed` element sizes against
+   that — the full-screen window came out 1497 wide in a 1512 viewport with a
+   strip of desktop down its right edge. The compensation belongs on `body`,
+   where it is ordinary in-flow padding.
+3. **`stable` also shortens `100vw`, permanently.** Not only while a bar shows —
+   so with the gutter still declared, `width: 100vw` resolved to 1497 and every
+   compensation was applied twice, leaving the menu bar 30px short. The locked
+   state sets `scrollbar-gutter: auto` and `100vw` becomes the real 1512.
+
+Final shape: lock overflow, release the gutter, pay the measured bar width back
+on `body`, and hold `.mb-bar` (fixed, so it grows with the containing block) to
+the width it had. Measured: one scrollbar while open, zero shift opening, zero
+shift closing.
+
+**The study's own bar is thin now** — `scrollbar-width: thin` plus a translucent
+thumb, 10px against Windows' 15. On macOS the bar is an overlay and none of this
+runs: the gap measures 0, no compensation is applied, and there was never a
+second scrollbar to remove.

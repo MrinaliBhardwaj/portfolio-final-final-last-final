@@ -106,6 +106,36 @@ html {
   background: var(--void-bg);
   scrollbar-gutter: stable;
 }
+
+/* THE PAGE STOPS SCROLLING WHILE A WINDOW FILLS THE SCREEN. Set by CaseWindow
+   (see lockPage there). Without it the desktop's own 320vh of scroll kept its
+   scrollbar next to the study's, and the wheel still scrubbed the lotus behind
+   a window you cannot see past. The gutter above stays `stable`, so taking the
+   bar away does not shift the layout by its width. */
+html.has-fullwin {
+  overflow: hidden;
+  /* AND RELEASE THE GUTTER. `scrollbar-gutter: stable` does not only reserve
+     space — it also shortens `100vw` by the bar's width, permanently, whether a
+     bar is showing or not. Left on, the full-screen window measured 1497 in a
+     1512 viewport and every compensation below was applied twice. */
+  scrollbar-gutter: auto;
+}
+
+/* PAY THE BAR'S WIDTH BACK ON BODY, NOT ON HTML. Padding on html shrinks the
+   initial containing block, and every `position: fixed` element sizes against
+   that — so compensating there left the full-screen window 15px narrower than
+   the screen, with a strip of desktop down the right-hand edge. On body it is
+   ordinary in-flow padding: the cover keeps the width it had, and the window
+   still spans the whole viewport. */
+html.has-fullwin body {
+  padding-right: var(--page-lock-gap, 0px);
+}
+
+/* the menu bar is fixed too, so it grew with the containing block — held to the
+   width it had, or the clock visibly slides as a study opens */
+html.has-fullwin .mb-bar {
+  right: var(--page-lock-gap, 0px);
+}
 html[data-world="design"] {
   background: #1e1e1e;
 }

@@ -41,6 +41,34 @@ import {
 } from "lucide-react";
 import { PROJECTS } from "./projects.js";
 
+// HOW MANY FULL-SCREEN WINDOWS ARE OPEN. A count rather than a boolean because
+// several case windows can be open at once: if each one just set and cleared the
+// lock, the first to close would unlock the page while another was still filling
+// the screen, and the desktop's scrollbar would come back underneath it.
+let fullCount = 0;
+
+function lockPage(on) {
+  const root = document.documentElement;
+  const was = fullCount;
+  fullCount = Math.max(0, fullCount + (on ? 1 : -1));
+  if (fullCount > 0 && was === 0) {
+    // MEASURE THE BAR BEFORE TAKING IT AWAY. `scrollbar-gutter: stable` was
+    // supposed to hold the gutter open through the lock and does not — html
+    // carries `overflow-x: clip`, which stops it being a scroll container the
+    // moment the other axis goes hidden, and the reserved 15px collapses with
+    // it. The page then jumped 15px right as the window opened. This reads the
+    // real width of the bar while it is still there and pays it back as
+    // padding. On macOS the bar is an overlay, the gap measures 0, and this
+    // whole branch costs nothing.
+    const gap = window.innerWidth - root.clientWidth;
+    root.style.setProperty("--page-lock-gap", `${gap}px`);
+    root.classList.add("has-fullwin");
+  } else if (fullCount === 0 && was > 0) {
+    root.classList.remove("has-fullwin");
+    root.style.removeProperty("--page-lock-gap");
+  }
+}
+
 /** the artboard's own pixel width, so a wide window can't blow it up past 1:1 */
 function nativeWidth(shot) {
   if (shot.sliceSize) return `${shot.sliceSize[0]}px`;
@@ -108,6 +136,19 @@ export default function CaseWindow({ project, index, z, onClose, onFocus, onSwit
   useEffect(() => {
     main.current?.scrollTo({ top: 0 });
   }, [p.slug]);
+
+  // TWO SCROLLBARS IS ONE TOO MANY. A full-screen window covers the desktop
+  // completely, but the desktop is 320vh of scroll-scrubbed cover underneath and
+  // it kept its own scrollbar — so the screen showed the study's bar and the
+  // page's bar side by side, and the wheel could still scrub the lotus behind
+  // something you cannot see. The page stops scrolling while the window fills
+  // it; `scrollbar-gutter: stable` on html (index.css) is what keeps this from
+  // shifting the layout by the bar's width.
+  useEffect(() => {
+    if (!full) return undefined;
+    lockPage(true);
+    return () => lockPage(false);
+  }, [full]);
 
   const hero = heroArt(p);
   const shots = p.shots || [];

@@ -211,6 +211,8 @@
   background: #ececee;
   border-right: 1px solid rgba(0, 0, 0, 0.1);
   overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.22) transparent;
 }
 
 .cw-side-title {
@@ -354,6 +356,34 @@
   background: #fbfbfc;
   container-type: inline-size;
   container-name: cwdoc;
+  /* macOS draws a thin, dim, self-effacing scrollbar and Windows draws a 15px
+     grey channel with arrows. The window is quoting a Mac; on a Mac this rule
+     changes nothing, and on Windows it stops the study being framed by a piece
+     of Explorer. */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.28) transparent;
+}
+
+/* the same thing for WebKit, which ignores the two standard properties above */
+.cw-main::-webkit-scrollbar {
+  width: 9px;
+}
+
+.cw-main::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.cw-main::-webkit-scrollbar-thumb {
+  border-radius: 9px;
+  /* the padding is a transparent border with the thumb painted into the
+     background clip — the only way to inset a scrollbar thumb */
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  background-color: rgba(0, 0, 0, 0.26);
+}
+
+.cw-main:hover::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.38);
 }
 
 /* ~1100px of measure, centred, so the study reads the same in a 1240 window and
