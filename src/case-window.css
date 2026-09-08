@@ -56,14 +56,21 @@
    out is the green light, and a size the visitor asked for by name should just
    be the size, not a journey. */
 .cw.is-full {
-  top: 0;
+  /* BELOW THE MENU BAR, NOT UNDER IT. The bar is z-index 50 and a window is 20,
+     so a window at top 0 does not cover the bar — the bar covers the window's
+     own title bar, and the lights and the project name disappear behind it.
+     Starting at the bar's height keeps both: the desktop's menu bar stays where
+     it always is, and the window keeps its head. (Below 640 the bar is
+     `display: none` and the phone rule takes the window to 0.) */
+  top: var(--mb-h, 28px);
   left: 0;
   width: 100vw;
   max-height: none;
-  height: 100dvh;
+  height: calc(100dvh - var(--mb-h, 28px));
   margin-left: 0;
   border-radius: 0;
   border: 0;
+  border-top: 1px solid rgba(0, 0, 0, 0.22);
 }
 
 

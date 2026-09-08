@@ -8,6 +8,13 @@
 
    28px: macOS's own is 24 at default scaling and 28 with a notch, and 28 holds
    13px type without the items feeling pinched. */
+/* The bar's height is a number two files need — it is what a full-screen case
+   window has to start below, so the bar is not covering the window's own title
+   bar. Declared once here, read there. */
+:root {
+  --mb-h: 28px;
+}
+
 .mb-bar {
   position: fixed;
   top: 0;
@@ -17,7 +24,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 28px;
+  height: var(--mb-h);
   padding: 0 10px;
   /* the film. saturate() is what keeps the wallpaper's colour alive through it
      rather than going grey — the same trick the real one uses */
