@@ -41,12 +41,6 @@ import {
 } from "lucide-react";
 import { PROJECTS } from "./projects.js";
 
-// Where each new window lands. macOS cascades: every window opens slightly down
-// and right of the last one so the stack stays legible instead of one hiding
-// another exactly. Wrapped at 4 so the fifth doesn't march off the screen.
-const CASCADE = 26;
-const CASCADE_WRAP = 4;
-
 /** the artboard's own pixel width, so a wide window can't blow it up past 1:1 */
 function nativeWidth(shot) {
   if (shot.sliceSize) return `${shot.sliceSize[0]}px`;
@@ -93,45 +87,13 @@ export default function CaseWindow({ project, index, z, onClose, onFocus, onSwit
   // shade, which is a genuine behaviour and not a stand-in), green toggles it
   // large. Nothing here is a painted circle that swallows a click.
   const [rolled, setRolled] = useState(false);
-  // FULL SCREEN, AND SCROLLING IS WHAT ASKS FOR IT. The moment someone starts
-  // reading the study they have said what they came for, so the window gets out
-  // of its own way: it fills the screen, the sidebar folds to a tab, and the
-  // board goes from 939px to ~1360 — which is the width the reference she gave
-  // renders a 1400px case study at (1345 in a 1512 viewport, 76px margins).
-  // The green light does the same thing by hand, both ways, because a window
-  // that can only ever grow is a trap.
-  const [full, setFull] = useState(false);
-  const [sideOpen, setSideOpen] = useState(true);
-
-  // Expanding makes the column WIDER, so the same content is shorter and a kept
-  // scrollTop would land somewhere else entirely. The ratio is what the reader
-  // means by "where I was", so that is what is preserved.
-  // ONCE THE SIZE IS SETTLED, SCROLLING STOPS DECIDING IT. Without this the
-  // green light could not shrink the window at all: shrinking reflows the
-  // column, the reflow fires a scroll event, and the scroll handler expanded it
-  // straight back — the button looked broken and the sidebar tab with it. The
-  // auto-expand is an offer made once, not a rule.
-  const settled = useRef(false);
-
-  const grow = (next) => {
-    settled.current = true;
-    const el = main.current;
-    const at = el && el.scrollHeight > el.clientHeight
-      ? el.scrollTop / (el.scrollHeight - el.clientHeight)
-      : 0;
-    setFull(next);
-    setSideOpen(!next);
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        const e2 = main.current;
-        if (e2) e2.scrollTop = at * (e2.scrollHeight - e2.clientHeight);
-      });
-    });
-  };
-
-  const onScroll = (e) => {
-    if (!full && !settled.current && e.currentTarget.scrollTop > 24) grow(true);
-  };
+  // FULL SCREEN FROM THE FIRST FRAME. It used to open at 1240 and expand on the
+  // first scroll, folding the sidebar away as it went — three state changes
+  // nobody asked for, one of them mid-read. A case study is what the visitor
+  // clicked; it gets the screen immediately and then holds still. The green
+  // light can put it back in a window, which is the one size change left and the
+  // only one a person asks for.
+  const [full, setFull] = useState(true);
   const controls = useDragControls();
 
   // browse the work without closing the window — this is what makes the
@@ -147,18 +109,19 @@ export default function CaseWindow({ project, index, z, onClose, onFocus, onSwit
     main.current?.scrollTo({ top: 0 });
   }, [p.slug]);
 
-  const offset = (index % CASCADE_WRAP) * CASCADE;
   const hero = heroArt(p);
   const shots = p.shots || [];
 
   return (
     <motion.div
       ref={layer}
-      className={`cw${full ? " is-full" : ""}${
-        sideOpen ? "" : " is-side-shut"
-      }${rolled ? " is-rolled" : ""}`}
+      className={`cw${full ? " is-full" : ""}${rolled ? " is-rolled" : ""}`}
       style={{ zIndex: z }}
-      initial={{ opacity: 0, scale: 0.96, x: offset, y: offset }}
+      // No cascade offset. Windows used to open stepped down-and-right of each
+      // other, which is right for panels floating on a desktop and meaningless
+      // for one that opens full screen — it only ever left a gap at the top-left
+      // corner, since `animate` never puts x/y back.
+      initial={{ opacity: 0, scale: 0.96 }}
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.97, transition: { duration: 0.14 } }}
       transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
@@ -196,7 +159,7 @@ export default function CaseWindow({ project, index, z, onClose, onFocus, onSwit
           <button
             type="button"
             className="cw-light cw-light--max"
-            onClick={() => grow(!full)}
+            onClick={() => setFull((f) => !f)}
             aria-label={full ? "Shrink this window" : "Fill the screen"}
           />
         </div>
@@ -256,25 +219,8 @@ export default function CaseWindow({ project, index, z, onClose, onFocus, onSwit
           <p className="cw-side-foot">© 2025 Mrinali Bhardwaj</p>
         </nav>
 
-        {/* THE SIDEBAR'S HANDLE once it has folded away. It has to be a real
-            control rather than a hover zone: on a touch screen there is no
-            hover, and a projects list you cannot get back to is a projects list
-            you have lost. */}
-        {!sideOpen && (
-          <button
-            type="button"
-            className="cw-side-tab"
-            onClick={() => setSideOpen(true)}
-            aria-label="Show projects"
-            aria-expanded="false"
-            aria-controls="cw-side"
-          >
-            <ChevronRight size={13} strokeWidth={2.4} aria-hidden="true" />
-          </button>
-        )}
-
         {/* ---- the study ---- */}
-        <div className="cw-main" ref={main} onScroll={onScroll}>
+        <div className="cw-main" ref={main}>
           <article className="cw-doc">
             <header className="cw-hero">
               <div className="cw-hero-text">

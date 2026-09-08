@@ -3209,3 +3209,32 @@ scroll now do the same thing, and the light does it in both directions.
 — but it is one element, once, on a deliberate gesture, and no transform can
 turn a 1240px centred panel into a full screen without lying about where the
 text is. It is off under `prefers-reduced-motion`.
+
+---
+
+## The case window opens full screen, and then holds still (6 Sep 2026)
+
+Reverses the scroll-driven expand from earlier today. Her call, and she is
+right: opening at 1240 and jumping to full screen on the first scroll was three
+state changes nobody asked for, one of them under the reader's hands mid-page.
+
+- **It opens full screen.** `full` starts `true`. No intermediate size, no
+  expand.
+- **The sidebar stays.** The fold, its handle and the `is-side-shut` rules are
+  gone — not disabled, deleted. A projects list is either persistent or it is a
+  thing you have to go and find.
+- **No transition on the box.** The window opened at this size; the only size
+  change left is the green light, and a size someone asked for by name should
+  just be the size, not a journey.
+- **The cascade offset is gone too.** Windows opened stepped down-and-right of
+  each other, which is right for panels floating on a desktop and meaningless
+  for one that opens full screen — `animate` never put x/y back, so all it did
+  was leave a gap at the top-left corner of the second window.
+
+**The board is 1110 now, not 1330.** The sidebar keeps its 220px, and that is
+the trade she chose: 1110 against 923 in the old windowed size, and against
+1345 for the reference, which has no sidebar to keep. Reading the study and
+being able to reach the other two at any moment is worth 220px.
+
+The green light still shrinks to the 1240 window and restores, and scrolling in
+either state now changes nothing at all.
