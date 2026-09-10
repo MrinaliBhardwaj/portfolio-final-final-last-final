@@ -744,6 +744,15 @@
   margin: 0;
 }
 
+/* room between one board and the next, for a project that has more than one */
+.cw-board + .cw-board {
+  margin-top: 30px;
+}
+
+.cw-board .cw-strip {
+  max-width: 1930px; /* the widest board any project carries, at native */
+}
+
 .cw-board figcaption {
   display: flex;
   align-items: baseline;

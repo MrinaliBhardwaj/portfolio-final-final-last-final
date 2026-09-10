@@ -3275,3 +3275,39 @@ shift closing.
 thumb, 10px against Windows' 15. On macOS the bar is an overlay and none of this
 runs: the gap measures 0, no compensation is applied, and there was never a
 second scrollbar to remove.
+
+---
+
+## Futurepreneurs gets its two boards (10 Sep 2026)
+
+Nodes `345:2408` (1925 × 12354) and `345:15635` (1930 × 16481) from the
+portfolio file. Both are Futurepreneurs 10.0 decks.
+
+**They overlap, and she was told.** The second is largely a superset of the
+first — same type spread, same LINE and D-Day screens, same "10 YEARS", same
+FAQs, same closing "Thank_you" — and the first reads as an earlier, shorter cut.
+Both ship because both were asked for; each is one object in `boards[]`, so
+dropping either is a one-line deletion.
+
+**`board` became `boards`.** A project can carry more than one, and they are
+drawn one after the other with their own captions rather than run together —
+two decks concatenated would put a closing slide in the middle of the page.
+Layover's single board is now an array of one, so there is one shape.
+
+**These boards have no flat rows to cut on.** Layover's slicing found her own
+200px slide gaps by scanning for rows that were a single colour across the full
+width; these are dense, full-bleed, gradient-heavy designs — 733 quiet rows out
+of 12,354, and 248 out of 16,481. So the cut picks the LEAST BUSY row within
+±420px of each 2200px target instead: least-bad rather than perfect. It costs
+nothing visually, because the slices stack with no gap and no radius and every
+seam measures 0px; the only thing a cut through content affects is the brief
+moment a late slice is still loading.
+
+(The cutting is not optional either way: 16,481 is past WebP's 16,383 limit.)
+
+**1925 native, not downscaled** — 14 slices for 1.55 MB, which is both smaller
+than Layover's 10 and sharper on Retina, since the board renders at ~1130 CSS
+and these carry 1925 against Layover's 1600.
+
+**`hero` is cropped from the top of the first board**, not from `cover`: that
+one is 1920 × 720 and a 16/10 hero box would have cut the wordmark in half.

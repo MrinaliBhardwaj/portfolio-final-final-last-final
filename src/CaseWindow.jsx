@@ -152,6 +152,7 @@ export default function CaseWindow({ project, index, z, onClose, onFocus, onSwit
 
   const hero = heroArt(p);
   const shots = p.shots || [];
+  const boards = p.boards || [];
 
   return (
     <motion.div
@@ -357,37 +358,44 @@ export default function CaseWindow({ project, index, z, onClose, onFocus, onSwit
 
             <section className="cw-screens">
               <h3 className="cw-kicker">The work</h3>
-              {p.board ? (
+              {boards.length > 0 ? (
                 /* THE CASE STUDY AS SHE PRESENTED IT. Not the Meal Maestro
                    situation: that one is an artboard demoted to an appendix
                    because nothing had replaced it yet. This is the study, and it
-                   is what the section is for. It is cut at her own slide breaks
-                   (see projects.js), stacked seamlessly, and every slice carries
+                   is what the section is for. Each board is cut into slices (see
+                   projects.js) and stacked seamlessly, and every slice carries
                    its real width and height so the browser reserves the space
                    before the image lands and the window's scroll never jumps.
                    `loading="lazy"` earns its keep here — unlike the Figma canvas,
-                   a case window really does scroll. */
-                <figure className="cw-board">
-                  <div className="cw-strip">
-                    {p.board.slices.map((sl, i) => (
-                      <img
-                        key={sl.src}
-                        src={sl.src}
-                        alt={i === 0 ? p.board.alt : ""}
-                        aria-hidden={i === 0 ? undefined : "true"}
-                        loading="lazy"
-                        decoding="async"
-                        width={sl.w}
-                        height={sl.h}
-                        draggable="false"
-                      />
-                    ))}
-                  </div>
-                  <figcaption>
-                    The full case study
-                    <span className="cw-board-dim">{p.board.dims}</span>
-                  </figcaption>
-                </figure>
+                   a case window really does scroll.
+
+                   PLURAL, because a project can have more than one: Futurepreneurs
+                   arrived as two boards. They are drawn one after the other, each
+                   captioned with its own size, rather than run together — two
+                   decks concatenated would put a closing slide in the middle. */
+                boards.map((b, bi) => (
+                  <figure className="cw-board" key={b.node || bi}>
+                    <div className="cw-strip">
+                      {b.slices.map((sl, i) => (
+                        <img
+                          key={sl.src}
+                          src={sl.src}
+                          alt={i === 0 ? b.alt : ""}
+                          aria-hidden={i === 0 ? undefined : "true"}
+                          loading="lazy"
+                          decoding="async"
+                          width={sl.w}
+                          height={sl.h}
+                          draggable="false"
+                        />
+                      ))}
+                    </div>
+                    <figcaption>
+                      {b.title || "The full case study"}
+                      <span className="cw-board-dim">{b.dims}</span>
+                    </figcaption>
+                  </figure>
+                ))
               ) : shots.length > 0 ? (
                 <div className="cw-shots">
                   {shots.map((shot, i) => (

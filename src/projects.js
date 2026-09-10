@@ -181,7 +181,7 @@ export const PROJECTS = [
     // because WebP tops out at 16383px; 20013 cannot be one file. Cutting it
     // well is what stops that being a compromise.)
     hero: "/work/layover/hero.webp",
-    board: {
+    boards: [{
       dims: "1600 × 20013",
       node: "171:3998",
       slices: [
@@ -198,7 +198,7 @@ export const PROJECTS = [
       ],
       alt:
         "The Layover case study. It opens on “You have ninety minutes. Nothing tells you what fits.” and argues that a layover looks like leisure and behaves like a deadline, that both sides — traveller and counter — are solving the same equation from opposite ends, and that the work is designing for someone who is already slightly late. It runs through one number across five surfaces, the marketing site, the ordering flow, the vendor portal that is “the screen nobody screenshots and the one the product runs on”, the legal requirements that cannot be deleted only sequenced, and the admin tools for a marketplace that does not fail loudly — closing on “we kept asking for less.”",
-    },
+    }],
     shots: [],
   },
   {
@@ -229,6 +229,44 @@ export const PROJECTS = [
       { value: "10,000+", label: "views across the campaign" },
       { value: "2,200+", label: "registrations" },
       { value: "10th", label: "edition of the event" },
+    ],
+    hero: "/work/futurepreneurs/hero.webp",
+    // TWO BOARDS, IN THE ORDER SHE GAVE THEM (10 Sep 2026). They overlap: the
+    // second is largely a superset of the first — same type spread, same LINE
+    // and D-Day screens, same "10 YEARS", same FAQs, same closing slide — and
+    // the first reads as an earlier, shorter cut of the same deck. Both are here
+    // because both were asked for; dropping either is deleting one object below.
+    boards: [
+      {
+        node: "345:2408", dims: "1925 × 12354",
+        title: "The case study",
+        slices: [
+          { src: "/work/futurepreneurs/case-a/s00.webp", w: 1925, h: 2619 },
+          { src: "/work/futurepreneurs/case-a/s01.webp", w: 1925, h: 1780 },
+          { src: "/work/futurepreneurs/case-a/s02.webp", w: 1925, h: 1985 },
+          { src: "/work/futurepreneurs/case-a/s03.webp", w: 1925, h: 1999 },
+          { src: "/work/futurepreneurs/case-a/s04.webp", w: 1925, h: 2591 },
+          { src: "/work/futurepreneurs/case-a/s05.webp", w: 1925, h: 1380 },
+        ],
+        alt:
+          "The Futurepreneurs 10.0 case study: the event site on a laptop over black, the brand’s violet-and-yellow system with Whyte Inktrap and Gantari, the auditorium it filled, the LINE and D-Day screens, a “10 YEARS FUTUREPRENEURS” spread, the FAQs and the website, closing on an orange “Thank_you” slide.",
+      },
+      {
+        node: "345:15635", dims: "1930 × 16481",
+        title: "The full deck",
+        slices: [
+          { src: "/work/futurepreneurs/case-b/s00.webp", w: 1930, h: 2094 },
+          { src: "/work/futurepreneurs/case-b/s01.webp", w: 1930, h: 1780 },
+          { src: "/work/futurepreneurs/case-b/s02.webp", w: 1930, h: 2367 },
+          { src: "/work/futurepreneurs/case-b/s03.webp", w: 1930, h: 2398 },
+          { src: "/work/futurepreneurs/case-b/s04.webp", w: 1930, h: 1973 },
+          { src: "/work/futurepreneurs/case-b/s05.webp", w: 1930, h: 2236 },
+          { src: "/work/futurepreneurs/case-b/s06.webp", w: 1930, h: 2064 },
+          { src: "/work/futurepreneurs/case-b/s07.webp", w: 1930, h: 1569 },
+        ],
+        alt:
+          "The longer Futurepreneurs 10.0 deck: it opens on “PROJECT FUTUREPRENEURS” with the brief and deliverables, then the type and colour system, the event timeline and its sponsors, the aftermovie, winners and prize pool, the registration screens and QR flow, phone mockups, the “10 YEARS” spread, FAQs, the website, stickers, the animation and the certificate — closing on the same orange “Thank_you” slide.",
+      },
     ],
     shots: [],
   },
