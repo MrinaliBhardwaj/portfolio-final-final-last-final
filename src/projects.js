@@ -231,6 +231,13 @@ export const PROJECTS = [
       { value: "10th", label: "edition of the event" },
     ],
     hero: "/work/futurepreneurs/hero.webp",
+    // TRIMMED AT THE EDGES. Both boards carry a thin rgb(30,30,30) border on
+    // their outer columns — 6 left / 5 right on the first, 10 / 10 on the
+    // second. Invisible against their dark sections and a hard black strip down
+    // the side of every light one, which is exactly what it looked like. The
+    // `dims` below stay the Figma frame's own; the exports are that minus the
+    // border.
+    //
     // TWO BOARDS, IN THE ORDER SHE GAVE THEM (10 Sep 2026). They overlap: the
     // second is largely a superset of the first — same type spread, same LINE
     // and D-Day screens, same "10 YEARS", same FAQs, same closing slide — and
@@ -241,12 +248,12 @@ export const PROJECTS = [
         node: "345:2408", dims: "1925 × 12354",
         title: "The case study",
         slices: [
-          { src: "/work/futurepreneurs/case-a/s00.webp", w: 1925, h: 2619 },
-          { src: "/work/futurepreneurs/case-a/s01.webp", w: 1925, h: 1780 },
-          { src: "/work/futurepreneurs/case-a/s02.webp", w: 1925, h: 1985 },
-          { src: "/work/futurepreneurs/case-a/s03.webp", w: 1925, h: 1999 },
-          { src: "/work/futurepreneurs/case-a/s04.webp", w: 1925, h: 2591 },
-          { src: "/work/futurepreneurs/case-a/s05.webp", w: 1925, h: 1380 },
+          { src: "/work/futurepreneurs/case-a/s00.webp", w: 1914, h: 2619 },
+          { src: "/work/futurepreneurs/case-a/s01.webp", w: 1914, h: 1780 },
+          { src: "/work/futurepreneurs/case-a/s02.webp", w: 1914, h: 2072 },
+          { src: "/work/futurepreneurs/case-a/s03.webp", w: 1914, h: 1912 },
+          { src: "/work/futurepreneurs/case-a/s04.webp", w: 1914, h: 2591 },
+          { src: "/work/futurepreneurs/case-a/s05.webp", w: 1914, h: 1380 },
         ],
         alt:
           "The Futurepreneurs 10.0 case study: the event site on a laptop over black, the brand’s violet-and-yellow system with Whyte Inktrap and Gantari, the auditorium it filled, the LINE and D-Day screens, a “10 YEARS FUTUREPRENEURS” spread, the FAQs and the website, closing on an orange “Thank_you” slide.",
@@ -255,14 +262,14 @@ export const PROJECTS = [
         node: "345:15635", dims: "1930 × 16481",
         title: "The full deck",
         slices: [
-          { src: "/work/futurepreneurs/case-b/s00.webp", w: 1930, h: 2094 },
-          { src: "/work/futurepreneurs/case-b/s01.webp", w: 1930, h: 1780 },
-          { src: "/work/futurepreneurs/case-b/s02.webp", w: 1930, h: 2367 },
-          { src: "/work/futurepreneurs/case-b/s03.webp", w: 1930, h: 2398 },
-          { src: "/work/futurepreneurs/case-b/s04.webp", w: 1930, h: 1973 },
-          { src: "/work/futurepreneurs/case-b/s05.webp", w: 1930, h: 2236 },
-          { src: "/work/futurepreneurs/case-b/s06.webp", w: 1930, h: 2064 },
-          { src: "/work/futurepreneurs/case-b/s07.webp", w: 1930, h: 1569 },
+          { src: "/work/futurepreneurs/case-b/s00.webp", w: 1910, h: 2094 },
+          { src: "/work/futurepreneurs/case-b/s01.webp", w: 1910, h: 1780 },
+          { src: "/work/futurepreneurs/case-b/s02.webp", w: 1910, h: 2367 },
+          { src: "/work/futurepreneurs/case-b/s03.webp", w: 1910, h: 2307 },
+          { src: "/work/futurepreneurs/case-b/s04.webp", w: 1910, h: 2064 },
+          { src: "/work/futurepreneurs/case-b/s05.webp", w: 1910, h: 2236 },
+          { src: "/work/futurepreneurs/case-b/s06.webp", w: 1910, h: 1780 },
+          { src: "/work/futurepreneurs/case-b/s07.webp", w: 1910, h: 1853 },
         ],
         alt:
           "The longer Futurepreneurs 10.0 deck: it opens on “PROJECT FUTUREPRENEURS” with the brief and deliverables, then the type and colour system, the event timeline and its sponsors, the aftermovie, winners and prize pool, the registration screens and QR flow, phone mockups, the “10 YEARS” spread, FAQs, the website, stickers, the animation and the certificate — closing on the same orange “Thank_you” slide.",

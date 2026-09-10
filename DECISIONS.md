@@ -3311,3 +3311,19 @@ and these carry 1925 against Layover's 1600.
 
 **`hero` is cropped from the top of the first board**, not from `cover`: that
 one is 1920 × 720 and a 16/10 hero box would have cut the wordmark in half.
+
+**Correction, same day — the boards had a border and it showed.** Both carry a
+thin `rgb(30, 30, 30)` edge on their outer columns: 6 left / 5 right on the
+first, 10 / 10 on the second. Invisible against their dark sections and a hard
+black strip down the side of every light one — which is exactly what it looked
+like on the page.
+
+Worth recording how long it took to find, because the wrong theories were all
+plausible: transparency composited onto black (there is none — 0.0% alpha),
+overlapping canvas content bleeding into the render (`contentsOnly: true` shows
+the same thing), WebP banding in a near-black gradient (the error is real but
+tiny — mean 0.68 at q80). The thing that actually found it was asking a
+different question: not "where is it dark?" but **"which columns are NEVER
+white?"** The outermost five answered 0.0 against 0.39 for their neighbours.
+
+The exports are the frame minus that border; `dims` still names her frame.
