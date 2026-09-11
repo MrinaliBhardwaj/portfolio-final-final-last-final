@@ -3514,3 +3514,29 @@ cover does. It is still not on the phone desk (all four slots taken).
 258 × 4096). `get_screenshot` with `maxDimension` = the frame's height gives
 native size. Both boards were checked for the Futurepreneurs border (edge
 columns vs their neighbours) and neither has one.
+
+## The white box in NextG's BUILD section is a video (12 Sep 2026)
+
+Figma renders a video fill as a blank box in every export, so NextG's board
+arrived with a white hole in "Frame 5" where "nextg landing 1" (213:2) should
+play. The video is laid over that hole rather than the board being re-cut:
+
+- **Positioned in board pixels, as percentages.** The box is 1146 x 497 at
+  (104, 1665) with ~20px corners, grown 1px all round to cover the export's
+  anti-aliased edge. `BoardVideo` (CaseWindow.jsx) converts those to % of the
+  stacked strip, so it tracks the board at any window width. Measured at 0.01px
+  on every edge.
+- **It costs nothing until you reach it.** `preload="none"` plus an
+  IntersectionObserver: it loads and plays when it scrolls into view, pauses
+  when it leaves. Under `prefers-reduced-motion` it never autoplays — poster
+  and native controls instead.
+- **Source:** `Videos/Screen Recordings/nextg landing.mp4` (1896x822, exactly
+  Figma's fill), silent, 1440 wide, 9.0 MB -> 0.66 MB. The first 3.9s are cut:
+  the recording opens on the page's intro, a near-blank sheet (luminance spread
+  under 3, against 30 once settled), which made a blank poster and a white
+  flash on every loop. 6.6s remain and the poster is its first frame.
+
+Any board can carry `videos[]` now; this is the first one that does.
+
+The case-study lede is 16px (was 15), at her request — it is the shared
+`.cw-lede`, so every project's intro line moved with it.

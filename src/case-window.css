@@ -642,7 +642,7 @@
 .cw-lede {
   margin: 14px 0 0;
   max-width: 46ch;
-  font-size: 15px;
+  font-size: 16px; /* 15 until 12 Sep 2026, raised at her request */
   line-height: 1.58;
   color: #4e4e57;
 }
@@ -969,11 +969,21 @@
 }
 
 .cw-strip {
+  position: relative; /* a board's videos are placed over it — see BoardVideo */
   margin-top: 14px;
   max-width: 1400px; /* its own native width — never upscale the export */
   border-radius: 9px;
   overflow: hidden;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* the fill is the blank box Figma exported under it, so nothing changes colour
+   while the poster loads */
+.cw-board-video {
+  position: absolute;
+  display: block;
+  object-fit: cover;
+  background: #f4f6f8;
 }
 
 .cw-strip img {

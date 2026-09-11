@@ -333,6 +333,27 @@ export const PROJECTS = [
         { src: "/work/nextg/case/s08.webp", w: 1600, h: 2278 },
         { src: "/work/nextg/case/s09.webp", w: 1600, h: 375 },
       ],
+      // THE WHITE BOX IN "FRAME 5" IS A VIDEO. The BUILD section's big panel,
+      // "nextg landing 1" (213:2), is a video fill in Figma, and every export
+      // renders it as a blank #f4f6f8 box. This puts the video back over it, in
+      // board pixels: the box is 1146 x 497 at (104, 1665) with ~20px corners,
+      // grown by 1px all round so the export's anti-aliased white edge is
+      // covered too. The video is her screen recording of the landing page
+      // (Videos/Screen Recordings/"nextg landing.mp4", 1896x822 — exactly the
+      // size of Figma's fill), re-encoded silent at 1440 wide: 9.0 MB -> 0.66 MB.
+      // Its first 3.9s are cut. The recording opens on the page's own intro,
+      // which at this size is a near-blank sheet — no nav, no type, luminance
+      // spread under 3 against 30 once it settles — so it made a blank poster
+      // and a white flash on every loop. It starts on the settled page now
+      // (6.6s of it), and the poster is its first frame.
+      videos: [
+        {
+          src: "/work/nextg/landing.mp4",
+          poster: "/work/nextg/landing-poster.webp",
+          x: 103, y: 1664, w: 1148, h: 499, r: 21,
+          label: "Screen recording of the NextG landing page",
+        },
+      ],
       alt:
         "The NextG Apex case study: a B2B retail-tech site for field sales across half a million Indian outlets, designed and built end to end. It runs from the project overview and a brief in two halves — a CEO who wanted a site people keep scrolling and a CTO who wanted the phygital proposition stated without ambiguity — through the whole site, the process, an audit, structure, type and colour, the design decisions, the product views, conversion, responsive layouts and the WebGL build, to what shipped: six pages, one system, no framework — closing on “Thanks for watching”.",
     }],

@@ -162,6 +162,61 @@ function holdStill(scroller, ms) {
   };
 }
 
+/**
+ * A VIDEO THAT LIVES INSIDE A BOARD. Figma renders a video fill as a blank box
+ * in every export, so a board with a video in it arrives with a white hole
+ * where the video goes. This lays the real video over that hole: positioned in
+ * the board's own pixel coordinates, as percentages of the stacked strip, so it
+ * tracks the board at any width, and rounded to the box's own corners.
+ *
+ * It only plays while it is on screen (and pauses when scrolled away), and it
+ * is not fetched until then — `preload="none"` — so a study you never scroll
+ * down costs nothing. Under reduced motion it never autoplays: it shows its
+ * poster and native controls instead.
+ */
+function BoardVideo({ v, board }) {
+  const ref = useRef(null);
+  const reduced =
+    typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || reduced) return undefined;
+    el.muted = true; // React sets `muted` late; autoplay policy needs it before play()
+    const io = new IntersectionObserver(
+      ([e]) => {
+        if (e.isIntersecting) el.play().catch(() => {});
+        else el.pause();
+      },
+      { rootMargin: "200px 0px" },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [reduced]);
+  const W = board.slices[0].w;
+  const H = board.slices.reduce((s, sl) => s + sl.h, 0);
+  return (
+    <video
+      ref={ref}
+      className="cw-board-video"
+      src={v.src}
+      poster={v.poster}
+      muted
+      loop
+      playsInline
+      preload="none"
+      controls={reduced}
+      aria-label={v.label}
+      style={{
+        left: `${(v.x / W) * 100}%`,
+        top: `${(v.y / H) * 100}%`,
+        width: `${(v.w / W) * 100}%`,
+        height: `${(v.h / H) * 100}%`,
+        borderRadius: `${(v.r / v.w) * 100}% / ${(v.r / v.h) * 100}%`,
+      }}
+    />
+  );
+}
+
 /** the artboard's own pixel width, so a wide window can't blow it up past 1:1 */
 function nativeWidth(shot) {
   if (shot.sliceSize) return `${shot.sliceSize[0]}px`;
@@ -585,6 +640,9 @@ export default function CaseWindow({ project, index, z, onClose, onFocus, onSwit
                           height={sl.h}
                           draggable="false"
                         />
+                      ))}
+                      {b.videos?.map((v) => (
+                        <BoardVideo key={v.src} v={v} board={b} />
                       ))}
                     </div>
                     <figcaption>
