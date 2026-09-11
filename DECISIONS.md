@@ -3473,3 +3473,16 @@ chevron still pointing down. Now the fold is the sheet pulled up to its header:
   first wheel notches, until the reader passes FOLD_AT; after that, the top
   opens it as usual.
 - The folded gutter follows the bar: 118 + 15 = 133.
+
+## About Me ends on page two (12 Sep 2026)
+
+By request, the scrapbook now stops at page two, "For the other half,…". The
+poster collage after it (page three, `SceneThree`) is no longer rendered — in
+the About Me window and in the full-screen `#/notes` world its green light goes
+to, so the two never disagree about what About Me contains.
+
+Nothing was deleted: `SceneThree.jsx`, `collage.css` and `public/collage/` are
+still in the repo, unimported. To bring page three back, re-add `<SceneThree />`
+after `<SceneTwo />` in NoteWindow.jsx and NotesWorld.jsx, and the
+`import "./collage.css"` in App.jsx. Page two already reserves `--nw-room` for
+the floating dock, so ending on it needs no extra tail.

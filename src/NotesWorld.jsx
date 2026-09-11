@@ -16,7 +16,6 @@
 import { Smartphone } from "lucide-react";
 import Scene from "./Scene.jsx";
 import SceneTwo from "./SceneTwo.jsx";
-import SceneThree from "./SceneThree.jsx";
 import WindowLights from "./WindowLights.jsx";
 
 export default function NotesWorld() {
@@ -48,19 +47,13 @@ export default function NotesWorld() {
       </div>
 
       <Scene />
+      {/* Page two is the LAST thing on the page. The poster collage that
+          followed it (SceneThree.jsx, three viewport-tall sheets) was cut 12 Sep
+          2026 by request, in the About Me window too; the file is kept, just
+          not rendered. The "drawn june 2026" coda went before it (4 Aug 2026).
+          Page two already reserves --nw-room for the floating dock, so ending
+          on it puts nothing under the dock. */}
       <SceneTwo />
-      {/* Page three is the poster collage, and it arrives as THREE sheets, not
-          one — it is a Figma frame about three screens tall, shown through three
-          viewport windows. See SceneThree.jsx. Its ground is the same #f8f7f4
-          this world is built on, so the note at the top of this file still
-          holds: the scrapbook is paper, all the way through.
-
-          It is also the LAST thing on the page. The "drawn june 2026" coda that
-          used to close the scrapbook was removed 4 August 2026 by request,
-          along with the 7rem tail it carried — the collage ends the world now,
-          and the floating dock passes over its yellow band the same way it
-          passes over the cover. */}
-      <SceneThree />
     </div>
   );
 }

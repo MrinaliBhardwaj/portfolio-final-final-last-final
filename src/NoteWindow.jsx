@@ -20,15 +20,16 @@
 // gives the copy a guaranteed home. Red closes, yellow rolls up, green leaves.
 // Three lights, three real behaviours, same rule as everywhere else.
 //
-// THE CONTENT IS NOT COPIED. Scene / SceneTwo / SceneThree are the same
-// components the world renders, inside the same `.nw` class they are styled
-// against — this file supplies a window instead of a page, and nothing else.
+// THE CONTENT IS NOT COPIED. Scene / SceneTwo are the same components the world
+// renders, inside the same `.nw` class they are styled against — this file
+// supplies a window instead of a page, and nothing else. It ends on page two
+// ("For the other half,…"): the poster collage that followed (SceneThree) was
+// cut 12 Sep 2026 by request, here and in the world alike.
 import { useEffect, useRef, useState } from "react";
 import { motion, useDragControls } from "framer-motion";
 import { Maximize2 } from "lucide-react";
 import Scene from "./Scene.jsx";
 import SceneTwo from "./SceneTwo.jsx";
-import SceneThree from "./SceneThree.jsx";
 
 const CASCADE = 26;
 const CASCADE_WRAP = 4;
@@ -121,7 +122,6 @@ export default function NoteWindow({ index, z, onClose, onFocus }) {
         <div className="nw nw-in-window">
           <Scene />
           <SceneTwo />
-          <SceneThree />
         </div>
       </div>
     </motion.div>

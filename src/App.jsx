@@ -36,7 +36,8 @@ import "./file-tree.css";
 import "./tech-world.css";
 import "./gallery-world.css";
 import "./notes-world.css";
-import "./collage.css";
+// collage.css (page three of the scrapbook) is no longer loaded: SceneThree was
+// cut from About Me on 12 Sep 2026. Restore both together.
 import "./pond-world.css";
 
 const TITLES = {
