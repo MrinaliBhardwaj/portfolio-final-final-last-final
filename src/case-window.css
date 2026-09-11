@@ -191,102 +191,148 @@
    A `@media` rule would size the sidebar off the SCREEN and get all three
    wrong. Everything below asks the shell how wide IT is. */
 .cw-shell {
-  position: relative; /* the folded chip is placed against this, not the page */
+  position: relative; /* the panel is laid over this, not beside it — see the fold */
   display: flex;
   flex: 1 1 auto;
   min-height: 0; /* or the flex child refuses to scroll and the window grows */
   overflow: hidden; /* the two panes scroll themselves, the shell never does */
+  /* the fold's one clock — see "the fold" below */
+  --cw-fold-t: 0.34s;
+  --cw-fold-e: cubic-bezier(0.6, 0, 0.4, 1);
+  /* WHERE THE FOLDED BAR IS — which is where the Projects row already is in the
+     open panel: 12 of sheet padding + the 14px title + 4 under it puts the row
+     at 30, and the sheet's 10px padding less 2 puts it at 8. These four numbers
+     place the row, size it, cut the clip and set the study's gutter, so the bar
+     and the row cannot disagree about where they are. */
+  --cw-bar-x: 8px;
+  --cw-bar-y: 30px;
+  --cw-bar-w: 102px;
+  --cw-bar-h: 28px;
 }
 
 /* ---- the fold ----
-   THE PANEL LEAVES ON ITS MARGIN, IT DOES NOT SHRINK. At a fixed 220 nothing
-   inside it reflows on the way out — the rows keep their thumbnails and their
-   two lines and simply travel. Animating `width` instead would re-wrap three
-   project names sixty times a second, which is the one thing a fold must not
-   look like.
+   THE SIDEBAR FOLDS INTO ITS OWN HEAD. The folded bar is not a second element
+   that appears when the panel leaves — it is the panel's Projects row, and the
+   row never moves. The sheet around it closes in on that row (one clip-path,
+   all four sides at once) until only the row is left, and the row has been
+   sitting in the bar's exact position the whole time. Nothing is handed off,
+   so nothing can be out of line. Expanding is the same clip opening back out.
 
-   The negative margin is also what actually hands the width back: in a flex row
-   a margin counts toward the item's outer size, so -220 on a 220 item makes its
-   contribution to the line exactly zero and .cw-main takes the whole shell.
-   .cw-shell already clips, so the panel goes nowhere visible. */
+   THE PANEL FLOATS; ITS WIDTH IS HELD BY THE STUDY. .cw-side is laid over the
+   shell rather than beside it, and .cw-main keeps the panel's 220px as its own
+   margin. Folding runs that margin to 0 with the clip, so the study's edge
+   follows the panel's edge in: the content is never uncovered ahead of the
+   fold, and never slides in under it.
+
+   ONE NUMBER, NOT SEVEN TRANSITIONS. Every moving part — the clip, the margin,
+   the gutter, the fade, the bar's shadow — is computed from --fold, which runs
+   0 → 1 on --cw-fold-t / --cw-fold-e, and nothing else transitions. The first
+   version gave each property its own transition on the same clock, and they
+   agreed to the frame until someone scrolled back up mid-fold: a browser
+   reverses each property's transition by that property's own rules, and the
+   clip came back faster than the margin, 0.12 of the way apart. One number
+   reverses once. The curve is a symmetric ease-in-out — movement on screen
+   rather than an entrance — so expanding is the collapse played backwards.
+
+   --fold does not inherit: each of the seven elements runs its own copy on the
+   one clock, so a frame restyles seven elements rather than the whole study.
+
+   NO FOLD ON THE RAIL. Only a window wider than 880 ever sets --fold. Below
+   that the sidebar is a rail across the top: there is no width to give back,
+   and the rail is the only navigation that width has. */
+@property --fold {
+  syntax: "<number>";
+  inherits: false;
+  initial-value: 0;
+}
+
+.cw-side,
+.cw-side-sheet,
+.cw-main,
+.cw-doc,
+.cw-side-title,
+.cw-side-list,
+.cw-side-foot {
+  transition: --fold var(--cw-fold-t) var(--cw-fold-e);
+}
+
+@container cwwin (min-width: 881px) {
+  .cw-shell.is-tucked
+    :is(.cw-side, .cw-side-sheet, .cw-main, .cw-doc, .cw-side-title, .cw-side-list, .cw-side-foot) {
+    --fold: 1;
+  }
+
+  .cw-shell.is-tucked :is(.cw-side-title, .cw-side-list, .cw-side-foot) {
+    /* out of the tab order once the fold is done — clipped buttons are still
+       focusable, and a focus ring nobody can see is a keyboard trap */
+    visibility: hidden;
+    transition:
+      --fold var(--cw-fold-t) var(--cw-fold-e),
+      visibility 0s linear var(--cw-fold-t);
+  }
+}
+
 .cw-side {
-  transition:
-    margin-left 0.34s cubic-bezier(0.32, 0.72, 0, 1),
-    opacity 0.2s ease 0.08s;
-}
-
-.cw-shell.is-tucked .cw-side {
-  margin-left: -220px;
-  opacity: 0;
-  /* AND OUT OF THE TAB ORDER WITH IT. Opacity alone leaves three invisible
-     project buttons focusable somewhere off the left edge of the window, which
-     is a keyboard trap you cannot see. `visibility` takes them out of the tree
-     properly, held until the slide finishes so the panel is still seen to go. */
-  visibility: hidden;
-  transition:
-    margin-left 0.34s cubic-bezier(0.32, 0.72, 0, 1),
-    opacity 0.18s ease,
-    visibility 0s linear 0.34s;
-}
-
-/* ---- the chip it folds into ----
-   Fixed to the top-left of the shell, over the study, which scrolls under it.
-   Opaque and blurred rather than tinted: it has to stay legible against a case
-   study board, and a board can be any colour at all. */
-.cw-tuck {
   position: absolute;
-  top: 10px;
-  left: 10px;
+  top: 0;
+  bottom: 0;
+  left: 0;
   z-index: 2;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  padding: 6px 11px 6px 8px;
-  border: 1px solid rgba(0, 0, 0, 0.09);
-  border-radius: 8px;
-  background: rgba(236, 236, 238, 0.94);
-  backdrop-filter: blur(8px);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  font: inherit;
-  font-size: 12px;
-  font-weight: 600;
-  color: #55555c;
-  white-space: nowrap;
+  width: 220px;
+  /* the sheet takes the clicks, and only inside its clip — the wrapper's own
+     box would otherwise go on swallowing clicks on the study after the fold */
+  pointer-events: none;
+  /* THE BAR'S EDGE IS A SHADOW OF THE CLIP. A border would be clipped away with
+     everything else; a drop-shadow on the wrapper is drawn around whatever
+     shape the sheet has been clipped to, so the hairline and the soft shadow
+     trace the closing clip at every frame and land on the bar's rounded
+     rectangle. Invisible while open: their alpha is --fold's. */
+  filter: drop-shadow(0 0 0.5px rgba(0, 0, 0, calc(0.34 * var(--fold))))
+    drop-shadow(0 1px 3px rgba(0, 0, 0, calc(0.1 * var(--fold))));
+}
+
+.cw-side-sheet {
+  box-sizing: border-box;
+  height: 100%;
+  pointer-events: auto;
+  clip-path: inset(
+    calc(var(--cw-bar-y) * var(--fold)) calc((100% - var(--cw-bar-x) - var(--cw-bar-w)) * var(--fold))
+      calc((100% - var(--cw-bar-y) - var(--cw-bar-h)) * var(--fold)) calc(var(--cw-bar-x) * var(--fold))
+      round calc(8px * var(--fold))
+  );
+}
+
+.cw-main {
+  margin-left: calc(220px * (1 - var(--fold))); /* the panel's width, held open in the flow */
+}
+
+.cw-side-title,
+.cw-side-list,
+.cw-side-foot {
+  opacity: calc(1 - var(--fold));
+}
+
+/* the row is a button only while it is the bar */
+.cw-shell.is-tucked .cw-side-group {
+  pointer-events: auto;
   cursor: pointer;
-  opacity: 0;
-  visibility: hidden;
-  transform: translateX(-8px);
-  transition:
-    opacity 0.16s ease,
-    transform 0.26s ease,
-    background 0.13s ease,
-    visibility 0s linear 0.26s;
 }
 
-.cw-tuck svg:last-of-type {
-  color: #4a90d9; /* the same blue the source list gives a folder */
+@media (hover: hover) and (pointer: fine) {
+  .cw-shell.is-tucked .cw-side-group:hover {
+    background: rgba(0, 0, 0, 0.05);
+    color: #1c1c1e;
+  }
 }
 
-.cw-shell.is-tucked .cw-tuck {
-  opacity: 1;
-  visibility: visible;
-  transform: none;
-  /* it arrives AFTER the panel has started to leave, not with it — two things
-     crossing in the same 90px of space at the same moment reads as a glitch */
-  transition:
-    opacity 0.2s ease 0.12s,
-    transform 0.3s cubic-bezier(0.32, 0.72, 0, 1) 0.08s,
-    background 0.13s ease;
+.cw-shell.is-tucked .cw-side-group:active {
+  background: rgba(0, 0, 0, 0.09);
 }
 
-.cw-tuck:hover {
-  background: #e2e2e6;
-  color: #1c1c1e;
-}
-
-.cw-tuck:focus-visible {
+.cw-side-group:focus-visible {
+  /* inset: a ring drawn outside the row would be cut off by the clip */
   outline: 2px solid #2f7cf6;
-  outline-offset: 1px;
+  outline-offset: -2px;
 }
 
 /* ---- the sidebar ----
@@ -294,9 +340,7 @@
    shadows, no gradients, no accent colour except on the selected row — the
    translucent grey and the hairline are the whole material, the way the real
    thing is. */
-.cw-side {
-  flex: none;
-  width: 220px;
+.cw-side-sheet {
   display: flex;
   flex-direction: column;
   padding: 12px 10px 10px;
@@ -308,23 +352,43 @@
 }
 
 .cw-side-title {
-  margin: 0 0 10px 8px;
+  /* exactly 14px tall with exactly this under it, so the Projects row lands on
+     --cw-bar-y: the bar's position is decided here */
+  margin: 0 0 calc(var(--cw-bar-y) - 12px - 14px) 8px;
   font-size: 10px;
+  line-height: 14px;
   font-weight: 600;
   letter-spacing: 0.09em;
   text-transform: uppercase;
   color: #8e8e95;
 }
 
+/* THE PROJECTS ROW, WHICH IS ALSO THE FOLDED BAR. Sized to the bar in both
+   states — a slightly tall row while the list is open, which costs nothing, and
+   exactly the bar once it is not. */
 .cw-side-group {
+  box-sizing: border-box;
+  flex: none;
   display: flex;
   align-items: center;
   gap: 5px;
-  margin: 0 0 4px;
-  padding: 0 6px;
+  width: var(--cw-bar-w);
+  height: var(--cw-bar-h);
+  margin: 0 0 -2px calc(var(--cw-bar-x) - 10px);
+  padding: 0 11px 0 8px;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  font: inherit;
   font-size: 12px;
   font-weight: 600;
   color: #55555c;
+  white-space: nowrap;
+  text-align: left;
+  pointer-events: none; /* a label while the list is open */
+  transition:
+    background 0.13s ease,
+    color 0.13s ease;
 }
 
 .cw-side-group svg:last-of-type {
@@ -483,7 +547,8 @@
 .cw-doc {
   max-width: 1100px;
   margin: 0 auto;
-  padding: 0 40px 44px;
+  --doc-x: 40px; /* the side padding: see "the study makes room for the bar" */
+  padding-bottom: 44px;
 }
 
 /* FULL SCREEN WIDENS THE ARTWORK, NOT THE PROSE. The copy is already capped at
@@ -492,33 +557,34 @@
    nothing. */
 .cw.is-full .cw-doc {
   max-width: 1600px;
-  padding: 0 76px 72px;
+  --doc-x: 76px;
+  padding-bottom: 72px;
 }
 
-/* AND THE STUDY MAKES ROOM FOR THE CHIP. It is fixed over a pane that scrolls
-   under it, and the gutter above is 76px — so it sat squarely on the first four
-   characters of every line that passed beneath, permanently. A panel that folds
-   away in order to cover her copy has moved the problem, not solved it.
+/* AND THE STUDY MAKES ROOM FOR THE BAR. It is fixed over a pane that scrolls
+   under it, and the open gutter is 76px — so it would sit on the first
+   characters of every line that passed beneath, permanently. Folded, the
+   gutter grows to the bar's own footprint (--cw-bar-x + --cw-bar-w + 15 = 125),
+   on BOTH sides, because a board sitting 49px further from one edge than the
+   other reads as a bug — and the fold is still worth 122px of extra measure at
+   1512 (1130 → 1252), which is what it was for.
 
-   The gutter grows to the chip's own footprint instead: 10 left + 103 wide + 12
-   clear. On BOTH sides, because a board sitting 49px further from one edge than
-   the other reads as a bug — and the fold is still worth 122px of extra measure
-   at 1512 (1130 → 1252), which is what it was for.
-
-   IT HAS TO SIT HERE, under the rule above rather than up with the rest of the
-   fold. `.cw.is-full .cw-doc` is three classes and so is this; they tie, and a
-   tie is settled by which one comes last. Written in the fold section it lost,
-   silently, and the chip went back to sitting on her copy. */
+   THE SIDE PADDING IS ONE RULE. Every size rule sets only --doc-x, the open
+   gutter; this is the only rule that sets padding-left/right, computed from
+   --fold between --doc-x and the folded gutter. (It used to be a folded rule
+   fighting `.cw.is-full .cw-doc` on specificity — three classes each, settled
+   by source order, and it lost once, silently. There is nothing to fight now.)
+   Only a window wider than 880 has a folded gutter; below that it falls back
+   to the open one. */
 @container cwwin (min-width: 881px) {
-  .cw-shell.is-tucked .cw-doc {
-    padding-left: 125px;
-    padding-right: 125px;
+  .cw-doc {
+    --doc-x-folded: calc(var(--cw-bar-x) + var(--cw-bar-w) + 15px);
   }
 }
 
-/* the gutter moves WITH the panel, not ahead of it */
 .cw-doc {
-  transition: padding 0.34s cubic-bezier(0.32, 0.72, 0, 1);
+  padding-left: calc(var(--doc-x) + (var(--doc-x-folded, var(--doc-x)) - var(--doc-x)) * var(--fold));
+  padding-right: calc(var(--doc-x) + (var(--doc-x-folded, var(--doc-x)) - var(--doc-x)) * var(--fold));
 }
 
 /* ---- hero ---- */
@@ -919,8 +985,16 @@
     flex-direction: column;
   }
 
+  /* back into the flow, as a rail across the top */
   .cw-side {
+    position: static;
     width: auto;
+    pointer-events: auto;
+    filter: none; /* no bar here, so no bar's shadow */
+  }
+
+  .cw-side-sheet {
+    height: auto;
     flex-direction: row;
     align-items: center;
     gap: 6px;
@@ -929,6 +1003,10 @@
     border-bottom: 1px solid rgba(0, 0, 0, 0.1);
     overflow-x: auto;
     overflow-y: hidden;
+  }
+
+  .cw-main {
+    margin-left: 0;
   }
 
   .cw-side-title,
@@ -955,28 +1033,18 @@
   .cw-side-kind {
     display: none;
   }
-
-  /* NO FOLD ON THE RAIL. The fold exists to give the study back 220px of WIDTH;
-     laid across the top there is no width to give back, and folding along the
-     wrong axis would leave a band of empty panel behind — the fold has to run
-     along the axis the list actually occupies. So here it simply doesn't, and
-     the rail stays put, which also keeps the only navigation a narrow window
-     has. (These match the tucked rules on specificity and come later.) */
-  .cw-shell.is-tucked .cw-side {
-    margin-left: 0;
-    opacity: 1;
-    visibility: visible;
-  }
-
-  .cw-tuck {
-    display: none;
-  }
 }
 
 /* One column: the hero art below the words, the numbers below the overview.
-   Keyed to the DOCUMENT — at a 1024 viewport the window is 984, wide enough to
-   keep the sidebar, which leaves the study 747 and far too narrow for two. */
-@container cwdoc (max-width: 820px) {
+
+   KEYED TO THE WINDOW, NOT THE DOCUMENT — because of the fold. It used to ask
+   the document (<= 820), which was right while the document only changed width
+   when the window did. Folding the sidebar now widens the document by 220px on
+   its own, so at a 940-1040 window the hero switched from one column to two
+   partway through the fold: the one kind of jump no easing can hide. 820 plus
+   the sidebar's 220 is the same breakpoint measured on the window, so nothing
+   changes with the sidebar open — the fold just no longer crosses it. */
+@container cwwin (max-width: 1040px) {
   .cw-hero,
   .cw-band {
     grid-template-columns: minmax(0, 1fr);
@@ -996,13 +1064,26 @@
   }
 
   .cw-doc {
-    padding: 0 26px 36px;
+    --doc-x: 26px;
+    padding-bottom: 36px;
+  }
+}
+
+/* THE NUMBERS HOLD THEIR COLUMNS THROUGH THE FOLD. The stats are auto-fit:
+   three across above a ~404px column, two below — and between a 1041 and a
+   1310 window the fold carries the column across that line, lifting the third
+   figure into the first row mid-fold. Pinned to the two the open state
+   already has. */
+@container cwwin (min-width: 1041px) and (max-width: 1310px) {
+  .cw-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
 @container cwdoc (max-width: 560px) {
   .cw-doc {
-    padding: 0 20px 32px;
+    --doc-x: 20px;
+    padding-bottom: 32px;
   }
 
   .cw-meta {
@@ -1074,7 +1155,8 @@
   }
 
   .cw.is-full .cw-doc {
-    padding: 0 16px calc(28px + env(safe-area-inset-bottom, 0px));
+    --doc-x: 16px;
+    padding-bottom: calc(28px + env(safe-area-inset-bottom, 0px));
   }
 
   .cw-bar {
@@ -1099,13 +1181,13 @@
 
 @media (prefers-reduced-motion: reduce) {
   .cw-nav button,
-  .cw-open,
-  .cw-side,
-  .cw-tuck,
-  .cw-doc,
-  .cw-shell.is-tucked .cw-side,
-  .cw-shell.is-tucked .cw-tuck {
+  .cw-open {
     transition: none;
+  }
+
+  /* the fold still happens; it arrives rather than travels */
+  .cw-shell {
+    --cw-fold-t: 0s;
   }
 }
 

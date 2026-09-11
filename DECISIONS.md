@@ -3368,3 +3368,56 @@ the top: no width to give back, and it is the only navigation that width has.
 A trap worth knowing: the folded-gutter rule and `.cw.is-full .cw-doc` are both
 three classes, so they tie and the later one wins. Written up with the rest of
 the fold it lost silently. It must sit after the full-screen rule.
+
+## The fold is one morph (11 Sep 2026)
+
+Replaces the MECHANISM of "The sidebar folds while you read" (same day). The
+behaviour is unchanged: fold past 40px, the Projects bar, the pin, reopen at the
+top, no fold under an 880px window.
+
+The first version hid the sidebar and showed a separate chip: the panel faded
+and slid on one timing, the chip faded in on another with delays, and the chip
+sat 20px from where the panel's own Projects row had been. It read as one thing
+leaving and another arriving. Now:
+
+- **The Projects row IS the folded bar.** It sits at the bar's exact position
+  (8, 30 in the shell; 102 x 28) in both states and never moves — measured 0px at
+  every frame at 1512, 1280, 1040 and 940. The sheet around it closes in with one
+  clip-path, all four sides, so the panel visibly collapses into the bar; the
+  bar's edge is a drop-shadow on the wrapper, which traces the clip.
+- **The panel floats and the study holds its width as a margin.** Folding runs
+  that margin 220 -> 0 with the clip, so the study's edge follows the panel's
+  edge in. Content never slides under the panel (closest: 15px, folded).
+- **One number drives everything.** `--fold` (a registered, non-inheriting
+  `@property`) runs 0 -> 1, and clip, margin, gutter, fade and shadow are all
+  calc()s of it. Separate transitions on one clock agreed to the frame until a
+  fold was interrupted: the browser reverses each property's transition by its
+  own rules, and the clip and the margin came 0.12 apart. With one number the
+  spread is 0.00 in every test, interruption included.
+- **Symmetric ease-in-out, cubic-bezier(0.6, 0, 0.4, 1), 340ms.** Movement on
+  screen rather than an entrance, and symmetric so expanding is the collapse
+  played backwards. Deliberately softer than the strong in-out (0.76/0.24),
+  which sits still for ~100ms after the scroll that triggered it and then crams
+  the reflow into a few frames.
+- **The reader's line is held by hand while it runs** (`holdReadingLine` in
+  CaseWindow.jsx). A wider study is a taller one: text in view sank tens of
+  pixels near the top and hundreds deep in a board. It keeps a proportional
+  point on the reading line fixed — layout's share only, so a wheel still
+  scrolls — and carries sub-pixel remainders. Measured drift <= 0.5px. Native
+  scroll anchoring is off meanwhile (it would double it; Safari has none). At
+  the top it holds the top instead: following a line would push the page back
+  past 40 and fold it again.
+- **Nothing switches layout mid-fold.** The hero/band one-column breakpoint
+  moved from the document (<= 820) to the window (<= 1040): identical with the
+  sidebar open, but the fold no longer crosses it. The stats are pinned to two
+  across for 1041-1310 windows, where auto-fit lifted the third figure into the
+  first row mid-fold.
+- **Side padding is one rule.** Size rules set `--doc-x`; one rule computes
+  padding from it and `--fold`. The old folded-gutter rule tied
+  `.cw.is-full .cw-doc` on specificity and lived on source order.
+
+The cost, honestly: margin and padding are layout, so the study reflows every
+frame of the fold — the text really re-wraps into the wider measure, which no
+transform can do. Software-rendered headless Chrome on this machine ran it at
+~17-19ms frames. If it stutters on real hardware, the lever is
+`content-visibility` on off-screen boards, not a different fold.

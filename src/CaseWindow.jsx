@@ -24,7 +24,7 @@
 // LIGHT, on a dark site, deliberately: a Mac window is a light panel and this
 // one is quoting a Mac window. Notes is already a light world, so the vocabulary
 // exists in the project.
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { motion, useDragControls } from "framer-motion";
 import {
   ChevronLeft,
@@ -67,6 +67,99 @@ function lockPage(on) {
     root.classList.remove("has-fullwin");
     root.style.removeProperty("--page-lock-gap");
   }
+}
+
+// ---- the fold ----
+// Past FOLD_AT the sidebar folds into its Projects bar; back within AT_TOP of the
+// top it opens again. The distance between the two is what stops the fold's own
+// reflow from flipping it straight back.
+const FOLD_AT = 40;
+const AT_TOP = 4;
+
+/**
+ * The fold's duration, read from the stylesheet (`--cw-fold-t`), so the script
+ * holding the reader's place and the transitions it holds against can never
+ * run on two different clocks.
+ * @param {Element} el
+ */
+function foldMs(el) {
+  const v = getComputedStyle(el).getPropertyValue("--cw-fold-t").trim();
+  const n = parseFloat(v) || 0;
+  return v.endsWith("ms") ? n : n * 1000;
+}
+
+/**
+ * HOLD THE READER'S LINE WHILE THE STUDY CHANGES WIDTH UNDER IT.
+ *
+ * Folding the sidebar gives the study 220px, and a wider study is a taller one:
+ * every board above you grows by the same ratio, so the words you were reading
+ * sink down the screen — tens of pixels near the top, hundreds eight screens
+ * in. That is the jump. Chrome's scroll anchoring hides some of it and Safari
+ * has none at all.
+ *
+ * So this anchors by hand, for exactly the fold's duration. It takes the point
+ * on whatever sits on the reading line — a PROPORTIONAL point, so a board that
+ * scales keeps the same pixel of itself on the line — and every frame moves the
+ * scroll by however far layout moved that point. Only layout's share: the point
+ * is measured in document space, so a wheel still turning mid-fold scrolls
+ * normally on top of it. Sub-pixel remainders are carried, or twenty frames of
+ * rounding add up to a visible creep.
+ *
+ * @param {HTMLElement} scroller
+ * @param {number} ms
+ * @param {number} floor never compensate above this (a fold that pulled the page
+ *   back past FOLD_AT would unfold itself); a reader already above it is left be
+ */
+function holdReadingLine(scroller, ms, floor) {
+  const box = scroller.getBoundingClientRect();
+  const lineY = box.top + Math.min(box.height * 0.35, 320);
+  let hit = document.elementFromPoint(box.left + box.width / 2, lineY);
+  if (!hit || hit === scroller || !scroller.contains(hit)) hit = scroller.firstElementChild;
+  if (!hit) return holdStill(scroller, ms);
+  const anchor = hit;
+  const r0 = anchor.getBoundingClientRect();
+  const f = r0.height > 0 ? Math.min(1, Math.max(0, (lineY - r0.top) / r0.height)) : 0;
+  const at = () => {
+    const r = anchor.getBoundingClientRect();
+    return r.top + f * r.height - scroller.getBoundingClientRect().top + scroller.scrollTop;
+  };
+  let prev = at();
+  let owed = 0;
+  const end = performance.now() + ms + 50; // a few frames past, so the last step lands
+  scroller.style.overflowAnchor = "none"; // one anchor at a time; Chrome's would double it
+  let id = requestAnimationFrame(function step(now) {
+    const p = at();
+    owed += p - prev;
+    prev = p;
+    if (owed) {
+      const was = scroller.scrollTop;
+      scroller.scrollTop = Math.max(Math.min(floor, was), was + owed);
+      owed -= scroller.scrollTop - was;
+      if (Math.abs(owed) >= 1) owed = 0; // held at an edge: drop it rather than lurch later
+    }
+    if (now < end) id = requestAnimationFrame(step);
+    else scroller.style.overflowAnchor = "";
+  });
+  return () => {
+    cancelAnimationFrame(id);
+    scroller.style.overflowAnchor = "";
+  };
+}
+
+/**
+ * The top of the study, held: no anchoring of any kind while the fold runs.
+ * @param {HTMLElement} scroller
+ * @param {number} ms
+ */
+function holdStill(scroller, ms) {
+  scroller.style.overflowAnchor = "none";
+  const t = setTimeout(() => {
+    scroller.style.overflowAnchor = "";
+  }, ms + 50);
+  return () => {
+    clearTimeout(t);
+    scroller.style.overflowAnchor = "";
+  };
 }
 
 /** the artboard's own pixel width, so a wide window can't blow it up past 1:1 */
@@ -125,15 +218,26 @@ export default function CaseWindow({ project, index, z, onClose, onFocus, onSwit
   // THE SIDEBAR GETS OUT OF THE WAY ONCE YOU START READING. At the top of a
   // study the whole body of work is the point — how many there are, which one
   // this is. A line into the reading it is 220px of the study's measure spent on
-  // something already read, so it folds to a chip and gives the width back;
-  // coming back to the top brings it out again, because that is where it earns
-  // its keep. This is not the old scroll-expand: the WINDOW never changes size,
-  // only the panel inside it, and the panel comes back.
+  // something already read, so it folds into its Projects bar and gives the
+  // width back; coming back to the top opens it again, because that is where it
+  // earns its keep. The WINDOW never changes size, only the panel inside it.
   const [tucked, setTucked] = useState(false);
   // A PANEL OPENED BY HAND STAYS OPEN. Folding it again on the next wheel notch
   // is arguing with someone who just said what they wanted. The pin clears at
   // the top, where open is the resting state anyway.
   const pinned = useRef(false);
+  // the fold as of right now, for the scroll handler — it is bound once, and
+  // would otherwise read the first render's `tucked` forever
+  const tuckedNow = useRef(false);
+  // WHY it last changed: "fold", "chip" or "top". The layout effect below holds
+  // the page differently for each, and the state alone cannot say which.
+  const cause = useRef("");
+  const want = (next, why) => {
+    if (tuckedNow.current === next) return;
+    tuckedNow.current = next;
+    cause.current = why;
+    setTucked(next);
+  };
   const controls = useDragControls();
 
   // browse the work without closing the window — this is what makes the
@@ -148,29 +252,45 @@ export default function CaseWindow({ project, index, z, onClose, onFocus, onSwit
   useEffect(() => {
     main.current?.scrollTo({ top: 0 });
     pinned.current = false;
-    setTucked(false);
+    want(false, "top");
   }, [p.slug]);
 
-  // TWO THRESHOLDS, NOT ONE. 40px down to fold, 4px up to unfold. A single
+  // TWO THRESHOLDS, NOT ONE. FOLD_AT down to fold, AT_TOP up to unfold. A single
   // threshold lets the reflow the fold itself causes cross back over it and the
   // panel flickers — the same feedback loop that once stopped the green light
   // shrinking the window, where a scroll handler undid the very thing that
-  // caused the scroll. 36px of slack is wider than any reflow this makes.
+  // caused the scroll.
   useEffect(() => {
     const el = main.current;
     if (!el) return undefined;
     const onScroll = () => {
       const y = el.scrollTop;
-      if (y <= 4) {
+      if (y <= AT_TOP) {
         pinned.current = false;
-        setTucked(false);
-      } else if (y > 40 && !pinned.current) {
-        setTucked(true);
+        want(false, "top");
+      } else if (y > FOLD_AT && !pinned.current) {
+        want(true, "fold");
       }
     };
     el.addEventListener("scroll", onScroll, { passive: true });
     return () => el.removeEventListener("scroll", onScroll);
   }, []);
+
+  // THE STUDY CHANGES WIDTH UNDER THE READER, AND THE READER SHOULD NOT MOVE.
+  // A layout effect, so the reading line is measured against the layout of the
+  // fold's first frame — the transition has begun but has not moved anything.
+  // Returning to the top is the exception: there the thing to hold is the top
+  // itself, and following a line down would carry the page back past FOLD_AT
+  // and fold it again at once.
+  useLayoutEffect(() => {
+    const el = main.current;
+    const why = cause.current;
+    if (!el || !why) return undefined;
+    const ms = foldMs(el);
+    return why === "top"
+      ? holdStill(el, ms)
+      : holdReadingLine(el, ms, why === "fold" ? FOLD_AT + 1 : 0);
+  }, [tucked]);
 
   // TWO SCROLLBARS IS ONE TOO MANY. A full-screen window covers the desktop
   // completely, but the desktop is 320vh of scroll-scrubbed cover underneath and
@@ -257,63 +377,66 @@ export default function CaseWindow({ project, index, z, onClose, onFocus, onSwit
           scroll position and its images stay decoded, so rolling back down is
           instant instead of re-fetching everything. */}
       <div className={`cw-shell${tucked ? " is-tucked" : ""}`} hidden={rolled}>
-        {/* ---- what the sidebar folds into ----
-            Its own head, left behind: the same chevron, the same folder, the
-            same word, in the same place the group row sat. So it reads as the
-            panel tucked away rather than as a new control that appeared, and
-            clicking it puts the panel back. */}
-        <button
-          type="button"
-          className="cw-tuck"
-          onClick={() => {
-            pinned.current = true;
-            setTucked(false);
-          }}
-          aria-expanded="false"
-          aria-controls="cw-side"
-        >
-          <ChevronDown size={12} strokeWidth={2.2} aria-hidden="true" />
-          <Folder size={13} strokeWidth={1.7} aria-hidden="true" />
-          Projects
-        </button>
-
         {/* ---- the sidebar ----
             Every project, always, with the current one lit. It answers "how much
             work is there, and how do I get to the rest of it" — which two
             chevrons on a title bar cannot, because they never say what is on
-            either side of you. */}
-        <nav className="cw-side" id="cw-side" aria-label="Projects">
-          <p className="cw-side-title">Portfolio</p>
-          <p className="cw-side-group">
-            <ChevronDown size={12} strokeWidth={2.2} aria-hidden="true" />
-            <Folder size={13} strokeWidth={1.7} aria-hidden="true" />
-            Projects
-          </p>
-          <ul className="cw-side-list">
-            {PROJECTS.map((x) => {
-              const here = x.slug === p.slug;
-              return (
-                <li key={x.slug}>
-                  <button
-                    type="button"
-                    className={`cw-side-item${here ? " is-current" : ""}`}
-                    // The highlight is not the whole story: a screen reader has
-                    // to be told which row it is on too, and `aria-current` is
-                    // how a navigation list says so.
-                    aria-current={here ? "true" : undefined}
-                    onClick={() => !here && onSwitch(x.slug)}
-                  >
-                    <img className="cw-side-thumb" src={x.cover} alt="" />
-                    <span className="cw-side-text">
-                      <span className="cw-side-name">{x.name}</span>
-                      <span className="cw-side-kind">{x.what}</span>
-                    </span>
-                  </button>
-                </li>
-              );
-            })}
-          </ul>
-          <p className="cw-side-foot">© 2025 Mrinali Bhardwaj</p>
+            either side of you.
+
+            It FOLDS INTO ITS OWN HEAD: the Projects row is the folded bar. The
+            sheet closes in on that row and the row never moves, so there is no
+            second element to hand off to and nothing to line up. See "the fold"
+            in case-window.css. */}
+        <nav className="cw-side" aria-label="Projects">
+          <div className="cw-side-sheet">
+            <p className="cw-side-title">Portfolio</p>
+            <button
+              type="button"
+              className="cw-side-group"
+              // a label while the list is open; the whole panel while it is not
+              onClick={
+                tucked
+                  ? () => {
+                      pinned.current = true;
+                      want(false, "chip");
+                    }
+                  : undefined
+              }
+              tabIndex={tucked ? 0 : -1}
+              aria-hidden={tucked ? undefined : "true"}
+              aria-expanded={tucked ? false : undefined}
+              aria-controls={tucked ? "cw-side-list" : undefined}
+            >
+              <ChevronDown size={12} strokeWidth={2.2} aria-hidden="true" />
+              <Folder size={13} strokeWidth={1.7} aria-hidden="true" />
+              Projects
+            </button>
+            <ul className="cw-side-list" id="cw-side-list">
+              {PROJECTS.map((x) => {
+                const here = x.slug === p.slug;
+                return (
+                  <li key={x.slug}>
+                    <button
+                      type="button"
+                      className={`cw-side-item${here ? " is-current" : ""}`}
+                      // The highlight is not the whole story: a screen reader has
+                      // to be told which row it is on too, and `aria-current` is
+                      // how a navigation list says so.
+                      aria-current={here ? "true" : undefined}
+                      onClick={() => !here && onSwitch(x.slug)}
+                    >
+                      <img className="cw-side-thumb" src={x.cover} alt="" />
+                      <span className="cw-side-text">
+                        <span className="cw-side-name">{x.name}</span>
+                        <span className="cw-side-kind">{x.what}</span>
+                      </span>
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+            <p className="cw-side-foot">© 2025 Mrinali Bhardwaj</p>
+          </div>
         </nav>
 
         {/* ---- the study ---- */}
