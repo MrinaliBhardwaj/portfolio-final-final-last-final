@@ -111,10 +111,10 @@ const WINDOW_PARAM = {
   empty: "folder",
 };
 
-// The two covers with nothing behind them yet. Named, so the address is
-// "#/?folder=horse" rather than an index that shifts the moment a piece is
-// added, and validated below like every other id.
-const EMPTY_FOLDERS = ["horse", "scenery"];
+// The cover with nothing behind it yet (the landscape became NextG Apex's
+// folder). Named, so the address is "#/?folder=horse" rather than an index that
+// shifts the moment a piece is added, and validated below like every other id.
+const EMPTY_FOLDERS = ["horse"];
 
 /** @returns {{kind: string, id: string}[]} */
 function deepLinkedWindows() {

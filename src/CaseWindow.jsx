@@ -449,7 +449,7 @@ export default function CaseWindow({ project, index, z, onClose, onFocus, onSwit
                   {p.when && <span className="cw-eyebrow-when">{p.when}</span>}
                 </p>
                 <h2>{p.name}</h2>
-                <p className="cw-lede">{p.blurb}</p>
+                {p.blurb && <p className="cw-lede">{p.blurb}</p>}
                 {p.facts && (
                   <dl className="cw-meta">
                     {p.facts.slice(0, 3).map(([k, v]) => {
@@ -475,25 +475,29 @@ export default function CaseWindow({ project, index, z, onClose, onFocus, onSwit
             {/* Overview and the numbers share a band, as in the reference: the
                 prose says what it is, the figures say whether it worked, and a
                 hiring manager reads the second one first. */}
-            <section className="cw-band">
-              <div className="cw-band-copy">
-                <h3 className="cw-kicker">Overview</h3>
-                <p>{p.summary || p.blurb}</p>
-              </div>
-              {p.metrics?.length > 0 && (
-                <div className="cw-band-stats">
-                  <h3 className="cw-kicker">Key outcome</h3>
-                  <dl className="cw-stats">
-                    {p.metrics.map((m) => (
-                      <div key={m.label}>
-                        <dd>{m.value}</dd>
-                        <dt>{m.label}</dt>
-                      </div>
-                    ))}
-                  </dl>
+            {/* only when there is something to say — a pending study has
+                no overview yet, and a heading over nothing reads as broken */}
+            {(p.summary || p.blurb || p.metrics?.length > 0) && (
+              <section className="cw-band">
+                <div className="cw-band-copy">
+                  <h3 className="cw-kicker">Overview</h3>
+                  <p>{p.summary || p.blurb}</p>
                 </div>
-              )}
-            </section>
+                {p.metrics?.length > 0 && (
+                  <div className="cw-band-stats">
+                    <h3 className="cw-kicker">Key outcome</h3>
+                    <dl className="cw-stats">
+                      {p.metrics.map((m) => (
+                        <div key={m.label}>
+                          <dd>{m.value}</dd>
+                          <dt>{m.label}</dt>
+                        </div>
+                      ))}
+                    </dl>
+                  </div>
+                )}
+              </section>
+            )}
 
             {/* The written study. Empty until the rewritten copy lands, and it
                 renders nothing at all rather than an empty heading — see the
@@ -618,8 +622,15 @@ export default function CaseWindow({ project, index, z, onClose, onFocus, onSwit
                    work doesn't exist. It does — the screens just aren't broken
                    out yet. */
                 <p className="cw-empty">
-                  The screens for this one aren&rsquo;t broken out yet
-                  {p.archive ? " — the full export is below." : "."}
+                  {/* a project whose study has not arrived says so in its own
+                      words (`pending`); one with an export but no screens
+                      says that */}
+                  {p.pending || (
+                    <>
+                      The screens for this one aren&rsquo;t broken out yet
+                      {p.archive ? " — the full export is below." : "."}
+                    </>
+                  )}
                 </p>
               )}
             </section>

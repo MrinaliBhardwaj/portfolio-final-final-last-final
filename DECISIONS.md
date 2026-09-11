@@ -3421,3 +3421,30 @@ frame of the fold — the text really re-wraps into the wider measure, which no
 transform can do. Software-rendered headless Chrome on this machine ran it at
 ~17-19ms frames. If it stutters on real hardware, the lever is
 `content-visibility` on off-screen boards, not a different fold.
+
+## NextG Apex gets its folder before its study (11 Sep 2026)
+
+The Chinese-landscape folder — the fourth slot in the desk's case-study block —
+is NextG Apex's now, labelled "NextG Apex · Case Study". It opens a real case
+window whose study is still to come: the hero shows her landing-page export
+(`/work/nextg/f-browser.webp`), and where the study goes it says "The case study
+is on its way." It is fourth in the window's sidebar.
+
+`pending` in projects.js carries that line, and does two more jobs:
+- **The window drops blocks it has nothing for.** No lede without a blurb, no
+  Overview band without a summary, blurb or metrics — a heading over nothing
+  reads as broken.
+- **The design canvas leaves it out** (`DesignWorld` filters it). A board there
+  needs a cover cropped to its slot and a study behind it; the canvas keeps its
+  three boards until the study lands.
+
+When the case study arrives: add it as `boards` (the Futurepreneurs pattern) and
+remove `pending`. That also puts NextG on the design canvas, so give it a `size`,
+a cover cropped to that slot, and a `file` name at the same time.
+
+**Not on the phone desk yet.** The phone has four slots under the flower and all
+four are taken (three case studies and About Me at [78, 88]). A phone reaches
+NextG through the project rail inside any case window. Worth re-laying the phone
+grid once there is a study behind the folder.
+
+The horse stays the one "untitled folder"; `#/?folder=scenery` is retired.

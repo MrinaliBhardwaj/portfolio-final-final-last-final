@@ -28,9 +28,9 @@
 // Clicking it produced silence, which reads as a broken site rather than as
 // decoration. Folder shape has to predict behaviour or it predicts nothing.
 //
-// So the two folders whose contents are still unknown are "untitled folder"
-// and open an empty window, the way Finder's own new folder does. An honest
-// empty room beats a door that isn't a door.
+// So the folder whose contents are still unknown is an "untitled folder" and
+// opens an empty window, the way Finder's own new folder does. An honest empty
+// room beats a door that isn't a door.
 //
 // THE COVERS ARE DECORATIVE, NOT THUMBNAILS. Every one of these six is a
 // patterned folder cover — a gingham horse, a girl's face, caterpillars, two
@@ -80,15 +80,24 @@ const PIECES = [
     aria: "untitled folder — empty",
     opensEmpty: "horse",
   },
-  // The Chinese landscape. The fourth case-study slot, holding a case study she
-  // has not handed over yet — same treatment as the horse until she does.
+  // The Chinese landscape: the fourth case-study slot, and NextG Apex's. Its
+  // study has not been handed over yet, so the window it opens says so
+  // (`pending` in projects.js). A case-study folder that opens onto "on its
+  // way" is honest; an "untitled folder" standing in for it was not.
+  //
+  // NOT ON THE PHONE DESK, for now. The phone composition has four slots under
+  // the flower and all four are taken — the three case studies and About Me,
+  // which holds [78, 88]. Giving NextG a slot means re-laying the phone grid,
+  // which is worth doing when there is a study behind the folder; until then a
+  // phone reaches it from the project rail inside any case window.
   {
     key: "folder-scenery",
     src: `${A}/folder-scenery.webp`,
     x: 258, y: 570.7, w: 117.39, h: 97.825,
-    label: "untitled folder",
-    aria: "untitled folder — empty",
-    opensEmpty: "scenery",
+    label: "NextG Apex",
+    kind: "Case Study",
+    aria: "NextG Apex — website redesign, open the case study",
+    opensCase: "nextg",
   },
   {
     key: "folder-floral",

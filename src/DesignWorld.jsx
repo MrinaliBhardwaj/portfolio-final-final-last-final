@@ -35,7 +35,11 @@ const reveal = {
 // the layers panel's children, the Pages list and the case-study pages, so they
 // cannot drift apart. Each board now opens its own page of this file rather
 // than her Behance profile.
-const work = PROJECTS;
+//
+// Less any still `pending`: NextG Apex has its folder and its window but no
+// study yet, and a board here needs a cover cropped to its slot and a study
+// behind it. It joins the canvas when `pending` goes.
+const work = PROJECTS.filter((p) => !p.pending);
 
 // one entry per section-frame: layers-panel children + properties-panel data
 const FRAMES = [

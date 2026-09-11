@@ -62,6 +62,10 @@
  *   contributions  string[]   "What I did" bullets
  *   archive        Shot       a full exported artboard, folded away at the foot
  *                             of the study rather than BEING the study
+ *   pending        string     the study has not arrived yet: the project gets its
+ *                             desk folder, its window and its sidebar row, the
+ *                             window shows this where the study will go, and the
+ *                             design canvas leaves it out until it is dropped
  */
 
 const BEHANCE = "https://www.behance.net/mrinalibhardwaj1";
@@ -275,6 +279,24 @@ export const PROJECTS = [
           "The longer Futurepreneurs 10.0 deck: it opens on “PROJECT FUTUREPRENEURS” with the brief and deliverables, then the type and colour system, the event timeline and its sponsors, the aftermovie, winners and prize pool, the registration screens and QR flow, phone mockups, the “10 YEARS” spread, FAQs, the website, stickers, the animation and the certificate — closing on the same orange “Thank_you” slide.",
       },
     ],
+    shots: [],
+  },
+  // NEXTG APEX — THE FOLDER BEFORE THE STUDY (11 Sep 2026). The fourth
+  // case-study slot on the desk, for a case study she has not handed over yet.
+  // It has its folder, its window and its row in the sidebar now, so the body
+  // of work reads as four; `pending` is what the window says where the study
+  // will go. When the boards arrive they go in as `boards` (as Futurepreneurs'
+  // did) and `pending` comes out — which is also what puts it on the design
+  // canvas, where a board needs a cover cropped to its slot.
+  {
+    slug: "nextg",
+    name: "NextG Apex",
+    what: "Website redesign",
+    when: "Jun 2026",
+    // the landing page in its browser frame: the same export as the NextG page
+    // of the design file, so it is her work rather than a stand-in
+    cover: "/work/nextg/f-browser.webp",
+    pending: "The case study is on its way.",
     shots: [],
   },
 ];
