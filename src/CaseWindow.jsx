@@ -122,6 +122,18 @@ export default function CaseWindow({ project, index, z, onClose, onFocus, onSwit
   // light can put it back in a window, which is the one size change left and the
   // only one a person asks for.
   const [full, setFull] = useState(true);
+  // THE SIDEBAR GETS OUT OF THE WAY ONCE YOU START READING. At the top of a
+  // study the whole body of work is the point — how many there are, which one
+  // this is. A line into the reading it is 220px of the study's measure spent on
+  // something already read, so it folds to a chip and gives the width back;
+  // coming back to the top brings it out again, because that is where it earns
+  // its keep. This is not the old scroll-expand: the WINDOW never changes size,
+  // only the panel inside it, and the panel comes back.
+  const [tucked, setTucked] = useState(false);
+  // A PANEL OPENED BY HAND STAYS OPEN. Folding it again on the next wheel notch
+  // is arguing with someone who just said what they wanted. The pin clears at
+  // the top, where open is the resting state anyway.
+  const pinned = useRef(false);
   const controls = useDragControls();
 
   // browse the work without closing the window — this is what makes the
@@ -135,7 +147,30 @@ export default function CaseWindow({ project, index, z, onClose, onFocus, onSwit
   // land eight screens down Layover, which reads as a broken click.
   useEffect(() => {
     main.current?.scrollTo({ top: 0 });
+    pinned.current = false;
+    setTucked(false);
   }, [p.slug]);
+
+  // TWO THRESHOLDS, NOT ONE. 40px down to fold, 4px up to unfold. A single
+  // threshold lets the reflow the fold itself causes cross back over it and the
+  // panel flickers — the same feedback loop that once stopped the green light
+  // shrinking the window, where a scroll handler undid the very thing that
+  // caused the scroll. 36px of slack is wider than any reflow this makes.
+  useEffect(() => {
+    const el = main.current;
+    if (!el) return undefined;
+    const onScroll = () => {
+      const y = el.scrollTop;
+      if (y <= 4) {
+        pinned.current = false;
+        setTucked(false);
+      } else if (y > 40 && !pinned.current) {
+        setTucked(true);
+      }
+    };
+    el.addEventListener("scroll", onScroll, { passive: true });
+    return () => el.removeEventListener("scroll", onScroll);
+  }, []);
 
   // TWO SCROLLBARS IS ONE TOO MANY. A full-screen window covers the desktop
   // completely, but the desktop is 320vh of scroll-scrubbed cover underneath and
@@ -221,7 +256,27 @@ export default function CaseWindow({ project, index, z, onClose, onFocus, onSwit
       {/* `hidden` rather than unmounted while rolled up: the window keeps its
           scroll position and its images stay decoded, so rolling back down is
           instant instead of re-fetching everything. */}
-      <div className="cw-shell" hidden={rolled}>
+      <div className={`cw-shell${tucked ? " is-tucked" : ""}`} hidden={rolled}>
+        {/* ---- what the sidebar folds into ----
+            Its own head, left behind: the same chevron, the same folder, the
+            same word, in the same place the group row sat. So it reads as the
+            panel tucked away rather than as a new control that appeared, and
+            clicking it puts the panel back. */}
+        <button
+          type="button"
+          className="cw-tuck"
+          onClick={() => {
+            pinned.current = true;
+            setTucked(false);
+          }}
+          aria-expanded="false"
+          aria-controls="cw-side"
+        >
+          <ChevronDown size={12} strokeWidth={2.2} aria-hidden="true" />
+          <Folder size={13} strokeWidth={1.7} aria-hidden="true" />
+          Projects
+        </button>
+
         {/* ---- the sidebar ----
             Every project, always, with the current one lit. It answers "how much
             work is there, and how do I get to the rest of it" — which two

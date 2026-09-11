@@ -191,10 +191,102 @@
    A `@media` rule would size the sidebar off the SCREEN and get all three
    wrong. Everything below asks the shell how wide IT is. */
 .cw-shell {
+  position: relative; /* the folded chip is placed against this, not the page */
   display: flex;
   flex: 1 1 auto;
   min-height: 0; /* or the flex child refuses to scroll and the window grows */
   overflow: hidden; /* the two panes scroll themselves, the shell never does */
+}
+
+/* ---- the fold ----
+   THE PANEL LEAVES ON ITS MARGIN, IT DOES NOT SHRINK. At a fixed 220 nothing
+   inside it reflows on the way out — the rows keep their thumbnails and their
+   two lines and simply travel. Animating `width` instead would re-wrap three
+   project names sixty times a second, which is the one thing a fold must not
+   look like.
+
+   The negative margin is also what actually hands the width back: in a flex row
+   a margin counts toward the item's outer size, so -220 on a 220 item makes its
+   contribution to the line exactly zero and .cw-main takes the whole shell.
+   .cw-shell already clips, so the panel goes nowhere visible. */
+.cw-side {
+  transition:
+    margin-left 0.34s cubic-bezier(0.32, 0.72, 0, 1),
+    opacity 0.2s ease 0.08s;
+}
+
+.cw-shell.is-tucked .cw-side {
+  margin-left: -220px;
+  opacity: 0;
+  /* AND OUT OF THE TAB ORDER WITH IT. Opacity alone leaves three invisible
+     project buttons focusable somewhere off the left edge of the window, which
+     is a keyboard trap you cannot see. `visibility` takes them out of the tree
+     properly, held until the slide finishes so the panel is still seen to go. */
+  visibility: hidden;
+  transition:
+    margin-left 0.34s cubic-bezier(0.32, 0.72, 0, 1),
+    opacity 0.18s ease,
+    visibility 0s linear 0.34s;
+}
+
+/* ---- the chip it folds into ----
+   Fixed to the top-left of the shell, over the study, which scrolls under it.
+   Opaque and blurred rather than tinted: it has to stay legible against a case
+   study board, and a board can be any colour at all. */
+.cw-tuck {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 11px 6px 8px;
+  border: 1px solid rgba(0, 0, 0, 0.09);
+  border-radius: 8px;
+  background: rgba(236, 236, 238, 0.94);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  color: #55555c;
+  white-space: nowrap;
+  cursor: pointer;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateX(-8px);
+  transition:
+    opacity 0.16s ease,
+    transform 0.26s ease,
+    background 0.13s ease,
+    visibility 0s linear 0.26s;
+}
+
+.cw-tuck svg:last-of-type {
+  color: #4a90d9; /* the same blue the source list gives a folder */
+}
+
+.cw-shell.is-tucked .cw-tuck {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  /* it arrives AFTER the panel has started to leave, not with it — two things
+     crossing in the same 90px of space at the same moment reads as a glitch */
+  transition:
+    opacity 0.2s ease 0.12s,
+    transform 0.3s cubic-bezier(0.32, 0.72, 0, 1) 0.08s,
+    background 0.13s ease;
+}
+
+.cw-tuck:hover {
+  background: #e2e2e6;
+  color: #1c1c1e;
+}
+
+.cw-tuck:focus-visible {
+  outline: 2px solid #2f7cf6;
+  outline-offset: 1px;
 }
 
 /* ---- the sidebar ----
@@ -401,6 +493,32 @@
 .cw.is-full .cw-doc {
   max-width: 1600px;
   padding: 0 76px 72px;
+}
+
+/* AND THE STUDY MAKES ROOM FOR THE CHIP. It is fixed over a pane that scrolls
+   under it, and the gutter above is 76px — so it sat squarely on the first four
+   characters of every line that passed beneath, permanently. A panel that folds
+   away in order to cover her copy has moved the problem, not solved it.
+
+   The gutter grows to the chip's own footprint instead: 10 left + 103 wide + 12
+   clear. On BOTH sides, because a board sitting 49px further from one edge than
+   the other reads as a bug — and the fold is still worth 122px of extra measure
+   at 1512 (1130 → 1252), which is what it was for.
+
+   IT HAS TO SIT HERE, under the rule above rather than up with the rest of the
+   fold. `.cw.is-full .cw-doc` is three classes and so is this; they tie, and a
+   tie is settled by which one comes last. Written in the fold section it lost,
+   silently, and the chip went back to sitting on her copy. */
+@container cwwin (min-width: 881px) {
+  .cw-shell.is-tucked .cw-doc {
+    padding-left: 125px;
+    padding-right: 125px;
+  }
+}
+
+/* the gutter moves WITH the panel, not ahead of it */
+.cw-doc {
+  transition: padding 0.34s cubic-bezier(0.32, 0.72, 0, 1);
 }
 
 /* ---- hero ---- */
@@ -838,6 +956,21 @@
     display: none;
   }
 
+  /* NO FOLD ON THE RAIL. The fold exists to give the study back 220px of WIDTH;
+     laid across the top there is no width to give back, and folding along the
+     wrong axis would leave a band of empty panel behind — the fold has to run
+     along the axis the list actually occupies. So here it simply doesn't, and
+     the rail stays put, which also keeps the only navigation a narrow window
+     has. (These match the tucked rules on specificity and come later.) */
+  .cw-shell.is-tucked .cw-side {
+    margin-left: 0;
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .cw-tuck {
+    display: none;
+  }
 }
 
 /* One column: the hero art below the words, the numbers below the overview.
@@ -966,7 +1099,12 @@
 
 @media (prefers-reduced-motion: reduce) {
   .cw-nav button,
-  .cw-open {
+  .cw-open,
+  .cw-side,
+  .cw-tuck,
+  .cw-doc,
+  .cw-shell.is-tucked .cw-side,
+  .cw-shell.is-tucked .cw-tuck {
     transition: none;
   }
 }

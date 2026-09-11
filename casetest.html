@@ -53,6 +53,12 @@
           },
         }))
       );
+
+      // ?y= SCROLLS THE STUDY AFTER MOUNT. The sidebar's fold is a scroll
+      // state, and a headless screenshot cannot scroll — this is the only way
+      // to photograph it folded. Real scroll, so the real handler runs.
+      const y = Number(q.get("y"));
+      if (y) setTimeout(() => document.querySelector(".cw-main")?.scrollTo({ top: y }), 500);
     </script>
   </body>
 </html>

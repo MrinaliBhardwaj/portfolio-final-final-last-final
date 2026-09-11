@@ -3327,3 +3327,44 @@ different question: not "where is it dark?" but **"which columns are NEVER
 white?"** The outermost five answered 0.0 against 0.39 for their neighbours.
 
 The exports are the frame minus that border; `dims` still names her frame.
+
+## The sidebar folds while you read (11 Sep 2026)
+
+**This deliberately reverses part of "The case window opens full screen, and
+then holds still" (6 Sep), at her request — do not "fix" it back.** What was
+undone on 6 Sep was three automatic changes: the window opening small, the
+window growing on the first scroll, and the sidebar vanishing as it grew. The
+objection was to the WINDOW changing size under the reader and to the sidebar
+leaving with no way back. This is different on both counts: the window never
+changes size — only the panel inside it — and the panel leaves a chip behind
+that brings it back.
+
+The behaviour, in `CaseWindow.jsx` (`tucked`, `pinned`) and `case-window.css`:
+
+- At the top of a study the sidebar is fully open.
+- Past 40px of scroll it slides out and a `⌄ 📁 Projects` chip — the sidebar's
+  own group row, from her reference — appears fixed at the top-left of the pane.
+  It slides on `margin-left: -220px`, not `width`, so its rows travel intact
+  instead of re-wrapping every frame; the negative margin is also what hands the
+  width to the study, since a flex item's margin counts toward its outer size.
+- Clicking the chip reopens the panel and PINS it open until the top. Folding
+  it again on the next wheel notch would be arguing with the click.
+- Back within 4px of the top it reopens by itself, and the pin clears.
+- Two thresholds (40 down, 4 up), not one: the fold reflows the study, and
+  Chrome's scroll anchoring moved scrollTop by 11px and 62px in testing. A single
+  threshold would let the fold's own reflow flip it straight back.
+- Switching projects resets it — new study, top, open.
+
+**While folded the study gets a 125px gutter, not the whole width.** The chip
+floats over a pane that scrolls beneath it, and at the normal 76px gutter it sat
+on the first characters of every line of her copy that passed under it (caught
+on Futurepreneurs' overview at 940px). 125 = 10 inset + 103 chip + 12 clear, on
+both sides so a board stays centred. The net gain at 1512 is still 1130 → 1252px
+of measure; at 1512 and 940, 47 scroll positions measured 0 overlaps.
+
+**No fold under an 880px window.** There the sidebar is already a rail across
+the top: no width to give back, and it is the only navigation that width has.
+
+A trap worth knowing: the folded-gutter rule and `.cw.is-full .cw-doc` are both
+three classes, so they tie and the later one wins. Written up with the rest of
+the fold it lost silently. It must sit after the full-screen rule.
