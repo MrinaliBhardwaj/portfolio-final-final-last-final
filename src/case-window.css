@@ -199,24 +199,36 @@
   /* the fold's one clock — see "the fold" below */
   --cw-fold-t: 0.34s;
   --cw-fold-e: cubic-bezier(0.6, 0, 0.4, 1);
-  /* WHERE THE FOLDED BAR IS — which is where the Projects row already is in the
-     open panel: 12 of sheet padding + the 14px title + 4 under it puts the row
-     at 30, and the sheet's 10px padding less 2 puts it at 8. These four numbers
-     place the row, size it, cut the clip and set the study's gutter, so the bar
-     and the row cannot disagree about where they are. */
+  /* WHERE THE FOLDED BAR IS — which is where the Projects header already is in
+     the open panel, the first thing in the sheet: 8 down, 8 in. The folded bar
+     is the sheet cut back to that row plus the same 8 all round (--cw-tab-w/h),
+     still flush to the window's top and left edges it was flush to open. These
+     numbers place the row, size it, cut the clip and set the study's gutter, so
+     the bar and the header cannot disagree about where they are. */
   --cw-bar-x: 8px;
-  --cw-bar-y: 30px;
+  --cw-bar-y: 8px;
   --cw-bar-w: 102px;
   --cw-bar-h: 28px;
+  --cw-tab-w: calc(var(--cw-bar-x) * 2 + var(--cw-bar-w)); /* 118 */
+  --cw-tab-h: calc(var(--cw-bar-y) * 2 + var(--cw-bar-h)); /* 44 */
 }
 
 /* ---- the fold ----
    THE SIDEBAR FOLDS INTO ITS OWN HEAD. The folded bar is not a second element
-   that appears when the panel leaves — it is the panel's Projects row, and the
-   row never moves. The sheet around it closes in on that row (one clip-path,
-   all four sides at once) until only the row is left, and the row has been
-   sitting in the bar's exact position the whole time. Nothing is handed off,
-   so nothing can be out of line. Expanding is the same clip opening back out.
+   that appears when the panel leaves — it is the panel's Projects header, and
+   the header never moves or restyles. The sheet is pulled up and in to it: its
+   top and left edges stay on the window's edges, its bottom edge rises to just
+   under the header, its right edge comes in to just past it (one clip-path),
+   and the list tucks up under the header as it goes. What is left is the same
+   grey sheet, the same hairline edge, the same row — the sidebar with nothing
+   in it but its header. The only thing that changes on the row is the
+   disclosure chevron, turning from ⌄ to ›, which is exactly what a Finder
+   group does when it collapses. Expanding is the same clip opening back out.
+
+   It was a chip before (1 Sep → 12 Sep 2026): the clip closed in from all four
+   sides onto a rounded, shadowed pill floating 30px down, and the chevron kept
+   pointing down. Every one of those said "a different control", and read that
+   way however smooth the motion was.
 
    THE PANEL FLOATS; ITS WIDTH IS HELD BY THE STUDY. .cw-side is laid over the
    shell rather than beside it, and .cw-main keeps the panel's 220px as its own
@@ -250,7 +262,7 @@
 .cw-side-sheet,
 .cw-main,
 .cw-doc,
-.cw-side-title,
+.cw-side-chev,
 .cw-side-list,
 .cw-side-foot {
   transition: --fold var(--cw-fold-t) var(--cw-fold-e);
@@ -258,11 +270,11 @@
 
 @container cwwin (min-width: 881px) {
   .cw-shell.is-tucked
-    :is(.cw-side, .cw-side-sheet, .cw-main, .cw-doc, .cw-side-title, .cw-side-list, .cw-side-foot) {
+    :is(.cw-side, .cw-side-sheet, .cw-main, .cw-doc, .cw-side-chev, .cw-side-list, .cw-side-foot) {
     --fold: 1;
   }
 
-  .cw-shell.is-tucked :is(.cw-side-title, .cw-side-list, .cw-side-foot) {
+  .cw-shell.is-tucked :is(.cw-side-list, .cw-side-foot) {
     /* out of the tab order once the fold is done — clipped buttons are still
        focusable, and a focus ring nobody can see is a keyboard trap */
     visibility: hidden;
@@ -282,23 +294,28 @@
   /* the sheet takes the clicks, and only inside its clip — the wrapper's own
      box would otherwise go on swallowing clicks on the study after the fold */
   pointer-events: none;
-  /* THE BAR'S EDGE IS A SHADOW OF THE CLIP. A border would be clipped away with
-     everything else; a drop-shadow on the wrapper is drawn around whatever
-     shape the sheet has been clipped to, so the hairline and the soft shadow
-     trace the closing clip at every frame and land on the bar's rounded
-     rectangle. Invisible while open: their alpha is --fold's. */
-  filter: drop-shadow(0 0 0.5px rgba(0, 0, 0, calc(0.34 * var(--fold))))
-    drop-shadow(0 1px 3px rgba(0, 0, 0, calc(0.1 * var(--fold))));
+  /* ONE EDGE, OPEN AND FOLDED. The sheet's hairline used to be a border-right,
+     which the clip cuts away the moment the right edge moves in — and then a
+     different, all-round outline faded in for the bar. Now the edge is a pair
+     of 1px, zero-blur drop-shadows on the wrapper, drawn around whatever shape
+     the sheet has been clipped to: open, that is the right edge only (the
+     bottom's falls outside the shell); folding, the same line follows the
+     right edge in and runs along the bottom edge as it rises. Same weight, same
+     alpha, never swapped. The soft lift under it grows with --fold, because the
+     folded sheet is the one thing the study scrolls beneath. */
+  filter: drop-shadow(1px 0 0 rgba(0, 0, 0, 0.1)) drop-shadow(0 1px 0 rgba(0, 0, 0, 0.1))
+    drop-shadow(0 2px 5px rgba(0, 0, 0, calc(0.07 * var(--fold))));
 }
 
 .cw-side-sheet {
   box-sizing: border-box;
   height: 100%;
   pointer-events: auto;
+  /* pulled up and in to the header: top and left never move, and only the
+     corner that detaches from the window's frame rounds */
   clip-path: inset(
-    calc(var(--cw-bar-y) * var(--fold)) calc((100% - var(--cw-bar-x) - var(--cw-bar-w)) * var(--fold))
-      calc((100% - var(--cw-bar-y) - var(--cw-bar-h)) * var(--fold)) calc(var(--cw-bar-x) * var(--fold))
-      round calc(8px * var(--fold))
+    0 calc((100% - var(--cw-tab-w)) * var(--fold)) calc((100% - var(--cw-tab-h)) * var(--fold)) 0
+      round 0 0 calc(9px * var(--fold)) 0
   );
 }
 
@@ -306,26 +323,30 @@
   margin-left: calc(220px * (1 - var(--fold))); /* the panel's width, held open in the flow */
 }
 
-.cw-side-title,
-.cw-side-list,
+/* the list tucks up under its header as the sheet rises over it */
+.cw-side-list {
+  opacity: calc(1 - var(--fold));
+  transform: translateY(calc(-8px * var(--fold)));
+}
+
 .cw-side-foot {
   opacity: calc(1 - var(--fold));
 }
 
-/* the row is a button only while it is the bar */
-.cw-shell.is-tucked .cw-side-group {
-  pointer-events: auto;
-  cursor: pointer;
+/* ⌄ open, › folded: the disclosure chevron of a Finder group */
+.cw-side-chev {
+  flex: none;
+  transform: rotate(calc(-90deg * var(--fold)));
 }
 
 @media (hover: hover) and (pointer: fine) {
-  .cw-shell.is-tucked .cw-side-group:hover {
+  .cw-side-group:hover {
     background: rgba(0, 0, 0, 0.05);
     color: #1c1c1e;
   }
 }
 
-.cw-shell.is-tucked .cw-side-group:active {
+.cw-side-group:active {
   background: rgba(0, 0, 0, 0.09);
 }
 
@@ -343,29 +364,19 @@
 .cw-side-sheet {
   display: flex;
   flex-direction: column;
-  padding: 12px 10px 10px;
+  padding: var(--cw-bar-y) 10px 10px; /* the header is the first row: see the bar's place */
   background: #ececee;
-  border-right: 1px solid rgba(0, 0, 0, 0.1);
+  /* no border: the edge is drawn by .cw-side's filter, so it survives the fold */
   overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: rgba(0, 0, 0, 0.22) transparent;
 }
 
-.cw-side-title {
-  /* exactly 14px tall with exactly this under it, so the Projects row lands on
-     --cw-bar-y: the bar's position is decided here */
-  margin: 0 0 calc(var(--cw-bar-y) - 12px - 14px) 8px;
-  font-size: 10px;
-  line-height: 14px;
-  font-weight: 600;
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
-  color: #8e8e95;
-}
-
-/* THE PROJECTS ROW, WHICH IS ALSO THE FOLDED BAR. Sized to the bar in both
-   states — a slightly tall row while the list is open, which costs nothing, and
-   exactly the bar once it is not. */
+/* THE PROJECTS HEADER, WHICH IS ALSO THE FOLDED BAR. The sidebar's first row
+   (the "Portfolio" caption that sat above it went on 12 Sep 2026: with it, the
+   bar had to be cut out of the middle of the sheet instead of being its top).
+   One look in both states — a slightly tall row while the list is open, which
+   costs nothing, and exactly the bar once it is not. */
 .cw-side-group {
   box-sizing: border-box;
   flex: none;
@@ -377,7 +388,7 @@
   margin: 0 0 -2px calc(var(--cw-bar-x) - 10px);
   padding: 0 11px 0 8px;
   border: 0;
-  border-radius: 8px;
+  border-radius: 6px; /* the list rows' radius: it is one of them */
   background: none;
   font: inherit;
   font-size: 12px;
@@ -385,7 +396,7 @@
   color: #55555c;
   white-space: nowrap;
   text-align: left;
-  pointer-events: none; /* a label while the list is open */
+  cursor: pointer;
   transition:
     background 0.13s ease,
     color 0.13s ease;
@@ -564,7 +575,7 @@
 /* AND THE STUDY MAKES ROOM FOR THE BAR. It is fixed over a pane that scrolls
    under it, and the open gutter is 76px — so it would sit on the first
    characters of every line that passed beneath, permanently. Folded, the
-   gutter grows to the bar's own footprint (--cw-bar-x + --cw-bar-w + 15 = 125),
+   gutter grows to the bar's own footprint (--cw-tab-w + 15 = 133),
    on BOTH sides, because a board sitting 49px further from one edge than the
    other reads as a bug — and the fold is still worth 122px of extra measure at
    1512 (1130 → 1252), which is what it was for.
@@ -578,7 +589,7 @@
    to the open one. */
 @container cwwin (min-width: 881px) {
   .cw-doc {
-    --doc-x-folded: calc(var(--cw-bar-x) + var(--cw-bar-w) + 15px);
+    --doc-x-folded: calc(var(--cw-tab-w) + 15px);
   }
 }
 
@@ -1009,7 +1020,6 @@
     margin-left: 0;
   }
 
-  .cw-side-title,
   .cw-side-group,
   .cw-side-foot {
     display: none;

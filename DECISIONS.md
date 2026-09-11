@@ -3448,3 +3448,28 @@ NextG through the project rail inside any case window. Worth re-laying the phone
 grid once there is a study behind the folder.
 
 The horse stays the one "untitled folder"; `#/?folder=scenery` is retired.
+
+## The folded bar is the sidebar's own header (12 Sep 2026)
+
+The morph was smooth but the two ends read as two components: a full grey
+panel open, a rounded, shadowed pill floating 30px down once folded, with a
+chevron still pointing down. Now the fold is the sheet pulled up to its header:
+
+- **The Projects header is the sheet's first row.** The small "PORTFOLIO"
+  caption above it is gone; with it there, the bar had to be cut out of the
+  middle of the sheet instead of being its top.
+- **Top and left edges never move.** The clip only brings the right edge in (to
+  118) and the bottom edge up (to 44), so the folded bar is the same grey
+  sheet, still flush to the window's frame, with only the detached corner
+  rounded (9px).
+- **One hairline, open and folded.** The border-right became 1px zero-blur
+  drop-shadows on the wrapper, so the same line follows the right edge in and
+  runs along the rising bottom edge. A faint lift grows with the fold, because
+  the folded sheet is what the study scrolls under.
+- **The row never restyles.** Only its disclosure chevron turns (⌄ → ›) on the
+  same `--fold`, the way a Finder group collapses; the list tucks up under it.
+- **The header is a disclosure button in both states** (it used to be a dead
+  label while open). Folding it by hand at the top stays folded through the
+  first wheel notches, until the reader passes FOLD_AT; after that, the top
+  opens it as usual.
+- The folded gutter follows the bar: 118 + 15 = 133.

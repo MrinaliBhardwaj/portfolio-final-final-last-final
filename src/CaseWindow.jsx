@@ -226,10 +226,16 @@ export default function CaseWindow({ project, index, z, onClose, onFocus, onSwit
   // is arguing with someone who just said what they wanted. The pin clears at
   // the top, where open is the resting state anyway.
   const pinned = useRef(false);
+  // AND ONE SHUT BY HAND STAYS SHUT. The Projects row is a disclosure header in
+  // both states, so it can fold the panel at the top of a study too — where the
+  // first wheel notch (y 1…4) would otherwise read as "back at the top" and
+  // throw it open again. It stays shut until the reader has scrolled past
+  // FOLD_AT; after that, coming back to the top opens it as usual.
+  const shut = useRef(false);
   // the fold as of right now, for the scroll handler — it is bound once, and
   // would otherwise read the first render's `tucked` forever
   const tuckedNow = useRef(false);
-  // WHY it last changed: "fold", "chip" or "top". The layout effect below holds
+  // WHY it last changed: "fold", "chip", "shut" or "top". The layout effect below holds
   // the page differently for each, and the state alone cannot say which.
   const cause = useRef("");
   const want = (next, why) => {
@@ -252,6 +258,7 @@ export default function CaseWindow({ project, index, z, onClose, onFocus, onSwit
   useEffect(() => {
     main.current?.scrollTo({ top: 0 });
     pinned.current = false;
+    shut.current = false;
     want(false, "top");
   }, [p.slug]);
 
@@ -266,10 +273,12 @@ export default function CaseWindow({ project, index, z, onClose, onFocus, onSwit
     const onScroll = () => {
       const y = el.scrollTop;
       if (y <= AT_TOP) {
+        if (shut.current) return;
         pinned.current = false;
         want(false, "top");
-      } else if (y > FOLD_AT && !pinned.current) {
-        want(true, "fold");
+      } else if (y > FOLD_AT) {
+        shut.current = false;
+        if (!pinned.current) want(true, "fold");
       }
     };
     el.addEventListener("scroll", onScroll, { passive: true });
@@ -281,13 +290,14 @@ export default function CaseWindow({ project, index, z, onClose, onFocus, onSwit
   // fold's first frame — the transition has begun but has not moved anything.
   // Returning to the top is the exception: there the thing to hold is the top
   // itself, and following a line down would carry the page back past FOLD_AT
-  // and fold it again at once.
+  // and fold it again at once. A fold by hand at the top holds the top for the
+  // same reason.
   useLayoutEffect(() => {
     const el = main.current;
     const why = cause.current;
     if (!el || !why) return undefined;
     const ms = foldMs(el);
-    return why === "top"
+    return why === "top" || (why === "shut" && el.scrollTop <= AT_TOP)
       ? holdStill(el, ms)
       : holdReadingLine(el, ms, why === "fold" ? FOLD_AT + 1 : 0);
   }, [tucked]);
@@ -383,31 +393,35 @@ export default function CaseWindow({ project, index, z, onClose, onFocus, onSwit
             chevrons on a title bar cannot, because they never say what is on
             either side of you.
 
-            It FOLDS INTO ITS OWN HEAD: the Projects row is the folded bar. The
-            sheet closes in on that row and the row never moves, so there is no
-            second element to hand off to and nothing to line up. See "the fold"
-            in case-window.css. */}
+            It FOLDS INTO ITS OWN HEAD: the Projects row is the sidebar's header
+            and the folded bar is that header with the sheet pulled up to it.
+            The row never moves and never restyles — only its disclosure chevron
+            turns, the way a Finder group's does. See "the fold" in
+            case-window.css. */}
         <nav className="cw-side" aria-label="Projects">
           <div className="cw-side-sheet">
-            <p className="cw-side-title">Portfolio</p>
             <button
               type="button"
               className="cw-side-group"
-              // a label while the list is open; the whole panel while it is not
-              onClick={
-                tucked
-                  ? () => {
-                      pinned.current = true;
-                      want(false, "chip");
-                    }
-                  : undefined
-              }
-              tabIndex={tucked ? 0 : -1}
-              aria-hidden={tucked ? undefined : "true"}
-              aria-expanded={tucked ? false : undefined}
-              aria-controls={tucked ? "cw-side-list" : undefined}
+              // A DISCLOSURE HEADER IN BOTH STATES. It used to be a dead label
+              // while open and a button only once folded — two different
+              // objects that happened to look alike. Now it does what its
+              // chevron says either way: fold the list, or open it.
+              onClick={() => {
+                if (tucked) {
+                  pinned.current = true;
+                  shut.current = false;
+                  want(false, "chip");
+                } else {
+                  pinned.current = false;
+                  shut.current = true;
+                  want(true, "shut");
+                }
+              }}
+              aria-expanded={!tucked}
+              aria-controls="cw-side-list"
             >
-              <ChevronDown size={12} strokeWidth={2.2} aria-hidden="true" />
+              <ChevronDown className="cw-side-chev" size={12} strokeWidth={2.2} aria-hidden="true" />
               <Folder size={13} strokeWidth={1.7} aria-hidden="true" />
               Projects
             </button>
