@@ -814,6 +814,10 @@
 .dw-board--lg { grid-column: 1 / span 7; }
 .dw-board--sm { grid-column: 8 / span 5; margin-top: 3.5rem; }
 .dw-board--wide { grid-column: 2 / span 10; }
+/* NextG's slot (12 Sep 2026), a third row that mirrors the first: lg's width
+   pushed to the right edge, so the four boards zig-zag down the canvas
+   instead of lining up on the left. */
+.dw-board--offset { grid-column: 6 / span 7; }
 
 .dw-board {
   display: block;
@@ -882,6 +886,14 @@
 .dw-board--wide .dw-board-art {
   aspect-ratio: 2 / 1;
   transform: rotate(-0.6deg);
+}
+
+/* the cover's own ratio (f-browser.webp, 1800x1233: the landing page in its
+   browser frame), used directly as Layover's is — so nothing is cropped off
+   the browser chrome. The tilt carries on alternating down the canvas. */
+.dw-board--offset .dw-board-art {
+  aspect-ratio: 1800 / 1233;
+  transform: rotate(0.9deg);
 }
 
 .dw-board:hover .dw-board-art,
@@ -1155,7 +1167,8 @@
 
   .dw-board--lg,
   .dw-board--sm,
-  .dw-board--wide {
+  .dw-board--wide,
+  .dw-board--offset {
     grid-column: 1 / -1;
     margin-top: 0;
   }
@@ -1751,7 +1764,8 @@
 
   .dw-board--lg,
   .dw-board--sm,
-  .dw-board--wide {
+  .dw-board--wide,
+  .dw-board--offset {
     grid-column: 1 / -1;
     margin-top: 0;
   }

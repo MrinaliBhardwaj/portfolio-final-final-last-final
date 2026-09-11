@@ -80,10 +80,9 @@ const PIECES = [
     aria: "untitled folder — empty",
     opensEmpty: "horse",
   },
-  // The Chinese landscape: the fourth case-study slot, and NextG Apex's. Its
-  // study has not been handed over yet, so the window it opens says so
-  // (`pending` in projects.js). A case-study folder that opens onto "on its
-  // way" is honest; an "untitled folder" standing in for it was not.
+  // The Chinese landscape: the fourth case-study slot, and NextG Apex's. It
+  // got its folder a day before its study (11 Sep 2026, opening onto "on its
+  // way"); the study landed 12 Sep 2026, so it opens a full case window now.
   //
   // NOT ON THE PHONE DESK, for now. The phone composition has four slots under
   // the flower and all four are taken — the three case studies and About Me,

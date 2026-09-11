@@ -101,43 +101,41 @@ export const PROJECTS = [
       { value: "3rd", label: "GDG Design-a-thon" },
     ],
     shots: [],
-    // NOT A SHOT ANY MORE. This is the 22,306px export the window used to BE:
-    // 18 files of one flat picture, unreflowable, unsearchable, unreadable on a
-    // phone. It stays because it is the real work and deleting it would lose
-    // it - but it is folded away at the foot of the study as an archive rather
-    // than served as the study. When the rebuilt sections arrive, it can go.
-    archive: {
-        // The full case study, exported from the Figma file
-        // (meal-maestro-case-study, node 429-2731) at 1400x22306 and sliced by
-        // scripts/build_meal_maestro_shots.py. Slicing is REQUIRED, not an
-        // optimisation: WebP's maximum dimension is 16383px, so 22306 cannot be
-        // one file — and a bitmap that tall would be ~125 MB of RGBA to decode
-        // on the main thread anyway. 17.3 MB of PNG becomes 1.26 MB.
-        //
-        // (The first file offered for this slot was a screenshot of the Behance
-        // PAGE — their header, a "Follow All / Appreciate" bar over her
-        // artwork, and ~85% other designers' projects. Check an export's
-        // contents before shipping it.)
-        //
-        // `frame`/`dims` name this as the one Figma artboard it actually is —
-        // the 18 files underneath are a delivery detail, not 18 things she drew.
-        frame: "case-study",
-        dims: "1400 × 22306",
-        strip: Array.from(
-          { length: 18 },
-          (_, i) => `/work/meal-maestro/s${String(i).padStart(2, "0")}.webp`
-        ),
-        sliceSize: [1400, 1240],
-        // 22306 doesn't divide by 18, so the last slice is short. Given exactly
-        // rather than rounded, so the space the browser reserves for it matches
-        // what arrives and the page doesn't twitch at the very bottom.
-        lastSliceSize: [1400, 1226],
-        wide: true,
-        caption:
-          "The full case study — research with real users, the insights it earned, the design system, and the flows it produced.",
-        alt:
+    // THE STUDY, NOT AN APPENDIX (12 Sep 2026). This same frame used to be
+    // folded away at the foot of the page as an `archive` — "the export the
+    // window used to be", kept until something replaced it. Nothing did: she
+    // asked for it as the case study, so it is a board now, drawn the way
+    // Layover's and Futurepreneurs' are.
+    //
+    // meal-maestro-case-study, node 429:2731 ("Updated case study full"), 1400
+    // x 22306 — CROPPED to 19977 at her request: past the closing "Thanks for
+    // watching!" card the frame runs on for ~2,400px of flat green. The cut
+    // leaves 67px under the card, the gap it has above it. `dims` is the board
+    // as shown, not the frame, because here the difference is the point.
+    // Sliced by scripts/build_case_boards.py.
+    //
+    // (The first file ever offered for Meal Maestro was a screenshot of the
+    // Behance PAGE — their header, a "Follow All / Appreciate" bar over her
+    // artwork, and ~85% other designers' projects. Check an export's contents
+    // before shipping it.)
+    boards: [{
+      node: "429:2731",
+      dims: "1400 × 19977",
+      slices: [
+        { src: "/work/meal-maestro/case/s00.webp", w: 1400, h: 2476 },
+        { src: "/work/meal-maestro/case/s01.webp", w: 1400, h: 2369 },
+        { src: "/work/meal-maestro/case/s02.webp", w: 1400, h: 1788 },
+        { src: "/work/meal-maestro/case/s03.webp", w: 1400, h: 2456 },
+        { src: "/work/meal-maestro/case/s04.webp", w: 1400, h: 1815 },
+        { src: "/work/meal-maestro/case/s05.webp", w: 1400, h: 1900 },
+        { src: "/work/meal-maestro/case/s06.webp", w: 1400, h: 2013 },
+        { src: "/work/meal-maestro/case/s07.webp", w: 1400, h: 1821 },
+        { src: "/work/meal-maestro/case/s08.webp", w: 1400, h: 2510 },
+        { src: "/work/meal-maestro/case/s09.webp", w: 1400, h: 829 },
+      ],
+      alt:
           "The Meal Maestro case study: a smart meal-planning app for personalized recommendations and nutrition guidance, designed in Vellore, Tamil Nadu, May 2026. It runs from the goal of making healthy eating simpler and more accessible, through branding and primary research grounded in real voices and real data (12 discovery phone interviews, 140 survey responses, 4 comparison teardowns, 5 weeks), into key insights about why people abandon meal planning, then a design system of colour and type — Poppins for display and headings, Open Sans for body — and finally the home, recipe detail, tracker and explore flows, closing on \"Thanks for watching!\".",
-    },
+    }],
   },
   {
     slug: "layover",
@@ -281,22 +279,63 @@ export const PROJECTS = [
     ],
     shots: [],
   },
-  // NEXTG APEX — THE FOLDER BEFORE THE STUDY (11 Sep 2026). The fourth
-  // case-study slot on the desk, for a case study she has not handed over yet.
-  // It has its folder, its window and its row in the sidebar now, so the body
-  // of work reads as four; `pending` is what the window says where the study
-  // will go. When the boards arrive they go in as `boards` (as Futurepreneurs'
-  // did) and `pending` comes out — which is also what puts it on the design
-  // canvas, where a board needs a cover cropped to its slot.
+  // NEXTG APEX (folder 11 Sep 2026, study 12 Sep 2026). It had its desk folder,
+  // its window and its sidebar row a day early, with `pending` standing where
+  // the study would go; the study has landed, so `pending` is gone — which is
+  // also what put it on the design canvas, in the `offset` slot.
+  //
+  // Every word below is hers, from the board itself (cover, "02 Project
+  // overview" and "14 Results"), not written for this page.
   {
     slug: "nextg",
     name: "NextG Apex",
     what: "Website redesign",
     when: "Jun 2026",
+    tag: "Half a million outlets, one screen",
+    blurb:
+      "A B2B retail-tech case study on making half a million outlets legible in a single screen.",
+    size: "offset",
     // the landing page in its browser frame: the same export as the NextG page
-    // of the design file, so it is her work rather than a stand-in
+    // of the design file, so it is her work rather than a stand-in. It is the
+    // hero too (no `hero` field), and the canvas board uses its own ratio.
     cover: "/work/nextg/f-browser.webp",
-    pending: "The case study is on its way.",
+    file: "nextg-apex-final",
+    dims: "1600 × 20076",
+    role: "Product design + front-end",
+    summary:
+      "NextG runs field sales for FMCG brands across half a million Indian outlets. Their 10 year old site looked like every other B2B tool, so nobody believed the scale. I rebuilt it end to end — structure, interface, design system, and the front-end code.",
+    facts: [
+      ["Role", "Product design + front-end"],
+      ["Timeline", "June 2026"],
+      ["Category", "B2B retail tech"],
+      ["Location", "India"],
+    ],
+    metrics: [
+      { value: "500,000", label: "outlets the site had to make legible" },
+      { value: "6", label: "pages, designed and built end to end" },
+      { value: "17", label: "colours in the one token file every page reads" },
+    ],
+    // NextG, node 181:103 ("NextG Apex · Case Study"), 1600 x 20076. No crop
+    // and no border to trim; its sixteen sections sit on flat gaps, so all but
+    // one cut lands in one. Sliced by scripts/build_case_boards.py.
+    boards: [{
+      node: "181:103",
+      dims: "1600 × 20076",
+      slices: [
+        { src: "/work/nextg/case/s00.webp", w: 1600, h: 2384 },
+        { src: "/work/nextg/case/s01.webp", w: 1600, h: 1813 },
+        { src: "/work/nextg/case/s02.webp", w: 1600, h: 2537 },
+        { src: "/work/nextg/case/s03.webp", w: 1600, h: 2180 },
+        { src: "/work/nextg/case/s04.webp", w: 1600, h: 2104 },
+        { src: "/work/nextg/case/s05.webp", w: 1600, h: 2117 },
+        { src: "/work/nextg/case/s06.webp", w: 1600, h: 2121 },
+        { src: "/work/nextg/case/s07.webp", w: 1600, h: 2167 },
+        { src: "/work/nextg/case/s08.webp", w: 1600, h: 2278 },
+        { src: "/work/nextg/case/s09.webp", w: 1600, h: 375 },
+      ],
+      alt:
+        "The NextG Apex case study: a B2B retail-tech site for field sales across half a million Indian outlets, designed and built end to end. It runs from the project overview and a brief in two halves — a CEO who wanted a site people keep scrolling and a CTO who wanted the phygital proposition stated without ambiguity — through the whole site, the process, an audit, structure, type and colour, the design decisions, the product views, conversion, responsive layouts and the WebGL build, to what shipped: six pages, one system, no framework — closing on “Thanks for watching”.",
+    }],
     shots: [],
   },
 ];

@@ -555,10 +555,11 @@ export default function CaseWindow({ project, index, z, onClose, onFocus, onSwit
             <section className="cw-screens">
               <h3 className="cw-kicker">The work</h3>
               {boards.length > 0 ? (
-                /* THE CASE STUDY AS SHE PRESENTED IT. Not the Meal Maestro
-                   situation: that one is an artboard demoted to an appendix
-                   because nothing had replaced it yet. This is the study, and it
-                   is what the section is for. Each board is cut into slices (see
+                /* THE CASE STUDY AS SHE PRESENTED IT. Every project with a study
+                   has one of these now (Meal Maestro's was demoted to a folded
+                   `archive` until 12 Sep 2026; it is a board like the rest).
+                   This is the study, and it is what the section is for. Each
+                   board is cut into slices (see
                    projects.js) and stacked seamlessly, and every slice carries
                    its real width and height so the browser reserves the space
                    before the image lands and the window's scroll never jumps.

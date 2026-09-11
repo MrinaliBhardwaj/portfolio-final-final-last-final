@@ -36,9 +36,10 @@ const reveal = {
 // cannot drift apart. Each board now opens its own page of this file rather
 // than her Behance profile.
 //
-// Less any still `pending`: NextG Apex has its folder and its window but no
-// study yet, and a board here needs a cover cropped to its slot and a study
-// behind it. It joins the canvas when `pending` goes.
+// Less any still `pending`: a project whose study has not arrived has its
+// folder and its window but no board here, since a board needs a cover fitted
+// to its slot and a study behind it. (NextG Apex was the first; it joined the
+// canvas on 12 Sep 2026 when its study landed, in the `offset` slot.)
 const work = PROJECTS.filter((p) => !p.pending);
 
 // one entry per section-frame: layers-panel children + properties-panel data

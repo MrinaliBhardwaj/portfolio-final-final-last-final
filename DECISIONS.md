@@ -3486,3 +3486,31 @@ still in the repo, unimported. To bring page three back, re-add `<SceneThree />`
 after `<SceneTwo />` in NoteWindow.jsx and NotesWorld.jsx, and the
 `import "./collage.css"` in App.jsx. Page two already reserves `--nw-room` for
 the floating dock, so ending on it needs no extra tail.
+
+## Meal Maestro and NextG Apex get their case-study boards (12 Sep 2026)
+
+Both are boards now, the Layover/Futurepreneurs way: her Figma frame rendered
+at scale 1, cut into WebP slices by `scripts/build_case_boards.py`, stacked
+seamlessly in the case window.
+
+**Meal Maestro — node `429:2731` ("Updated case study full"), cropped.** The
+frame is 1400 × 22306 but its content ends at row 19909, the bottom of the
+closing "Thanks for watching!" card; the ~2,400px below is flat green, and she
+asked for it gone. The cut keeps 67px under the card — the gap it has above
+it. `dims` shows 1400 × 19977 (the board as presented), not the frame.
+This is the same frame that used to sit folded at the foot of the page as an
+`archive`; it is the study now, so the `archive` and its 18 old slices
+(`public/work/meal-maestro/s00–s17.webp`) are gone (git history has them).
+
+**NextG Apex — node `181:103`, 1600 × 20076, no crop.** `pending` came out, so
+it joined the design canvas. Its copy (blurb, summary, facts, the three
+numbers) is lifted from her board, not written for the page. The canvas gets a
+fourth slot, `size: "offset"` — lg's width on the right edge of a third row,
+tilted +0.9°, so the boards zig-zag down the canvas — and the board uses
+`f-browser.webp` at its own 1800/1233 ratio, uncropped, the way Layover's
+cover does. It is still not on the phone desk (all four slots taken).
+
+**Exporting:** `download_assets` clamps tall frames to 4096px (it returned
+258 × 4096). `get_screenshot` with `maxDimension` = the frame's height gives
+native size. Both boards were checked for the Futurepreneurs border (edge
+columns vs their neighbours) and neither has one.
