@@ -228,6 +228,45 @@ export const FigmaMarkColor = ({ size = 24, ...rest }) => (
   </svg>
 );
 
+// APPLE PHOTOS — the phone's Photos app, not Google's.
+//
+// Drawn here for the same reason AppleNotesMark above is: the real mark is
+// trademark-restricted and no icon set ships it, and the phone is an iPhone —
+// a Google pinwheel in an iOS dock is the one icon on that screen that would
+// be wearing the wrong uniform. Eight petals on a shared centre, each the same
+// ellipse turned 45 degrees from the last, multiplying where they overlap so
+// the middle lightens the way the real one does.
+const PHOTO_PETALS = [
+  "#f7c52b",
+  "#f2912f",
+  "#e8543f",
+  "#e0489b",
+  "#9b52c8",
+  "#4a6fdc",
+  "#2aa9e0",
+  "#46bd73",
+];
+
+export const ApplePhotosMark = ({ size = 24, ...rest }) => (
+  <svg viewBox="0 0 64 64" width={size} height={size} {...rest}>
+    <g>
+      {PHOTO_PETALS.map((fill, i) => (
+        <ellipse
+          key={fill}
+          cx="32"
+          cy="21.5"
+          rx="8.4"
+          ry="14.5"
+          fill={fill}
+          opacity="0.82"
+          style={{ mixBlendMode: "multiply" }}
+          transform={`rotate(${i * 45} 32 32)`}
+        />
+      ))}
+    </g>
+  </svg>
+);
+
 export const GooglePhotosMarkColor = ({ size = 24, ...rest }) => (
   <svg viewBox="0 0 59 59" width={size} height={size} {...rest}>
     <path fill="#FBBC04" d="M14.75 13.41c8.146 0 14.75 6.603 14.75 14.75v1.34H1.34C.6 29.5 0 28.9 0 28.16c0-8.147 6.604-14.75 14.75-14.75z" />

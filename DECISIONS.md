@@ -3662,3 +3662,20 @@ its own treatment, the same split her Mac dock makes (dock.css):
 of — backed with its own blue, the letters disappeared and the icon was a plain
 blue square. White, plus a hair of scale so its squarer corners still reach
 this grid's rounder ones.
+
+### One dock, and it never moves (12 Sep 2026)
+
+The phone had two docks: an iOS one belonging to the home screen, and the Mac
+dock's phone rail — a column down the left edge — on every world. So tapping
+Figma sent the thing you launched it from to the other side of the screen.
+
+`PhoneDock.jsx` is now rendered by App on EVERY phone route, the cover
+included, where it surfaces with the home screen as the bloom settles. Its
+geometry moved to `:root` so the dock can be measured from outside `.ph`. The
+dot under an icon means what it means on the Mac: that world is open, or was
+minimised with the yellow light. The rail block in dock.css is dead and says so.
+
+**Photos is Apple's, not Google's, on the phone.** `ApplePhotosMark` is drawn
+in BrandIcons.jsx for the same reason `AppleNotesMark` is — no icon set ships
+it — eight petals multiplying where they overlap. The Mac dock keeps the Google
+Photos mark: the desktop is not part of this brief.

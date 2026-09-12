@@ -316,6 +316,10 @@
    `right: auto` cancels the desktop rule's `right: 0`: that pair plus
    `margin: 0 auto` is what centres it horizontally on desktop, and leaving
    either in place would fight this. */
+/* DEAD ON THE PHONE SINCE 12 Sep 2026, and kept only as the record of the rail
+   that was: a phone renders PhoneDock.jsx on every route instead (App.jsx), so
+   this whole block styles a dock that no longer mounts below 640px. It is the
+   Mac's dock now, on the Mac only. */
 @media (max-width: 640px) {
   /* VERTICALLY CENTRED ON THE LEFT EDGE, as the reference has it: a tall column
      hugging the side of the screen, not a puck parked in the corner. It reads as

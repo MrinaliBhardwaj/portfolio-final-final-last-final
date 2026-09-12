@@ -12,6 +12,23 @@
    so on a 390x844 the height wins (70px) and on a wide-but-short window the
    width does. Clamped at both ends: never smaller than a 46px tap target,
    never so large that four icons stop reading as a grid. */
+/* THE DOCK'S MEASUREMENTS ARE SHARED. It is rendered outside the home screen
+   now (App.jsx puts it on every phone route), so the numbers both of them
+   need — its icon, its height, the margin and the safe area — live here rather
+   than inside .ph, where the dock could no longer see them. */
+:root {
+  --ph-margin: 22px;
+  --ph-dock-icon: clamp(46px, 15vw, 60px);
+  --ph-dock: calc(var(--ph-dock-icon) + 26px);
+  --ph-safe: max(10px, env(safe-area-inset-bottom, 0px));
+}
+
+@media (max-height: 700px) {
+  :root {
+    --ph-dock-icon: clamp(44px, 14vw, 52px);
+  }
+}
+
 .ph {
   position: fixed;
   inset: 0;
@@ -23,19 +40,15 @@
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.55s ease;
-  --ph-margin: 22px;
   --ph-gap-x: 18px;
   /* the row gap is where an icon's name lives, exactly as on iOS */
   --ph-gap-y: 24px;
   --ph-label: 16px;
   --ph-status: 54px;
   --ph-dots: 26px;
-  /* The dock's icon is sized on its own, NOT from --ph-cell: the cell is
-     derived from the height left after the dock, so a dock measured from the
-     cell would be a circular definition CSS resolves to nothing. */
-  --ph-dock-icon: clamp(46px, 15vw, 60px);
-  --ph-dock: calc(var(--ph-dock-icon) + 26px);
-  --ph-safe: max(10px, env(safe-area-inset-bottom, 0px));
+  /* (the dock's own figures are on :root above — the cell is derived from the
+     height left after the dock, so measuring the dock from the cell would be a
+     circular definition CSS resolves to nothing) */
   --ph-chrome: calc(var(--ph-status) + var(--ph-dots) + var(--ph-dock) + var(--ph-safe) + 18px);
   --ph-cell: clamp(
     46px,
@@ -358,9 +371,16 @@
   outline-offset: 4px;
 }
 
-/* ---- dock ---- */
+/* ---- dock ----
+   Fixed, not absolute: it is App's now, not the home screen's, and it sits on
+   every phone route above whatever world is open — the same z-index the Mac
+   dock takes, for the same reason. */
 .ph-dock {
-  position: absolute;
+  position: fixed;
+  z-index: 60;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.45s ease;
   left: var(--ph-margin);
   right: var(--ph-margin);
   bottom: calc(var(--ph-safe) + 8px);
@@ -374,10 +394,15 @@
   backdrop-filter: blur(24px) saturate(150%);
   -webkit-backdrop-filter: blur(24px) saturate(150%);
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
-  z-index: 4;
+}
+
+.ph-dock.is-on {
+  opacity: 1;
+  pointer-events: auto;
 }
 
 .ph-dock-item {
+  position: relative;
   display: block;
   width: var(--ph-dock-icon);
   height: var(--ph-dock-icon);
@@ -394,6 +419,25 @@
   outline: 2px solid #fff;
   outline-offset: 3px;
   border-radius: 6px;
+}
+
+/* the dot under an open app, as the Mac dock marks it: the world you are in,
+   or one you left minimised and is still open behind you */
+.ph-dock-dot {
+  position: absolute;
+  left: 50%;
+  bottom: -7px;
+  width: 4px;
+  height: 4px;
+  margin-left: -2px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.85);
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.ph-dock-item.is-active .ph-dock-dot {
+  opacity: 1;
 }
 
 /* the home indicator: the line that says this is the bottom of a phone rather
@@ -424,7 +468,6 @@
     --ph-label: 14px;
     --ph-status: 44px;
     --ph-dots: 20px;
-    --ph-dock-icon: clamp(44px, 14vw, 52px);
   }
 
   /* the span is an inline style (the tile table owns the layout), so this is

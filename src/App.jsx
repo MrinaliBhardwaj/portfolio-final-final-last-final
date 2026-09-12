@@ -20,6 +20,7 @@ import GalleryWorld from "./GalleryWorld.jsx";
 import NotesWorld from "./NotesWorld.jsx";
 import PondWorld from "./PondWorld.jsx";
 import Dock from "./Dock.jsx";
+import PhoneDock from "./PhoneDock.jsx";
 import useIsPhone from "./use-is-phone.js";
 import DesignCursor from "./DesignCursor.jsx";
 import "./cover.css";
@@ -327,11 +328,18 @@ export default function App() {
 
       {/* the OS layer: present on every route, above the page. The world
           grows up from behind it, so the dock reads as the launch surface. */}
-      {/* NOT OVER THE HOME SCREEN. On a phone the cover is an iPhone
-          (PhoneHome.jsx) with an iOS dock of its own — this one would be a
-          second dock stacked on it. Every other route keeps it, on every
-          machine, which is what makes a world feel launched FROM something. */}
-      {!(phone && route === "") && (
+      {/* ONE DOCK PER MACHINE. The Mac's is this one, bottom-centre on every
+          route. The phone's is an iOS dock (PhoneDock.jsx) — also on every
+          route, also in one place: it used to belong to the home screen while
+          the worlds got the Mac dock's phone rail, so the thing you launched
+          Figma from jumped to the left edge the moment it opened. */}
+      {phone ? (
+        <PhoneDock
+          visible={route === "" ? coverSettled : true}
+          active={route || null}
+          minimised={minimised}
+        />
+      ) : (
         <Dock
           visible={route === "" ? coverSettled : true}
           onChoose={dockChoose}

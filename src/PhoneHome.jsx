@@ -8,7 +8,9 @@
 //
 // So on a phone the metaphor SWITCHES (12 Sep 2026, on her brief): this is an
 // iPhone home screen. Status bar, Dynamic Island, an iOS grid of icons and
-// widgets, a page indicator, a dock, and two pages you swipe between. The
+// widgets, a page indicator, and two pages you swipe between — with the dock
+// below it (PhoneDock.jsx), which App renders on every phone route so it never
+// moves. The
 // desktop is untouched — everything here lives behind `(max-width: 640px)`.
 //
 // THE ART IS HERS, UNCHANGED. Every tile is a piece of the same Figma desk the
@@ -31,15 +33,11 @@
 import { useEffect, useRef, useState } from "react";
 import { DESK, windowHref } from "./DesktopFiles.jsx";
 import {
-  FigmaMarkColor,
-  GooglePhotosMarkColor,
-  VSCodeMark,
   GitHubMark,
   LinkedInMarkColor,
   GmailMark,
   InstagramMark,
 } from "./BrandIcons.jsx";
-import FroggieMark from "./FroggieMark.jsx";
 import { GITHUB, LINKEDIN, INSTAGRAM, EMAIL } from "./links.js";
 
 /**
@@ -173,46 +171,6 @@ const PAGE_TWO = [
   tile("dragonfly", [2, 2]),
   { ...SOCIALS[2], span: [1, 1] },
   { ...SOCIALS[3], span: [1, 1] },
-];
-
-// The dock: the Mac's four apps, in the Mac's order. Real links, so a long
-// press offers "open in new tab" the way every other tile here does.
-const DOCK = [
-  {
-    key: "figma",
-    aria: "Figma — enter the design world",
-    href: "#/design",
-    mark: <FigmaMarkColor className="ph-mark-glyph" aria-hidden="true" />,
-    skin: "light",
-    // taller than the rest on purpose: the logo is 38 wide to 57 tall, so at a
-    // shared height it reads narrower — and therefore smaller — than its
-    // neighbours in the dock
-    glyph: "70%",
-  },
-  {
-    key: "vscode",
-    aria: "VS Code — enter the tech world",
-    href: "#/tech",
-    mark: <VSCodeMark className="ph-mark-glyph" aria-hidden="true" />,
-    skin: "light",
-    glyph: "68%",
-  },
-  {
-    key: "gallery",
-    aria: "Gallery — open the dome gallery",
-    href: "#/gallery",
-    mark: <GooglePhotosMarkColor className="ph-mark-glyph" aria-hidden="true" />,
-    skin: "light",
-    glyph: "64%",
-  },
-  {
-    key: "pond",
-    aria: "Game — the Lotus Pond, catch coding bugs with a pixel frog",
-    href: "#/pond",
-    mark: <FroggieMark className="ph-mark-glyph" aria-hidden="true" />,
-    skin: "bleed",
-    bg: "#123a52",
-  },
 ];
 
 /** the artwork inside a tile, with the desk's own treatments */
@@ -438,24 +396,6 @@ export default function PhoneHome({ visible = true, onOpenCase, onOpenNote, onOp
           ))}
         </div>
 
-        <nav className="ph-dock" aria-label="Dock">
-          {DOCK.map((a) => (
-            <a
-              key={a.key}
-              className="ph-dock-item"
-              href={a.href}
-              aria-label={a.aria}
-              tabIndex={visible ? undefined : -1}
-            >
-              <span
-                className={`ph-mark is-${a.skin}`}
-                style={{ "--ph-glyph": a.glyph, "--ph-mark-bg": a.bg, "--ph-zoom": a.zoom }}
-              >
-                {a.mark}
-              </span>
-            </a>
-          ))}
-        </nav>
 
         {/* the home indicator — the one piece of iOS chrome that is purely a
             line, and the thing that tells you the dock is the bottom of a
