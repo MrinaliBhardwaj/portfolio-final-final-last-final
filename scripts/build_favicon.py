@@ -67,9 +67,15 @@ def ttf_bytes():
 # script with hairline joins, so the tab sizes also carry a little added weight
 # — without it the thin strokes grey out to a smudge, which is exactly how the
 # lotus crop failed.
-# the SVG has no tile to sit inside, so it can run nearly to the edges — the
-# margin a boxed icon needs is the box's, not the mark's
-FILL = {"favicon-32.png": 0.82, "apple-touch-icon.png": 0.66, "svg": 0.88}
+# HOW BIG, AND WHY IT HAS TO BE THIS BIG. "mb" in Pinyon is a WIDE, SHORT mark:
+# its ink box is 2758 x 1589 units, an aspect of 1.74. Fitted into a square by
+# its longer side it covers 88% of the width and 51% of the height — half the
+# icon is empty air above and below, which is why the first cut read as a faint
+# smudge in the tab. So the tab sizes run the width nearly edge to edge, and
+# the hairlines are thickened (`bolden`) on top of that: a script's thin joins
+# are under a pixel at 16px, and a stroke is the only thing that saves them.
+# The 180 is not in a tab and keeps a home-screen icon's margin.
+FILL = {"favicon-32.png": 0.94, "apple-touch-icon.png": 0.70, "svg": 0.97}
 
 
 def draw_png(size, ttf, fill, bolden=0.0, scale=4):
@@ -143,8 +149,16 @@ def svg(font, fill):
     return f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {side:.0f} {side:.0f}">
   <style>
     /* no tile: the monogram sits on the tab strip itself, and follows it */
-    path {{ fill: {ink}; }}
-    @media (prefers-color-scheme: dark) {{ path {{ fill: {ink_dark}; }} }}
+    path {{
+      fill: {ink};
+      stroke: {ink};
+      /* the hairlines, thickened: at 16px Pinyon's joins are under a pixel */
+      stroke-width: {side * 0.022:.0f};
+      stroke-linejoin: round;
+    }}
+    @media (prefers-color-scheme: dark) {{
+      path {{ fill: {ink_dark}; stroke: {ink_dark}; }}
+    }}
   </style>
   <g transform="translate({-tx:.1f} {ty + side:.1f}) scale(1 -1)">
     {chr(10).join("    " + p for p in d).strip()}
@@ -156,8 +170,8 @@ def svg(font, fill):
 def main():
     ttf, font = ttf_bytes()
     for name, size, bolden in (
-        ("favicon-32.png", 32, 0.004),
-        ("apple-touch-icon.png", 180, 0.0),
+        ("favicon-32.png", 32, 0.011),
+        ("apple-touch-icon.png", 180, 0.002),
     ):
         path = os.path.join(OUT, name)
         draw_png(size, ttf, FILL[name], bolden).save(path)

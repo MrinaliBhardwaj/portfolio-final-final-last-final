@@ -3706,10 +3706,18 @@ happens to have and would be Pinyon nowhere.
   cream monogram on transparent would vanish against Chrome's default light
   strip; and iOS composites a home-screen icon onto an opaque tile whatever you
   give it, so transparency there buys a black box nobody chose.
-- **The ink fills a different share of each size**: 82% for the tab icon, 66%
-  for the 180 (which wants the margin every other app icon on that screen has),
-  and the tab sizes carry a hair of added stroke — without it Pinyon's hairline
-  joins grey out to exactly the smudge the lotus was.
+- **The ink fills a different share of each size**: 94% for the tab PNG, 97%
+  for the vector, 70% for the 180 (which wants the margin every other app icon
+  on that screen has). The tab sizes also thicken the strokes — Pinyon's
+  hairline joins are under a pixel at 16px, and without the extra weight they
+  grey out to exactly the smudge the lotus was.
+- **Why it has to run that close to the edges.** "mb" in Pinyon is a WIDE,
+  SHORT mark: its ink box is 2758 x 1589 font units, an aspect of 1.74. Fitted
+  into a square by its longer side it covers the width but only ~51% of the
+  height, so half the icon is empty air and the letters read far smaller than
+  the icon's size suggests. Measured after the change, the vector at 16px puts
+  ink on 29% of the square (15% at full strength) against the first cut's faint
+  trace.
 
 `build_social_assets.py` no longer writes the favicons — it still cuts og.jpg
 from the bloom — because running it would have quietly put the lotus back.
