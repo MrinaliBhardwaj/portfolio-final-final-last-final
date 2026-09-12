@@ -3568,3 +3568,43 @@ are hers to show. The poster is the first frame again, so the box holds
 exactly what the video opens on instead of cutting to it; it reads as
 near-blank until the reveal starts, which is the same #f4f6f8 the Figma
 export painted there anyway.
+
+## The phone is an iPhone, not a small Mac (12 Sep 2026)
+
+On her brief: below 640px the cover's metaphor switches from MacBook to iPhone
+home screen. `PhoneHome.jsx` + `phone-home.css` are new; the desktop is
+untouched, and Cover renders one machine or the other.
+
+**Her art, her destinations — no new graphics.** Every tile is a piece of the
+same Figma desk the Mac lays out. `DesktopFiles.jsx` now exports `DESK` (the
+pieces, keyed) and `windowHref`, so which folder opens which case study is
+decided in one place and the phone just gives it a grid. The desk's rule comes
+with it: folders open things, artwork is `aria-hidden` and untouchable.
+
+**One number drives the layout.** iOS's 4-column grid, with `--ph-cell` the
+smaller of what the width can give four icons and what the height can give
+seven rows — so margins, gaps, widgets and the dock are all measured against
+one cell (70px at 390x844). Labels live in the row gap, absolutely positioned,
+so widgets keep iOS's proportions instead of being stretched by text.
+
+- **Page one — the work:** four case-study folders, About Me, the untitled
+  folder, both résumés, and the jewel case / karma card / bloom / frog / crowd
+  as widgets. The bloom is `mix-blend-mode: screen`, so the still's own black
+  field drops out and the flower floats on the wallpaper.
+- **Page two — the contacts:** the Mac dock's second group (GitHub, LinkedIn,
+  Mail, Instagram) as app icons, per her instruction, plus the dragonfly,
+  art-relief, her drawn name (NameMark) and the small pieces.
+- **Dock:** the Mac's four apps, in the Mac's order. App.jsx hides the global
+  dock on the phone cover — two docks on one screen is one too many.
+
+**The ceremony does not run on a phone.** No 320vh track, no scrub: a home
+screen you have to scroll three screens to reach is not a home screen. The
+starfield stays as wallpaper and the bloom is the widget in the middle.
+
+**Short screens (<=700px tall)** tighten the rhythm and give the bloom one row
+instead of two — six rows instead of seven. At 320x568 that clears the dock by
+45px with no scrolling; without it the last row hid behind the dock.
+
+**About Me points at `#/notes` here, not at the window.** The scrapbook's copy
+is baked into 1673px-wide art: in a window on a 390px screen it renders at 23%,
+while the world carries the rotate-to-read gate built for exactly this.

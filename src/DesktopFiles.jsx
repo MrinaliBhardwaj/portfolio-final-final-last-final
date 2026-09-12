@@ -1,5 +1,11 @@
 // The desktop files — her Figma composition, placed on the live desktop.
 //
+// A DESKTOP ONLY, SINCE 12 Sep 2026. A phone gets an iPhone home screen built
+// from the same pieces (PhoneHome.jsx), and Cover.jsx renders one or the other
+// — so the `phone`/`pw` coordinates below, and the phone half of the audit,
+// no longer run. They are kept rather than deleted: they are the record of the
+// phone desk that was, and the only cost of keeping them is this paragraph.
+//
 // THE FIGMA IS THE SOURCE (2026-08-24, node 306:542 of file drda7Tnqo…). Every
 // piece below carries the artboard's own numbers, verbatim, and the percentages
 // are derived from them at render. Nothing here was placed by eye, so "does it
@@ -46,8 +52,9 @@
 // below now tests the whole BOX rather than the centre point, because these
 // pieces are much larger than the old tiles and a centre that clears the flower
 // no longer means the artwork does.
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { motion } from "framer-motion";
+import useIsPhone from "./use-is-phone.js";
 
 // The artboard. Positions are percentages of the stage: x against its width, y
 // against its height, so the composition holds its proportions across the width
@@ -264,53 +271,17 @@ const NO_GO = {
   phone: { x0: -1, x1: 101, y0: 27, y1: 68 },
 };
 
-const PHONE = "(max-width: 640px)";
-// A PHONE IS ALSO A HEIGHT, not only a width. The pieces are sized in PIXELS
-// on a phone and placed in PERCENTAGES, so one row costs a fixed ~95px but a
-// varying share of the screen: 11% of a 390x844, 17% of a 320x568. The bloom
-// owns the middle band at both, which leaves two strips of open air that are
-// 228px and 267px on the tall one and 153px and 182px on the short one — and
-// a layout authored against the first arrangement put two rows where only one
-// fits and stacked three files on top of each other.
-const SHORT = "(max-height: 700px)";
-
-function useIsPhone() {
-  const read = () =>
-    typeof window === "undefined"
-      ? { phone: false, short: false }
-      : {
-          phone: window.matchMedia(PHONE).matches,
-          short: window.matchMedia(SHORT).matches,
-        };
-  const [size, setSize] = useState(read);
-  useEffect(() => {
-    // Re-read the query FRESH each time rather than trusting a stored
-    // MediaQueryList, and listen to `resize` as well as `change`. A held MQL
-    // that never re-evaluates is not hypothetical — it is what happens under a
-    // devtools device-metrics override, where the width changes, a new
-    // matchMedia() call reports the new answer, and the old object's `change`
-    // never fires.
-    const sync = () =>
-      setSize((prev) => {
-        const next = read();
-        return prev.phone === next.phone && prev.short === next.short ? prev : next;
-      });
-    const mqs = [window.matchMedia(PHONE), window.matchMedia(SHORT)];
-    sync();
-    mqs.forEach((mq) => mq.addEventListener("change", sync));
-    window.addEventListener("resize", sync);
-    return () => {
-      mqs.forEach((mq) => mq.removeEventListener("change", sync));
-      window.removeEventListener("resize", sync);
-    };
-  }, []);
-  return size;
-}
+// THE DESK'S CONTENT, KEYED. The phone builds its own home screen from these
+// pieces (PhoneHome.jsx) — same art, same labels, same destinations — so which
+// folder opens which case study is decided here and only here. The geometry
+// above is the artboard's and stays desktop-only; the phone brings its own
+// grid.
+export const DESK = Object.fromEntries(PIECES.map((p) => [p.key, p]));
 
 // Every window on this desk has its own address, and the folder that opens it
 // is a real anchor pointing at that address — which is what makes ⌘-click,
 // middle-click and "copy link" work on a piece of furniture.
-const windowHref = (p) =>
+export const windowHref = (p) =>
   p.opensCase
     ? `#/?case=${p.opensCase}`
     : p.opensNote

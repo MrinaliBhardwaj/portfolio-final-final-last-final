@@ -1,0 +1,413 @@
+/* ============ THE PHONE HOME SCREEN ============
+   iOS's own geometry, not a scaled-down desk. See PhoneHome.jsx for why the
+   metaphor switches at all; this file is the grid it switches to.
+
+   ONE CELL DRIVES EVERYTHING. iOS lays a home screen on a 4-column grid whose
+   cell is a square icon, with the label living in the row gap beneath it and
+   widgets spanning whole cells. So there is one number here — --ph-cell — and
+   every margin, gap, widget and dock icon is measured against it.
+
+   THE CELL IS THE SMALLER OF TWO CONSTRAINTS: what the width can give four
+   icons, and what the height can give seven rows. Page one is seven rows tall,
+   so on a 390x844 the height wins (70px) and on a wide-but-short window the
+   width does. Clamped at both ends: never smaller than a 46px tap target,
+   never so large that four icons stop reading as a grid. */
+.ph {
+  position: fixed;
+  inset: 0;
+  z-index: 3;
+  --ph-margin: 22px;
+  --ph-gap-x: 18px;
+  /* the row gap is where an icon's name lives, exactly as on iOS */
+  --ph-gap-y: 24px;
+  --ph-label: 16px;
+  --ph-status: 54px;
+  --ph-dots: 26px;
+  /* The dock's icon is sized on its own, NOT from --ph-cell: the cell is
+     derived from the height left after the dock, so a dock measured from the
+     cell would be a circular definition CSS resolves to nothing. */
+  --ph-dock-icon: clamp(46px, 15vw, 60px);
+  --ph-dock: calc(var(--ph-dock-icon) + 26px);
+  --ph-safe: max(10px, env(safe-area-inset-bottom, 0px));
+  --ph-chrome: calc(var(--ph-status) + var(--ph-dots) + var(--ph-dock) + var(--ph-safe) + 18px);
+  --ph-cell: clamp(
+    46px,
+    min(
+      (100vw - 2 * var(--ph-margin) - 3 * var(--ph-gap-x)) / 4,
+      (100dvh - var(--ph-chrome) - 6 * var(--ph-gap-y) - var(--ph-label)) / 7
+    ),
+    82px
+  );
+  --ph-tile-radius: 14px;
+  color: #fff;
+  font-family: var(--font-ui, system-ui, sans-serif);
+}
+
+/* THE SCREEN'S FRAME. On the phone itself this is the bezel already in your
+   hand and it costs nothing; in a narrow desktop window it is what makes the
+   composition read as a device rather than as a cramped page. The background
+   is a wash rather than a fill, so the cover's starfield still shows through —
+   the same canvas the Mac's wallpaper uses. */
+.ph-frame {
+  position: absolute;
+  inset: 0;
+  border-radius: 46px;
+  overflow: hidden;
+  background: radial-gradient(
+    125% 70% at 50% 34%,
+    rgba(58, 40, 86, 0.42),
+    rgba(4, 4, 10, 0.55) 68%
+  );
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ---- status bar ---- */
+.ph-status {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--ph-status);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 2px 26px 0;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  z-index: 4;
+}
+
+.ph-status-time {
+  min-width: 54px;
+}
+
+.ph-status-icons {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 54px;
+  justify-content: flex-end;
+}
+
+.ph-status-glyph {
+  height: 11px;
+  width: auto;
+  fill: currentColor;
+}
+
+.ph-status-battery {
+  height: 12px;
+}
+
+/* the Dynamic Island: drawn in the status row so the clock and the indicators
+   sit either side of it, which is what puts them where iOS puts them */
+.ph-island {
+  width: 108px;
+  height: 32px;
+  border-radius: 20px;
+  background: #000;
+  display: grid;
+  place-items: center;
+  justify-items: end;
+  padding-right: 12px;
+}
+
+.ph-island-lens {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #2b2b3a, #09090d 70%);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+/* ---- the pages ---- */
+/* The swipe is the browser's own scroll-snap. No drag maths, no inertia to
+   reimplement, and it survives a resize mid-gesture — which a hand-rolled
+   transform carousel does not. */
+.ph-pages {
+  position: absolute;
+  top: var(--ph-status);
+  left: 0;
+  right: 0;
+  bottom: calc(var(--ph-dock) + var(--ph-safe) + var(--ph-dots));
+  display: flex;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+}
+
+.ph-pages::-webkit-scrollbar {
+  display: none;
+}
+
+.ph-page {
+  flex: 0 0 100%;
+  min-width: 0;
+  scroll-snap-align: center;
+  scroll-snap-stop: always;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.ph-page::-webkit-scrollbar {
+  display: none;
+}
+
+.ph-grid {
+  display: grid;
+  grid-template-columns: repeat(4, var(--ph-cell));
+  grid-auto-rows: var(--ph-cell);
+  column-gap: var(--ph-gap-x);
+  row-gap: var(--ph-gap-y);
+  justify-content: center;
+  align-content: start;
+  padding: 10px var(--ph-margin) var(--ph-label);
+}
+
+/* ---- one tile ---- */
+.ph-tile {
+  position: relative;
+  display: block;
+  min-width: 0;
+  color: inherit;
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.ph-tile-art {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.18s cubic-bezier(0.2, 0, 0.2, 1);
+}
+
+/* the press, as iOS does it: the icon dips, the label does not */
+.ph-tile:active .ph-tile-art {
+  transform: scale(0.92);
+}
+
+.ph-img {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* THE BLOOM FLOATS, it does not sit in a box. lotus-still.webp is a bloom on
+   its own near-black field — the wallpaper the Mac opens on — so screened over
+   this screen's near-black ground the field disappears and the flower is left
+   hanging in the middle of the home screen, which is where the reference has
+   it. No second asset, no cut-out: the same file, composited. */
+.ph-tile-art.is-blend .ph-img {
+  mix-blend-mode: screen;
+}
+
+/* the desk's own treatments, carried over: the dragonfly's glass plate and the
+   frog's card (see DesktopFiles.jsx) */
+.ph-glass {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  padding: 9%;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.ph-plate {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 4%;
+  height: 88%;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+/* THE LABEL LIVES IN THE ROW GAP, which is why the gap is 24px and not 18.
+   Absolute, so it never adds height to the grid: the cell stays square and the
+   widgets stay the proportions iOS gives them. One line only — a home screen
+   icon gets one, and the desk's second "kind" line is in the link's own label
+   where a screen reader still reads it. */
+.ph-tile-label {
+  position: absolute;
+  top: 100%;
+  left: -8px;
+  right: -8px;
+  margin-top: 5px;
+  font-size: 10.5px;
+  line-height: 1.1;
+  font-weight: 500;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.92);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.55);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ---- app marks (her profiles, and the dock) ---- */
+/* The brand marks are glyphs, not cut-out artwork, so they get the rounded
+   tile iOS gives an app. Everything else on this screen is her own art and
+   keeps its own silhouette. */
+.ph-mark {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  border-radius: 23%;
+  background: #fff;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.45);
+  overflow: hidden;
+}
+
+.ph-mark.is-mono {
+  background: #111116;
+  color: #fff;
+}
+
+.ph-mark-glyph {
+  width: 58%;
+  height: 58%;
+}
+
+/* ---- the name card (page two) ---- */
+.ph-tile.is-name .ph-tile-art {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35em;
+  flex-wrap: wrap;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.05);
+  font-size: 21px;
+  color: #fff;
+}
+
+/* ---- page indicator ---- */
+.ph-dots {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(var(--ph-dock) + var(--ph-safe) + 4px);
+  height: var(--ph-dots);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  z-index: 4;
+}
+
+.ph-dot {
+  position: relative;
+  width: 7px;
+  height: 7px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.32);
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+/* the dot is 7px and a finger is not: the target is 30px and invisible */
+.ph-dot::after {
+  content: "";
+  position: absolute;
+  inset: -12px;
+}
+
+.ph-dot.is-on {
+  background: #fff;
+}
+
+.ph-dot:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 4px;
+}
+
+/* ---- dock ---- */
+.ph-dock {
+  position: absolute;
+  left: var(--ph-margin);
+  right: var(--ph-margin);
+  bottom: calc(var(--ph-safe) + 8px);
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+  gap: var(--ph-gap-x);
+  padding: 13px 12px;
+  border-radius: 34px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(24px) saturate(150%);
+  -webkit-backdrop-filter: blur(24px) saturate(150%);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+  z-index: 4;
+}
+
+.ph-dock-item {
+  display: block;
+  width: var(--ph-dock-icon);
+  height: var(--ph-dock-icon);
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.18s cubic-bezier(0.2, 0, 0.2, 1);
+}
+
+.ph-dock-item:active {
+  transform: scale(0.92);
+}
+
+.ph-tile:focus-visible .ph-tile-art,
+.ph-dock-item:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+/* the home indicator: the line that says this is the bottom of a phone rather
+   than the bottom of a page */
+.ph-home-bar {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 7px;
+  width: 116px;
+  height: 5px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.45);
+}
+
+/* ---- a SHORT screen (an SE, a landscape-ish window) ----
+   Page one is seven rows, and seven rows of anything do not fit in 568px: at
+   the 46px tap-target floor the grid still ran 88px past the dock, so the last
+   row — the frog and the two résumés — hid behind it.
+   Tightening the rhythm buys ~64px, which is not enough on its own, so the
+   bloom gives up its second row too. It is the one tile that loses nothing by
+   being shorter: it is a picture of a flower, not a grid of anything, and at
+   4x1 it is still the widest thing on the screen. That takes page one to six
+   rows, which fits with room to spare. */
+@media (max-height: 700px) {
+  .ph {
+    --ph-gap-y: 18px;
+    --ph-label: 14px;
+    --ph-status: 44px;
+    --ph-dots: 20px;
+    --ph-dock-icon: clamp(44px, 14vw, 52px);
+  }
+
+  /* the span is an inline style (the tile table owns the layout), so this is
+     the one place that has to out-rank it */
+  .ph-tile[data-key="lotus"] {
+    grid-row: span 1 !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ph-tile-art,
+  .ph-dock-item {
+    transition: none;
+  }
+}

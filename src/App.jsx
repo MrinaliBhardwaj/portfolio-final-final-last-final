@@ -20,6 +20,7 @@ import GalleryWorld from "./GalleryWorld.jsx";
 import NotesWorld from "./NotesWorld.jsx";
 import PondWorld from "./PondWorld.jsx";
 import Dock from "./Dock.jsx";
+import useIsPhone from "./use-is-phone.js";
 import DesignCursor from "./DesignCursor.jsx";
 import "./cover.css";
 import "./menu-bar.css";
@@ -39,6 +40,7 @@ import "./notes-world.css";
 // collage.css (page three of the scrapbook) is no longer loaded: SceneThree was
 // cut from About Me on 12 Sep 2026. Restore both together.
 import "./pond-world.css";
+import "./phone-home.css";
 
 const TITLES = {
   "": "Mrinali Bhardwaj",
@@ -190,6 +192,8 @@ function WorldWindow({ children }) {
 
 export default function App() {
   const [route, setRoute] = useState(getRoute);
+  // the cover on a phone is an iPhone home screen, and it brings its own dock
+  const { phone } = useIsPhone();
   const [coverSettled, setCoverSettled] = useState(false);
   // worlds the yellow light was used on: still "open", so the dock keeps their
   // dot even though you are back on the desktop (see WindowLights.jsx)
@@ -323,12 +327,18 @@ export default function App() {
 
       {/* the OS layer: present on every route, above the page. The world
           grows up from behind it, so the dock reads as the launch surface. */}
-      <Dock
-        visible={route === "" ? coverSettled : true}
-        onChoose={dockChoose}
-        active={route || null}
-        minimised={minimised}
-      />
+      {/* NOT OVER THE HOME SCREEN. On a phone the cover is an iPhone
+          (PhoneHome.jsx) with an iOS dock of its own — this one would be a
+          second dock stacked on it. Every other route keeps it, on every
+          machine, which is what makes a world feel launched FROM something. */}
+      {!(phone && route === "") && (
+        <Dock
+          visible={route === "" ? coverSettled : true}
+          onChoose={dockChoose}
+          active={route || null}
+          minimised={minimised}
+        />
+      )}
     </MotionConfig>
   );
 }
