@@ -3683,3 +3683,26 @@ same day, so the pinwheel is gone from both and `GooglePhotosMarkColor` is
 unused (kept in BrandIcons, which is a library of marks, not a list of the ones
 in use). Both docks call it "Gallery — open the dome gallery": the icon is the
 dress, the dome gallery is the destination.
+
+## The favicon is her monogram (12 Sep 2026)
+
+The tab icon was a tight crop of the cover's lotus. At 32px a photograph is a
+smudge, and one that names nobody — so it is "mb" in Pinyon Script now, the
+same mark .dw-mark and .nw-mark sign every world with, cream on the site's own
+near-black in a squircle.
+
+**Cut from the font as OUTLINES** (`scripts/build_favicon.py`, from the
+`@fontsource/pinyon-script` file this site already ships). A favicon cannot
+load a webfont, so a `<text>` element would render in whatever the viewer
+happens to have and would be Pinyon nowhere.
+
+- **An SVG is listed first**, because a tab is drawn at 16, 32 and sometimes 64
+  and a script hairline needs the vector at the small end. The PNGs stay for
+  the iOS home-screen bookmark and anything that ignores SVG.
+- **The ink fills a different share of each size**: 82% for the tab icon, 66%
+  for the 180 (which wants the margin every other app icon on that screen has),
+  and the tab sizes carry a hair of added stroke — without it Pinyon's hairline
+  joins grey out to exactly the smudge the lotus was.
+
+`build_social_assets.py` no longer writes the favicons — it still cuts og.jpg
+from the bloom — because running it would have quietly put the lotus back.

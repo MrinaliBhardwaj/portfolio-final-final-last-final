@@ -1,14 +1,15 @@
-"""Share-card and favicon assets, cut from the cover's own lotus.
+"""The share card, cut from the cover's own lotus.
 
-Both come from public/lotus-still.webp — the frame already on screen at first
+It comes from public/lotus-still.webp — the frame already on screen at first
 paint — so a shared link looks like the site it opens, and nothing new has to be
 art-directed or kept in sync.
 
   og.jpg            1200x630, the card Slack/LinkedIn/iMessage render.
-  favicon-32.png    the tab icon: cropped TIGHT to the bloom, because the full
-                    1920x1080 frame is mostly black sky and would read as an
-                    empty square at 32px.
-  apple-touch-icon  180x180, same crop, for an iOS home-screen bookmark.
+
+THE FAVICONS ARE NOT CUT HERE ANY MORE (12 Sep 2026). They were the same bloom
+cropped tight, and at 32px a photograph is a smudge that names nobody. They are
+her monogram now — see scripts/build_favicon.py — and this script deliberately
+no longer writes them, because running it would have quietly put the lotus back.
 """
 from pathlib import Path
 from PIL import Image
@@ -33,17 +34,8 @@ def main():
     og = im.crop((0, top, w, top + crop_h)).resize((1200, 630), Image.LANCZOS)
     og.save(PUB / "og.jpg", "JPEG", quality=86, optimize=True, progressive=True)
 
-    # ---- favicons: square, tight on the bloom ----
-    bw, bh = BLOOM[2] - BLOOM[0], BLOOM[3] - BLOOM[1]
-    side = max(bw, bh)
-    bx, by = (BLOOM[0] + BLOOM[2]) // 2, (BLOOM[1] + BLOOM[3]) // 2
-    sq = im.crop((bx - side // 2, by - side // 2, bx + side // 2, by + side // 2))
-    for name, px in (("favicon-32.png", 32), ("apple-touch-icon.png", 180)):
-        sq.resize((px, px), Image.LANCZOS).save(PUB / name, "PNG", optimize=True)
-
-    for f in ("og.jpg", "favicon-32.png", "apple-touch-icon.png"):
-        p = PUB / f
-        print(f"{f:24} {Image.open(p).size}  {p.stat().st_size / 1024:6.1f} KB")
+    p = PUB / "og.jpg"
+    print(f"{'og.jpg':24} {Image.open(p).size}  {p.stat().st_size / 1024:6.1f} KB")
 
 
 if __name__ == "__main__":
