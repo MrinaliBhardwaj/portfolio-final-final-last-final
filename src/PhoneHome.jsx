@@ -40,7 +40,6 @@ import {
   InstagramMark,
 } from "./BrandIcons.jsx";
 import FroggieMark from "./FroggieMark.jsx";
-import NameMark from "./NameMark.jsx";
 import { GITHUB, LINKEDIN, INSTAGRAM, EMAIL } from "./links.js";
 
 /**
@@ -131,14 +130,20 @@ const SOCIALS = [
   },
 ];
 
+// TWO OBJECTS, NOT A DRAWER OF THEM (12 Sep 2026, her call). It also carried
+// the relief, her drawn name, the pin and the two sparkles; they made a page
+// out of leftovers. The four profiles sit as a square on the left and the
+// dragonfly answers it on the right — which is the whole page, and reads as
+// one deliberate row rather than as everything that did not fit on page one.
+//
+// The order is the auto-placement: two icons, then the widget takes columns
+// 3-4 of both rows, then the last two icons fall in under the first two.
 const PAGE_TWO = [
-  ...SOCIALS.map((s) => ({ ...s, span: [1, 1] })),
+  { ...SOCIALS[0], span: [1, 1] },
+  { ...SOCIALS[1], span: [1, 1] },
   tile("dragonfly", [2, 2]),
-  tile("art-relief", [2, 2]),
-  { key: "name", span: [4, 1], nameCard: true },
-  tile("pin", [1, 1]),
-  tile("sparkle-a", [1, 1]),
-  tile("sparkle-b", [1, 1]),
+  { ...SOCIALS[2], span: [1, 1] },
+  { ...SOCIALS[3], span: [1, 1] },
 ];
 
 // The dock: the Mac's four apps, in the Mac's order. Real links, so a long
@@ -206,7 +211,7 @@ function Tile({ p, visible, onOpenCase, onOpenNote, onOpenEmpty }) {
   const inner = (
     <>
       <span className={`ph-tile-art${p.mark ? " ph-mark" : ""}${p.mono ? " is-mono" : ""}`}>
-        {p.mark ? p.mark : p.nameCard ? <NameMark /> : <Art p={p} />}
+        {p.mark ? p.mark : <Art p={p} />}
       </span>
       {/* ONE LINE, as an app icon gets. The desk's second "kind" line ("Case
           Study") does not come with it: two lines under a 70px icon is a
@@ -226,7 +231,7 @@ function Tile({ p, visible, onOpenCase, onOpenNote, onOpenEmpty }) {
   if (!live)
     return (
       <div
-        className={`ph-tile is-art${p.nameCard ? " is-name" : ""}`}
+        className="ph-tile is-art"
         data-key={p.key}
         style={style}
         aria-hidden="true"

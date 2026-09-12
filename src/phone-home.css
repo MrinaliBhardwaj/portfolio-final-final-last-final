@@ -293,19 +293,6 @@
   height: 58%;
 }
 
-/* ---- the name card (page two) ---- */
-.ph-tile.is-name .ph-tile-art {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.35em;
-  flex-wrap: wrap;
-  border-radius: 20px;
-  background: rgba(255, 255, 255, 0.05);
-  font-size: 21px;
-  color: #fff;
-}
-
 /* ---- page indicator ---- */
 .ph-dots {
   position: absolute;

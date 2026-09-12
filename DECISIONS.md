@@ -3632,3 +3632,11 @@ desk uses, so the two machines differ only in what arrives at the end.
   there still goes back to the flower.
 - On a return visit the layout effect lands at the bottom of the track, so #/
   opens on the home screen — the phone inherits that from the desk unchanged.
+
+### Page two is two objects (12 Sep 2026)
+
+Trimmed at her request to the four profiles and the dragonfly: the socials as a
+2x2 square on the left, the dragonfly widget answering it on the right, and the
+bloom filling the rest of the screen. The relief, her drawn name, the pin and
+the two sparkles are gone from it — they made a page out of leftovers, and the
+flower is better company than filler.
