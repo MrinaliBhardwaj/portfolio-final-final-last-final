@@ -13,6 +13,14 @@ OUTLINES, NOT TEXT, for the SVG: a favicon cannot load a webfont, so a
 not be Pinyon anywhere. The glyphs are cut from the font file this site already
 ships (node_modules/@fontsource/pinyon-script) and written as paths.
 
+AND THE SVG HAS NO TILE BEHIND IT. It carries a `prefers-color-scheme` rule
+instead, so the monogram is dark ink on a light tab strip and cream on a dark
+one — the mark sitting on the tab itself rather than in a box. The PNGs cannot
+do that: a raster is one fixed picture, and a cream monogram on transparent
+disappears against Chrome's default light strip. They keep the squircle, which
+is also what iOS demands of a home-screen icon (it composites onto an opaque
+tile regardless, so transparency there buys a black box you did not choose).
+
 The PNGs are drawn from the same font through PIL, at 4x and downsampled, which
 is what gives the 32px one clean edges.
 
@@ -37,6 +45,8 @@ OUT = os.path.join(ROOT, "public")
 # on a light theme a white monogram on nothing is an empty square.
 INK = (244, 242, 247)
 GROUND = (10, 9, 16)
+# the same mark for a light tab strip: the site's ground, used as the ink
+INK_ON_LIGHT = (10, 9, 16)
 # a squircle, because every OS that shows the 180 will round it anyway — and
 # one that rounds it again over a square just clips the corners twice
 RADIUS = 0.22
@@ -57,7 +67,9 @@ def ttf_bytes():
 # script with hairline joins, so the tab sizes also carry a little added weight
 # — without it the thin strokes grey out to a smudge, which is exactly how the
 # lotus crop failed.
-FILL = {"favicon-32.png": 0.82, "apple-touch-icon.png": 0.66, "svg": 0.80}
+# the SVG has no tile to sit inside, so it can run nearly to the edges — the
+# margin a boxed icon needs is the box's, not the mark's
+FILL = {"favicon-32.png": 0.82, "apple-touch-icon.png": 0.66, "svg": 0.88}
 
 
 def draw_png(size, ttf, fill, bolden=0.0, scale=4):
@@ -126,12 +138,15 @@ def svg(font, fill):
     side = max(w, h) / fill
     tx = min(xs) - (side - w) / 2
     ty = min(ys) - (side - h) / 2
-    r = side * RADIUS
-    ground = "#%02x%02x%02x" % GROUND
-    ink = "#%02x%02x%02x" % INK
+    ink = "#%02x%02x%02x" % INK_ON_LIGHT
+    ink_dark = "#%02x%02x%02x" % INK
     return f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {side:.0f} {side:.0f}">
-  <rect width="{side:.0f}" height="{side:.0f}" rx="{r:.0f}" fill="{ground}" />
-  <g fill="{ink}" transform="translate({-tx:.1f} {ty + side:.1f}) scale(1 -1)">
+  <style>
+    /* no tile: the monogram sits on the tab strip itself, and follows it */
+    path {{ fill: {ink}; }}
+    @media (prefers-color-scheme: dark) {{ path {{ fill: {ink_dark}; }} }}
+  </style>
+  <g transform="translate({-tx:.1f} {ty + side:.1f}) scale(1 -1)">
     {chr(10).join("    " + p for p in d).strip()}
   </g>
 </svg>

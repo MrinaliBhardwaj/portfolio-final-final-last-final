@@ -3699,6 +3699,13 @@ happens to have and would be Pinyon nowhere.
 - **An SVG is listed first**, because a tab is drawn at 16, 32 and sometimes 64
   and a script hairline needs the vector at the small end. The PNGs stay for
   the iOS home-screen bookmark and anything that ignores SVG.
+- **The SVG has no tile.** It carries a `prefers-color-scheme` rule instead —
+  dark ink on a light tab strip, cream on a dark one — so the mark sits on the
+  tab itself. Asked whether the black ground was needed at all: in the vector,
+  no. In the rasters, yes, and they keep it. A PNG is one fixed picture, so a
+  cream monogram on transparent would vanish against Chrome's default light
+  strip; and iOS composites a home-screen icon onto an opaque tile whatever you
+  give it, so transparency there buys a black box nobody chose.
 - **The ink fills a different share of each size**: 82% for the tab icon, 66%
   for the 180 (which wants the margin every other app icon on that screen has),
   and the tab sizes carry a hair of added stroke — without it Pinyon's hairline
