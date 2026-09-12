@@ -343,12 +343,13 @@ export const PROJECTS = [
       // grown by 1px all round so the export's anti-aliased white edge is
       // covered too. The video is her screen recording of the landing page
       // (Videos/Screen Recordings/"nextg landing.mp4", 1896x822 — exactly the
-      // size of Figma's fill), re-encoded silent at 1440 wide: 9.0 MB -> 0.66 MB.
-      // Its first 3.9s are cut. The recording opens on the page's own intro,
-      // which at this size is a near-blank sheet — no nav, no type, luminance
-      // spread under 3 against 30 once it settles — so it made a blank poster
-      // and a white flash on every loop. It starts on the settled page now
-      // (6.6s of it), and the poster is its first frame.
+      // size of Figma's fill), re-encoded silent at 1440 wide: 9.0 MB -> 1.0 MB.
+      // WHOLE, at her request (12 Sep 2026): the first 3.9s are the page's own
+      // intro reveal, and they were cut here for a day because at this size
+      // they read as a near-blank sheet — no nav, no type, luminance spread
+      // under 3 against 30 once settled. They are back; the poster is the
+      // first frame, so the box holds exactly what the video opens on rather
+      // than cutting to it.
       videos: [
         {
           src: "/work/nextg/landing.mp4",

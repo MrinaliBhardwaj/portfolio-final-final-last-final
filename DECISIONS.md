@@ -3559,3 +3559,12 @@ It replaced `f-browser.webp`, which is still the NextG page of the design file
 found", and the API lists only one page ("sitemap") for this file while the
 board plainly lives elsewhere in it, so its snapshot is behind her edits.
 181:104 carries the change she described, so that is what shipped.
+
+### Correction, same day: the intro stays
+
+The 3.9s trim above is reverted at her request — the video plays whole
+(10.5s, 1.0 MB). Those opening seconds are the page's own reveal, and they
+are hers to show. The poster is the first frame again, so the box holds
+exactly what the video opens on instead of cutting to it; it reads as
+near-blank until the reveal starts, which is the same #f4f6f8 the Figma
+export painted there anyway.
