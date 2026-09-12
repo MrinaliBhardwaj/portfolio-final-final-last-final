@@ -4,6 +4,7 @@
 // (owned by App) still floats over it as the OS layer.
 import WindowLights from "./WindowLights.jsx";
 import DomeGallery from "./DomeGallery.jsx";
+import "./gallery-world.css";
 
 // the dome's outer radial fade blends into this exact colour, so the sphere
 // dissolves into the page edges instead of sitting on a visible panel

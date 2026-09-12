@@ -40,6 +40,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { PROJECTS } from "./projects.js";
+import "./case-window.css";
 
 // HOW MANY FULL-SCREEN WINDOWS ARE OPEN. A count rather than a boolean because
 // several case windows can be open at once: if each one just set and cleared the

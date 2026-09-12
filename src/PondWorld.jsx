@@ -12,6 +12,7 @@ import { useEffect, useRef, useState } from "react";
 import WindowLights from "./WindowLights.jsx";
 import { Game } from "./froggie/engine/Game";
 import { ambience } from "./froggie/audio/Ambience";
+import "./pond-world.css";
 
 export default function PondWorld() {
   const canvasRef = useRef(null);

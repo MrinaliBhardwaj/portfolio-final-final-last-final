@@ -17,6 +17,10 @@ import useSectionSpy from "./useSectionSpy.js";
 import { PROJECTS } from "./projects.js";
 import { FIGMA_PAGES, pageBySlug } from "./figma-pages.js";
 import FigmaCanvas from "./FigmaCanvas.jsx";
+import "./world-tabs.css";
+import "./design-world.css";
+import "./figma-canvas.css";
+import "./figma-panel.css";
 
 import { LINKEDIN } from "./links.js";
 

@@ -21,6 +21,7 @@ import { useRef, useState } from "react";
 import { motion, useDragControls } from "framer-motion";
 import { ChevronLeft, ChevronRight, ArrowUpRight, ArrowRight } from "lucide-react";
 import { TECH_PROJECTS, repoUrl } from "./tech-projects.js";
+import "./code-window.css";
 
 // Matches CaseWindow's cascade exactly — the two kinds of window share one
 // desktop and one stack, so they have to land on the same rhythm.

@@ -30,6 +30,8 @@ import { motion, useDragControls } from "framer-motion";
 import { Maximize2 } from "lucide-react";
 import Scene from "./Scene.jsx";
 import SceneTwo from "./SceneTwo.jsx";
+import "./case-window.css";
+import "./notes-world.css";
 
 const CASCADE = 26;
 const CASCADE_WRAP = 4;

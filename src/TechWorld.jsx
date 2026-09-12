@@ -24,6 +24,9 @@ import useSectionSpy from "./useSectionSpy.js";
 import { TECH_PROJECTS as projects } from "./tech-projects.js";
 
 import { GITHUB, LINKEDIN } from "./links.js";
+import "./world-tabs.css";
+import "./tech-world.css";
+import "./file-tree.css";
 
 const EMAIL = "mrinalibhardwaj0705@gmail.com";
 

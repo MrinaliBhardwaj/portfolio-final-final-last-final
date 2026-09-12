@@ -18,6 +18,7 @@
 import { useState } from "react";
 import { motion, useDragControls } from "framer-motion";
 import { Folder } from "lucide-react";
+import "./case-window.css";
 
 const CASCADE = 26;
 const CASCADE_WRAP = 4;

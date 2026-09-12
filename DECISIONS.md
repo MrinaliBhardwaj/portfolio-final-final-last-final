@@ -3721,3 +3721,62 @@ happens to have and would be Pinyon nowhere.
 
 `build_social_assets.py` no longer writes the favicons — it still cuts og.jpg
 from the bloom — because running it would have quietly put the lotus back.
+
+## 12 Sep 2026 — The cover stops paying for the whole site
+
+Measured first: the built entry bundle was **570 KB of JavaScript and 116 KB of
+CSS** (189 + 28 KB gzipped) and it contained everything — both long worlds, the
+dome gallery, the scrapbook's scenes, the whole vendored froggie game, all four
+desktop windows, and every stylesheet in the project. Someone who opened the
+site, looked at the desktop and left downloaded all of it. The case-window and
+design-world stylesheets alone were 92 KB of source that a visitor on the cover
+could not see the effect of.
+
+**Now the cover ships the cover.** Nine things are behind a click — five worlds
+(`#/design`, `#/tech`, `#/gallery`, `#/notes`, `#/pond`) and four windows (case
+study, README, About Me, empty folder) — and each is a chunk, with its own
+stylesheet travelling beside it.
+
+| on the cover | before | after |
+|---|---|---|
+| JavaScript | 570 KB (189 gz) | **382 KB (130 gz)** |
+| CSS | 116 KB (28 gz) | **40 KB (12 gz)** |
+| total critical path | 686 KB (217 gz) | **422 KB (142 gz)** |
+
+**Nothing waits for the network at the click.** Both App and Cover warm their
+chunks in the first `requestIdleCallback` after the desktop settles — sequential,
+not parallel, so a slow connection gets them one cheap request at a time, and
+deferred rather than fetched on mount so the lotus atlas and the desk's images
+still own the first seconds. Measured on the production build: DOMContentLoaded
+at 302 ms with only the two entry files, and the other 25 chunks starting at
+2.27 s.
+
+**The worlds' stylesheets could move because they share no selectors.** Route
+CSS arrives in visit order, so a rule defined in two of them would resolve
+differently depending on where you had been. Checked before the move: pairwise
+selector intersection across all eight files is empty and every one is
+namespaced (`.dw-`, `.tw-`, `.fc-`, `.fp-`, `.ft-`, `.wt-`, `.gw-`, `.pw-`).
+A bare `.is-active` added to any of them would reopen that hole.
+
+**The windows are loaded by hand, not with `React.lazy`** (`WINDOW_IMPORTS` /
+`loadWindowKind` in `Cover.jsx`). A lazy component suspends, and the only place
+to put a `<Suspense>` around the window stack is around its `AnimatePresence` —
+where it breaks it: a suspended boundary hides its children, hidden children
+cannot finish their exit animations, and AnimatePresence never reaps them. That
+is not a theory, it was the first attempt: two ghost windows on the desk after
+one navigation. Resolving the module first and rendering only once it is here
+keeps AnimatePresence looking at plain children.
+
+**Verified by computed style, not by eye.** Every element's `display`,
+`position`, type, colour, box and layout properties were hashed on six states
+(cover, the four windows, the design world) before and after the change:
+identical, element for element. Behaviour was then checked on the production
+build in headless Chrome over CDP — all five worlds mount from the cover, all
+four windows open with the right title and chrome, no ghosts. It has to be a
+real browser: the preview pane freezes `requestAnimationFrame` while hidden, and
+`AnimatePresence mode="wait"` will not mount a world until the cover's exit
+animation finishes, so in the pane every world reads empty. That is the harness,
+not the site — see `preview-pane-raf-stalls`.
+
+`.claude/launch.json` gained a `preview` entry so the built site can be served
+and checked the same way next time.

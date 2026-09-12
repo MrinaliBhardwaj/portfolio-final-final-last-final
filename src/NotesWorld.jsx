@@ -17,6 +17,7 @@ import { Smartphone } from "lucide-react";
 import Scene from "./Scene.jsx";
 import SceneTwo from "./SceneTwo.jsx";
 import WindowLights from "./WindowLights.jsx";
+import "./notes-world.css";
 
 export default function NotesWorld() {
   return (

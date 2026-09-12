@@ -19,10 +19,43 @@ import {
 } from "framer-motion";
 import { ChevronDown } from "lucide-react";
 import MenuBar from "./MenuBar.jsx";
-import CaseWindow from "./CaseWindow.jsx";
-import CodeWindow from "./CodeWindow.jsx";
-import NoteWindow from "./NoteWindow.jsx";
-import EmptyWindow from "./EmptyWindow.jsx";
+// THE FOUR WINDOWS ARE CODE-SPLIT. Every one is behind a click on the desk — a
+// case study, a README, About Me, an empty folder — and between them they
+// carried the biggest stylesheet in the project (case-window.css) plus the
+// scrapbook's two scenes, all parsed before the desktop had finished arriving.
+// Now the desk ships alone and a window brings its own chrome with it.
+//
+// LOADED BY HAND RATHER THAN WITH React.lazy, and the reason is the stack
+// below. A lazy component suspends, which needs a <Suspense> boundary, and the
+// only place to put one here is around the whole AnimatePresence — where it
+// breaks it: while the boundary is suspended the children it is hiding cannot
+// finish their exit animations, so AnimatePresence never reaps them and every
+// window you close stays on the desk forever. Measured, not feared: two ghost
+// windows after one hash navigation. Resolving the module FIRST and rendering
+// only once it is here keeps AnimatePresence looking at plain children, which
+// is the only thing it has ever handled correctly.
+const WINDOW_IMPORTS = {
+  case: () => import("./CaseWindow.jsx"),
+  note: () => import("./NoteWindow.jsx"),
+  readme: () => import("./CodeWindow.jsx"),
+  empty: () => import("./EmptyWindow.jsx"),
+};
+
+// Module scope, so a chunk fetched once is still here after a remount — and so
+// a second window of the same kind renders in the same frame it opens.
+const windowKind = {};
+const windowInflight = {};
+
+function loadWindowKind(kind) {
+  if (windowKind[kind]) return Promise.resolve(windowKind[kind]);
+  if (!windowInflight[kind]) {
+    windowInflight[kind] = WINDOW_IMPORTS[kind]().then((m) => {
+      windowKind[kind] = m.default;
+      return m.default;
+    });
+  }
+  return windowInflight[kind];
+}
 import { PROJECTS } from "./projects.js";
 import { TECH_PROJECTS } from "./tech-projects.js";
 import TextMorph from "./TextMorph.jsx";
@@ -194,6 +227,53 @@ export default function Cover({ onChoose, onSettledChange }) {
   const [windows, setWindows] = useState(deepLinkedWindows);
 
   const same = (a, kind, id) => a.kind === kind && a.id === id;
+  // A re-render when a window chunk lands. The components live in module scope
+  // (above), so this counter is only here to say "something arrived".
+  const [, windowChunkArrived] = useState(0);
+  const noteArrival = () => windowChunkArrived((n) => n + 1);
+
+  // WARM THE WINDOW CHUNKS once the desktop is idle — the same bargain the
+  // worlds strike in App.jsx. A window is opened by a deliberate double-click
+  // on a desk file, many seconds after load at the earliest, so there is always
+  // time to have them ready and the window opens in the frame it is asked for.
+  // Deferred to idle rather than fetched on mount so the lotus atlas and the
+  // desk's images get the first seconds to themselves.
+  useEffect(() => {
+    let cancelled = false;
+    const run = async () => {
+      for (const kind of ["case", "note", "readme", "empty"]) {
+        if (cancelled) return;
+        try {
+          await loadWindowKind(kind);
+          if (!cancelled) noteArrival();
+        } catch {
+          // not fatal: the effect below asks again when a window of this kind
+          // is actually opened, and that is where a real failure would show
+        }
+      }
+    };
+    const idle = window.requestIdleCallback;
+    const id = idle ? idle(run, { timeout: 5000 }) : setTimeout(run, 2500);
+    return () => {
+      cancelled = true;
+      if (idle) window.cancelIdleCallback?.(id);
+      else clearTimeout(id);
+    };
+  }, []);
+
+  // The safety net for the two cases idle never covered: a deep link, which
+  // asks for a window on the first render, and a click that beats the warming.
+  useEffect(() => {
+    let live = true;
+    for (const w of windows) {
+      if (windowKind[w.kind]) continue;
+      loadWindowKind(w.kind).then(() => live && noteArrival());
+    }
+    return () => {
+      live = false;
+    };
+  }, [windows]);
+
   const openWindow = (kind, id) =>
     setWindows((list) => [...list.filter((w) => !same(w, kind, id)), { kind, id }]);
   const closeWindow = (kind, id) =>
@@ -599,19 +679,23 @@ export default function Cover({ onChoose, onSettledChange }) {
             onFocus: () => openWindow(w.kind, w.id),
             onSwitch: switchWindow(w.kind, w.id),
           };
+          // undefined until this kind's chunk has landed (see the top of the
+          // file). Rendering nothing for that beat is right: the chunk is
+          // warmed on idle, so in practice it is already here.
+          const W = windowKind[w.kind];
+          if (!W) return null;
           if (w.kind === "case") {
             const p = PROJECTS.find((x) => x.slug === w.id);
             // key is prefixed by kind: the id spaces are separate lists and
             // nothing stops a slug and a project key from colliding one day
-            return p ? <CaseWindow key={`case:${w.id}`} project={p} {...shared} /> : null;
+            return p ? <W key={`case:${w.id}`} project={p} {...shared} /> : null;
           }
           // Neither of these browses a list, so neither takes onSwitch — the
           // chevrons that would carry it are not in their title bars.
-          if (w.kind === "note") return <NoteWindow key="note:about" {...shared} />;
-          if (w.kind === "empty")
-            return <EmptyWindow key={`empty:${w.id}`} {...shared} />;
+          if (w.kind === "note") return <W key="note:about" {...shared} />;
+          if (w.kind === "empty") return <W key={`empty:${w.id}`} {...shared} />;
           const p = TECH_PROJECTS.find((x) => x.key === w.id);
-          return p ? <CodeWindow key={`readme:${w.id}`} project={p} {...shared} /> : null;
+          return p ? <W key={`readme:${w.id}`} project={p} {...shared} /> : null;
         })}
       </AnimatePresence>
     </div>

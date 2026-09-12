@@ -7,40 +7,72 @@
 // OS layer: on the cover it surfaces once the divergence settles; on the
 // worlds it is always present, showing which "app" is open, and switches
 // between them like tabs (a quick crossfade, no wipe ceremony).
-import { useEffect, useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, MotionConfig } from "framer-motion";
 import Cover, { hasSeenIntro } from "./Cover.jsx";
 import { clearMinimised, minimisedWorlds } from "./WindowLights.jsx";
-import DesignWorld from "./DesignWorld.jsx";
-import TechWorld from "./TechWorld.jsx";
 import { WorldOpening } from "./world-open.js";
 import { bySlug } from "./projects.js";
 import { pageBySlug } from "./figma-pages.js";
-import GalleryWorld from "./GalleryWorld.jsx";
-import NotesWorld from "./NotesWorld.jsx";
-import PondWorld from "./PondWorld.jsx";
+
+// THE FIVE WORLDS ARE CODE-SPLIT, and the cover is why. Someone who opens the
+// site and never leaves the desktop was downloading all five anyway: the two
+// long worlds, the dome gallery, the scrapbook's scenes, and the whole vendored
+// froggie game — a quarter of a megabyte of pond physics for a visitor who
+// never clicks the frog. Every one of them is behind a click, so every one of
+// them can arrive at that click instead of before it.
+//
+// The cost of splitting is a blank window while a chunk downloads, so it is
+// paid up front instead: WARM() fetches all five during the first idle moment
+// after the desktop settles (see below). By the time a dock icon is clicked the
+// chunk is in memory and the lazy boundary resolves in the same frame — the
+// grow-open never waits on the network. If idle never comes, Suspense catches
+// it and the window opens empty for an instant rather than not at all.
+const DesignWorld = lazy(() => import("./DesignWorld.jsx"));
+const TechWorld = lazy(() => import("./TechWorld.jsx"));
+const GalleryWorld = lazy(() => import("./GalleryWorld.jsx"));
+const NotesWorld = lazy(() => import("./NotesWorld.jsx"));
+const PondWorld = lazy(() => import("./PondWorld.jsx"));
+// design-route-only, and its one class (.dw-tag) is defined in
+// design-world.css — which now travels with the design chunk. Splitting it
+// too keeps the tag and the rule that styles it arriving together.
+const DesignCursor = lazy(() => import("./DesignCursor.jsx"));
+
+// the same five, as plain imports to prime the module cache. React.lazy caches
+// on the promise, so a chunk fetched here is not fetched again at the click.
+const WARM = [
+  () => import("./DesignWorld.jsx"),
+  () => import("./TechWorld.jsx"),
+  () => import("./GalleryWorld.jsx"),
+  () => import("./NotesWorld.jsx"),
+  () => import("./PondWorld.jsx"),
+];
 import Dock from "./Dock.jsx";
 import PhoneDock from "./PhoneDock.jsx";
 import useIsPhone from "./use-is-phone.js";
-import DesignCursor from "./DesignCursor.jsx";
 import "./cover.css";
 import "./menu-bar.css";
 import "./desktop-files.css";
-import "./case-window.css";
-import "./code-window.css";
 import "./dock.css";
-import "./world-tabs.css";
 import "./window-lights.css";
-import "./design-world.css";
-import "./figma-canvas.css";
-import "./figma-panel.css";
-import "./file-tree.css";
-import "./tech-world.css";
-import "./gallery-world.css";
-import "./notes-world.css";
+// A WORLD'S STYLESHEET TRAVELS WITH ITS WORLD. design-world, figma-canvas,
+// figma-panel, file-tree, tech-world, gallery-world, pond-world and world-tabs
+// used to be imported here, which put all of them in the shell's one stylesheet
+// — the cover was parsing 54 kB of Figma-panel rules it would never apply. Each
+// is now imported by the component that uses it, so Vite emits it beside that
+// component's chunk and the browser fetches it at the same moment.
+//
+// SAFE BECAUSE THE WORLDS DO NOT SHARE A SINGLE SELECTOR. Route stylesheets
+// arrive in visit order, so anything defined twice would resolve differently
+// depending on where you had been — a genuinely nasty bug. Checked before the
+// move: across all eight files, pairwise selector intersection is empty, and
+// every one is namespaced (.dw-, .tw-, .fc-, .fp-, .ft-, .wt-, .gw-, .pw-).
+// KEEP IT THAT WAY — a bare `.is-active` added to one of them would reopen it.
+//
+// The windows' own stylesheets (case-window, code-window, notes-world) left
+// with them — every window is behind a click, so see Cover.jsx.
 // collage.css (page three of the scrapbook) is no longer loaded: SceneThree was
 // cut from About Me on 12 Sep 2026. Restore both together.
-import "./pond-world.css";
 import "./phone-home.css";
 
 const TITLES = {
@@ -186,7 +218,12 @@ function WorldWindow({ children }) {
           while the zoom runs, this transform is the containing block for every
           fixed-position descendant, so they measure the SCALED window rather
           than the viewport. See world-open.js. */}
-      <WorldOpening.Provider value={opening}>{children}</WorldOpening.Provider>
+      <WorldOpening.Provider value={opening}>
+        {/* null, not a spinner: the window itself is the loading affordance —
+            it has already grown open around this space. With WARM() ahead of
+            it this boundary resolves synchronously and is never seen. */}
+        <Suspense fallback={null}>{children}</Suspense>
+      </WorldOpening.Provider>
     </motion.div>
   );
 }
@@ -247,6 +284,42 @@ export default function App() {
       if (route === "") setCoverSettled(false);
     }
   }, [route]);
+
+  // WARM THE WORLDS once the page has nothing better to do. This is the other
+  // half of the code split above: the chunks leave the critical path, then come
+  // back during the first idle window so a click still opens instantly. Idle is
+  // the whole point — fetching eagerly on mount would just re-create the
+  // problem the split solves, competing with the lotus atlas and the desk's
+  // images for the same first seconds of bandwidth.
+  //
+  // Sequential, not Promise.all: five parallel fetches on a slow connection is
+  // five things arriving late. One at a time keeps each one cheap, and the
+  // order matches how likely a visitor is to want it.
+  useEffect(() => {
+    let cancelled = false;
+    const run = async () => {
+      for (const load of WARM) {
+        if (cancelled) return;
+        try {
+          await load();
+        } catch {
+          // a failed prefetch is not a failure: the lazy boundary will fetch
+          // it again at the click, and report properly if it is still broken
+        }
+      }
+    };
+    const idle = window.requestIdleCallback;
+    // Safari has no requestIdleCallback; a timeout is a fine stand-in, and the
+    // 2s floor keeps this behind the cover's own loading either way.
+    const id = idle
+      ? idle(run, { timeout: 4000 })
+      : setTimeout(run, 2000);
+    return () => {
+      cancelled = true;
+      if (idle) window.cancelIdleCallback?.(id);
+      else clearTimeout(id);
+    };
+  }, []);
 
   // launching a world is just navigation now — no slide-wipe. The world's
   // own grow-open (WorldWindow) carries the transition, unfolding from
@@ -324,7 +397,11 @@ export default function App() {
           dock included), so its label has to clear the dock too — and inside
           the route wrapper it would be trapped under AnimatePresence's
           stacking context. Keyed to the route so it remounts clean. */}
-      {route === "design" && <DesignCursor />}
+      {route === "design" && (
+        <Suspense fallback={null}>
+          <DesignCursor />
+        </Suspense>
+      )}
 
       {/* the OS layer: present on every route, above the page. The world
           grows up from behind it, so the dock reads as the launch surface. */}
