@@ -7,3 +7,7 @@ pond-shot.png
 
 # python bytecode from scripts/
 __pycache__/
+
+# the design hook's edit counter — machine-written on every edit, so it turned
+# up modified in every commit and told nobody anything
+.impeccable/
