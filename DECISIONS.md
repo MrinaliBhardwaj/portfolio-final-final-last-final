@@ -3608,3 +3608,27 @@ instead of two — six rows instead of seven. At 320x568 that clears the dock by
 **About Me points at `#/notes` here, not at the window.** The scrapbook's copy
 is baked into 1673px-wide art: in a window on a 390px screen it renders at 23%,
 while the world carries the rotate-to-read gate built for exactly this.
+
+### Correction, same day: the ceremony runs on the phone too
+
+The entry above shipped with the lotus intro cut on phones. Reversed at her
+request, and it is the better shape: **the hero on a phone is the lotus and her
+name, the scroll scrubs the bloom, and the home screen is what it settles
+into** — the same 320vh track, the same scrub, the same `settled` signal the
+desk uses, so the two machines differ only in what arrives at the end.
+
+- `PhoneHome` is mounted through the whole ceremony (its art is decoded long
+  before it shows) and fades in with `.is-on`: transparent and `pointer-events:
+  none` while the bloom runs, so the track scrolls straight through it.
+- **The bloom IS the wallpaper.** The grid's middle two rows are a spacer that
+  draws nothing, and the flower showing through them is the real canvas the
+  ceremony just scrubbed — not a still. The lotus-still tile that stood there
+  for one commit was a second flower on top of the first. The screen's
+  background became a vignette (clear in the middle, dark at the edges) so the
+  bloom reads and the labels stay legible.
+- `touch-action: pan-x` on the pages: with 320vh of track underneath, a
+  vertical drag on the app grid would otherwise rewind the ceremony under your
+  thumb. The status bar and dock are outside that box, so a deliberate pull
+  there still goes back to the flower.
+- On a return visit the layout effect lands at the bottom of the track, so #/
+  opens on the home screen — the phone inherits that from the desk unchanged.

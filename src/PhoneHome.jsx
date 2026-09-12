@@ -22,11 +22,12 @@
 // that looks like a file and does nothing is the one thing this composition
 // has never allowed.
 //
-// THE CEREMONY DOES NOT RUN HERE. On the Mac the lotus is scrubbed by 320vh of
-// scroll before the desk arrives. A home screen that makes you scroll three
-// screens before it exists is not a home screen, so the phone lands on the
-// screen itself and the bloom stays as the wallpaper widget in the middle of
-// page one — the same still the Mac opens on.
+// THE CEREMONY STILL RUNS. The lotus and her name are the hero on a phone
+// exactly as on the Mac — the same 320vh track, the same scrub — and this
+// screen is what the bloom SETTLES INTO, faded in on the same signal the desk
+// uses. It is mounted throughout, so its art is decoded long before it shows;
+// while the bloom is running it is transparent and untouchable, and the page
+// scrolls straight through it.
 import { useEffect, useRef, useState } from "react";
 import { DESK, windowHref } from "./DesktopFiles.jsx";
 import {
@@ -76,9 +77,13 @@ const PAGE_ONE = [
   }),
   tile("folder-horse", [1, 1]), // untitled folder
   tile("card-karma", [2, 1]),
-  // The bloom, as the wallpaper widget the whole screen is built around — the
-  // same still the Mac's first paint uses.
-  { key: "lotus", src: "/lotus-still.webp", span: [4, 2], blend: true },
+  // THE BLOOM IS THE WALLPAPER, so the grid leaves it a hole rather than
+  // carrying a picture of it. The flower behind this screen is the real one —
+  // the canvas the ceremony just scrubbed, still on the stage underneath —
+  // and it lands in exactly this band on a portrait phone (the measurement is
+  // in DesktopFiles.jsx: y 27-68%). A tile here would be a second flower on
+  // top of the first.
+  { key: "bloom-gap", span: [4, 2], spacer: true },
   tile("frog-jar", [2, 2]),
   tile("resume-design", [1, 1]),
   tile("resume-tech", [1, 1]),
@@ -194,17 +199,13 @@ function Art({ p }) {
 }
 
 /** one grid tile — a link if the desk says it opens something, paint if not */
-function Tile({ p, onOpenCase, onOpenNote, onOpenEmpty }) {
+function Tile({ p, visible, onOpenCase, onOpenNote, onOpenEmpty }) {
   const live = !!(p.opensCase || p.opensNote || p.opensEmpty || p.href);
   const style = { gridColumn: `span ${p.span[0]}`, gridRow: `span ${p.span[1]}` };
 
   const inner = (
     <>
-      <span
-        className={`ph-tile-art${p.mark ? " ph-mark" : ""}${p.mono ? " is-mono" : ""}${
-          p.blend ? " is-blend" : ""
-        }`}
-      >
+      <span className={`ph-tile-art${p.mark ? " ph-mark" : ""}${p.mono ? " is-mono" : ""}`}>
         {p.mark ? p.mark : p.nameCard ? <NameMark /> : <Art p={p} />}
       </span>
       {/* ONE LINE, as an app icon gets. The desk's second "kind" line ("Case
@@ -215,6 +216,12 @@ function Tile({ p, onOpenCase, onOpenNote, onOpenEmpty }) {
       {p.label && <span className="ph-tile-label">{p.label}</span>}
     </>
   );
+
+  // the hole the bloom shows through: it holds its cells and draws nothing
+  if (p.spacer)
+    return (
+      <div className="ph-tile is-spacer" data-key={p.key} style={style} aria-hidden="true" />
+    );
 
   if (!live)
     return (
@@ -237,6 +244,8 @@ function Tile({ p, onOpenCase, onOpenNote, onOpenEmpty }) {
       target={p.newTab ? "_blank" : undefined}
       rel={p.newTab ? "noreferrer" : undefined}
       aria-label={p.aria}
+      // nothing here is reachable by keyboard until the bloom has landed
+      tabIndex={visible ? undefined : -1}
       onClick={(e) => {
         // Only a plain tap opens a window in place; everything else falls
         // through to the address, which is that window's own shareable link.
@@ -272,7 +281,7 @@ function useClock() {
   return now.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }).replace(/\s?[AP]M/i, "");
 }
 
-export default function PhoneHome({ onOpenCase, onOpenNote, onOpenEmpty }) {
+export default function PhoneHome({ visible = true, onOpenCase, onOpenNote, onOpenEmpty }) {
   const pagesRef = useRef(null);
   const [page, setPage] = useState(0);
   const time = useClock();
@@ -296,7 +305,7 @@ export default function PhoneHome({ onOpenCase, onOpenNote, onOpenEmpty }) {
   };
 
   return (
-    <div className="ph">
+    <div className={`ph${visible ? " is-on" : ""}`} aria-hidden={!visible}>
       {/* THE SCREEN'S OWN FRAME. On a phone this is the bezel you are already
           holding, so it costs 2px and reads as nothing; in a narrow desktop
           window it is what makes the composition read as a device. */}
@@ -353,6 +362,7 @@ export default function PhoneHome({ onOpenCase, onOpenNote, onOpenEmpty }) {
                   <Tile
                     key={p.key}
                     p={p}
+                    visible={visible}
                     onOpenCase={onOpenCase}
                     onOpenNote={onOpenNote}
                     onOpenEmpty={onOpenEmpty}
@@ -372,6 +382,7 @@ export default function PhoneHome({ onOpenCase, onOpenNote, onOpenEmpty }) {
               className={`ph-dot${page === i ? " is-on" : ""}`}
               aria-selected={page === i}
               aria-label={`Page ${i + 1}`}
+              tabIndex={visible ? 0 : -1}
               onClick={() => goTo(i)}
             />
           ))}
@@ -379,7 +390,13 @@ export default function PhoneHome({ onOpenCase, onOpenNote, onOpenEmpty }) {
 
         <nav className="ph-dock" aria-label="Dock">
           {DOCK.map((a) => (
-            <a key={a.key} className="ph-dock-item" href={a.href} aria-label={a.aria}>
+            <a
+              key={a.key}
+              className="ph-dock-item"
+              href={a.href}
+              aria-label={a.aria}
+              tabIndex={visible ? undefined : -1}
+            >
               <span className="ph-mark">{a.mark}</span>
             </a>
           ))}

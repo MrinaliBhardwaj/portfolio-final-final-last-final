@@ -327,26 +327,12 @@ export default function Cover({ onChoose, onSettledChange }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // NOTHING TO WAIT FOR ON A PHONE. The home screen IS the landing — there is
-  // no ceremony to sit through — so everything gated on "settled" is told so
-  // at once rather than waiting for a scroll that cannot happen.
-  useEffect(() => {
-    if (!phone) return;
-    splitRef.current = true;
-    settledRef.current = true;
-    setSplit(true);
-    setSettled(true);
-    onSettledChange?.(true);
-  }, [phone, onSettledChange]);
-
   // scroll progress across the tall track drives everything on the stage
   const { scrollYProgress } = useScroll({
     target: trackRef,
     offset: ["start start", "end end"],
   });
   useMotionValueEvent(scrollYProgress, "change", (v) => {
-    // the phone has no track: a stray 0 here would un-settle the home screen
-    if (phone) return;
     progressRef.current = v;
     // Both of these are THRESHOLDS, but this callback fires on every scroll
     // tick. Calling the setters unconditionally entered React's dispatch path
@@ -401,11 +387,6 @@ export default function Cover({ onChoose, onSettledChange }) {
   // scrub paint and the particle paint.
   useEffect(() => {
     const particles = createParticles(particlesRef.current);
-    // THE STARFIELD IS BOTH MACHINES' WALLPAPER; the scrub belongs to the
-    // ceremony, and the phone has no track to scrub against. Building the
-    // frame pipeline for a canvas nobody paints would be pure cost on the
-    // device least able to pay it.
-    if (phone) return () => particles.destroy();
     const scrubber = createLotusScrubber(
       canvasRef.current,
       () => {
@@ -433,7 +414,7 @@ export default function Cover({ onChoose, onSettledChange }) {
       scrubber.destroy();
       particles.destroy();
     };
-  }, [phone]);
+  }, []);
 
 
   return (
@@ -447,154 +428,161 @@ export default function Cover({ onChoose, onSettledChange }) {
           navigation went. */}
       {!phone && <MenuBar onChoose={onChoose} onReplayIntro={replayIntro} />}
 
-      {/* THE TWO MACHINES. A phone is not a small Mac: it gets an iPhone home
-          screen built on iOS's own grid, out of the same files this desk
-          scatters. See PhoneHome.jsx. */}
-      {phone ? (
-        <PhoneHome
-          onOpenCase={(slug) => openWindow("case", slug)}
-          onOpenNote={(id) => openWindow("note", id)}
-          onOpenEmpty={(id) => openWindow("empty", id)}
-        />
-      ) : (
-        /* one pinned stage carries the whole cover narrative */
-        <section className="cover-track" ref={trackRef} aria-label="Intro">
-          <div className="cover-stage">
-            {/* instant first paint: a small preloaded still of the resting pose.
-                It NEVER fades on scroll — it's the permanent base of the stack,
-                and the frame canvas simply paints over it. Fading it by scroll
-                position opened a blank gap: scroll right after a refresh, before
-                the frames arrive, and no layer was left holding the lotus. It is
-                also pixel-identical to frame 0, so the handoff is invisible. */}
-            <img
-              className="cover-poster"
-              src={POSTER_URL}
-              alt=""
-              fetchpriority="high"
-              aria-hidden="true"
-            />
-            {/* the bloom itself: frames painted here, revealed once the atlas
-                lands (~a few hundred ms). There is no <video> in this stack any
-                more — see the header of lotus.js for why. */}
-            <canvas
-              ref={canvasRef}
-              className="cover-video-canvas"
-              aria-hidden="true"
-            />
-            <div className="cover-video-overlay" />
+      {/* one pinned stage carries the whole cover narrative — on BOTH machines.
+          The ceremony is the ceremony: the name, then the bloom, scrubbed by
+          the same track on a phone as on a Mac. What differs is only what it
+          settles INTO — a desk of files, or the iPhone home screen below. */}
+      <section className="cover-track" ref={trackRef} aria-label="Intro">
+        <div className="cover-stage">
+          {/* instant first paint: a small preloaded still of the resting pose.
+              It NEVER fades on scroll — it's the permanent base of the stack,
+              and the frame canvas simply paints over it. Fading it by scroll
+              position opened a blank gap: scroll right after a refresh, before
+              the frames arrive, and no layer was left holding the lotus. It is
+              also pixel-identical to frame 0, so the handoff is invisible. */}
+          <img
+            className="cover-poster"
+            src={POSTER_URL}
+            alt=""
+            fetchpriority="high"
+            aria-hidden="true"
+          />
+          {/* the bloom itself: frames painted here, revealed once the atlas
+              lands (~a few hundred ms). There is no <video> in this stack any
+              more — see the header of lotus.js for why. */}
+          <canvas
+            ref={canvasRef}
+            className="cover-video-canvas"
+            aria-hidden="true"
+          />
+          <div className="cover-video-overlay" />
 
-            {/* beat 1: the name, alone — then the script writes itself on via a
-                mask wipe (see .is-inked). The "a design engineer" caption that
-                used to sit under it is gone — the two margin notes below now
-                carry the roles, and they say it in far more detail. */}
+          {/* beat 1: the name, alone — then the script writes itself on via a
+              mask wipe (see .is-inked). The "a design engineer" caption that
+              used to sit under it is gone — the two margin notes below now
+              carry the roles, and they say it in far more detail. */}
+          <motion.div
+            className="cover-hero-inner"
+            style={{ opacity: nameOpacity, y: nameLift }}
+          >
+            {/* DRAWN, NOT SET (2026-08-20). This used to be four spans in two
+                script faces — Ballet for the capitals, Pinyon for the lowercase
+                — and Pinyon does not reliably join its letters: four pairs met
+                at a tangent rather than an overlap and read as breaks. The
+                outlines are kerned per pair now; see NameMark.jsx for the
+                measurements and for why the two capitals are left apart.
+
+                The wipe still sweeps the h1 as one box, and `fontReady` still
+                gates it — not because the name needs a font any more, but
+                because it is beat 1 of a sequence the margin notes below share.
+
+                The visible artwork is aria-hidden and this line is the
+                accessible name, the same split .cover-aside-sr uses: a screen
+                reader gets the text, the screen gets the drawing. */}
+            <h1 className={`cover-name-script${fontReady ? " is-inked" : ""}`}>
+              <span className="cover-aside-sr">Mrinali Bhardwaj</span>
+              <NameMark />
+            </h1>
+          </motion.div>
+
+          {/* marginalia: the roles behind each discipline, pinned to the
+              vertical centre of each edge. They annotate the name, so they
+              arrive after it inks and fade out with it — long before beat 3
+              takes these margins over. The visible column is aria-hidden (a
+              word that swaps every 2.6s is unfollowable); the .cover-aside-sr
+              line carries the same content to assistive tech at every width. */}
+          <motion.aside
+            className="cover-aside cover-aside--left"
+            style={{ opacity: asideOpacity }}
+          >
+            <p className="cover-aside-sr">
+              I am a UI/UX designer, product designer, visual storyteller,
+              interaction designer and systems thinker.
+            </p>
             <motion.div
-              className="cover-hero-inner"
-              style={{ opacity: nameOpacity, y: nameLift }}
+              className="cover-aside-inner"
+              aria-hidden="true"
+              initial={{ opacity: 0, x: -8 }}
+              animate={fontReady ? { opacity: 1, x: 0 } : {}}
+              transition={{ duration: 0.9, ease: EASE, delay: 1.6 }}
             >
-              {/* DRAWN, NOT SET (2026-08-20). This used to be four spans in two
-                  script faces — Ballet for the capitals, Pinyon for the lowercase
-                  — and Pinyon does not reliably join its letters: four pairs met
-                  at a tangent rather than an overlap and read as breaks. The
-                  outlines are kerned per pair now; see NameMark.jsx for the
-                  measurements and for why the two capitals are left apart.
-
-                  The wipe still sweeps the h1 as one box, and `fontReady` still
-                  gates it — not because the name needs a font any more, but
-                  because it is beat 1 of a sequence the margin notes below share.
-
-                  The visible artwork is aria-hidden and this line is the
-                  accessible name, the same split .cover-aside-sr uses: a screen
-                  reader gets the text, the screen gets the drawing. */}
-              <h1 className={`cover-name-script${fontReady ? " is-inked" : ""}`}>
-                <span className="cover-aside-sr">Mrinali Bhardwaj</span>
-                <NameMark />
-              </h1>
+              <p className="cover-aside-lead">I am a</p>
+              <TextMorph
+                className="cover-aside-role"
+                words={DESIGN_ROLES}
+                interval={2600}
+                paused={split}
+              />
             </motion.div>
+          </motion.aside>
 
-            {/* marginalia: the roles behind each discipline, pinned to the
-                vertical centre of each edge. They annotate the name, so they
-                arrive after it inks and fade out with it — long before beat 3
-                takes these margins over. The visible column is aria-hidden (a
-                word that swaps every 2.6s is unfollowable); the .cover-aside-sr
-                line carries the same content to assistive tech at every width. */}
-            <motion.aside
-              className="cover-aside cover-aside--left"
-              style={{ opacity: asideOpacity }}
+          <motion.aside
+            className="cover-aside cover-aside--right"
+            style={{ opacity: asideOpacity }}
+          >
+            <p className="cover-aside-sr">
+              As well as a software developer, frontend engineer, creative coder
+              and problem solver.
+            </p>
+            <motion.div
+              className="cover-aside-inner"
+              aria-hidden="true"
+              initial={{ opacity: 0, x: 8 }}
+              animate={fontReady ? { opacity: 1, x: 0 } : {}}
+              transition={{ duration: 0.9, ease: EASE, delay: 1.75 }}
             >
-              <p className="cover-aside-sr">
-                I am a UI/UX designer, product designer, visual storyteller,
-                interaction designer and systems thinker.
-              </p>
-              <motion.div
-                className="cover-aside-inner"
-                aria-hidden="true"
-                initial={{ opacity: 0, x: -8 }}
-                animate={fontReady ? { opacity: 1, x: 0 } : {}}
-                transition={{ duration: 0.9, ease: EASE, delay: 1.6 }}
-              >
-                <p className="cover-aside-lead">I am a</p>
-                <TextMorph
-                  className="cover-aside-role"
-                  words={DESIGN_ROLES}
-                  interval={2600}
-                  paused={split}
-                />
-              </motion.div>
-            </motion.aside>
+              <p className="cover-aside-lead">as well as a</p>
+              <TextMorph
+                className="cover-aside-role"
+                words={TECH_ROLES}
+                interval={2600}
+                paused={split}
+              />
+            </motion.div>
+          </motion.aside>
 
-            <motion.aside
-              className="cover-aside cover-aside--right"
-              style={{ opacity: asideOpacity }}
-            >
-              <p className="cover-aside-sr">
-                As well as a software developer, frontend engineer, creative coder
-                and problem solver.
-              </p>
-              <motion.div
-                className="cover-aside-inner"
-                aria-hidden="true"
-                initial={{ opacity: 0, x: 8 }}
-                animate={fontReady ? { opacity: 1, x: 0 } : {}}
-                transition={{ duration: 0.9, ease: EASE, delay: 1.75 }}
-              >
-                <p className="cover-aside-lead">as well as a</p>
-                <TextMorph
-                  className="cover-aside-role"
-                  words={TECH_ROLES}
-                  interval={2600}
-                  paused={split}
-                />
-              </motion.div>
-            </motion.aside>
+          {/* BEAT 3 IS NOW THE DESKTOP ITSELF. The two discipline cards that
+              lived here — "Design / What blooms in sight / …" and "Tech / What
+              roots beneath / …", with their two Explore CTAs — were deleted on
+              18 Aug 2026 by request. They were the last of the landing-page
+              fiction sitting on top of the machine one, and with the files
+              scattered across the screen as the hero there is nothing for them
+              to do but compete.
 
-            {/* BEAT 3 IS NOW THE DESKTOP ITSELF. The two discipline cards that
-                lived here — "Design / What blooms in sight / …" and "Tech / What
-                roots beneath / …", with their two Explore CTAs — were deleted on
-                18 Aug 2026 by request. They were the last of the landing-page
-                fiction sitting on top of the machine one, and with the files
-                scattered across the screen as the hero there is nothing for them
-                to do but compete.
-
-                Navigation lost nothing: design and tech are in the menu bar, in
-                the dock, and on the desktop as design.fig / tech.ts. The whole
-                `.cover-split` block, its scrims and its type styles are gone from
-                cover.css too rather than left orphaned. */}
+              Navigation lost nothing: design and tech are in the menu bar, in
+              the dock, and on the desktop as design.fig / tech.ts. The whole
+              `.cover-split` block, its scrims and its type styles are gone from
+              cover.css too rather than left orphaned. */}
+          {!phone && (
             <DesktopFiles
               visible={settled}
               onOpenCase={(slug) => openWindow("case", slug)}
               onOpenNote={(id) => openWindow("note", id)}
               onOpenEmpty={(id) => openWindow("empty", id)}
             />
+          )}
 
-            <motion.div
-              className="cover-scroll"
-              style={{ opacity: chevronOpacity, animationPlayState: chevronPlay }}
-              aria-hidden="true"
-            >
-              <ChevronDown size={24} strokeWidth={2} />
-            </motion.div>
-          </div>
-        </section>
+          <motion.div
+            className="cover-scroll"
+            style={{ opacity: chevronOpacity, animationPlayState: chevronPlay }}
+            aria-hidden="true"
+          >
+            <ChevronDown size={24} strokeWidth={2} />
+          </motion.div>
+        </div>
+      </section>
+
+      {/* WHAT THE PHONE SETTLES INTO. Mounted through the whole ceremony so
+          its thirteen images are decoded before it is ever shown, and faded in
+          on the same `settled` signal the desk uses — the bloom finishes, and
+          the home screen is simply there. */}
+      {phone && (
+        <PhoneHome
+          visible={settled}
+          onOpenCase={(slug) => openWindow("case", slug)}
+          onOpenNote={(id) => openWindow("note", id)}
+          onOpenEmpty={(id) => openWindow("empty", id)}
+        />
       )}
 
       {/* THE OPEN WINDOWS, rendered OUTSIDE .cover-stage on purpose: the stage

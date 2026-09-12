@@ -16,6 +16,13 @@
   position: fixed;
   inset: 0;
   z-index: 3;
+  /* THE BLOOM COMES FIRST. The ceremony runs on a phone exactly as it does on
+     the Mac, and this is what it settles into: transparent and untouchable
+     while the lotus is being scrubbed — the track scrolls straight through it
+     — then faded in on the same signal the desk uses. */
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.55s ease;
   --ph-margin: 22px;
   --ph-gap-x: 18px;
   /* the row gap is where an icon's name lives, exactly as on iOS */
@@ -43,6 +50,11 @@
   font-family: var(--font-ui, system-ui, sans-serif);
 }
 
+.ph.is-on {
+  opacity: 1;
+  pointer-events: auto;
+}
+
 /* THE SCREEN'S FRAME. On the phone itself this is the bezel already in your
    hand and it costs nothing; in a narrow desktop window it is what makes the
    composition read as a device rather than as a cramped page. The background
@@ -53,10 +65,14 @@
   inset: 0;
   border-radius: 46px;
   overflow: hidden;
+  /* A VIGNETTE, NOT A FILL. The lotus the ceremony just bloomed is still on
+     the stage behind this screen and it is the wallpaper — so the middle stays
+     nearly clear and the edges darken, which is also what keeps the icon
+     labels legible against it. */
   background: radial-gradient(
-    125% 70% at 50% 34%,
-    rgba(58, 40, 86, 0.42),
-    rgba(4, 4, 10, 0.55) 68%
+    115% 62% at 50% 44%,
+    rgba(6, 6, 14, 0.1),
+    rgba(4, 4, 10, 0.62) 72%
   );
   -webkit-tap-highlight-color: transparent;
 }
@@ -136,6 +152,12 @@
   overflow-y: hidden;
   scroll-snap-type: x mandatory;
   overscroll-behavior-x: contain;
+  /* PAGES SWIPE SIDEWAYS, AND ONLY SIDEWAYS. Under this sits 320vh of lotus
+     track: without this a vertical drag on the home screen would rewind the
+     ceremony under your thumb, which is not what dragging an app grid means.
+     The status bar and the dock are outside this box, so a deliberate pull
+     down there still takes you back to the flower. */
+  touch-action: pan-x;
   scrollbar-width: none;
 }
 
@@ -196,13 +218,10 @@
   height: 100%;
 }
 
-/* THE BLOOM FLOATS, it does not sit in a box. lotus-still.webp is a bloom on
-   its own near-black field — the wallpaper the Mac opens on — so screened over
-   this screen's near-black ground the field disappears and the flower is left
-   hanging in the middle of the home screen, which is where the reference has
-   it. No second asset, no cut-out: the same file, composited. */
-.ph-tile-art.is-blend .ph-img {
-  mix-blend-mode: screen;
+/* the bloom's hole: it reserves its cells and paints nothing, so the flower
+   on the stage behind shows through the middle of the grid */
+.ph-tile.is-spacer {
+  pointer-events: none;
 }
 
 /* the desk's own treatments, carried over: the dragonfly's glass plate and the
@@ -400,7 +419,7 @@
 
   /* the span is an inline style (the tile table owns the layout), so this is
      the one place that has to out-rank it */
-  .ph-tile[data-key="lotus"] {
+  .ph-tile[data-key="bloom-gap"] {
     grid-row: span 1 !important;
   }
 }
