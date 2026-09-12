@@ -295,12 +295,15 @@ export const PROJECTS = [
     blurb:
       "A B2B retail-tech case study on making half a million outlets legible in a single screen.",
     size: "offset",
-    // the landing page in its browser frame: the same export as the NextG page
-    // of the design file, so it is her work rather than a stand-in. It is the
-    // hero too (no `hero` field), and the canvas board uses its own ratio.
-    cover: "/work/nextg/f-browser.webp",
+    // HER OWN COVER FRAME (12 Sep 2026, at her request): "01 Cover" (181:104),
+    // the case study's opening slide — the site on a laptop on a rock, with the
+    // line above it set at 16px. It is the canvas board's art and the case
+    // window's hero (no `hero` field), and the board's slot takes its 1600x838
+    // ratio, so nothing is cropped. It replaced f-browser.webp, which is still
+    // the NextG page of the design file (figma-pages.js).
+    cover: "/work/nextg/cover.webp",
     file: "nextg-apex-final",
-    dims: "1600 × 20076",
+    dims: "1600 × 838",
     role: "Product design + front-end",
     summary:
       "NextG runs field sales for FMCG brands across half a million Indian outlets. Their 10 year old site looked like every other B2B tool, so nobody believed the scale. I rebuilt it end to end — structure, interface, design system, and the front-end code.",

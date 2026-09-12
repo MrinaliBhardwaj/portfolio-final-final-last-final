@@ -888,11 +888,11 @@
   transform: rotate(-0.6deg);
 }
 
-/* the cover's own ratio (f-browser.webp, 1800x1233: the landing page in its
-   browser frame), used directly as Layover's is — so nothing is cropped off
-   the browser chrome. The tilt carries on alternating down the canvas. */
+/* the cover's own ratio (cover.webp, her "01 Cover" frame at 1600x838), used
+   directly as Layover's is — so the slide is shown whole rather than cropped
+   to a rounder number. The tilt carries on alternating down the canvas. */
 .dw-board--offset .dw-board-art {
-  aspect-ratio: 1800 / 1233;
+  aspect-ratio: 1600 / 838;
   transform: rotate(0.9deg);
 }
 

@@ -3540,3 +3540,22 @@ Any board can carry `videos[]` now; this is the first one that does.
 
 The case-study lede is 16px (was 15), at her request — it is the shared
 `.cw-lede`, so every project's intro line moved with it.
+
+## NextG's cover is her own cover slide (12 Sep 2026)
+
+`cover` is "01 Cover" (181:104) now — the case study's opening slide, the site
+on a laptop on a rock — re-exported after she set the line above it ("A B2B
+retail-tech case study on making half a million outlets legible in a single
+screen.") to 16px. It is both the canvas board's art and the case window's
+hero, and the `offset` slot takes the frame's own 1600x838 ratio so the slide
+is shown whole. The board was re-exported and re-sliced with the same change:
+it differs from the previous export only in rows 84-172, that one line, and
+every slice height is unchanged.
+
+It replaced `f-browser.webp`, which is still the NextG page of the design file
+(figma-pages.js), so the file stays.
+
+**The frame she linked (254:2) is not visible to Figma's API** — "node not
+found", and the API lists only one page ("sitemap") for this file while the
+board plainly lives elsewhere in it, so its snapshot is behind her edits.
+181:104 carries the change she described, so that is what shipped.
