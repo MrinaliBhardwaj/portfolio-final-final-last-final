@@ -3675,7 +3675,11 @@ geometry moved to `:root` so the dock can be measured from outside `.ph`. The
 dot under an icon means what it means on the Mac: that world is open, or was
 minimised with the yellow light. The rail block in dock.css is dead and says so.
 
-**Photos is Apple's, not Google's, on the phone.** `ApplePhotosMark` is drawn
+**Photos is Apple's, not Google's — on BOTH docks.** `ApplePhotosMark` is drawn
 in BrandIcons.jsx for the same reason `AppleNotesMark` is — no icon set ships
-it — eight petals multiplying where they overlap. The Mac dock keeps the Google
-Photos mark: the desktop is not part of this brief.
+it — eight petals multiplying where they overlap. It shipped on the phone
+first, with the Mac left alone as out of brief; she asked for the Mac too the
+same day, so the pinwheel is gone from both and `GooglePhotosMarkColor` is
+unused (kept in BrandIcons, which is a library of marks, not a list of the ones
+in use). Both docks call it "Gallery — open the dome gallery": the icon is the
+dress, the dome gallery is the destination.

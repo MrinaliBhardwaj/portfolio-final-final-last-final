@@ -24,7 +24,7 @@ import {
   FigmaMarkColor,
   GmailMark,
   GitHubMark,
-  GooglePhotosMarkColor,
+  ApplePhotosMark,
   InstagramMark,
   LinkedInMarkColor,
   VSCodeMark,
@@ -156,8 +156,11 @@ export default function Dock({ visible, onChoose, active, minimised = [] }) {
   // COLORFUL, LIKE A REAL DOCK (2026-08-18). The single monochrome tint was a
   // deliberate premium-glass choice, and it is superseded: five same-grey
   // glyphs read as "icon row", and a dock reads as a dock because its icons
-  // are colourful and distinct. The two brand marks use their real multicolor
-  // geometry (FigmaMarkColor / GooglePhotosMarkColor in BrandIcons.jsx). The
+  // are colourful and distinct. Figma uses its real multicolor geometry, and
+  // Photos is Apple's flower — drawn in BrandIcons.jsx, like the Notes mark,
+  // because no icon set ships it. It was Google's pinwheel until 12 Sep 2026;
+  // both docks wear the same one now, and this machine is a Mac, so the Mac's
+  // Photos is the one that belongs in it. The
   // lucide glyphs CANNOT become brand marks — VS Code's and Apple Notes' are
   // trademark-restricted, the same reason Simple Icons and lucide dropped
   // them — so they carry their brand's COLOUR instead, set per-icon in
@@ -193,7 +196,7 @@ export default function Dock({ visible, onChoose, active, minimised = [] }) {
       world: "gallery",
       action: () => onChoose("gallery"),
       node: (
-        <GooglePhotosMarkColor className="dock-item-icon" aria-hidden="true" />
+        <ApplePhotosMark className="dock-item-icon" aria-hidden="true" />
       ),
     },
     {

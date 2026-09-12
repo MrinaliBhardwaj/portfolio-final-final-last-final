@@ -43,7 +43,7 @@ const APPS = [
   {
     key: "gallery",
     world: "gallery",
-    aria: "Photos — open the dome gallery",
+    aria: "Gallery — open the dome gallery",
     href: "#/gallery",
     mark: <ApplePhotosMark className="ph-mark-glyph" aria-hidden="true" />,
     skin: "light",
