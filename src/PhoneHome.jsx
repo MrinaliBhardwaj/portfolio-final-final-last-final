@@ -72,8 +72,11 @@ const PAGE_ONE = [
     href: "#/notes",
     aria: "About Me — the scrapbook",
   }),
-  tile("folder-horse", [1, 1]), // untitled folder
-  tile("card-karma", [2, 1]),
+  // THE HORSE AND THE KARMA CARD ARE OFF THE PHONE (12 Sep 2026, her call —
+  // "for now"). The horse is the untitled folder, whose whole content is a
+  // window saying it is empty; the card is decoration. On a screen this size
+  // both were spending a row that the work and the flower use better. Both are
+  // still on the desk, and putting either back is this line uncommented.
   // THE BLOOM IS THE WALLPAPER, so the grid leaves it a hole rather than
   // carrying a picture of it. The flower behind this screen is the real one —
   // the canvas the ceremony just scrubbed, still on the stage underneath —
