@@ -95,6 +95,20 @@ const PAGE_ONE = [
 // On the Mac the dock holds four apps, a divider, and her four profiles. A
 // phone dock holds four things, full stop — so the profiles move here, as the
 // app icons they always looked like, and the dock keeps the apps.
+// AN APP ICON IS THE WHOLE TILE, and half these marks already are one. The
+// dock on the Mac says which is which (dock.css): Instagram, LinkedIn and the
+// frog draw their own filled, rounded tile; Figma, GitHub, VS Code, Gmail and
+// Photos are bare glyphs that need one. Rendering all eight the same way is
+// what made the first pass look wrong — a small logo marooned in a white box —
+// so each one now declares it:
+//
+//   skin "bleed"  the mark IS the icon: it fills the tile corner to corner,
+//                 and `bg` backs it so this grid's rounder corner never cuts
+//                 into the artwork's own
+//   skin "light" / "dark"  a glyph on a tile of ours, at its own `glyph` size
+//
+// `glyph` is a HEIGHT, with width auto: Figma's logo is 38x57, and sizing a
+// tall mark by width is the other half of why it looked shrunken.
 const SOCIALS = [
   {
     key: "github",
@@ -103,7 +117,8 @@ const SOCIALS = [
     href: GITHUB,
     newTab: true,
     mark: <GitHubMark className="ph-mark-glyph" aria-hidden="true" />,
-    mono: true,
+    skin: "dark",
+    glyph: "58%",
   },
   {
     key: "linkedin",
@@ -112,6 +127,16 @@ const SOCIALS = [
     href: LINKEDIN,
     newTab: true,
     mark: <LinkedInMarkColor className="ph-mark-glyph" aria-hidden="true" />,
+    skin: "bleed",
+    // WHITE, NOT BLUE, and it is not a colour preference: LinkedIn's mark is a
+    // single blue path with the "in" knocked OUT of it, so whatever sits
+    // behind the tile is what the letters are made of. Backed with its own
+    // blue they vanished and the icon was a plain blue square.
+    bg: "#ffffff",
+    // …and with a white backing, the corners this grid rounds more tightly
+    // than the artwork does would show as white wedges. A hair of scale puts
+    // the blue past the clip instead.
+    zoom: 1.06,
   },
   {
     key: "email",
@@ -119,6 +144,8 @@ const SOCIALS = [
     aria: "Email mrinali",
     href: `mailto:${EMAIL}`,
     mark: <GmailMark className="ph-mark-glyph" aria-hidden="true" />,
+    skin: "light",
+    glyph: "56%",
   },
   {
     key: "instagram",
@@ -127,6 +154,8 @@ const SOCIALS = [
     href: INSTAGRAM,
     newTab: true,
     mark: <InstagramMark className="ph-mark-glyph" aria-hidden="true" />,
+    skin: "bleed",
+    bg: "#c13584",
   },
 ];
 
@@ -154,24 +183,35 @@ const DOCK = [
     aria: "Figma — enter the design world",
     href: "#/design",
     mark: <FigmaMarkColor className="ph-mark-glyph" aria-hidden="true" />,
+    skin: "light",
+    // taller than the rest on purpose: the logo is 38 wide to 57 tall, so at a
+    // shared height it reads narrower — and therefore smaller — than its
+    // neighbours in the dock
+    glyph: "70%",
   },
   {
     key: "vscode",
     aria: "VS Code — enter the tech world",
     href: "#/tech",
     mark: <VSCodeMark className="ph-mark-glyph" aria-hidden="true" />,
+    skin: "light",
+    glyph: "68%",
   },
   {
     key: "gallery",
     aria: "Gallery — open the dome gallery",
     href: "#/gallery",
     mark: <GooglePhotosMarkColor className="ph-mark-glyph" aria-hidden="true" />,
+    skin: "light",
+    glyph: "64%",
   },
   {
     key: "pond",
     aria: "Game — the Lotus Pond, catch coding bugs with a pixel frog",
     href: "#/pond",
     mark: <FroggieMark className="ph-mark-glyph" aria-hidden="true" />,
+    skin: "bleed",
+    bg: "#123a52",
   },
 ];
 
@@ -210,7 +250,12 @@ function Tile({ p, visible, onOpenCase, onOpenNote, onOpenEmpty }) {
 
   const inner = (
     <>
-      <span className={`ph-tile-art${p.mark ? " ph-mark" : ""}${p.mono ? " is-mono" : ""}`}>
+      <span
+        className={`ph-tile-art${p.mark ? ` ph-mark is-${p.skin}` : ""}`}
+        style={
+          p.mark ? { "--ph-glyph": p.glyph, "--ph-mark-bg": p.bg, "--ph-zoom": p.zoom } : undefined
+        }
+      >
         {p.mark ? p.mark : <Art p={p} />}
       </span>
       {/* ONE LINE, as an app icon gets. The desk's second "kind" line ("Case
@@ -402,7 +447,12 @@ export default function PhoneHome({ visible = true, onOpenCase, onOpenNote, onOp
               aria-label={a.aria}
               tabIndex={visible ? undefined : -1}
             >
-              <span className="ph-mark">{a.mark}</span>
+              <span
+                className={`ph-mark is-${a.skin}`}
+                style={{ "--ph-glyph": a.glyph, "--ph-mark-bg": a.bg, "--ph-zoom": a.zoom }}
+              >
+                {a.mark}
+              </span>
             </a>
           ))}
         </nav>

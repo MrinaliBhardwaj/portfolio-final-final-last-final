@@ -269,28 +269,51 @@
 }
 
 /* ---- app marks (her profiles, and the dock) ---- */
-/* The brand marks are glyphs, not cut-out artwork, so they get the rounded
-   tile iOS gives an app. Everything else on this screen is her own art and
-   keeps its own silhouette. */
+/* An app icon is the whole rounded tile. Which marks already ARE one, and
+   which are bare glyphs needing a tile from us, is declared per icon in
+   PhoneHome.jsx — the same split her Mac dock makes. */
 .ph-mark {
   display: grid;
   place-items: center;
   width: 100%;
   height: 100%;
   border-radius: 23%;
-  background: #fff;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.45);
   overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.45);
 }
 
-.ph-mark.is-mono {
+.ph-mark.is-light {
+  background: #fff;
+}
+
+.ph-mark.is-dark {
   background: #111116;
-  color: #fff;
+  color: #f2f2f5; /* GitHub ships as a silhouette on currentColor */
 }
 
+/* the mark is the icon: it fills the tile, and its own colour backs the
+   corners this grid rounds off more tightly than the artwork does */
+.ph-mark.is-bleed {
+  background: var(--ph-mark-bg, transparent);
+}
+
+/* A HEIGHT, NOT A BOX. Figma's logo is 38x57 and Gmail's is wider than it is
+   tall; sizing both by width shrinks whichever is the taller of the two to
+   nothing. Height plus `width: auto` lets each mark keep its own proportions,
+   with a cap so a very wide one cannot touch the tile's edges. */
 .ph-mark-glyph {
-  width: 58%;
-  height: 58%;
+  height: var(--ph-glyph, 62%);
+  width: auto;
+  max-width: 76%;
+}
+
+.ph-mark.is-bleed .ph-mark-glyph {
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  /* only for a mark whose own corners are squarer than this tile's — see
+     LinkedIn in PhoneHome.jsx */
+  transform: scale(var(--ph-zoom, 1));
 }
 
 /* ---- page indicator ---- */

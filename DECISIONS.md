@@ -3640,3 +3640,25 @@ Trimmed at her request to the four profiles and the dragonfly: the socials as a
 bloom filling the rest of the screen. The relief, her drawn name, the pin and
 the two sparkles are gone from it — they made a page out of leftovers, and the
 flower is better company than filler.
+
+### The app icons are icons, not glyphs in boxes (12 Sep 2026)
+
+First pass put every brand mark at 58% inside a white tile, which made
+Instagram, LinkedIn and the frog — marks that already ARE a filled, rounded app
+icon — look like small logos marooned in white boxes. Each icon now declares
+its own treatment, the same split her Mac dock makes (dock.css):
+
+- **`skin: "bleed"`** (Instagram, LinkedIn, the frog): the mark fills the tile
+  corner to corner, with `bg` behind it for the corners this grid rounds more
+  tightly than the artwork does.
+- **`skin: "light"` / `"dark"`** (Figma, VS Code, Photos, Gmail, GitHub): a
+  bare glyph on a tile of ours, at its own size.
+- **`glyph` is a HEIGHT, with `width: auto`.** Figma's logo is 38x57; sizing
+  marks by width shrank the tall ones to nothing. Figma carries a taller figure
+  than the rest for the same reason.
+
+**LinkedIn is backed with white, not blue.** Its mark is one blue path with the
+"in" knocked out, so whatever is behind the tile is what the letters are made
+of — backed with its own blue, the letters disappeared and the icon was a plain
+blue square. White, plus a hair of scale so its squarer corners still reach
+this grid's rounder ones.
