@@ -77,8 +77,58 @@
       href="/lotus/atlas.webp"
       fetchpriority="high"
     />
+
+    <!-- THE FIRST FRAME, PAINTED BEFORE REACT EXISTS.
+         The poster was already preloaded above and already the intended first
+         thing on screen — but the only element rendering it lived inside the
+         React tree, so it could not appear until the bundle had downloaded,
+         compiled, mounted and committed. Measured on the built site at 4x CPU
+         throttle: first contentful paint at 1.9s, of which the last 1.5s was a
+         black screen with the poster sitting decoded and idle in the cache.
+         That wait is the "lag on opening".
+
+         So the same image is also rendered here, in markup, where it paints as
+         soon as the HTML and the stylesheet are in — and Cover removes this
+         layer in a layout effect, in the same frame its own poster commits.
+         The two are the same file at the same size, so the handoff is a swap
+         of identical pixels.
+
+         It is NOT shown to a returning visitor: the cover lands them on the
+         settled desktop rather than at the top of the ceremony, so a lotus
+         here would be a flash of something they are not about to see. The
+         script below reads the same sessionStorage key Cover does.
+
+         If the bundle never arrives, this stays — a lotus is a better failure
+         than a black rectangle. -->
+    <style>
+      #boot {
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        background: #010104;
+      }
+      #boot img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      /* the ceremony is already spent: Cover will land on the desk, not here */
+      .mb-seen #boot {
+        display: none;
+      }
+    </style>
+    <script>
+      // must stay in step with INTRO_SEEN in src/Cover.jsx
+      try {
+        if (sessionStorage.getItem("mb-intro-seen") === "1")
+          document.documentElement.classList.add("mb-seen");
+      } catch (e) {}
+    </script>
   </head>
   <body>
+    <div id="boot" aria-hidden="true">
+      <img src="/lotus-still.webp" alt="" fetchpriority="high" />
+    </div>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>

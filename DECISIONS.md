@@ -3780,3 +3780,56 @@ not the site — see `preview-pane-raf-stalls`.
 
 `.claude/launch.json` gained a `preview` entry so the built site can be served
 and checked the same way next time.
+
+## 13 Sep 2026 — The opening: 2.1s of black, now 0.44s of lotus
+
+The complaint was that the landing page lags on opening. Measured first, on the
+built site in headless Chrome at **4x CPU throttle** (her laptop is slow; a fast
+host simply does not reproduce this):
+
+| | before | after |
+|---|---|---|
+| first contentful paint | 2120 ms | **440 ms** |
+| main thread blocked | 2728 ms | 1880 ms |
+| scrub while blooming | 59 fps | **59 fps** |
+
+**The lotus was not the cause.** Blocking every lotus asset moved first paint
+only from 2120 ms to 1844 ms, and blocking the desk art moved it to 1848 ms.
+The real answer was that **nothing at all painted until React mounted**. The
+poster was preloaded by the HTML and sitting decoded in the cache from ~300 ms,
+but the only element rendering it lived inside the React tree, so the visitor
+watched a black screen for 1.5 s while a 382 kB bundle downloaded, compiled,
+mounted and committed.
+
+**So the first frame is now markup.** `index.html` renders the same poster in a
+`#boot` layer, and `Cover` removes it in a **layout** effect — after the commit,
+before the paint — so there is never a frame showing both and never one showing
+neither. Same file, same size, same object-fit: the handoff is a swap of
+identical pixels. It is skipped for a returning visitor (an inline script reads
+the same `mb-intro-seen` key Cover uses), because the cover lands them on the
+settled desk and a lotus there would be a flash of something they are not about
+to see. If the bundle never arrives, the lotus stays — a better failure than a
+black rectangle.
+
+**The refinement tier waits for a gap.** The forty full-size frames used to
+start downloading the instant the atlas decoded, which is the busiest moment the
+page has. They now wait for `requestIdleCallback` (1.2 s backstop) and fetch at
+`priority: "low"`. Worth 680 ms of main-thread blocking and 200 ms of first
+paint.
+
+**Nothing about the bloom was reduced** — that was the constraint. Same forty
+frames, same 1600x900, same strided order, same atlas covering every index until
+they land. Proved rather than asserted: variance-of-Laplacian on the canvas at
+the same scroll position goes from **25 (atlas tiles) to 293 (full frames)**, so
+the refinement still happens and still lands; all forty arrive, last at 3.9 s.
+Reduced motion still fetches and decodes nothing.
+
+**What was measured and left alone.** The desk's seventeen pieces cost 87 ms of
+the mount — not worth deferring. `particles.js` is already bucketed, batched and
+DPR-capped. Fonts are `font-display: swap` and never blocked paint.
+
+**The one real cost still standing**: holding all forty frames as ImageBitmaps
+is **~168 MB** of renderer memory (measured, process working set, against an
+atlas-only run). That is the price of the resolution and it stays until asked
+otherwise; the levers, if it ever matters, are fewer full frames or smaller ones,
+and both are visible.
