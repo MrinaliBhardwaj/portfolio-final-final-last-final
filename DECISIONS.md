@@ -3833,3 +3833,23 @@ is **~168 MB** of renderer memory (measured, process working set, against an
 atlas-only run). That is the price of the resolution and it stays until asked
 otherwise; the levers, if it ever matters, are fewer full frames or smaller ones,
 and both are visible.
+
+### 16 Sep 2026 — and the static first frame belongs to App, not Cover
+
+The `#boot` layer above was removed in a layout effect inside `Cover` — and
+`Cover` only mounts on the cover route. On every world it therefore stayed in
+the document, and on `#/tech` it sat ON TOP of the editor: `elementFromPoint` at
+the centre of the screen returned the boot image, not the code. Anyone opening
+`#/tech` in a fresh session got a full-screen lotus over the tech world.
+
+Two changes, because one alone is not enough:
+
+- **The handoff moved to `App`**, which mounts whatever the route is. Still a
+  layout effect, so the timing that made the swap invisible is unchanged.
+- **The layer is gated on the route in `index.html`**, next to the check for a
+  spent ceremony. Removing it from JS still lets it paint first; not rendering
+  it at all on `#/design`, `#/tech`, `#/gallery`, `#/notes` and `#/pond` means
+  there is no lotus to flash there in the first place.
+
+Checked on all five worlds plus the cover: the layer is gone from the document
+and nothing but the world's own content is under the centre of the screen.

@@ -118,9 +118,18 @@
       }
     </style>
     <script>
-      // must stay in step with INTRO_SEEN in src/Cover.jsx
+      // Two reasons not to paint it, and both have to be settled HERE, before
+      // the layer is parsed — deciding later means a lotus flashing over
+      // something else first.
+      //   · the ceremony is already spent, so Cover will land on the desk
+      //     (the key must stay in step with INTRO_SEEN in src/Cover.jsx)
+      //   · this is a world, not the cover. #/tech and friends never mount
+      //     Cover at all, and a full-screen lotus over the editor is exactly
+      //     the bug this guard exists to prevent.
       try {
-        if (sessionStorage.getItem("mb-intro-seen") === "1")
+        var path = location.hash.replace(/^#/, "").split("?")[0];
+        var onCover = path === "" || path === "/";
+        if (!onCover || sessionStorage.getItem("mb-intro-seen") === "1")
           document.documentElement.classList.add("mb-seen");
       } catch (e) {}
     </script>

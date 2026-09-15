@@ -381,17 +381,6 @@ export default function Cover({ onChoose, onSettledChange }) {
   // reports CHANGES — a page born at progress 1 never fires one, and the dock
   // and files would wait forever for a scroll that isn't coming. The refs are
   // set too, so the first real scroll event doesn't re-announce.
-  // HAND THE STAGE OVER FROM THE STATIC FIRST FRAME. index.html paints the
-  // poster in markup so the lotus is on screen long before this bundle has
-  // mounted; the moment React's own poster is committed, that layer has done
-  // its job. A LAYOUT effect, deliberately — it runs after the commit but
-  // before the browser paints, so there is never a frame showing both, and
-  // never a frame showing neither. The two elements are the same file at the
-  // same size, so what the visitor sees does not move.
-  useLayoutEffect(() => {
-    document.getElementById("boot")?.remove();
-  }, []);
-
   useLayoutEffect(() => {
     // A DEEP-LINKED WINDOW SKIPS THE CEREMONY. Someone arriving at
     // #/?case=layover asked for that window, not for the bloom: leaving the

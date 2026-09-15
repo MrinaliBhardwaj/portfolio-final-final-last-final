@@ -7,7 +7,7 @@
 // OS layer: on the cover it surfaces once the divergence settles; on the
 // worlds it is always present, showing which "app" is open, and switches
 // between them like tabs (a quick crossfade, no wipe ceremony).
-import { lazy, Suspense, useEffect, useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, MotionConfig } from "framer-motion";
 import Cover, { hasSeenIntro } from "./Cover.jsx";
 import { clearMinimised, minimisedWorlds } from "./WindowLights.jsx";
@@ -228,7 +228,27 @@ function WorldWindow({ children }) {
   );
 }
 
+// HAND THE STAGE OVER FROM THE STATIC FIRST FRAME. index.html paints the cover
+// poster in markup so the lotus is on screen long before this bundle has
+// mounted (see the #boot layer there); once React has committed anything, that
+// layer has done its job.
+//
+// IT LIVES HERE, NOT IN COVER, and that is the whole point: Cover only mounts
+// on the cover route, so removing it there left the layer in the DOM on every
+// world — and on #/tech it sat ON TOP of the editor, a full-screen lotus over
+// the code. App mounts whatever the route is.
+//
+// A LAYOUT effect, deliberately: it runs after the commit but before the paint,
+// so there is never a frame showing both the static poster and React's, and
+// never one showing neither.
+function useStaticFrameHandoff() {
+  useLayoutEffect(() => {
+    document.getElementById("boot")?.remove();
+  }, []);
+}
+
 export default function App() {
+  useStaticFrameHandoff();
   const [route, setRoute] = useState(getRoute);
   // the cover on a phone is an iPhone home screen, and it brings its own dock
   const { phone } = useIsPhone();
