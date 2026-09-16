@@ -89,6 +89,19 @@ const TECH_ROLES = [
 // invisible (see index.html preload)
 const POSTER_URL = "/lotus-still.webp";
 
+// Is the ceremony already spent for this visit? Read at first render (to seed
+// the settled state) and again in the layout effect that does the landing, so
+// the two can never disagree. A deep-linked window counts: whoever asked for
+// #/?case=layover asked for that window on the desk, not for the bloom.
+export function landedAlready() {
+  try {
+    return hasSeenIntro() || deepLinkedWindows().length > 0;
+  } catch {
+    return false;
+  }
+}
+
+
 // The bloom is a pre-decoded frame sequence (see lotus.js and
 // scripts/build_lotus_frames.py), already stored in scroll order: frame 0 is
 // the resting pose at the top of the page. The source clip's arc was
@@ -197,16 +210,31 @@ export default function Cover({ onChoose, onSettledChange }) {
   const particlesRef = useRef(null);
   const trackRef = useRef(null);
   const canvasRef = useRef(null);
-  const progressRef = useRef(0);
+  // BORN SETTLED WHEN THE CEREMONY IS ALREADY SPENT. These used to start false
+  // on every visit and be flipped to true by the insta-land layout effect
+  // below — which meant a return visit, and every deep link, rendered the
+  // whole cover in its un-settled pose and then immediately re-rendered it
+  // settled, synchronously, before the browser was allowed to paint. That
+  // second pass re-rendered Cover, App, the dock and the desk, and framer
+  // re-projected all of it; measured at 4x CPU throttle it was the single
+  // most expensive thing on the route (~1.2s, of which ~1.1s was framer's
+  // DocumentProjectionNode).
+  //
+  // Seeding the same answer at first render costs nothing and removes the
+  // second pass entirely. The condition has to match the effect's exactly —
+  // a deep-linked window marks the intro seen, so it counts as spent here too,
+  // or the window would arrive over an un-settled stage.
+  const bornSettled = landedAlready();
+  const progressRef = useRef(bornSettled ? 1 : 0);
   // mirror the two scroll-driven booleans so we only enter React's scheduler
   // when one actually flips, not on every scroll tick (see below)
-  const splitRef = useRef(false);
-  const settledRef = useRef(false);
-  const [split, setSplit] = useState(false);
+  const splitRef = useRef(bornSettled);
+  const settledRef = useRef(bornSettled);
+  const [split, setSplit] = useState(bornSettled);
   // the same threshold the dock surfaces on, mirrored into state because the
   // desktop files render inside the stage (see DesktopFiles.jsx). Same guarded
   // pattern as `split` below: two renders per scroll direction, not sixty.
-  const [settled, setSettled] = useState(false);
+  const [settled, setSettled] = useState(bornSettled);
   // Hold the name invisible until BOTH its scripts have actually loaded — the
   // capitals are Ballet and the lowercase is Pinyon, and each has a fallback
   // (Segoe Script) close enough in metrics that font-display:swap flashed the
@@ -225,6 +253,26 @@ export default function Cover({ onChoose, onSettledChange }) {
   // window has to be able to sit on top of an engineering one and vice versa,
   // and two arrays could only ever interleave by accident.
   const [windows, setWindows] = useState(deepLinkedWindows);
+  // A DEEP-LINKED WINDOW IS HELD OUT OF THE FIRST COMMIT: the desk lands
+  // first, measuring and re-rendering only itself, and the window arrives on
+  // the next one. Nothing about the destination changes — same scroll
+  // position, same window, one frame later, and it has an entrance animation
+  // anyway. Worth about a fifth of the stall when a study is opened from the
+  // desk (worst task 1392ms to 1104ms at 4x CPU throttle).
+  //
+  // WHAT IT DOES NOT FIX, since the profile was read wrong once already and
+  // the wrong explanation should not outlive it. The insta-land effect below
+  // costs ~1.2s on every return visit and every deep link, and the case board
+  // is NOT why: holding it out of the first commit left a cold
+  // #/?case=layover at 2482ms against 2478ms, and replacing the geometry read
+  // with a constant only bought 190ms more. The cost is the synchronous
+  // re-render the effect triggers — `setSplit`, `setSettled` and
+  // `onSettledChange` from inside a LAYOUT effect re-render Cover, App, the
+  // dock and the whole desk before the browser is allowed to paint, and
+  // framer re-projects all of it (DocumentProjectionNode, ~1.1s). Making that
+  // cheap means signalling "settled" without a React cascade, which is a
+  // change to how the ceremony is wired, not a tweak here.
+  const [landed, setLanded] = useState(() => deepLinkedWindows().length === 0);
 
   const same = (a, kind, id) => a.kind === kind && a.id === id;
   // A re-render when a window chunk lands. The components live in module scope
@@ -389,23 +437,42 @@ export default function Cover({ onChoose, onSettledChange }) {
     // supposed to be sitting on. Marking it seen here (before the check below)
     // lands them on the settled desktop with the window on it.
     if (windows.length) markIntroSeen();
-    if (!hasSeenIntro()) return;
     const track = trackRef.current;
-    if (!track) return;
-    window.scrollTo(
-      0,
-      track.offsetTop + track.offsetHeight - window.innerHeight
-    );
-    progressRef.current = 1;
-    splitRef.current = true;
-    settledRef.current = true;
-    setSplit(true);
-    setSettled(true);
-    onSettledChange?.(true);
+    if (hasSeenIntro() && track) {
+      window.scrollTo(
+        0,
+        track.offsetTop + track.offsetHeight - window.innerHeight
+      );
+      // the refs and the two state flags were already seeded true at first
+      // render (see `bornSettled`); these are no-ops on that path and are kept
+      // only so the effect is still correct if it is ever reached with them
+      // false. App is told either way — it seeds its own copy the same way.
+      progressRef.current = 1;
+      splitRef.current = true;
+      settledRef.current = true;
+      setSplit(true);
+      setSettled(true);
+      onSettledChange?.(true);
+    }
+    // The gate is opened by the PASSIVE effect below, not here — see there.
     // deps deliberately empty: this is a mount-time decision, and
     // onSettledChange is App's stable setter
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // AND THE GATE OPENS AFTER THE PAINT. This was `setLanded(true)` at the end
+  // of the layout effect above, which did nothing at all: a state write from a
+  // layout effect is re-rendered and committed SYNCHRONOUSLY, before the
+  // browser paints, so the board landed in the very same task and the freeze
+  // was unchanged — 2482ms against 2478ms, measured.
+  //
+  // A passive effect flushes after the paint instead. The desk is on screen,
+  // the frame is done, and the window's twenty thousand pixels are laid out in
+  // a task of their own.
+  useEffect(() => {
+    if (landed) return;
+    setLanded(true);
+  }, [landed]);
 
   // scroll progress across the tall track drives everything on the stage
   const { scrollYProgress } = useScroll({
@@ -670,7 +737,7 @@ export default function Cover({ onChoose, onSettledChange }) {
           leave the box it was born in. They sit above the files and below the
           dock, which is the macOS order. */}
       <AnimatePresence>
-        {windows.map((w, i) => {
+        {(landed ? windows : []).map((w, i) => {
           // the array's own order is the stacking order — last is frontmost
           const shared = {
             index: i,

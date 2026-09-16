@@ -3853,3 +3853,52 @@ Two changes, because one alone is not enough:
 
 Checked on all five worlds plus the cover: the layer is gone from the document
 and nothing but the world's own content is under the centre of the screen.
+
+## 16 Sep 2026 — The cover is born settled
+
+Opening a case study froze the page. The first diagnosis was wrong and the
+correction is the useful part of this entry.
+
+**What it looked like**: the profile put 1242 ms on the insta-land layout effect
+in `Cover.jsx`, which reads `track.offsetTop` and `track.offsetHeight` — a
+forced synchronous layout — and a case board is 20,000 px of image sitting in
+that same document. Obvious culprit.
+
+**It was not the board.** Holding the deep-linked window out of the first commit
+left a cold `#/?case=layover` at 2482 ms against 2478 ms. Replacing the geometry
+read with a constant bought only 190 ms more. Neither was the cost.
+
+**It was the second render.** `split`, `settled` and App's `coverSettled` all
+started `false` on every visit and were flipped to `true` by that layout effect.
+So a return visit — and every deep link — rendered the whole cover in its
+un-settled pose and then immediately re-rendered it settled, synchronously,
+before the browser was allowed to paint: Cover, App, the dock and the desk, with
+framer re-projecting all of it (`DocumentProjectionNode`, ~1.1 s). A state write
+from a *layout* effect commits in the same task, which is also why moving the
+window out of that commit changed nothing.
+
+**The fix is to seed the answer instead of flipping it.** `landedAlready()` —
+intro already seen, or a deep-linked window asking for the desk — is read at
+first render to initialise both of Cover's flags, both refs, the scroll
+progress, and App's `coverSettled`. Same condition the effect uses, so they
+cannot disagree. The second pass is gone.
+
+| opening a case study, 4x CPU throttle | before | after |
+|---|---|---|
+| deep link, worst single task | 2478 ms | **1862–1945 ms** |
+| deep link, total blocked | 6121 ms | **4851–5695 ms** |
+| from the settled desk, worst task | 1392 ms | **960–1121 ms** |
+| from the settled desk, total blocked | 1970 ms | **1321–1491 ms** |
+
+The window is also still held out of the first commit, released by a *passive*
+effect so the paint gets through — worth a further slice of the desk path.
+
+**The ceremony is untouched**, which was the thing to get wrong: a first visit
+still loads at scroll 0 with the desk and dock at opacity 0, scrolling through
+still settles them to 1, and a return visit still lands at 1764 with both up.
+
+**Still standing on this route** (measured, not fixed): reading a board blocks
+~3.9 s, which `content-visibility: auto` cut to 1473 ms in a test but with a
+worse single hitch until each slice is given its real `contain-intrinsic-size`;
+and the four sidebar thumbnails are full-size covers — `layover/cover.webp` is
+1200x847 drawn at 30x30, 282x more pixels than the box needs.

@@ -9,7 +9,7 @@
 // between them like tabs (a quick crossfade, no wipe ceremony).
 import { lazy, Suspense, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, MotionConfig } from "framer-motion";
-import Cover, { hasSeenIntro } from "./Cover.jsx";
+import Cover, { hasSeenIntro, landedAlready } from "./Cover.jsx";
 import { clearMinimised, minimisedWorlds } from "./WindowLights.jsx";
 import { WorldOpening } from "./world-open.js";
 import { bySlug } from "./projects.js";
@@ -252,7 +252,11 @@ export default function App() {
   const [route, setRoute] = useState(getRoute);
   // the cover on a phone is an iPhone home screen, and it brings its own dock
   const { phone } = useIsPhone();
-  const [coverSettled, setCoverSettled] = useState(false);
+  // Seeded, not flipped — the other half of Cover's `bornSettled`. This is what
+  // the dock reads, so starting it false on a return visit meant the dock
+  // rendered retracted and then re-rendered surfaced in the same frame, with
+  // framer re-projecting both passes.
+  const [coverSettled, setCoverSettled] = useState(landedAlready);
   // worlds the yellow light was used on: still "open", so the dock keeps their
   // dot even though you are back on the desktop (see WindowLights.jsx)
   const [minimised, setMinimised] = useState(minimisedWorlds);
