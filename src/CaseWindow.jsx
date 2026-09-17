@@ -16,30 +16,27 @@
 //
 // So the window has a SIDEBAR and a DOCUMENT. The sidebar is the whole body of
 // work, always visible, current project lit — how a hiring manager sees that
-// there are three of these and jumps between them without closing anything. The
-// document is HTML sections at a ~1100px measure: hero, the numbers, the
-// overview, the screens. The export is not gone — it is folded away at the foot
-// of the study, where it is an archive rather than the page.
+// there are four of these and jumps between them without closing anything.
+//
+// AND THE DOCUMENT IS THE PROJECT'S OWN PAGE NOW (17 Sep 2026). It used to be
+// generic sections — hero, overview, "the work" — with the last of those
+// rendering the project's entire Behance board as 20,000px of stacked slices.
+// Identical for all four projects, and a layout none of them chose. The
+// document is case/ProjectPage.jsx: one art-directed page per project, built
+// out of the board rather than being it, with the board folded away at the
+// foot. THIS FILE OWNS THE WINDOW AND NOTHING INSIDE IT — the chrome, the
+// lights, the sidebar, the fold, the page lock. Everything below the title bar
+// belongs to the project.
 //
 // LIGHT, on a dark site, deliberately: a Mac window is a light panel and this
-// one is quoting a Mac window. Notes is already a light world, so the vocabulary
-// exists in the project.
+// one is quoting a Mac window. The DOCUMENT inside it may be any colour it
+// likes (Layover's is near-black) — a Mac app in dark content mode looks
+// exactly like that.
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { motion, useDragControls } from "framer-motion";
-import {
-  ChevronLeft,
-  ChevronRight,
-  ChevronDown,
-  ArrowUpRight,
-  Folder,
-  User,
-  Calendar,
-  Trophy,
-  Layers,
-  TrendingUp,
-  Sparkles,
-} from "lucide-react";
+import { ChevronLeft, ChevronRight, ChevronDown, Folder } from "lucide-react";
 import { PROJECTS } from "./projects.js";
+import ProjectPage from "./case/ProjectPage.jsx";
 import "./case-window.css";
 
 // HOW MANY FULL-SCREEN WINDOWS ARE OPEN. A count rather than a boolean because
@@ -163,97 +160,6 @@ function holdStill(scroller, ms) {
   };
 }
 
-/**
- * A VIDEO THAT LIVES INSIDE A BOARD. Figma renders a video fill as a blank box
- * in every export, so a board with a video in it arrives with a white hole
- * where the video goes. This lays the real video over that hole: positioned in
- * the board's own pixel coordinates, as percentages of the stacked strip, so it
- * tracks the board at any width, and rounded to the box's own corners.
- *
- * It only plays while it is on screen (and pauses when scrolled away), and it
- * is not fetched until then — `preload="none"` — so a study you never scroll
- * down costs nothing. Under reduced motion it never autoplays: it shows its
- * poster and native controls instead.
- */
-function BoardVideo({ v, board }) {
-  const ref = useRef(null);
-  const reduced =
-    typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
-  useEffect(() => {
-    const el = ref.current;
-    if (!el || reduced) return undefined;
-    el.muted = true; // React sets `muted` late; autoplay policy needs it before play()
-    const io = new IntersectionObserver(
-      ([e]) => {
-        if (e.isIntersecting) el.play().catch(() => {});
-        else el.pause();
-      },
-      { rootMargin: "200px 0px" },
-    );
-    io.observe(el);
-    return () => io.disconnect();
-  }, [reduced]);
-  const W = board.slices[0].w;
-  const H = board.slices.reduce((s, sl) => s + sl.h, 0);
-  return (
-    <video
-      ref={ref}
-      className="cw-board-video"
-      src={v.src}
-      poster={v.poster}
-      muted
-      loop
-      playsInline
-      preload="none"
-      controls={reduced}
-      aria-label={v.label}
-      style={{
-        left: `${(v.x / W) * 100}%`,
-        top: `${(v.y / H) * 100}%`,
-        width: `${(v.w / W) * 100}%`,
-        height: `${(v.h / H) * 100}%`,
-        borderRadius: `${(v.r / v.w) * 100}% / ${(v.r / v.h) * 100}%`,
-      }}
-    />
-  );
-}
-
-/** the artboard's own pixel width, so a wide window can't blow it up past 1:1 */
-function nativeWidth(shot) {
-  if (shot.sliceSize) return `${shot.sliceSize[0]}px`;
-  const w = shot.dims && parseInt(shot.dims, 10);
-  return w ? `${w}px` : undefined;
-}
-
-// The meta row under the title reads as facts rather than a definition list only
-// because each fact carries a mark. `facts` is authored as free-text pairs, so
-// this matches on the label rather than demanding a fixed schema — anything
-// unrecognised still renders, just with the neutral mark.
-// (Objects rather than pairs: a `[RegExp, Icon]` tuple widens to
-// `(RegExp | Icon)[]` under checkJs, and the icon then can't be used as a
-// component. Named fields keep both types intact.)
-const FACT_ICONS = [
-  { re: /role|design|craft/i, icon: User },
-  { re: /time|when|date|dur/i, icon: Calendar },
-  { re: /recog|award|place|prize/i, icon: Trophy },
-  { re: /surface|deliver|scope|platform/i, icon: Layers },
-  { re: /reach|result|impact|metric/i, icon: TrendingUp },
-];
-
-function factIcon(label) {
-  return FACT_ICONS.find((f) => f.re.test(label))?.icon || Sparkles;
-}
-
-/** the picture that leads the study: a named hero, its first screen, else its cover */
-function heroArt(p) {
-  // `hero` exists because a project can have a full case-study BOARD and no
-  // shots at all — and then the fallback was the folder cover, which is cropped
-  // for a folder and not for a 16/10 hero.
-  if (p.hero) return { src: p.hero, alt: "" };
-  const shot = (p.shots || []).find((s) => s.src);
-  return shot ? { src: shot.src, alt: shot.alt } : { src: p.cover, alt: "" };
-}
-
 export default function CaseWindow({ project, index, z, onClose, onFocus, onSwitch }) {
   const p = project;
   const layer = useRef(null);
@@ -370,10 +276,6 @@ export default function CaseWindow({ project, index, z, onClose, onFocus, onSwit
     lockPage(true);
     return () => lockPage(false);
   }, [full]);
-
-  const hero = heroArt(p);
-  const shots = p.shots || [];
-  const boards = p.boards || [];
 
   return (
     <motion.div
@@ -511,263 +413,18 @@ export default function CaseWindow({ project, index, z, onClose, onFocus, onSwit
 
         {/* ---- the study ---- */}
         <div className="cw-main" ref={main}>
-          <article className="cw-doc">
-            <header className="cw-hero">
-              <div className="cw-hero-text">
-                <p className="cw-eyebrow">
-                  {p.what}
-                  {p.when && <span className="cw-eyebrow-when">{p.when}</span>}
-                </p>
-                <h2>{p.name}</h2>
-                {p.blurb && <p className="cw-lede">{p.blurb}</p>}
-                {p.facts && (
-                  <dl className="cw-meta">
-                    {p.facts.slice(0, 3).map(([k, v]) => {
-                      const Mark = factIcon(k);
-                      return (
-                        <div key={k}>
-                          <Mark size={16} strokeWidth={1.6} aria-hidden="true" />
-                          <div>
-                            <dt>{k}</dt>
-                            <dd>{v}</dd>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </dl>
-                )}
-              </div>
-              <div className="cw-hero-art">
-                <img src={hero.src} alt={hero.alt} decoding="async" draggable="false" />
-              </div>
-            </header>
+          {/* ---- the study ----
+              A PROJECT PAGE, not a preamble over an export. This used to be
+              ~250 lines of hero / band / prose / "The work", the last of which
+              rendered the project's whole 20,000px Behance board as stacked
+              slices — identical furniture for all four projects, and a layout
+              none of them chose.
 
-            {/* Overview and the numbers share a band, as in the reference: the
-                prose says what it is, the figures say whether it worked, and a
-                hiring manager reads the second one first. */}
-            {/* only when there is something to say — a pending study has
-                no overview yet, and a heading over nothing reads as broken */}
-            {(p.summary || p.blurb || p.metrics?.length > 0) && (
-              <section className="cw-band">
-                <div className="cw-band-copy">
-                  <h3 className="cw-kicker">Overview</h3>
-                  <p>{p.summary || p.blurb}</p>
-                </div>
-                {p.metrics?.length > 0 && (
-                  <div className="cw-band-stats">
-                    <h3 className="cw-kicker">Key outcome</h3>
-                    <dl className="cw-stats">
-                      {p.metrics.map((m) => (
-                        <div key={m.label}>
-                          <dd>{m.value}</dd>
-                          <dt>{m.label}</dt>
-                        </div>
-                      ))}
-                    </dl>
-                  </div>
-                )}
-              </section>
-            )}
-
-            {/* The written study. Empty until the rewritten copy lands, and it
-                renders nothing at all rather than an empty heading — see the
-                `sections` note in projects.js. */}
-            {p.sections?.length > 0 && (
-              <section className="cw-prose">
-                {p.sections.map((s) => (
-                  <div key={s.title}>
-                    <h3 className="cw-kicker">{s.title}</h3>
-                    <p>{s.body}</p>
-                  </div>
-                ))}
-              </section>
-            )}
-
-            {p.contributions?.length > 0 && (
-              <section className="cw-role">
-                <h3 className="cw-kicker">What I did</h3>
-                <ul>
-                  {p.contributions.map((c) => (
-                    <li key={c}>{c}</li>
-                  ))}
-                </ul>
-              </section>
-            )}
-
-            {p.facts?.length > 3 && (
-              <section className="cw-detail">
-                <h3 className="cw-kicker">Details</h3>
-                <dl className="cw-facts">
-                  {p.facts.slice(3).map(([k, v]) => (
-                    <div key={k}>
-                      <dt>{k}</dt>
-                      <dd>{v}</dd>
-                    </div>
-                  ))}
-                </dl>
-              </section>
-            )}
-
-            <section className="cw-screens">
-              <h3 className="cw-kicker">The work</h3>
-              {boards.length > 0 ? (
-                /* THE CASE STUDY AS SHE PRESENTED IT. Every project with a study
-                   has one of these now (Meal Maestro's was demoted to a folded
-                   `archive` until 12 Sep 2026; it is a board like the rest).
-                   This is the study, and it is what the section is for. Each
-                   board is cut into slices (see
-                   projects.js) and stacked seamlessly, and every slice carries
-                   its real width and height so the browser reserves the space
-                   before the image lands and the window's scroll never jumps.
-                   `loading="lazy"` earns its keep here — unlike the Figma canvas,
-                   a case window really does scroll.
-
-                   PLURAL, because a project can have more than one: Futurepreneurs
-                   arrived as two boards. They are drawn one after the other, each
-                   captioned with its own size, rather than run together — two
-                   decks concatenated would put a closing slide in the middle. */
-                boards.map((b, bi) => (
-                  <figure className="cw-board" key={b.node || bi}>
-                    <div className="cw-strip">
-                      {b.slices.map((sl, i) => (
-                        <img
-                          key={sl.src}
-                          src={sl.src}
-                          alt={i === 0 ? b.alt : ""}
-                          aria-hidden={i === 0 ? undefined : "true"}
-                          loading="lazy"
-                          decoding="async"
-                          width={sl.w}
-                          height={sl.h}
-                          draggable="false"
-                        />
-                      ))}
-                      {b.videos?.map((v) => (
-                        <BoardVideo key={v.src} v={v} board={b} />
-                      ))}
-                    </div>
-                    <figcaption>
-                      {b.title || "The full case study"}
-                      <span className="cw-board-dim">{b.dims}</span>
-                    </figcaption>
-                  </figure>
-                ))
-              ) : shots.length > 0 ? (
-                <div className="cw-shots">
-                  {shots.map((shot, i) => (
-                    <figure
-                      className={`cw-shot${shot.wide ? " is-wide" : ""}`}
-                      key={shot.frame || shot.src}
-                    >
-                      <div
-                        className="cw-shot-art"
-                        // NEVER UPSCALE AN ARTBOARD. The window is 1240 wide and
-                        // 1600 zoomed, and the image is `width: 100%` — without
-                        // this a 1400px export renders at 1560 in a zoomed
-                        // window, which is 11% of pure blur.
-                        style={{ maxWidth: nativeWidth(shot) }}
-                      >
-                        <img
-                          src={shot.src}
-                          alt={shot.alt}
-                          // every shot is lazy in here, including the first: a
-                          // window opens over a desktop the visitor is already
-                          // looking at, so nothing in it is above the fold at
-                          // open time
-                          loading="lazy"
-                          decoding="async"
-                          draggable="false"
-                        />
-                      </div>
-                      <figcaption>
-                        <span className="cw-shot-n" aria-hidden="true">
-                          {i + 1}
-                        </span>
-                        <span>
-                          {shot.frame && <b className="cw-shot-name">{shot.frame}</b>}
-                          {shot.caption}
-                        </span>
-                      </figcaption>
-                    </figure>
-                  ))}
-                </div>
-              ) : (
-                /* Honest rather than decorative: an empty frame would imply the
-                   work doesn't exist. It does — the screens just aren't broken
-                   out yet. */
-                <p className="cw-empty">
-                  {/* a project whose study has not arrived says so in its own
-                      words (`pending`); one with an export but no screens
-                      says that */}
-                  {p.pending || (
-                    <>
-                      The screens for this one aren&rsquo;t broken out yet
-                      {p.archive ? " — the full export is below." : "."}
-                    </>
-                  )}
-                </p>
-              )}
-            </section>
-
-            {/* THE EXPORT, DEMOTED. It used to be the page: 18 slices of one
-                22,306px picture. Real work, but flat, unreflowable and unreadable
-                on a phone, so it is an appendix you open rather than the thing
-                you land on. Closed by default, and `loading="lazy"` inside a
-                closed <details> means the browser fetches none of its 1.26 MB
-                until someone asks for it. */}
-            {p.archive && (
-              <details className="cw-archive">
-                <summary>
-                  <ChevronRight size={14} strokeWidth={2} aria-hidden="true" />
-                  The full case study, as exported from Figma
-                  <span className="cw-archive-dim">{p.archive.dims}</span>
-                </summary>
-                <div className="cw-strip">
-                  {p.archive.strip.map((src, s) => {
-                    // the last slice is short — the source height rarely divides
-                    // evenly — so it declares its own size
-                    const [w, h] =
-                      s === p.archive.strip.length - 1 && p.archive.lastSliceSize
-                        ? p.archive.lastSliceSize
-                        : p.archive.sliceSize;
-                    return (
-                      <img
-                        key={src}
-                        src={src}
-                        alt={s === 0 ? p.archive.alt : ""}
-                        aria-hidden={s === 0 ? undefined : "true"}
-                        loading="lazy"
-                        decoding="async"
-                        width={w}
-                        height={h}
-                        draggable="false"
-                      />
-                    );
-                  })}
-                </div>
-              </details>
-            )}
-
-            <div className="cw-actions">
-              {p.live && (
-                <a className="cw-open" href={p.live} target="_blank" rel="noreferrer">
-                  Visit the live site
-                  <ArrowUpRight size={14} strokeWidth={1.8} aria-hidden="true" />
-                </a>
-              )}
-              {p.external && (
-                <a
-                  className="cw-open cw-open--quiet"
-                  href={p.external}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  Behance
-                  <ArrowUpRight size={14} strokeWidth={1.8} aria-hidden="true" />
-                </a>
-              )}
-            </div>
-          </article>
+              It is one component now, and it is per-project: see
+              case/ProjectPage.jsx. The window keeps everything that makes it
+              this portfolio (the chrome, the sidebar, the fold, the measure);
+              the document inside it is allowed to be the project. */}
+          <ProjectPage project={p} scrollerRef={main} />
         </div>
       </div>
     </motion.div>

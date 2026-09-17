@@ -1,0 +1,464 @@
+/* ============ four projects, four identities ============ */
+/* WHERE THE PROJECTS ARE ALLOWED TO DISAGREE.
+   project-page.css owns the rhythm, the measure, the reveal and the responsive
+   behaviour; this file owns nothing but paint. Every value below is HERS —
+   read off her own colour and type slides, which are reproduced on each page as
+   artwork so the claim can be checked against the source in the same scroll.
+
+   The window's chrome is deliberately untouched. A Mac window is a light panel
+   with three lights and a Finder source list whatever is inside it, and a dark
+   document in a light window is what a Mac app in dark content mode looks like.
+   "Worlds diverge, chrome agrees" (PRODUCT.md) is the whole design of this. */
+
+/* ---------------------------------------------------------------- LAYOVER --
+   Near-black, champagne gold, a lot of air. Her own note on the brand slide:
+   "Ink under gold, Montserrat set large with a lot of air. Slow on purpose — it
+   competes with a duty-free window, not a spreadsheet." That is the consumer
+   half; the operator half is Inter at small sizes on white, "dense on purpose".
+   The page is the consumer temperature, and the vendor sections cool towards
+   the operator one. */
+.pp[data-project="layover"] {
+  --pp-bg: #0a0a0b;
+  --pp-sunk: #161617;
+  --pp-ink-hi: #f6f3ec;
+  --pp-ink: #dcd8d0;
+  --pp-dim: #9b968c;
+  --pp-faint: #6f6a61;
+  --pp-line: rgba(246, 243, 236, 0.13);
+  --pp-accent: #c9a85c;
+  --pp-on-accent: #17140c;
+  --pp-gold-hi: #f5ce7e;
+  --pp-olive: #7a6a3e;
+  --pp-coral: #f4605e;
+
+  --pp-display: "Montserrat Variable", "Archivo Variable", system-ui, sans-serif;
+  --pp-display-w: 600;
+  --pp-display-track: -0.03em;
+  --pp-body: "Inter Variable", system-ui, sans-serif;
+  --pp-label: "Inter Variable", system-ui, sans-serif;
+  --pp-mono: "JetBrains Mono Variable", ui-monospace, monospace;
+
+  --pp-shadow: 0 18px 44px rgba(0, 0, 0, 0.55);
+  --pp-radius: 4px; /* the brand is square-cornered; so is the page */
+  --pp-mast-size: clamp(44px, 6.6cqw, 92px);
+}
+
+/* A DARK PANE NEEDS A PALE SCROLLBAR. `.cw-main` sets a dark thumb for a light
+   study; left alone, Layover scrolls with an invisible one. */
+.cw-main:has(> .pp[data-project="layover"]) {
+  scrollbar-color: rgba(246, 243, 236, 0.28) transparent;
+}
+
+.cw-main:has(> .pp[data-project="layover"])::-webkit-scrollbar-thumb {
+  background-color: rgba(246, 243, 236, 0.26);
+}
+
+/* Her deck numbers its sections "01 — THE SPINE"; the page keeps the em dash
+   and the gold number. */
+.pp[data-project="layover"] .pp-ch-n::after {
+  content: " —";
+  color: var(--pp-faint);
+}
+
+.pp[data-project="layover"] .pp-say {
+  font-weight: 500; /* set large, with a lot of air: light, not heavy */
+}
+
+/* The OPERATOR sections invert: white ground, Inter, dense. One system, two
+   temperatures, shown by doing it rather than by saying it. */
+.pp[data-project="layover"] .pp-ch[data-tone="operator"] {
+  --pp-bg: #ffffff;
+  --pp-sunk: #f2f2f2;
+  --pp-ink-hi: #111112;
+  --pp-ink: #26262a;
+  --pp-dim: #55555c;
+  --pp-faint: #8a8a90;
+  --pp-line: rgba(0, 0, 0, 0.12);
+  --pp-accent: #7a6a3e;
+  --pp-on-accent: #fff;
+  --pp-display: "Inter Variable", system-ui, sans-serif;
+  --pp-display-w: 620;
+  --pp-shadow: 0 10px 28px rgba(0, 0, 0, 0.1);
+
+  width: 100cqw;
+  margin-left: calc(50% - 50cqw);
+  padding-inline: calc(50cqw - 50%);
+  padding-bottom: calc(var(--pp-u) * 8);
+  background: var(--pp-bg);
+  color: var(--pp-ink);
+}
+
+/* Two operator sections in a row are ONE white band, not two with a dark seam
+   between them: the second is `flush`, and the first gives up its bottom
+   padding so the ground is continuous. */
+.pp[data-project="layover"] .pp-ch[data-tone="operator"]:has(+ .pp-ch[data-tone="operator"]) {
+  padding-bottom: 0;
+}
+
+/* ---------------------------------------------------------- MEAL MAESTRO --
+   Forest green, cream, terracotta — her own six hexes, off the "Colours and
+   Typography" slide, named there as a palette "rooted in nature". Poppins for
+   display and headings, Open Sans for body and UI: both are the real faces from
+   her type slide, self-hosted (@fontsource), never a substitute. */
+.pp[data-project="meal-maestro"] {
+  --pp-bg: #f8f0e5;
+  --pp-sunk: #efe4d3;
+  --pp-ink-hi: #1f3a2c;
+  --pp-ink: #2c4638;
+  --pp-dim: #556a5c;
+  --pp-faint: #8b9a8f;
+  --pp-line: rgba(31, 58, 44, 0.16);
+  --pp-accent: #933d24;
+  --pp-on-accent: #f8f0e5;
+  --pp-green: #36755f;
+  --pp-forest: #385a41;
+  --pp-sage: #89a68f;
+  --pp-tan: #d9c3af;
+
+  --pp-display: "Poppins", "Archivo Variable", system-ui, sans-serif;
+  --pp-display-w: 600;
+  --pp-display-track: -0.022em;
+  --pp-body: "Open Sans Variable", system-ui, sans-serif;
+  --pp-label: "Open Sans Variable", system-ui, sans-serif;
+  --pp-mono: "JetBrains Mono Variable", ui-monospace, monospace;
+
+  --pp-shadow: 0 14px 36px rgba(31, 58, 44, 0.14);
+  --pp-radius: 20px; /* the app is round-cornered throughout; so is the page */
+  --pp-mast-size: clamp(42px, 6.2cqw, 88px);
+}
+
+/* Her section labels are rounded chips on the board — dark green, white text,
+   sentence case. Not an uppercase eyebrow. */
+.pp[data-project="meal-maestro"] .pp-ch-head {
+  gap: 0;
+  letter-spacing: 0.02em;
+  text-transform: none;
+}
+
+.pp[data-project="meal-maestro"] .pp-ch-label {
+  padding: 6px 15px;
+  border-radius: 999px;
+  background: var(--pp-forest);
+  color: #f2ede3;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.pp[data-project="meal-maestro"] .pp-ch-n {
+  display: none; /* the chips carry no numbers on her board */
+}
+
+/* the terracotta italic she emphasises with — "real voices, real data" */
+.pp[data-project="meal-maestro"] em {
+  font-style: italic;
+  font-weight: 700;
+  color: var(--pp-accent);
+}
+
+/* A GREEN SECTION, the deck's other ground. Used where her own board turns
+   green — the research figures, the product tour, the close. */
+.pp[data-project="meal-maestro"] .pp-ch[data-tone="forest"] {
+  --pp-bg: #2c5343;
+  --pp-sunk: #24473a;
+  --pp-ink-hi: #f4efe4;
+  --pp-ink: #e4ddd0;
+  --pp-dim: #b9c7bb;
+  --pp-faint: #90a696;
+  --pp-line: rgba(244, 239, 228, 0.18);
+  --pp-accent: #e8c9a0;
+  --pp-on-accent: #24473a;
+
+  width: 100cqw;
+  margin-left: calc(50% - 50cqw);
+  /* the gutter back: 50cqw is half the pane, 50% is half the document's
+     own content box, so this is exactly the margin the document had. */
+  padding-inline: calc(50cqw - 50%);
+  padding-bottom: calc(var(--pp-u) * 8);
+  background: var(--pp-bg);
+  color: var(--pp-ink);
+}
+
+.pp[data-project="meal-maestro"] .pp-ch[data-tone="forest"] .pp-ch-label {
+  background: #f4efe4;
+  color: #2c5343;
+}
+
+/* ------------------------------------------------------------ NEXTG APEX --
+   Her own token file, verbatim: twelve of the seventeen colours she names on
+   the "Typography & Colour" slide, and the same type system — "One family
+   across display, body and labels. JetBrains Mono is held back for data
+   readouts only."
+
+   The happy accident worth writing down: Archivo and JetBrains Mono ARE this
+   portfolio's own faces (index.css, --font-sans / --font-mono). NextG's page
+   needs no new typeface at all — it is the one project whose design system and
+   the site's design system are the same one. */
+.pp[data-project="nextg"] {
+  --pp-bg: #ffffff;
+  --pp-sunk: #f4f6f9; /* --paper */
+  --pp-paper-2: #eaeef3;
+  --pp-ink-hi: #0c1b33; /* --ink */
+  --pp-ink: #1c2b46;
+  --pp-dim: #45526a; /* --ink-2 */
+  --pp-faint: #6e7689; /* --ink-4 */
+  --pp-line: rgba(12, 27, 51, 0.14);
+  --pp-accent: #1d4ed8; /* --blue */
+  --pp-on-accent: #ffffff;
+  --pp-navy: #0a1f44;
+  --pp-blue-strong: #1740a8;
+  --pp-steel: #3d6e9e;
+  --pp-green: #1f7a4d;
+  --pp-blue-soft: #e7edfb;
+
+  --pp-display: "Archivo Variable", system-ui, sans-serif;
+  --pp-display-w: 700;
+  --pp-display-track: -0.035em; /* her H1 spec, to the number */
+  --pp-body: "Archivo Variable", system-ui, sans-serif;
+  --pp-label: "JetBrains Mono Variable", ui-monospace, monospace;
+  --pp-mono: "JetBrains Mono Variable", ui-monospace, monospace;
+
+  --pp-shadow: 0 12px 34px rgba(12, 27, 51, 0.1);
+  --pp-radius: 12px;
+  --pp-mast-size: clamp(44px, 6.8cqw, 96px);
+}
+
+/* Her section marker is an outlined pill: "06 — DECISIONS", wide-tracked mono,
+   on a hairline. Mono here and nowhere else in the body copy — that is her own
+   rule about where mono is allowed.  */
+.pp[data-project="nextg"] .pp-ch-head {
+  display: inline-flex;
+  gap: 8px;
+  padding: 6px 13px;
+  border: 1px solid var(--pp-line);
+  border-radius: 999px;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+}
+
+.pp[data-project="nextg"] .pp-ch-n {
+  color: var(--pp-faint);
+}
+
+.pp[data-project="nextg"] .pp-ch-n::after {
+  content: " —";
+}
+
+.pp[data-project="nextg"] .pp-ch-label {
+  color: var(--pp-ink-hi);
+}
+
+/* the deep-navy sections: the build and the results, as on her board */
+.pp[data-project="nextg"] .pp-ch[data-tone="navy"] {
+  --pp-bg: #0a1f44;
+  --pp-sunk: #0c2851;
+  --pp-ink-hi: #ffffff;
+  --pp-ink: #dce4f2;
+  --pp-dim: #a9b7d0;
+  --pp-faint: #7d8cab;
+  --pp-line: rgba(255, 255, 255, 0.16);
+  --pp-accent: #7ea6ff;
+  --pp-on-accent: #0a1f44;
+
+  width: 100cqw;
+  margin-left: calc(50% - 50cqw);
+  /* the gutter back: 50cqw is half the pane, 50% is half the document's
+     own content box, so this is exactly the margin the document had. */
+  padding-inline: calc(50cqw - 50%);
+  padding-bottom: calc(var(--pp-u) * 8);
+  background: var(--pp-bg);
+  color: var(--pp-ink);
+}
+
+/* and the pale-blue one: the research-to-decisions band */
+.pp[data-project="nextg"] .pp-ch[data-tone="wash"] {
+  --pp-bg: #e7edfb;
+  --pp-sunk: #d9e3f8;
+  --pp-line: rgba(12, 27, 51, 0.14);
+
+  width: 100cqw;
+  margin-left: calc(50% - 50cqw);
+  /* the gutter back: 50cqw is half the pane, 50% is half the document's
+     own content box, so this is exactly the margin the document had. */
+  padding-inline: calc(50cqw - 50%);
+  padding-bottom: calc(var(--pp-u) * 8);
+  background: var(--pp-bg);
+}
+
+/* the blue insight / solution cards she pairs throughout the decisions section */
+.pp-card {
+  padding: clamp(18px, 2cqw, 28px);
+  border-radius: 14px;
+  background: var(--pp-card-bg, var(--pp-sunk));
+  color: var(--pp-card-ink, inherit);
+}
+
+.pp-card h4 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 12px;
+  font-family: var(--pp-label);
+  font-size: 11px;
+  font-weight: 650;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  opacity: 0.85;
+}
+
+.pp-card p {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.66;
+}
+
+.pp-card--solid {
+  --pp-card-bg: var(--pp-accent);
+  --pp-card-ink: var(--pp-on-accent);
+}
+
+/* ------------------------------------------------------ FUTUREPRENEURS --
+   Her four named colours, verbatim off the `<Theme\>` slide: #F59869 Sorrell
+   Brown, #653BD8 Slateblue, #000000 Outer Space, #FFFFFF White — plus the
+   yellow and the lilac mesh that run through every deliverable.
+
+   ONE HONEST SUBSTITUTION, and it is the only one on the site. Her display face
+   is Whyte Inktrap, which is licensed and cannot be served here; the page sets
+   Archivo — this portfolio's own display face, a grotesque of the same build —
+   and shows her real specimen as artwork in the typography section so the
+   original is on the page next to the stand-in. Gantari, her body face, IS
+   here and is real. */
+.pp[data-project="futurepreneurs"] {
+  --pp-bg: #ffffff;
+  --pp-sunk: #f2f0f7;
+  --pp-ink-hi: #000000;
+  --pp-ink: #1a1a1e;
+  --pp-dim: #4f4f5a;
+  --pp-faint: #82828f;
+  --pp-line: rgba(0, 0, 0, 0.14);
+  --pp-accent: #653bd8; /* Slateblue */
+  --pp-on-accent: #ffffff;
+  --pp-coral: #f59869; /* Sorrell Brown */
+  --pp-yellow: #f2e635;
+
+  --pp-display: "Archivo Variable", system-ui, sans-serif;
+  --pp-display-w: 800;
+  --pp-display-track: -0.04em;
+  --pp-body: "Gantari Variable", system-ui, sans-serif;
+  --pp-label: "JetBrains Mono Variable", ui-monospace, monospace;
+  --pp-mono: "JetBrains Mono Variable", ui-monospace, monospace;
+
+  --pp-shadow: 0 16px 40px rgba(101, 59, 216, 0.16);
+  --pp-radius: 10px;
+  --pp-mast-size: clamp(42px, 7cqw, 98px);
+}
+
+/* THE MOTIF. Every section on her board is labelled `<About\>`, `<Theme\>`,
+   `<Process\>`, `<Website\>` — a tag that opens with an angle bracket and
+   closes with a backslash. It is the single most identifiable thing about the
+   deck, so the page's section labels ARE that tag, drawn rather than typed, in
+   Slateblue mono. */
+.pp[data-project="futurepreneurs"] .pp-ch-head {
+  gap: 0;
+  font-size: 12.5px;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  color: var(--pp-accent);
+}
+
+.pp[data-project="futurepreneurs"] .pp-ch-label {
+  color: var(--pp-accent);
+}
+
+.pp[data-project="futurepreneurs"] .pp-ch-label::before {
+  content: "<";
+}
+
+.pp[data-project="futurepreneurs"] .pp-ch-label::after {
+  content: "\\>";
+}
+
+.pp[data-project="futurepreneurs"] .pp-ch-n {
+  display: none;
+}
+
+/* the black sections — About, Process, Typography all sit on Outer Space */
+.pp[data-project="futurepreneurs"] .pp-ch[data-tone="black"] {
+  --pp-bg: #000000;
+  --pp-sunk: #141418;
+  --pp-ink-hi: #ffffff;
+  --pp-ink: #e4e4ea;
+  --pp-dim: #a5a5b2;
+  --pp-faint: #77778a;
+  --pp-line: rgba(255, 255, 255, 0.16);
+  --pp-accent: #a68cf5;
+  --pp-on-accent: #0d0d12;
+
+  width: 100cqw;
+  margin-left: calc(50% - 50cqw);
+  /* the gutter back: 50cqw is half the pane, 50% is half the document's
+     own content box, so this is exactly the margin the document had. */
+  padding-inline: calc(50cqw - 50%);
+  padding-bottom: calc(var(--pp-u) * 8);
+  background: var(--pp-bg);
+  color: var(--pp-ink);
+}
+
+/* and the Sorrell Brown one, which is where the deck ends */
+.pp[data-project="futurepreneurs"] .pp-ch[data-tone="coral"] {
+  --pp-bg: #f59869;
+  --pp-sunk: #f0895a;
+  --pp-ink-hi: #16121f;
+  --pp-ink: #241c31;
+  --pp-dim: #3d3350;
+  --pp-faint: #574a6b;
+  --pp-line: rgba(22, 18, 31, 0.22);
+  --pp-accent: #2f1d63;
+  --pp-on-accent: #f59869;
+
+  width: 100cqw;
+  margin-left: calc(50% - 50cqw);
+  /* the gutter back: 50cqw is half the pane, 50% is half the document's
+     own content box, so this is exactly the margin the document had. */
+  padding-inline: calc(50cqw - 50%);
+  padding-bottom: calc(var(--pp-u) * 8);
+  background: var(--pp-bg);
+  color: var(--pp-ink);
+}
+
+.pp[data-project="futurepreneurs"] .pp-ch[data-tone="coral"] .pp-ch-head,
+.pp[data-project="futurepreneurs"] .pp-ch[data-tone="coral"] .pp-ch-label {
+  color: var(--pp-accent);
+}
+
+/* ------------------------------------------------------------ the mesh ----
+   Her gradient, rebuilt rather than screenshotted, so the masthead can be any
+   size without softening. Three radial washes over white, in her own violet,
+   lilac and blue. */
+.pp-mesh {
+  position: absolute;
+  top: calc(var(--pp-u) * -4);
+  left: calc(50% - 50cqw);
+  width: 100cqw;
+  height: calc(100% + var(--pp-u) * 8);
+  /* 0, NOT -1. A negative z-index child paints behind the nearest ancestor
+     that makes a stacking context — .pp-mast makes none, so the mesh went
+     behind the page background and disappeared entirely. .pp-mast isolates
+     itself below and the masthead content is lifted over this instead. */
+  z-index: 0;
+  background:
+    radial-gradient(56% 74% at 16% 26%, rgba(101, 59, 216, 0.34), transparent 68%),
+    radial-gradient(48% 62% at 74% 12%, rgba(120, 160, 255, 0.42), transparent 70%),
+    radial-gradient(64% 84% at 58% 96%, rgba(196, 174, 255, 0.5), transparent 72%),
+    #fbfaff;
+}
+
+/* the masthead becomes its own stacking context so the mesh has something to
+   sit inside, and its content sits over the mesh rather than under it */
+.pp[data-project="futurepreneurs"] .pp-mast {
+  isolation: isolate;
+}
+
+.pp[data-project="futurepreneurs"] .pp-mast > :not(.pp-mesh) {
+  position: relative;
+  z-index: 1;
+}
