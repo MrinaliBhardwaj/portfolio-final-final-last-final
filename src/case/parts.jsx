@@ -171,10 +171,17 @@ export function useParallaxRoot(scrollerRef, animate) {
     const scroller = scrollerRef.current;
     if (!on || !scroller) return undefined;
 
+    // READ EVERYTHING, THEN WRITE EVERYTHING. Interleaving the two is what
+    // this cost before: setting --pp-p feeds a transform, so the next
+    // getBoundingClientRect in the same loop forces a synchronous layout of a
+    // ten-thousand-pixel document — twelve of them per frame. Layout was 6.1s
+    // of a single case study opening. Two passes, one layout.
+    const boxes = [];
     const paint = () => {
       frame.current = 0;
       const sr = scroller.getBoundingClientRect();
       const h = sr.height || 1;
+      boxes.length = 0;
       for (const el of items.current.keys()) {
         // MEASURE THE PARENT, NEVER THE ELEMENT ITSELF. This writes a transform
         // onto `el`, and getBoundingClientRect reports the box AFTER transforms
@@ -182,7 +189,9 @@ export function useParallaxRoot(scrollerRef, animate) {
         // walks off the document. (It did: 588,000px down, and the plate looked
         // like an empty grey box.) The frame around it never moves.
         const host = el.parentElement || el;
-        const r = host.getBoundingClientRect();
+        boxes.push([el, host.getBoundingClientRect()]);
+      }
+      for (const [el, r] of boxes) {
         // +1 when the frame's middle is at the bottom of the pane, -1 at the
         // top; clamped, so an element far off screen cannot ask for a huge
         // offset it will never be seen at.
