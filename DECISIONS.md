@@ -3902,3 +3902,171 @@ still settles them to 1, and a return visit still lands at 1764 with both up.
 worse single hitch until each slice is given its real `contain-intrinsic-size`;
 and the four sidebar thumbnails are full-size covers — `layover/cover.webp` is
 1200x847 drawn at 30x30, 282x more pixels than the box needs.
+
+---
+
+## 17 Sep 2026 — The case study becomes the project's own page
+
+The window rendered a generic preamble — eyebrow, title, lede, a meta row, an
+overview beside three numbers — and then, under "The work", the project's
+**entire Behance board**: ten slices, 20,000px tall, every word of it a pixel.
+
+That is a case study pasted into a portfolio. It cannot reflow, cannot be
+searched or selected, has no hierarchy the page controls, and looks identical
+for all four projects because the page is not designing anything. It also
+meant the four studies — a dark luxury travel brand, a green research-led
+nutrition app, a violet campus-festival identity and a blue B2B retail
+platform — arrived in exactly the same grey furniture.
+
+**The board is source material now.** Each project has its own page, built out
+of it, and the board is folded away at the foot of that page as an appendix.
+Nothing was thrown away.
+
+### What stayed the same, deliberately
+
+The window, its three working lights, the Finder sidebar, the prev/next
+chevrons, the fold-on-scroll, the ~1100px measure, the 44px targets, the
+reduced-motion contract, the entrance. PRODUCT.md's third principle is "worlds
+diverge, chrome agrees"; this is that rule one level down. A Mac window is a
+light panel with three lights whatever is inside it, and a dark document inside
+one is just an app in dark content mode.
+
+The **masthead** is the hinge: identical furniture on all four pages — what it
+is, when, her role, the lede, the facts — wearing the project's paint. A reader
+arriving from the sidebar lands on the same object every time, and only then
+does the project take over.
+
+### What changes when you enter a project
+
+Every value is HERS, read off her own colour and type slides — which are
+reproduced on each page as artwork, so the claim can be checked against the
+source in the same scroll.
+
+| | ground | type | motif |
+|---|---|---|---|
+| **Layover** | #0A0A0B ink, #C9A85C gold | Montserrat display, Inter UI | section numbers, `01 — THE SPINE` |
+| **Meal Maestro** | #F8F0E5 cream, #2C5343 forest, #933D24 terracotta | Poppins + Open Sans | rounded green chips |
+| **NextG Apex** | white / #0A1F44 navy, #1D4ED8 blue | Archivo + JetBrains Mono | outlined mono pill |
+| **Futurepreneurs** | white / black / #F59869 Sorrell Brown | Archivo + Gantari + mono | `<About\>` tags |
+
+**Layover's page is two temperatures, because her brand slide is.** She wrote:
+consumer is "Montserrat set large with a lot of air, slow on purpose — it
+competes with a duty-free window, not a spreadsheet"; operator is "Inter at
+small sizes because it survives in a data row… dense on purpose". So the vendor
+and admin sections invert to a white ground in Inter, full width, and then the
+page goes dark again. A case study about two temperatures that is one
+temperature throughout has not been designed, it has been typeset.
+
+**NextG needed no new typeface at all.** Her type slide says "one family across
+display, body and labels; JetBrains Mono held back for data readouts only" —
+and that family is Archivo, which is already this site's display face. Its
+twelve colour tokens are in themes.css under her own names.
+
+**One honest substitution, flagged on the page.** Whyte Inktrap is licensed and
+cannot be served here, so Futurepreneurs sets Archivo — a grotesque of the same
+build — and shows her real specimen beside it in the typography section.
+Gantari, her body face, is real and self-hosted. Poppins, Open Sans and
+Montserrat are real too. All four are declared once in ProjectPage.jsx: an
+`@font-face` the page never applies is never fetched, so a reader on Layover
+pays for Montserrat and nothing else.
+
+### The architecture
+
+- `case/parts.jsx` — the editorial kit. Chapter, Statement, Bleed, Plate,
+  Split, Rail, Slide, Sticky, Figures, Swatches, Pull, Columns, Marquee. No
+  project page positions anything itself; it picks parts and dresses them with
+  its theme's custom properties.
+- `case/project-page.css` — the parent system: rhythm, measure, reveal,
+  full-bleed, rails, phone compositions. **No colour opinion, no typeface
+  opinion.**
+- `case/themes.css` — where the four are allowed to disagree. Paint only.
+
+**Full bleed is `100cqw`, not a viewport unit.** `.cw-main` is already a named
+inline-size container, so one container unit is exactly the width the study has,
+scrollbar excluded; `margin-left: calc(50% - 50cqw)` lands a band's left edge on
+the pane's left edge at any document width. It has to be container-relative
+rather than viewport-relative because **the document's side padding is animated
+by the sidebar's fold** — anything positioned against the viewport would slide
+122px sideways every time a reader crosses FOLD_AT. The same expression gives
+the tone bands their gutter back (`padding-inline: calc(50cqw - 50%)`).
+
+**A rail starts on the measure and leaves to the right.** Bleeding both edges
+put the first slide under the folded sidebar's tab and left the rail with no
+relationship to its column.
+
+**The resting state of every revealed element is VISIBLE.** The hidden state
+applies only under `[data-anim="on"]`, set in a layout effect and only when the
+visitor has not asked for reduced motion. No JS, a thrown effect, print, a
+headless render: the study is simply there.
+
+### Her boards, cut into art
+
+`scripts/build_case_art.py` — 24 crops out of the boards at native resolution.
+Layover and NextG were exported with loose assets and mostly had them; Meal
+Maestro and Futurepreneurs were not, so their photographs, mockups, monogram and
+specimens are cut from their own boards. Every box was picked off a ruled render
+of the board, and the file records what each one is. Nothing crops through a
+word.
+
+`scripts/build_art_manifest.py` — every picture's real pixel size, read off the
+files into `case/art.js`. The studies set `width`/`height` on every image they
+draw: a scroller inside a scroller with lazy images, where an unreserved box
+moves the line the reader is on. Sizes written by hand go stale the first time
+an asset is re-exported and nothing catches it.
+
+### Four bugs this cost, all of them mine
+
+1. **The parallax fed itself.** It measured the element it had just translated —
+   `getBoundingClientRect` reports the box *after* transforms — so every frame
+   added the last frame's offset back in. The image walked 588,000px down the
+   document and every plate rendered as an empty grey box. It now measures the
+   frame around it, which never moves. (It was also multiplying by the depth
+   twice, once in JS and once in CSS.)
+2. **It also thrashed**: read a rect, write a custom property that feeds a
+   transform, read the next rect — a forced synchronous layout of a
+   ten-thousand-pixel document, twelve times a frame. Read everything, then
+   write everything.
+3. **The scrim was behind the picture.** `z-index: -1` on a pseudo-element
+   inside an isolated stacking context paints *under* in-flow content, so a
+   full-bleed band with words over it had no scrim at all.
+4. **The reveal's backstop fired every time.** It is a net for the case where
+   IntersectionObserver never runs; it ran on every open instead, marking all
+   ~65 elements `is-in` 2.4s in — the whole document transitioning at once,
+   nearly all of it off screen. It now checks whether the observer produced
+   anything first.
+
+Plus a fifth that was not a bug so much as a trap: a rail dropped into a grid
+column blew that column out to 1227px, because **a grid item's `min-width` is
+`auto`** and the track's max-content is every slide laid end to end. The study
+picked up 868px of horizontal scroll. `min-width: 0` on the rail, and
+`overflow-x: clip` on the pane so nothing can ever do it again.
+
+### The cost, measured honestly
+
+Interleaved A/B on a quiet machine — two builds served at once, runs alternating,
+4x CPU throttle. (The first attempt measured a 3.5x regression that turned out
+to be the machine: two preview servers, a build and a dozen Chrome instances.
+The same build measured 2435ms/5103ms loaded and 859ms/1749ms quiet. This is the
+second time this has caught me; interleave or do not measure.)
+
+| opening Layover, 4x throttle | board-in-a-window | project page |
+|---|---|---|
+| deep link, worst single task | 680–722 ms | **1048–1475 ms** |
+| deep link, total blocked | 2119–2169 ms | **3835–4622 ms** |
+| from the settled desk, worst task | 640–661 ms | **832–1106 ms** |
+| from the settled desk, total blocked | 833–952 ms | **1709–1927 ms** |
+
+**The richer page costs about twice as much to open** — roughly +1s on the desk
+path and +2s on a cold deep link, at 4x throttle. Ablation found no single
+cause: images, fonts, `text-wrap: balance`, the reveal and the folded board all
+landed inside the noise band individually. It is simply more page: ~900 DOM
+nodes against ~250, ~70 images against 11, and four more `@font-face`
+declarations.
+
+**The lever not pulled**: `content-visibility: auto` on the sections, which is
+the one thing that would stop a 10,000px document being laid out to show 900px
+of it. Not taken, for a specific reason — it implies `contain: paint`, which
+would clip every full-bleed band and tone ground back to its section's box, and
+a skipped section reports its *intrinsic* height rather than its real one, which
+is exactly what `holdReadingLine` measures when the sidebar folds. Doing it
+safely means per-element intrinsic sizes and a re-test of the fold's anchor.
