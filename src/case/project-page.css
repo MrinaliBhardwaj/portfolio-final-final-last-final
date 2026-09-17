@@ -52,7 +52,14 @@
 .pp-r {
   transition:
     opacity var(--pp-r-t) var(--pp-r-e),
-    transform var(--pp-r-t) var(--pp-r-e),
+    transform var(--pp-r-t) var(--pp-r-e);
+}
+
+/* clip-path repaints the element every frame it changes, so only the one
+   variant that actually uses it declares a transition for it */
+.pp-r--wipe {
+  transition:
+    opacity var(--pp-r-t) var(--pp-r-e),
     clip-path var(--pp-r-t) var(--pp-r-e);
 }
 

@@ -53,10 +53,12 @@ export function useRevealRoot(scrollerRef, animate) {
   useEffect(() => {
     if (!animate) return undefined;
     const root = scrollerRef.current || null;
+    let seen = 0;
     const obs = new IntersectionObserver(
       (entries) => {
         for (const e of entries) {
           if (!e.isIntersecting) continue;
+          seen += 1;
           e.target.classList.add("is-in");
           obs.unobserve(e.target);
         }
@@ -69,11 +71,18 @@ export function useRevealRoot(scrollerRef, animate) {
     for (const el of pending.current) obs.observe(el);
     pending.current.clear();
 
-    // A BACKSTOP, because an unseen page is worse than an unanimated one.
-    // Headless renderers, print, a scroller that never scrolls and any future
-    // container-with-no-layout all end with elements observed and never
-    // intersecting. After 2.4s, show everything that is still waiting.
+    // A BACKSTOP, because an unseen page is worse than an unanimated one:
+    // headless renderers, print, and any future container-with-no-layout end
+    // with everything observed and nothing ever intersecting.
+    //
+    // ONLY IF THE OBSERVER PRODUCED NOTHING AT ALL. It used to reveal every
+    // element still waiting, unconditionally, 2.4s after open — which on a
+    // working page meant ~65 elements transitioning opacity, transform and
+    // clip-path in one frame, nearly all of them off screen. That was 3.5x the
+    // blocked time of the page this replaced. If even one element has arrived
+    // the observer is plainly working, and the rest can wait their turn.
     const t = setTimeout(() => {
+      if (seen > 0) return;
       for (const el of Array.from(root ? root.querySelectorAll(".pp-r:not(.is-in)") : []))
         el.classList.add("is-in");
     }, 2400);
