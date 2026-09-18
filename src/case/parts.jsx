@@ -393,6 +393,9 @@ export function Bleed({
  * @param {string} [p.ratio] crop the box; omit to keep the file's own shape
  * @param {"up"|"left"|"right"|"in"|"wipe"} [p.from]
  * @param {number} [p.delay]
+ * @param {boolean} [p.bare] an OBJECT, not a picture: a phone mockup or a
+ *   sticker cut out of her Figma file, drawn with no frame, ground or radius
+ *   so its own silhouette and shadow are the edge
  * @param {string} [p.className]
  */
 export function Plate({
@@ -405,12 +408,18 @@ export function Plate({
   ratio = "",
   from = "up",
   delay = 0,
+  bare = false,
   className = "",
 }) {
   const ref = useParallax(depth);
   const [w, h] = size;
   return (
-    <Reveal from={from} delay={delay} as="figure" className={`pp-plate ${className}`.trim()}>
+    <Reveal
+      from={from}
+      delay={delay}
+      as="figure"
+      className={`pp-plate${bare ? " is-bare" : ""} ${className}`.trim()}
+    >
       <span className="pp-plate-box" style={ratio ? { aspectRatio: ratio } : undefined}>
         <img
           ref={ref}
@@ -423,6 +432,45 @@ export function Plate({
           draggable="false"
           style={{ objectFit: fit, ...(depth ? { "--pp-d": `${depth}px` } : null) }}
         />
+      </span>
+      {caption && <figcaption>{caption}</figcaption>}
+    </Reveal>
+  );
+}
+
+/**
+ * A WHOLE PAGE, BROWSED. A full-length website capture is 4,000px of one
+ * picture; drawn at column width it is a scroll of its own that pushes the
+ * study apart, and cropped it stops being the whole page. So it sits in a
+ * window of fixed height and the reader scrolls it — which is also simply what
+ * one does with a website. Focusable, so the keyboard can scroll it too.
+ * @param {object} p
+ * @param {string} p.src
+ * @param {string} p.alt
+ * @param {[number, number]} p.size
+ * @param {string} [p.label] what the chrome's address bar says
+ * @param {string} [p.caption]
+ * @param {"desktop"|"phone"} [p.kind]
+ * @param {number} [p.delay]
+ */
+export function Scroller({ src, alt, size, label = "", caption = "", kind = "desktop", delay = 0 }) {
+  const [w, h] = size;
+  return (
+    <Reveal
+      as="figure"
+      delay={delay}
+      className={`pp-scroller pp-scroller--${kind}`}
+      // never wider than the capture itself: a 512px page drawn at 650 is blur
+      style={{ maxWidth: kind === "phone" ? undefined : `${w}px` }}
+    >
+      <span className="pp-scroller-bar" aria-hidden="true">
+        <i />
+        <i />
+        <i />
+        {label && <b>{label}</b>}
+      </span>
+      <span className="pp-scroller-view" tabIndex={0} role="region" aria-label={alt}>
+        <img src={src} alt={alt} width={w} height={h} loading="lazy" decoding="async" draggable="false" />
       </span>
       {caption && <figcaption>{caption}</figcaption>}
     </Reveal>

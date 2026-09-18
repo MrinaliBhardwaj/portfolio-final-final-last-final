@@ -158,8 +158,10 @@
 /* A GREEN SECTION, the deck's other ground. Used where her own board turns
    green — the research figures, the product tour, the close. */
 .pp[data-project="meal-maestro"] .pp-ch[data-tone="forest"] {
-  --pp-bg: #2c5343;
-  --pp-sunk: #24473a;
+  /* #385A41 is her own "Forest" swatch, and the ground her mockups were
+     drawn on in the file — so the phones sit on the green they were made for */
+  --pp-bg: #385a41;
+  --pp-sunk: #2f4d37;
   --pp-ink-hi: #f4efe4;
   --pp-ink: #e4ddd0;
   --pp-dim: #b9c7bb;
@@ -461,4 +463,227 @@
 .pp[data-project="futurepreneurs"] .pp-mast > :not(.pp-mesh) {
   position: relative;
   z-index: 1;
+}
+
+/* =================================================================
+   COMPOSITIONS BUILT FROM HER FIGMA COMPONENTS
+   The pieces are now real objects — phones with their own shadows, a vector
+   monogram, printed things — so they can be ARRANGED rather than framed.
+   ================================================================= */
+
+/* ---- Meal Maestro ---- */
+
+/* two phones laid down together, the second over the first */
+.mm-pair {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(10, minmax(0, 1fr));
+  align-items: start;
+}
+
+.mm-pair-back {
+  grid-column: 1 / span 6;
+  grid-row: 1;
+  transform: rotate(-4deg);
+}
+
+.mm-pair-front {
+  grid-column: 5 / span 6;
+  grid-row: 1;
+  margin-top: 14%;
+  transform: rotate(3deg);
+}
+
+.mm-row {
+  margin-top: calc(var(--pp-u) * 6);
+}
+
+.mm-macro {
+  margin-top: calc(var(--pp-u) * 3);
+  max-width: 460px;
+}
+
+.mm-macro .pp-plate-box {
+  box-shadow: none;
+}
+
+.pp[data-project="meal-maestro"] em.on-photo {
+  color: #f0c9a0;
+}
+
+/* the seven entry points, as a numbered list the screen beside it explains */
+.mm-seven {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 22px 30px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.mm-seven li {
+  padding-top: 14px;
+  border-top: 1px solid var(--pp-line);
+}
+
+.mm-seven span {
+  font-family: var(--pp-mono);
+  font-size: 10.5px;
+  color: var(--pp-accent);
+}
+
+.mm-seven b {
+  display: block;
+  margin: 6px 0 4px;
+  font-family: var(--pp-display);
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--pp-ink-hi);
+}
+
+.mm-seven p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--pp-dim);
+}
+
+/* ---- Futurepreneurs ---- */
+
+.fp-mark {
+  margin: 0;
+  display: grid;
+  place-items: center;
+}
+
+.fp-mark img {
+  width: min(100%, 340px);
+  height: auto;
+  filter: drop-shadow(0 30px 60px rgba(101, 59, 216, 0.45));
+}
+
+.fp-laptop {
+  max-width: 1080px;
+  margin-inline: auto;
+}
+
+.fp-sticky-copy {
+  position: sticky;
+  top: calc(var(--pp-u) * 4);
+  align-self: start;
+}
+
+.fp-site-side {
+  display: grid;
+  gap: calc(var(--pp-u) * 3);
+  align-content: start;
+}
+
+.fp-site-side .pp-scroller--phone {
+  --pp-scroller-h: 440px;
+}
+
+/* the printed things, piled on the table rather than tiled in a grid */
+.fp-print {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  align-items: start;
+  margin-top: calc(var(--pp-u) * 5);
+}
+
+.fp-print > * {
+  grid-row: 1;
+}
+
+.fp-print-inv {
+  grid-column: 1 / span 5;
+  transform: rotate(-3deg);
+}
+
+.fp-print-cert {
+  grid-column: 5 / span 7;
+  margin-top: 18%;
+  transform: rotate(2deg);
+  z-index: 1;
+}
+
+.fp-print-s1 {
+  grid-column: 10 / span 3;
+  margin-top: -2%;
+  transform: rotate(8deg);
+  z-index: 2;
+}
+
+.fp-print-s2 {
+  grid-column: 3 / span 3;
+  margin-top: 78%;
+  transform: rotate(-10deg);
+  z-index: 2;
+}
+
+.fp-print .pp-plate img {
+  filter: drop-shadow(0 18px 30px rgba(22, 18, 31, 0.18));
+}
+
+/* ---- Layover ---- */
+
+.lo-wordmark {
+  margin: 0 0 calc(var(--pp-u) * 5);
+}
+
+.lo-wordmark span {
+  display: grid;
+  place-items: center;
+  padding: clamp(40px, 7cqw, 96px) 24px;
+  background: #161617;
+  border-radius: var(--pp-radius);
+}
+
+.lo-wordmark img {
+  width: min(100%, 520px);
+  height: auto;
+}
+
+.lo-wordmark figcaption {
+  margin-top: calc(var(--pp-u) * 1.5);
+  font-size: 12px;
+  color: var(--pp-faint);
+}
+
+/* ---- narrow: piles and pairs become stacks with a little overlap ---- */
+@container cwdoc (max-width: 620px) {
+  .mm-pair-back {
+    grid-column: 1 / span 7;
+  }
+
+  .mm-pair-front {
+    grid-column: 4 / span 7;
+  }
+
+  .mm-seven {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .fp-sticky-copy {
+    position: static;
+  }
+
+  .fp-print-inv {
+    grid-column: 1 / span 7;
+  }
+
+  .fp-print-cert {
+    grid-column: 4 / span 9;
+    margin-top: 40%;
+  }
+
+  .fp-print-s1 {
+    grid-column: 9 / span 4;
+  }
+
+  .fp-print-s2 {
+    grid-column: 1 / span 4;
+    margin-top: 95%;
+  }
 }

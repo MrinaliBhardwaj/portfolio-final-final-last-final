@@ -406,6 +406,151 @@
   height: auto;
 }
 
+/* A BARE PLATE IS AN OBJECT. Phone mockups, stickers and marks come out of
+   her Figma files as the node itself, background removed — framing one in a
+   rounded, shadowed box would put a picture frame round a phone. Its own
+   silhouette and its own shadow are the edge. */
+.pp-plate.is-bare .pp-plate-box {
+  overflow: visible;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+}
+
+.pp-plate.is-bare img {
+  object-fit: contain;
+}
+
+/* ---- scroller: a whole page, browsed ---- */
+.pp-scroller {
+  margin: 0;
+  min-width: 0;
+}
+
+.pp-scroller-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 30px;
+  padding: 0 12px;
+  border-radius: 10px 10px 0 0;
+  background: var(--pp-scroller-bar, #e9e9ee);
+}
+
+.pp-scroller-bar i {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.16);
+}
+
+.pp-scroller-bar b {
+  margin-left: 10px;
+  font-family: var(--pp-mono, var(--pp-label));
+  font-size: 10.5px;
+  font-weight: 400;
+  color: rgba(0, 0, 0, 0.5);
+}
+
+.pp-scroller-view {
+  display: block;
+  height: var(--pp-scroller-h, 560px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border-radius: 0 0 10px 10px;
+  background: #fff;
+  box-shadow: var(--pp-shadow);
+  scrollbar-width: thin;
+}
+
+.pp-scroller-view img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.pp-scroller-view:focus-visible {
+  outline: 2px solid var(--pp-accent);
+  outline-offset: 3px;
+}
+
+/* a phone is a phone: narrow, round-cornered, no browser chrome */
+.pp-scroller--phone {
+  max-width: 250px;
+  justify-self: center;
+}
+
+.pp-scroller--phone .pp-scroller-bar {
+  display: none;
+}
+
+.pp-scroller--phone .pp-scroller-view {
+  border: 8px solid #111;
+  border-radius: 30px;
+}
+
+.pp-scroller figcaption {
+  margin: calc(var(--pp-u) * 1.5) 0 0;
+  font-family: var(--pp-label);
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: var(--pp-faint);
+}
+
+/* a type specimen, set in the face it names */
+.pp-specimen {
+  display: grid;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pp-specimen li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 8px 20px;
+  padding: 20px 0;
+  border-top: 1px solid var(--pp-line);
+}
+
+.pp-specimen li:last-child {
+  border-bottom: 1px solid var(--pp-line);
+}
+
+.pp-specimen-name {
+  font-size: clamp(30px, 3.6cqw, 50px);
+  line-height: 1;
+  color: var(--pp-ink-hi);
+}
+
+.pp-specimen-weights {
+  grid-column: 1 / -1;
+  font-size: 15px;
+  color: var(--pp-dim);
+}
+
+.pp-specimen-role {
+  font-family: var(--pp-mono, var(--pp-label));
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--pp-faint);
+}
+
+/* a pile of objects: stickers, printed things, overlapping on purpose */
+.pp-pile {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  align-items: center;
+}
+
+.pp-pile > * {
+  grid-row: 1;
+}
+
 /* ---- split / run ---- */
 .pp-split {
   display: grid;

@@ -9,7 +9,7 @@ eighty of them make the page unusable while it loads.
 
 Sizes written by hand go stale the first time an asset is re-exported and
 nothing catches it, so they are read off the files instead. Re-run after
-build_case_art.py or after adding anything under public/work.
+build_figma_components.py or after adding anything under public/work.
 
 The case-study BOARD slices are excluded on purpose — those already carry their
 sizes in projects.js, next to the crop notes that explain them.

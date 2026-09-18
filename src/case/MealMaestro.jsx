@@ -3,12 +3,15 @@
 // Her deck is cream and forest green with a terracotta accent, set in Poppins
 // over Open Sans, and it argues from numbers: 12 interviews, 140 survey
 // responses, five percentages, eight verbatim quotes. So this page is built
-// around the evidence rather than around the screens — the research IS the
-// case study, and the product arrives as its answer.
+// around the evidence, and the product arrives as its answer.
 //
-// The two grounds alternate the way her board's do: cream for argument, forest
-// green for evidence and for the product tour. Every figure and every quote
-// below is off her own slides.
+// EVERY PICTURE HERE IS A COMPONENT OF HER FIGMA FILE, not a piece of the
+// exported board: each phone is its own "Phone mockup" node, cut out with its
+// real shadow, and each photograph is the original upload rather than the
+// rectangle it was masked to on the slide (scripts/build_figma_components.py
+// records which node each came from). That is what lets the page compose them
+// — phones overlapping, photos at the page's proportions — instead of showing
+// fragments of slides.
 import {
   Bleed,
   Chapter,
@@ -28,7 +31,7 @@ import {
 } from "./parts.jsx";
 import { size } from "./art.js";
 
-const A = (n) => `/work/meal-maestro/art/${n}.webp`;
+const F = (n) => `/work/meal-maestro/fig/${n}.webp`;
 
 /** the raw signal, verbatim off her survey slide */
 const SIGNAL = [
@@ -39,7 +42,7 @@ const SIGNAL = [
   ["55%", "found existing nutrition and meal apps too tedious to use consistently"],
 ];
 
-/** in their words — her respondents, with her own P-numbers dropped */
+/** in their words — her respondents */
 const VOICES = [
   "I plan on Sunday and I’ve quit by Wednesday.",
   "I feel guilty ordering in. Again.",
@@ -61,11 +64,24 @@ const PALETTE = [
   { hex: "#F8F0E5", name: "Cream", ink: "#1f3a2c" },
 ];
 
+/** her explore screen's seven entry points, as the screen names them. Only
+    five carry a line on her board; the other two are left as names rather
+    than given a description she did not write. */
+const SEVEN = [
+  ["Scan & Savour", "Point your camera at ingredients — get instant recipes."],
+  ["Swipe & Dine", ""],
+  ["Season’s Best", "Curated picks from this season’s freshest produce."],
+  ["Mood BITES", "Eat by emotion — comfort, energy, or light."],
+  ["Talk & COOK", "A voice guides you through any recipe, completely hands-free."],
+  ["Boost My Plate", ""],
+  ["HOT Picks", "Trending recipes, surfaced daily from what’s popular right now."],
+];
+
 export default function MealMaestro() {
   return (
     <>
       <Chapter label="The goal" flush>
-        <Split ratio="1fr 1.1fr" middle gap="46px">
+        <Split ratio="1fr 1fr" middle gap="40px">
           <div>
             <Statement size="lg">
               The hard part isn&rsquo;t cooking. It&rsquo;s <em>deciding</em>.
@@ -77,22 +93,43 @@ export default function MealMaestro() {
               a week of recipes and the one grocery list that covers them.
             </Say>
           </div>
-          <Plate
-            src={A("recipe-tracker")}
-            alt="Two Meal Maestro screens: a ramen recipe with its macros, and the daily tracker at 821 kcal."
-            size={size(A("recipe-tracker"))}
-            from="right"
-            depth={20}
-          />
+          {/* two of her phones, overlapped the way a hand would lay them down */}
+          <div className="mm-pair">
+            <Plate
+              bare
+              src={F("phone-recipe")}
+              alt="Meal Maestro's recipe screen: Pasta Primavera, its macros, ingredients and a Start Cooking button."
+              size={size(F("phone-recipe"))}
+              from="up"
+              depth={14}
+              className="mm-pair-back"
+            />
+            <Plate
+              bare
+              src={F("phone-tracker")}
+              alt="Meal Maestro's tracker: breakfast and lunch logged, 821 kcal, and the day's progress."
+              size={size(F("phone-tracker"))}
+              from="up"
+              delay={0.1}
+              depth={26}
+              className="mm-pair-front"
+            />
+          </div>
         </Split>
       </Chapter>
 
+      {/* the market shelf she opens the brand on — the original photograph, not
+          the slide it was masked into */}
       <Bleed
-        src={A("produce")}
-        alt="The Meal Maestro wordmark over a market shelf of peppers, chillies and greens."
+        src={F("produce")}
+        alt="A market shelf of peppers, greens, cabbages and gourds."
         h="short"
-        depth={26}
-      />
+        depth={24}
+      >
+        <Statement size="lg" as="p">
+          Built on a palette <em className="on-photo">rooted in nature</em>.
+        </Statement>
+      </Bleed>
 
       <Chapter label="Primary research" tone="forest" flush>
         <Statement size="lg">
@@ -238,71 +275,161 @@ export default function MealMaestro() {
       </Chapter>
 
       <Chapter label="Brand">
-        <Statement size="lg">
-          Built on a palette <em>rooted in nature</em>.
-        </Statement>
-        <Split ratio="1.1fr 0.9fr" gap="40px">
-          <Swatches items={PALETTE} />
-          <Plate
-            src={A("wordmark")}
-            alt="The Meal Maestro wordmark on its construction grid."
-            size={size(A("wordmark"))}
-            from="right"
-            caption="The mark, on its grid."
-          />
+        <Split ratio="1fr 1fr" gap="44px">
+          <div>
+            <Statement size="md">
+              Six colours, <em>rooted in nature</em>.
+            </Statement>
+            <Say>
+              Forest and sea green carry the interface; terracotta is spent only where
+              something needs acting on — a calorie ring filling, a button, a warning. The
+              cream is the paper everything sits on, and it is this page&rsquo;s paper too.
+            </Say>
+            <Swatches items={PALETTE} />
+          </div>
+          <div>
+            <Statement size="md">Two families.</Statement>
+            {/* set in the real faces — Poppins and Open Sans are self-hosted for
+                this page, so the specimen is the type, not a picture of it */}
+            <ul className="pp-specimen">
+              <Reveal as="li">
+                <span className="pp-specimen-name" style={{ fontFamily: "Poppins", fontWeight: 700 }}>
+                  Poppins
+                </span>
+                <span className="pp-specimen-role">Display · headings</span>
+                <span className="pp-specimen-weights" style={{ fontFamily: "Poppins" }}>
+                  <span style={{ fontWeight: 400 }}>Regular</span>{" "}
+                  <span style={{ fontWeight: 500 }}>Medium</span>{" "}
+                  <span style={{ fontWeight: 600 }}>SemiBold</span>{" "}
+                  <span style={{ fontWeight: 700 }}>Bold</span>
+                </span>
+              </Reveal>
+              <Reveal as="li" delay={0.06}>
+                <span
+                  className="pp-specimen-name"
+                  style={{ fontFamily: "'Open Sans Variable'", fontWeight: 600 }}
+                >
+                  Open Sans
+                </span>
+                <span className="pp-specimen-role">Body · UI text</span>
+                <span className="pp-specimen-weights" style={{ fontFamily: "'Open Sans Variable'" }}>
+                  Your intelligent companion for healthier eating habits every day.
+                </span>
+              </Reveal>
+            </ul>
+          </div>
         </Split>
-        <Plate
-          src={A("typespec")}
-          alt="The Meal Maestro type system: Poppins for display and headings, Open Sans for body and UI text."
-          size={size(A("typespec"))}
-          caption="Poppins for display and headings, Open Sans for body and UI. This page is set in both."
-        />
       </Chapter>
 
       <Chapter label="The product" tone="forest">
-        <Statement size="lg">Your meals, planned for <em>every morning</em>.</Statement>
-        <Say wide>
-          An intelligent home screen that greets you with a personalized daily plan, adapting
-          to your goals, your diet history, and the time of day.
-        </Say>
-        <Plate
-          src={A("morning")}
-          alt="The Meal Maestro home flow beside a bowl of pasta: Taste Every Detail."
-          size={size(A("morning"))}
-          depth={14}
-        />
-        <Split ratio="1fr 1fr" gap="30px">
+        <Split ratio="1.05fr 0.95fr" middle gap="40px">
           <Plate
-            src={A("track")}
-            alt="The Meal Maestro tracker: 821 kcal, the daily macro split, and the week's progress."
-            size={size(A("track"))}
-            caption="Track. Learn. Thrive. — every macro, every kcal turned into clarity you can act on."
+            bare
+            src={F("hero-phones")}
+            alt="Four Meal Maestro screens tumbling in a stack: the brand splash, a recipe, the explore grid and the home plan."
+            size={size(F("hero-phones"))}
+            depth={20}
+          />
+          <div>
+            <Statement size="lg">
+              Your meals, planned for <em>every morning</em>.
+            </Statement>
+            <Say>
+              An intelligent home screen that greets you with a personalized daily plan,
+              adapting to your goals, your diet history, and the time of day. The decision is
+              made before the day has a chance to make it for you.
+            </Say>
+          </div>
+        </Split>
+
+        <Split ratio="0.9fr 1.1fr" middle gap="40px" className="mm-row">
+          <Plate
+            bare
+            src={F("phone-home")}
+            alt="Meal Maestro's home screen: Good Morning, a corn salad for breakfast, and Plan Your Next Meal."
+            size={size(F("phone-home"))}
+            from="left"
+            depth={18}
           />
           <Plate
-            src={A("seven")}
-            alt="Seven ways to find your meal: Scan and Savour, Swipe and Dine, Season's Best, Mood Bites, Talk and Cook, Boost My Plate, Hot Picks."
-            size={size(A("seven"))}
-            delay={0.08}
-            caption="Seven ways to find your meal — every craving, goal and mood, on one screen."
+            src={F("pasta")}
+            alt="A bowl of masala macaroni on slate, with chilli flakes and coriander."
+            size={size(F("pasta"))}
+            ratio="4 / 5"
+            from="right"
+            depth={14}
+            caption="Taste every detail — every recipe carries its own photograph, macros and prep time."
           />
         </Split>
-        <Plate
-          src={A("crates")}
-          alt="maestro ai open on a phone, propped against produce crates in a kitchen."
-          size={size(A("crates"))}
-          depth={16}
-          caption="maestro ai: ask in plain words, get a plate you can actually cook."
-        />
       </Chapter>
 
-      <Bleed
-        src={A("thanks")}
-        alt="Thanks for watching, in white script over wet leaves."
-        h="short"
-        depth={20}
-      />
+      <Chapter label="Track. Learn. Thrive." tone="forest" flush>
+        <Split ratio="0.8fr 1.2fr" middle gap="36px">
+          <Plate
+            bare
+            src={F("phone-tracker")}
+            alt="The Meal Maestro tracker screen."
+            size={size(F("phone-tracker"))}
+            depth={18}
+          />
+          <div>
+            <Statement size="md">Every macro, every kcal, turned into clarity you can act on.</Statement>
+            <Plate
+              src={F("macro")}
+              alt="The daily macro split — 821 kcal, protein 26%, carbs 58%, fats 16% — above a chart of daily progress."
+              size={size(F("macro"))}
+              className="mm-macro"
+            />
+          </div>
+        </Split>
+      </Chapter>
 
-      <Chapter label="Outcome" flush>
+      <Chapter label="Seven ways to find your meal">
+        <Split ratio="0.85fr 1.15fr" middle gap="40px">
+          <Plate
+            bare
+            src={F("phone-explore")}
+            alt="Meal Maestro's explore screen: seven tiles, from Scan and Savour to Boost My Plate."
+            size={size(F("phone-explore"))}
+            depth={16}
+          />
+          <ol className="mm-seven">
+            {SEVEN.map(([name, line], i) => (
+              <Reveal as="li" key={name} delay={i * 0.04}>
+                <span>{String(i + 1).padStart(2, "0")}</span>
+                <b>{name}</b>
+                {line && <p>{line}</p>}
+              </Reveal>
+            ))}
+          </ol>
+        </Split>
+      </Chapter>
+
+      <Chapter label="In the kitchen" flush>
+        <Split ratio="1fr 1fr" gap="24px">
+          <Plate
+            src={F("kitchen")}
+            alt="A hand holding a phone open on Meal Maestro, in front of jars of pasta and grains."
+            size={size(F("kitchen"))}
+            ratio="4 / 5"
+            depth={16}
+          />
+          <Plate
+            src={F("crates")}
+            alt="maestro ai open on a phone, propped against wooden crates in a kitchen."
+            size={size(F("crates"))}
+            ratio="4 / 5"
+            delay={0.08}
+            depth={22}
+            caption="maestro ai: ask in plain words, get a plate you can actually cook."
+          />
+        </Split>
+      </Chapter>
+
+      <Chapter label="Outcome" tone="forest">
+        <Statement size="xl">
+          Third at the GDG Design-a-thon — for an app that <em>decides</em> for you.
+        </Statement>
         <Figures
           items={[
             { value: "3rd", label: "GDG Design-a-thon" },

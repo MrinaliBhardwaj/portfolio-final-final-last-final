@@ -24,6 +24,7 @@ import {
   Plate,
   Pull,
   Rail,
+  Reveal,
   Run,
   Say,
   Slide,
@@ -347,12 +348,21 @@ export default function Layover() {
       {/* ---- and back to the consumer temperature ---- */}
       <Chapter n="08" label="Brand">
         <Statement size="lg">One system, two temperatures.</Statement>
-        <Plate
-          src="/work/layover/art/wordmark.webp"
-          alt="The Layover wordmark, its e reversed."
-          size={size("/work/layover/art/wordmark.webp")}
-          caption="The wordmark reverses its own “e”. A layover is the part of a trip that turns back on itself."
-        />
+        {/* her vector, out of the file — not a screenshot of a slide */}
+        <Reveal as="figure" from="in" className="lo-wordmark">
+          <span>
+            <img
+              src="/work/layover/fig/wordmark.svg"
+              alt="The LayOver wordmark, its e reversed."
+              width={480}
+              height={94}
+            />
+          </span>
+          <figcaption>
+            The wordmark reverses its own &ldquo;e&rdquo;. A layover is the part of a trip that
+            turns back on itself.
+          </figcaption>
+        </Reveal>
         <Split ratio="1fr 1fr" gap="34px">
           <div>
             <Note>CONSUMER — SELLING SOMETHING</Note>

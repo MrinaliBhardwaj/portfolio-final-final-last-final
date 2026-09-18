@@ -4070,3 +4070,54 @@ would clip every full-bleed band and tone ground back to its section's box, and
 a skipped section reports its *intrinsic* height rather than its real one, which
 is exactly what `holdReadingLine` measures when the sidebar folds. Doing it
 safely means per-element intrinsic sizes and a re-test of the fold's anchor.
+
+---
+
+## 18 Sep 2026 — The project pages are built from her Figma components, not crops of the board
+
+Her correction: the first version cut its pictures out of the flattened case
+boards — rectangles of a 20,000px export — and they looked it. Board
+backgrounds, neighbouring elements and slide margins came along inside every
+crop, and the phones could not be arranged because each one arrived stuck to
+the slide behind it.
+
+**Every picture is now a node of her Figma files**, pulled one at a time
+through the Figma MCP (`download_assets`), and `scripts/build_figma_components.py`
+records which node each file came from:
+
+- **Photographs are the original uploads** — the node's raw image fill, so
+  uncropped and at the resolution she placed them. Meal Maestro's kitchen and
+  crates shots are 4096px originals; the produce shelf is the full photo, not
+  the slice of it the slide showed.
+- **Mockups are the node rendered on its own.** Meal Maestro's five "Phone
+  mockup" frames, Futurepreneurs' laptop, iPhone and story set, the stickers,
+  the certificate and the invitation.
+- **Marks are vectors.** The TP monogram and the LayOvǝr wordmark ship as SVG.
+
+**Un-matting.** Meal Maestro's mockups export on an opaque #385A41 — her
+"Forest" swatch, the frame they sit in. Each pixel is split into "shadow over
+that green" or "the object"; the bezels are black, so the edge is clean and the
+real drop shadow survives as alpha over any ground. The shadow's outer 9% is
+feathered because Figma's export bounds cut it off square. The Futurepreneurs
+stickers get the same treatment against white, so they can lie over the
+printed things.
+
+**Because they are objects, the pages arrange them** instead of framing them:
+two phones laid overlapping; the invitation, certificate and two stickers
+piled like things on a table; a vector monogram at any size. `Plate` gained
+`bare` (no frame, ground, radius or shadow of its own), and `Scroller` shows a
+full-length website capture in a fixed window you scroll — the Futurepreneurs
+site at desktop and phone width, NextG's home page — rather than as 4,000px of
+picture or a crop of one. Scrollers never draw wider than the capture.
+
+**The Meal Maestro type specimen is set in the real faces** (Poppins, Open
+Sans) rather than being a picture of her type slide.
+
+**Nothing invented.** Two of the seven explore tiles (Swipe & Dine, Boost My
+Plate) carry no description on her board, so the page shows their names alone.
+
+Deleted: `scripts/build_case_art.py` and every `public/work/*/art/` crop.
+
+Figma sources: Meal Maestro `VFPcvgP4zS28UJQxvjd5va`, Futurepreneurs (in the
+portfolio file) `drda7TnqoM3fEpbibCDIc2`, NextG `bUB4MsJcWhbCEhPEyI7Ip6`,
+Layover `BRaDrcuSqhHuA7PTmJX0Zt`.

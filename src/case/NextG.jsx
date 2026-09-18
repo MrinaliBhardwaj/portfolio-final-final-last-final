@@ -11,7 +11,6 @@
 // The two navy bands are where her own deck goes dark, not where a page wanted
 // variety.
 import {
-  Bleed,
   Chapter,
   Columns,
   Credit,
@@ -23,6 +22,7 @@ import {
   Reveal,
   Run,
   Say,
+  Scroller,
   Slide,
   Split,
   Statement,
@@ -143,10 +143,20 @@ export default function NextG() {
             </p>
           </Reveal>
         </Split>
-        <Pull>
-          The design goal became clear: spectacle and clarity had to move on the same
-          gesture, or it did not belong here.
-        </Pull>
+        <Split ratio="1.3fr 0.7fr" middle gap="40px">
+          <Pull>
+            The design goal became clear: spectacle and clarity had to move on the same
+            gesture, or it did not belong here.
+          </Pull>
+          <Plate
+            src={F("fig/presenting")}
+            alt="Presenting the redesign to the NextG team."
+            size={size(F("fig/presenting"))}
+            ratio="4 / 5"
+            from="right"
+            caption="Presenting it to the people who asked for it."
+          />
+        </Split>
       </Chapter>
 
       <Chapter n="05" label="Audit" tone="wash">
@@ -282,11 +292,11 @@ export default function NextG() {
           control, and a near-black column you watch.
         </Say>
         <Plate
-          src="/work/nextg/art/coverage.webp"
-          alt="The coverage map panel: 98% coverage, 900+ towns live, 512K outlets mapped, over a live map."
-          size={size("/work/nextg/art/coverage.webp")}
+          src={F("fig/coverage")}
+          alt="The coverage map, live: 98% coverage, 900+ towns live, 512K outlets mapped, drawn over India."
+          size={size(F("fig/coverage"))}
           depth={16}
-          caption="The numbers move with the view. Not a screenshot of a dashboard — the dashboard's own argument."
+          caption="The coverage map as it runs on the site. The numbers move with the view."
         />
         <Rail kind="wide" label="The site" count={`${VIEWS.length} views`}>
           {VIEWS.map(([n, cap]) => (
@@ -295,20 +305,41 @@ export default function NextG() {
         </Rail>
       </Chapter>
 
-      <Bleed
-        src="/work/nextg/art/shop.webp"
-        alt="A NextG field rep and a shopkeeper at the counter of a general store."
-        h="short"
-        depth={28}
-      >
-        <Statement size="lg" as="p">
-          Every dot on the coverage map is one of these.
-        </Statement>
-        <Say>
-          The product&rsquo;s job is to make this visible from a desk twelve hundred
-          kilometres away.
-        </Say>
-      </Bleed>
+      <Chapter n="09" label="On the road">
+        <Split ratio="1.2fr 0.8fr" middle gap="44px">
+          <Plate
+            src={F("fig/shop")}
+            alt="A NextG field rep and a shopkeeper at the counter of a general store."
+            size={size(F("fig/shop"))}
+            depth={18}
+          />
+          <div>
+            <Statement size="lg">Every dot on the coverage map is one of these.</Statement>
+            <Say>
+              The product&rsquo;s job is to make this visible from a desk twelve hundred
+              kilometres away.
+            </Say>
+          </div>
+        </Split>
+      </Chapter>
+
+      <Chapter n="10" label="The whole site">
+        <Split ratio="0.8fr 1.2fr" middle gap="44px">
+          <div>
+            <Statement size="md">Six pages, one scroll each.</Statement>
+            <Say>
+              The home page, top to bottom, as it shipped — the coverage hero, the numbered
+              services, the four product views, the brands and the demo. Scroll it.
+            </Say>
+          </div>
+          <Scroller
+            src={F("fig/site-full")}
+            alt="The NextG home page, full length, as shipped."
+            size={size(F("fig/site-full"))}
+            label="nextg.in"
+          />
+        </Split>
+      </Chapter>
 
       <Chapter n="12" label="Responsive" flush>
         <Split ratio="1fr 1fr" middle gap="44px">
