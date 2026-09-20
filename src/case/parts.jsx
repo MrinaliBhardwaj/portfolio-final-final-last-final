@@ -873,15 +873,29 @@ export function useChapters(rootRef, scrollerRef) {
     };
   }, [rootRef, scrollerRef]);
 
-  /** @param {string} id */
+  /**
+   * SMOOTH FOR A NEIGHBOUR, INSTANT FOR THE FAR END.
+   *
+   * These studies are eight to fifteen screens long, so "jump to section nine"
+   * is a seven-thousand-pixel move, and smoothing that is seconds of the whole
+   * document streaking past — the reader loses their place and the browser
+   * paints every screen in between. A window jumps; it does not fly. Under two
+   * and a half screens the glide tells you which way you went, and past that it
+   * is a cut.
+   * @param {string} id
+   */
   const goTo = (id) => {
     const scroller = scrollerRef?.current;
     const el = rootRef.current?.querySelector(`#${CSS.escape(id)}`);
     if (!scroller || !(el instanceof HTMLElement)) return;
     const to =
-      el.getBoundingClientRect().top - scroller.getBoundingClientRect().top + scroller.scrollTop;
+      el.getBoundingClientRect().top -
+      scroller.getBoundingClientRect().top +
+      scroller.scrollTop -
+      46;
+    const far = Math.abs(to - scroller.scrollTop) > scroller.clientHeight * 2.5;
     const reduced = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
-    scroller.scrollTo({ top: to - 46, behavior: reduced ? "auto" : "smooth" });
+    scroller.scrollTo({ top: to, behavior: reduced || far ? "auto" : "smooth" });
   };
 
   return { items, at, stuck, barRef, goTo };

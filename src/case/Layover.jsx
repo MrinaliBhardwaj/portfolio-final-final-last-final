@@ -406,6 +406,11 @@ export default function Layover() {
           shift actually looks like. Once prep time was the thing all five surfaces were
           organised around, most of the remaining design questions answered themselves.
         </Say>
+        {/* THE SAME THREE, WORD FOR WORD, as the masthead's. A standfirst and
+            a conclusion are allowed to carry the same numbers — a skimmer
+            reads the first and a finisher earns the second — but they may not
+            carry them in a different order or with different labels, which is
+            what they did. */}
         <Figures
           items={[
             { value: "Live", label: "shipped, at mylayover.in" },

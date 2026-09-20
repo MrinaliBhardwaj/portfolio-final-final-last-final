@@ -226,16 +226,6 @@ export default function Futurepreneurs() {
       </Chapter>
 
       <Chapter n="05" label="Screen" tone="black">
-        <Plate
-          bare
-          src={F("laptop")}
-          alt="The Futurepreneurs event timeline on a laptop: qualifier round, qualifier results, D-Day, registration closes."
-          size={size(F("laptop"))}
-          depth={16}
-          className="fp-laptop"
-          caption="The timeline as UI: every date a card, D-Day given the illustration."
-        />
-
         <Split ratio="1.25fr 0.75fr" gap="40px">
           <Scroller
             src={F("site-desktop")}
@@ -262,6 +252,15 @@ export default function Futurepreneurs() {
             <Pull>We breed business.</Pull>
           </div>
         </Split>
+
+        <Plate
+          src={F("laptop")}
+          alt="A detail of the Futurepreneurs event timeline on a laptop: qualifier round 08 Oct, qualifier results 12 Oct, and D-Day 16 Oct."
+          size={size(F("laptop"))}
+          depth={16}
+          className="fp-laptop"
+          caption="A detail of the timeline, off her deck: every date a card, D-Day given the illustration."
+        />
       </Chapter>
 
       <Chapter n="06" label="Print">
@@ -311,21 +310,29 @@ export default function Futurepreneurs() {
       </Chapter>
 
       <Chapter n="07" label="Results" tone="coral">
+        <Statement size="xl">10 years. One system. Two thousand two hundred people.</Statement>
+        {/* THE SAME THREE, WORD FOR WORD, as the masthead's. A standfirst and
+            a conclusion are allowed to carry the same numbers — a skimmer
+            reads the first and a finisher earns the second — but they may not
+            carry them in a different order or with different labels, which is
+            what they did. */}
+        <Figures
+          items={[
+            { value: "2,200+", label: "registrations" },
+            { value: "10,000+", label: "views across the campaign" },
+            { value: "10th", label: "edition of the event" },
+          ]}
+        />
+        {/* the closing image, and the only place it is evidence: the room the
+            2,200 filled */}
         <Plate
           src={F("hall")}
           alt="Rows of auditorium seats under violet light, at the event."
           size={size(F("hall"))}
-          ratio="21 / 9"
+          ratio="16 / 9"
           depth={18}
+          className="fp-hall"
           caption="The hall it filled."
-        />
-        <Statement size="xl">10 years. One system. Two thousand two hundred people.</Statement>
-        <Figures
-          items={[
-            { value: "10,000+", label: "views across the campaign" },
-            { value: "2,200+", label: "registrations" },
-            { value: "10th", label: "edition of the event" },
-          ]}
         />
         <div className="pp-out">
           <a

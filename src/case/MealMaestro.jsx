@@ -429,9 +429,14 @@ export default function MealMaestro() {
         <Statement size="xl">
           Third at the GDG Design-a-thon — for an app that <em>decides</em> for you.
         </Statement>
+        {/* THE SAME THREE, WORD FOR WORD, as the masthead's. A standfirst and
+            a conclusion are allowed to carry the same numbers — a skimmer
+            reads the first and a finisher earns the second — but they may not
+            carry them in a different order or with different labels, which is
+            what they did. */}
         <Figures
           items={[
-            { value: "3rd", label: "GDG Design-a-thon" },
+            { value: "3rd", label: "of the GDG Design-a-thon" },
             { value: "140", label: "survey responses behind the brief" },
             { value: "12", label: "discovery interviews" },
           ]}

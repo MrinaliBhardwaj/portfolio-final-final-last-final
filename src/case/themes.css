@@ -580,9 +580,16 @@
   filter: drop-shadow(0 30px 60px rgba(101, 59, 216, 0.45));
 }
 
+/* a detail, not the hero of its section: capped well under the column so it
+   reads as a close-up rather than as a picture that failed to load whole */
 .fp-laptop {
-  max-width: 1080px;
+  max-width: 760px;
+  margin-top: var(--sp-6);
   margin-inline: auto;
+}
+
+.fp-hall {
+  margin-top: var(--sp-6);
 }
 
 .fp-sticky-copy {

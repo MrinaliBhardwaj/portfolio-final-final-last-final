@@ -392,11 +392,16 @@ export default function NextG() {
         <Statement size="xl">
           Designed and built end to end. Six pages, one system, no framework.
         </Statement>
+        {/* THE SAME THREE, WORD FOR WORD, as the masthead's. A standfirst and
+            a conclusion are allowed to carry the same numbers — a skimmer
+            reads the first and a finisher earns the second — but they may not
+            carry them in a different order or with different labels, which is
+            what they did. */}
         <Figures
           items={[
-            { value: "500,000", label: "outlets the site had to make legible" },
+            { value: "500K", label: "outlets the site had to make legible" },
             { value: "6", label: "pages, designed and built end to end" },
-            { value: "17", label: "colours in the one token file every page reads" },
+            { value: "17", label: "colours in one token file every page reads" },
           ]}
         />
         <Credit>NextG Apex — website design &amp; front-end, June 2026</Credit>
