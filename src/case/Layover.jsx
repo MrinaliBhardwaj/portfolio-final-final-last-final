@@ -222,7 +222,7 @@ export default function Layover() {
             />
           ))}
         </Rail>
-        <Credit>Drag, or scroll the rail sideways</Credit>
+        <Note>Drag, or scroll the rail sideways.</Note>
       </Chapter>
 
       <Chapter n="04" label="Sign-up">
@@ -424,6 +424,7 @@ export default function Layover() {
             <ArrowUpRight size={15} strokeWidth={2} aria-hidden="true" />
           </a>
         </div>
+        <Credit>Layover — brand &amp; product design, 2025 · mylayover.in</Credit>
       </Chapter>
     </>
   );
