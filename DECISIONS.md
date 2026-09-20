@@ -4121,3 +4121,166 @@ Deleted: `scripts/build_case_art.py` and every `public/work/*/art/` crop.
 Figma sources: Meal Maestro `VFPcvgP4zS28UJQxvjd5va`, Futurepreneurs (in the
 portfolio file) `drda7TnqoM3fEpbibCDIc2`, NextG `bUB4MsJcWhbCEhPEyI7Ip6`,
 Layover `BRaDrcuSqhHuA7PTmJX0Zt`.
+
+---
+
+## 20 Sep 2026 — The case studies are audited against a hiring manager, not against a mood board
+
+All four project pages, measured at 1600 / 1280 / 834 / 390 in headless Chrome
+and then rebuilt. The brief: assume a recruiter gives this 30–90 seconds and
+make what matters findable in that time, without inventing a single thing she
+did not do.
+
+### What the audit actually found
+
+Not opinions — numbers off the running pages.
+
+| | before | after |
+|---|---|---|
+| distinct font sizes rendered (Meal Maestro, 1600) | **20** | **13** |
+| — of them between 10px and 15px | **8** | **4** |
+| characters per line, body copy | 74–84 | **63–70** |
+| characters per line, a "wide" paragraph | up to **106** | **≤73** |
+| corner radii between 7px and 14px | **6** | **2** |
+| Layover: horizontal overflow at 1600 | **262px, clipped** | **0** |
+| studies stating an outcome in the first screen | **0 of 4** | **4 of 4** |
+| Futurepreneurs sections | 10 | **7** |
+| NextG section numbers | 02,03,05,06,07,08,09,10,12,13,14 | **01–10** |
+| studies that number their sections at all | 2 of 4 | **4 of 4** |
+| tap targets under 44px | 2 | **0** |
+| blocks off the document's left margin | — | **0, at every width** |
+
+### The first screen answers four questions now, not two
+
+The masthead gave a name, a sentence and a rule-separated row of whatever facts
+each project happened to carry — three pairs on one study, five on another, laid
+out with `auto-fit` so every study got a *different grid* and "Role" could sit
+1,200px from the value beside it. Among those facts: "Category: B2B retail tech"
+and "Location: India", occupying the most valuable pixels on the site. The
+result of the work was eight to fifteen screens below, at the foot.
+
+Now: **four fixed slots in one order on all four studies** — Role, Timeline,
+Scope, Tools, in a two-column grid so a label always sits over its value — and
+**the outcome moved into the first screen**, in the project's accent, in the
+third of the page that was empty. It costs no height; it was dead space.
+
+### The sections announce themselves
+
+A study is eight to fifteen screens inside a window whose scrollbar says nothing
+about what is in it. New: a sticky index (`ChapterNav`, `useChapters`) reading
+**"Contents · 9 sections"** at rest and **"03 The traveller · 3 / 9"** once
+pinned, with a progress line and a list to jump by. Two states out of one bar,
+because at rest it sat directly above a section head and repeated it word for
+word.
+
+It is **buttons, not anchors**: an `href="#the-brief"` would overwrite the hash
+this whole site routes on and throw the reader back to the desktop.
+
+### Decisions, with their price on them
+
+Every study already contained these — *"Login is the first screen in a lot of
+products. It is not here. Cost: we lose the email of everyone who browses and
+leaves. It was worth it."* — as sentences in the middle of paragraphs, which is
+exactly where a reader skimming for product thinking fails to find them. Same
+words, given a shape: `Decision` — what, why, and what it cost. Six of them
+across the four studies, **all lifted from her own copy**, and the trade-off row
+carries the accent, because the trade-off is what separates a designer who chose
+from a designer who preferred.
+
+It also killed a duplicate: NextG's four "Insight #1 / Solution #1" cards were
+the same object built twice. One component now.
+
+### Futurepreneurs was an inventory; it is an argument
+
+Ten sections following the deck's own running order — About, Theme, Typography,
+Process, SocialmediaGrid, Instagramstories, Elements, Website, Printables,
+Results — several of them a single picture, and no case anywhere. Colour and
+type were one system described twice; the grid and the stories were both
+Instagram; the laptop and the site were both the website.
+
+Seven sections now: **the brief, the system, how it was made, and then that
+system surviving contact with a feed, a screen and a sheet of paper.** Every
+picture kept, every word of hers kept, the tag motif kept — and the section
+number un-hidden, so the index can count them like the other three.
+
+Meal Maestro lost a chapter the same way ("In the kitchen" was two photographs;
+they open the Outcome now). NextG lost one ("On the road" was one photograph; it
+is evidence inside The product).
+
+### Three systems where there were none
+
+- **Spacing**: `--pp-u * n` was systematic but `n` had gone fractional — 1.5,
+  2.5, 5, 7, 9. Eight named steps (`--sp-1` to `--sp-8`: 8/12/16/24/32/48/64/96),
+  and nothing may use a number outside them.
+- **Type**: four text steps and six display steps, and no part may invent a
+  ninth. The exceptions are deliberate and marked: `.pp-scale-step` and
+  `.pp-specimen-name` are *drawings of somebody else's type scale*, so their
+  sizes are content, not chrome. Body copy went 14.5px to **15.5px** — this is an
+  editorial page read at arm's length, not a settings panel.
+- **Corners**: `--r-xs` for controls, `--r-sm` for panels, `--pp-radius` for
+  anything holding a picture. 999px pills and the 22/30px corners on a phone
+  mockup are exempt: they are shapes, not radii.
+
+**The measure takes two units and the smaller wins**: `min(56ch, 33rem)`. `ch`
+alone is the wrong unit, because it is the width of a *zero* — Gantari's zero is
+narrow and its lowercase is not, so one `ch` value gave Inter 68 characters a
+line and Futurepreneurs 74.
+
+### Two bugs the audit turned up
+
+- **The sticky captions had never once stuck.** `.pp-sticky` carried
+  `align-items: start`, which sizes the aside column to its own content — so a
+  `position: sticky` pin had a few pixels of travel and scrolled away with
+  everything else. Three sections across three studies were a two-column layout
+  wearing the word "sticky". Stretched now, and offset to clear the new index.
+- **Layover lost 262px off the right of two rails.** `.pp-rail-track` reached
+  for the pane's right edge with `calc(50cqw + 50%)`, which is only the right
+  distance when the rail's left edge is the document's own margin. In a Split or
+  a Sticky column it overshot, and the mask that says "there is more this way"
+  landed outside the window. The reach is opt-in now: `.pp-ch > .pp-rail`.
+
+### It got faster, and that was measured properly
+
+Interleaved A/B, both builds served at once, runs alternating, 5 rounds, 4x CPU
+throttle, quiet machine:
+
+| opening Layover | before | after |
+|---|---|---|
+| deep link, worst task | 1492 ms | **1150 ms** |
+| deep link, total blocked | 5439 ms | **4698 ms** |
+| from the settled desk, worst task | 1001 ms | **800 ms** |
+| from the settled desk, total blocked | 2115 ms | **1727 ms** |
+
+Three fewer sections and two fewer cards is less document. And the section index
+was built with a `backdrop-filter` at first, which re-filters its backdrop on
+**every scroll frame** of a ten-thousand-pixel document; it is opaque now — it
+sits on the page's own ground, so the frost was a blur of the same colour. The
+index measures its sections once and coalesces re-measures into a single frame,
+because every lazy image that lands changes the document's height.
+
+(An earlier 3-round run on a loaded machine read the desk path 27% *slower*.
+That run still had the backdrop-filter in it and the machine was busy.
+Interleave, and do not report a median of three.)
+
+### Nothing invented
+
+No research, metric, user, result, team member or responsibility that is not
+already on her boards. Where a decision had no stated trade-off, the block
+simply has no trade-off row. Restructuring moved her words; it did not write new
+ones.
+
+### Still missing — for her, not for the page
+
+The gaps a hiring manager will feel, and none of them can be filled without her:
+
+- **Team.** Only Layover implies anyone else ("Product designer, co-lead"). The
+  `facts` vocabulary has no Team slot, because naming collaborators she has not
+  named would be inventing them. If she worked with others on any of the four,
+  that is a slot worth adding.
+- **Her share of Layover.** Five surfaces, co-led — but which parts were hers?
+  As it stands the page reads as though she did all five.
+- **Post-launch numbers for Layover.** It is live. Orders, vendors onboarded,
+  anything measured after shipping would be the strongest number on the site.
+- **NextG's outcome is scale, not result.** "500K outlets" is what the site had
+  to make legible, not what the site achieved. Any post-launch figure — enquiries,
+  time on page, a line from the CEO — would replace it.

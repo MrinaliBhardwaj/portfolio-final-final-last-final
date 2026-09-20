@@ -14,6 +14,7 @@ import {
   Chapter,
   Columns,
   Credit,
+  Decision,
   Figures,
   Note,
   Plate,
@@ -94,7 +95,7 @@ function BuildVideo() {
 export default function NextG() {
   return (
     <>
-      <Chapter n="02" label="Project overview" flush>
+      <Chapter n="01" label="Project overview" flush>
         <Split ratio="1.15fr 0.85fr" gap="48px">
           <div>
             <Statement size="lg">
@@ -123,7 +124,7 @@ export default function NextG() {
         </Split>
       </Chapter>
 
-      <Chapter n="03" label="The brief">
+      <Chapter n="02" label="The brief">
         <Statement size="lg">A brief in two halves.</Statement>
         <Split ratio="1fr 1fr" gap="28px">
           <Reveal className="pp-card">
@@ -159,7 +160,7 @@ export default function NextG() {
         </Split>
       </Chapter>
 
-      <Chapter n="05" label="Audit" tone="wash">
+      <Chapter n="03" label="Audit" tone="wash">
         <Statement size="lg">
           I read the old site the way a sceptical buyer would.
         </Statement>
@@ -206,7 +207,7 @@ export default function NextG() {
         />
       </Chapter>
 
-      <Chapter n="06" label="Decisions">
+      <Chapter n="04" label="Decisions">
         <Sticky
           aside={
             <>
@@ -218,39 +219,19 @@ export default function NextG() {
             </>
           }
         >
-          <Reveal className="pp-card pp-card--solid">
-            <h4>Insight #1</h4>
-            <p>
-              Buyers in this category verify before they book a call. The old site said
-              &ldquo;nationwide coverage&rdquo; over a stock photo and gave them nothing to
-              check.
-            </p>
-          </Reveal>
-          <Reveal className="pp-card" delay={0.06}>
-            <h4>Solution #1</h4>
-            <p>
-              Scale moved into the first screen — 500K+ outlets, 900+ towns, 20+ brands —
-              under a hero that DRAWS the coverage instead of claiming it.
-            </p>
-          </Reveal>
-          <Reveal className="pp-card pp-card--solid" delay={0.12}>
-            <h4>Insight #2</h4>
-            <p>
-              Six pages of benefit copy and not one screen of the actual platform. The thing
-              being sold was invisible until a sales call.
-            </p>
-          </Reveal>
-          <Reveal className="pp-card" delay={0.18}>
-            <h4>Solution #2</h4>
-            <p>
-              Four product views in one tabbed panel, halfway down the home page. The light
-              column is what you control; the dark column is what is happening.
-            </p>
-          </Reveal>
+          <Decision
+            what="Scale moved into the first screen, under a hero that DRAWS the coverage instead of claiming it."
+            why="Buyers in this category verify before they book a call. The old site said “nationwide coverage” over a stock photo and gave them nothing to check — so the first screen now carries 500K+ outlets, 900+ towns and 20+ brands."
+          />
+          <Decision
+            delay={0.08}
+            what="Four product views in one tabbed panel, halfway down the home page."
+            why="Six pages of benefit copy and not one screen of the actual platform — the thing being sold was invisible until a sales call. The light column is what you control; the dark column is what is happening."
+          />
         </Sticky>
       </Chapter>
 
-      <Chapter n="07" label="Type &amp; colour">
+      <Chapter n="05" label="Type &amp; colour">
         <Split ratio="0.9fr 1.1fr" gap="44px">
           <div>
             <Statement size="md">One family, held to four sizes.</Statement>
@@ -284,7 +265,7 @@ export default function NextG() {
         <Swatches items={TOKENS} />
       </Chapter>
 
-      <Chapter n="08" label="The product">
+      <Chapter n="06" label="The product">
         <Statement size="lg">Designing the product, not just the page.</Statement>
         <Say wide>
           Four views of the platform — coverage, execution, live intelligence, field ops.
@@ -303,10 +284,10 @@ export default function NextG() {
             <Slide key={n} src={F(n)} alt={`NextG — ${cap}.`} size={size(F(n))} caption={cap} />
           ))}
         </Rail>
-      </Chapter>
 
-      <Chapter n="09" label="On the road">
-        <Split ratio="1.2fr 0.8fr" middle gap="44px">
+        {/* the thing the map is a map OF — her own photograph, and the reason
+            the coverage figures are not decoration */}
+        <Split ratio="1.2fr 0.8fr" middle gap="44px" className="ng-road">
           <Plate
             src={F("fig/shop")}
             alt="A NextG field rep and a shopkeeper at the counter of a general store."
@@ -314,7 +295,7 @@ export default function NextG() {
             depth={18}
           />
           <div>
-            <Statement size="lg">Every dot on the coverage map is one of these.</Statement>
+            <Statement size="md">Every dot on the coverage map is one of these.</Statement>
             <Say>
               The product&rsquo;s job is to make this visible from a desk twelve hundred
               kilometres away.
@@ -323,7 +304,7 @@ export default function NextG() {
         </Split>
       </Chapter>
 
-      <Chapter n="10" label="The whole site">
+      <Chapter n="07" label="The whole site">
         <Split ratio="0.8fr 1.2fr" middle gap="44px">
           <div>
             <Statement size="md">Six pages, one scroll each.</Statement>
@@ -341,7 +322,7 @@ export default function NextG() {
         </Split>
       </Chapter>
 
-      <Chapter n="12" label="Responsive" flush>
+      <Chapter n="08" label="Responsive" flush>
         <Split ratio="1fr 1fr" middle gap="44px">
           <div>
             <Statement size="lg">Drawn at 390 and 1600 at the same time.</Statement>
@@ -374,7 +355,7 @@ export default function NextG() {
         </Split>
       </Chapter>
 
-      <Chapter n="13" label="Build" tone="navy">
+      <Chapter n="09" label="Build" tone="navy">
         <Statement size="lg">I shipped the front-end as well.</Statement>
         <Say wide>
           Six static pages of hand-written HTML, CSS and JavaScript. No framework. The code
@@ -407,7 +388,7 @@ export default function NextG() {
         />
       </Chapter>
 
-      <Chapter n="14" label="Results" tone="navy" flush>
+      <Chapter n="10" label="Results" tone="navy" flush>
         <Statement size="xl">
           Designed and built end to end. Six pages, one system, no framework.
         </Statement>

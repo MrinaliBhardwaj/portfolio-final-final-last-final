@@ -38,6 +38,33 @@
  */
 
 /**
+ * `facts` IS A FIXED FORM, NOT A FREE LIST (20 Sep 2026).
+ *
+ * It used to be whatever each project felt like declaring: three pairs on Meal
+ * Maestro, five on Layover, and among them "Category: B2B retail tech" and
+ * "Location: India" — filler occupying the most valuable pixels on the page.
+ * The masthead laid them out with `auto-fit`, so every study also got a
+ * DIFFERENT GRID: three columns here, five there, stretched edge to edge until
+ * a term stood a thousand pixels from the value it named.
+ *
+ * Four slots now, in this order, on every study:
+ *
+ *   Role      what she was, in her own words
+ *   Timeline  when
+ *   Scope     the shape of the job — surfaces, deliverables, pages
+ *   Tools     what it was made in
+ *
+ * A project that genuinely lacks one omits it; nothing is padded. TEAM is the
+ * slot deliberately absent: only Layover's "co-lead" implies anyone else, and
+ * naming a team she has not named would be inventing her collaborators. See
+ * DECISIONS.md, "Still missing".
+ *
+ * `metrics` is the answer to "what came of it" and now renders in the FIRST
+ * SCREEN as well as the closing section — a reader deciding in ninety seconds
+ * never reached the foot of a ten-thousand-pixel page.
+ */
+
+/**
  * THE CASE STUDY IS HTML NOW, NOT AN EXPORT.
  *
  * It used to be one enormous artboard scrolled inside a window - 1400x22306 for
@@ -87,18 +114,19 @@ export const PROJECTS = [
     summary:
       "A meal-planning app built around one idea: the hard part isn't cooking, it's deciding. Meal Maestro takes what you like, what you avoid and what's already in the kitchen, and turns it into a week of recipes and the one grocery list that covers them. Placed third at the GDG Design-a-thon.",
     facts: [
-      ["Role", "UI design"],
-      ["Timeline", "Mar 2025"],
-      ["Recognition", "3rd — GDG Design-a-thon"],
+      ["Role", "UI design — research through to UI"],
+      ["Timeline", "Mar 2025 · 5 weeks of field research"],
+      ["Scope", "Brand, four product flows, design system"],
+      ["Tools", "Figma"],
     ],
     external: BEHANCE,
     // Her own numbers, from the research page of the study itself - they were
     // buried in the export's alt text, where a hiring manager scanning for
     // thirty seconds would never find them.
     metrics: [
-      { value: "140", label: "survey responses" },
+      { value: "3rd", label: "of the GDG Design-a-thon" },
+      { value: "140", label: "survey responses behind the brief" },
       { value: "12", label: "discovery interviews" },
-      { value: "3rd", label: "GDG Design-a-thon" },
     ],
     shots: [],
     // THE STUDY, NOT AN APPENDIX (12 Sep 2026). This same frame used to be
@@ -158,19 +186,18 @@ export const PROJECTS = [
     // artwork is the authority on her project.
     facts: [
       ["Role", "Product designer, co-lead"],
-      ["Surfaces", "Marketing site · Consumer web · Consumer app · Vendor portal · Admin portal"],
-      ["Timeline", "2025"],
-      ["Tool", "Figma"],
-      ["Launch airports", "Delhi IGI · Mumbai CSIA · Bengaluru KIA · Hyderabad RGIA"],
+      ["Timeline", "2025 — shipped"],
+      ["Scope", "Brand, consumer app and web, vendor and admin portals"],
+      ["Tools", "Figma"],
     ],
     external: BEHANCE,
     // Shipped as a real product — the case-study page links here instead of
     // back to Behance, since the live thing outranks mockups of it.
     live: "https://mylayover.in/",
     metrics: [
-      { value: "4", label: "airports at launch" },
+      { value: "Live", label: "shipped, at mylayover.in" },
       { value: "5", label: "surfaces, marketing site to admin portal" },
-      { value: "Live", label: "shipped at mylayover.in" },
+      { value: "4", label: "airports at launch" },
     ],
     // THE CASE STUDY ITSELF (5 Sep 2026), her node 171:3998 — 1600 x 20013 of
     // written argument interleaved with the screens it argues about.
@@ -219,17 +246,17 @@ export const PROJECTS = [
     summary:
       "The tenth edition of Futurepreneurs needed an identity that could hold a whole campaign, not just a poster. One system carried the website, the social run, the reels and the print brochures — which is what let it reach 10,000+ views and convert to 2,200+ registrations.",
     facts: [
-      ["Role", "Brand identity · UI design"],
-      ["Deliverables", "Website, social, reels, brochures"],
-      ["Reach", "10,000+ views · 2,200+ registrations"],
+      ["Role", "Brand identity · UI design · total visual execution"],
       ["Timeline", "Oct 2024"],
+      ["Scope", "Ten deliverables — identity, website, social, print"],
+      ["Tools", "Figma"],
     ],
     // The project's own gallery, not the general profile — same reasoning as
     // Layover's live link: point at the specific thing, not a landing page.
     external: "https://www.behance.net/gallery/221417825/FUTUREPRENEURS-100-UI-Design",
     metrics: [
-      { value: "10,000+", label: "views across the campaign" },
       { value: "2,200+", label: "registrations" },
+      { value: "10,000+", label: "views across the campaign" },
       { value: "10th", label: "edition of the event" },
     ],
     hero: "/work/futurepreneurs/hero.webp",
@@ -308,15 +335,15 @@ export const PROJECTS = [
     summary:
       "NextG runs field sales for FMCG brands across half a million Indian outlets. Their 10 year old site looked like every other B2B tool, so nobody believed the scale. I rebuilt it end to end — structure, interface, design system, and the front-end code.",
     facts: [
-      ["Role", "Product design + front-end"],
-      ["Timeline", "June 2026"],
-      ["Category", "B2B retail tech"],
-      ["Location", "India"],
+      ["Role", "Product design and front-end — designed and built"],
+      ["Timeline", "Jun 2026"],
+      ["Scope", "Structure, UI, design system, shipped code"],
+      ["Tools", "Figma · HTML, CSS, JavaScript, WebGL"],
     ],
     metrics: [
-      { value: "500,000", label: "outlets the site had to make legible" },
+      { value: "500K", label: "outlets the site had to make legible" },
       { value: "6", label: "pages, designed and built end to end" },
-      { value: "17", label: "colours in the one token file every page reads" },
+      { value: "17", label: "colours in one token file every page reads" },
     ],
     // NextG, node 181:103 ("NextG Apex · Case Study"), 1600 x 20076. No crop
     // and no border to trim; its sixteen sections sit on flat gaps, so all but

@@ -16,17 +16,70 @@
      section can be given air without anyone choosing a number. Themes may
      change it; parts may not. */
   --pp-u: 8px;
-  --pp-gap: calc(var(--pp-u) * 4);
-  /* the reading measure, which is NOT the page width: full-bleed art gets the
-     pane, prose never does */
-  --pp-measure: 68ch;
+  --pp-gap: var(--sp-5);
+
+  /* THE SPACING SCALE. `--pp-u * n` was already systematic, but n had grown
+     fractional — 1.5, 2.5, 4, 5, 7, 9 — which is eight steps where the eye can
+     tell four apart, and it meant every new block picked its own multiplier.
+     Eight named steps, and nothing on the page may use a number outside them.
+     They double roughly every two steps, so two adjacent ones never read as a
+     mistake. */
+  --sp-1: 8px;
+  --sp-2: 12px;
+  --sp-3: 16px;
+  --sp-4: 24px;
+  --sp-5: 32px;
+  --sp-6: 48px;
+  --sp-7: 64px;
+  --sp-8: 96px;
+
+  /* THE TYPE SCALE. The page was rendering twenty distinct sizes, eight of them
+     between 10px and 15px — differences nobody can see and every one of them a
+     separate decision. Four steps for anything that is text, six for anything
+     that is display, and no part may invent a ninth.
+
+     `--t-body` is 15.5px rather than the 14.5 it was: this is an editorial page
+     read at arm's length on a laptop, not a settings panel. */
+  --t-micro: 10.5px; /* eyebrows, section labels, credits — always uppercase */
+  --t-fine: 12px; /* captions, notes, rail heads */
+  --t-small: 13.5px; /* list items, meta values, buttons */
+  --t-body: 15.5px; /* paragraphs */
+
+  --d-xs: clamp(16px, 1.5cqw, 20px); /* the lede, and names inside lists */
+  --d-sm: clamp(21px, 2.1cqw, 29px);
+  --d-md: clamp(24px, 2.6cqw, 36px);
+  --d-lg: clamp(28px, 3.5cqw, 48px);
+  --d-xl: clamp(38px, 5.8cqw, 82px);
+  --d-fig: clamp(34px, 3.8cqw, 56px); /* a number that is the point */
+
+  /* THE READING MEASURE, which is NOT the page width: full-bleed art gets the
+     pane, prose never does.
+
+     TWO UNITS, AND THE SMALLER WINS. `ch` alone was the whole measure and it
+     is the wrong unit on its own, because it is the width of a ZERO: Gantari's
+     zero is narrow and its lowercase is not, so the same 56ch that gave Inter
+     68 characters a line gave Futurepreneurs 74 and Montserrat 79. The rem
+     ceiling is the physical length a line may be whatever face is set in it,
+     and the ch keeps a large-type theme honest. Measured, all four studies now
+     land between 63 and 73 characters. It used to be 84, and 106 on a wide
+     paragraph. */
+  --pp-measure: min(56ch, 33rem);
+  --pp-wide: min(62ch, 35rem); /* a stated argument, one step wider — not 86ch */
   --pp-say: 34ch; /* a Statement is display type; it wraps sooner */
   --pp-r-t: 0.72s;
   --pp-r-e: cubic-bezier(0.22, 1, 0.36, 1);
   --pp-r-x: 18px; /* how far a sideways reveal starts out; see the phone rule */
+  /* THE CORNER SCALE. Six radii were in play between 7px and 14px — 7, 8, 9.8,
+     10, 12, 14 — which is five decisions where a page needs two. Small controls
+     take --r-xs, every panel and chip takes --r-sm, and anything holding a
+     picture takes --pp-radius, which is the one a theme may move. 999px pills
+     and the 22/30px device corners on a phone mockup are exempt: they are
+     shapes, not radii. */
   --pp-radius: 14px;
+  --r-xs: 8px;
+  --r-sm: 10px;
 
-  padding-bottom: calc(var(--pp-u) * 9);
+  padding-bottom: var(--sp-7);
   color: var(--pp-ink);
   background: var(--pp-bg);
   font-family: var(--pp-body);
@@ -114,7 +167,7 @@
    furniture is identical; only its paint changes. */
 .pp-mast {
   position: relative;
-  padding: calc(var(--pp-u) * 7) 0 calc(var(--pp-u) * 6);
+  padding: var(--sp-6) 0 var(--sp-6);
 }
 
 .pp-mast-kind {
@@ -122,9 +175,9 @@
   flex-wrap: wrap;
   align-items: center;
   gap: 10px;
-  margin: 0 0 calc(var(--pp-u) * 2.5);
+  margin: 0 0 var(--sp-4);
   font-family: var(--pp-label);
-  font-size: 10.5px;
+  font-size: var(--t-micro);
   font-weight: 650;
   letter-spacing: 0.15em;
   text-transform: uppercase;
@@ -158,27 +211,41 @@
 }
 
 .pp-mast-lede {
-  margin: calc(var(--pp-u) * 3) 0 0;
+  margin: var(--sp-4) 0 0;
   max-width: 44ch;
-  font-size: clamp(15px, 1.35cqw, 19px);
+  font-size: var(--d-xs);
   line-height: 1.6;
   color: var(--pp-dim);
 }
 
-/* Role / timeline / recognition — a definition list, because that is what it
-   is, laid out as a rule-separated row rather than as chips. */
+/* THE TWO HALVES OF THE FIRST SCREEN. Left: what it is and what she did.
+   Right: what came of it. The right column is a fixed band rather than a
+   fraction, so the outcome is the same size on a 1,380px pane and a 900px one
+   and the title never has to compete with it for room. */
+.pp-mast-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(190px, 240px);
+  gap: var(--sp-7);
+  align-items: start;
+}
+
+/* Role / timeline / scope / tools — a definition list, because that is what it
+   is. TWO COLUMNS, NEVER auto-fit: auto-fit gave each study a different grid
+   (three columns here, five there) and stretched the pairs so far apart that a
+   term stopped belonging to its value. Two columns is the same grid on all
+   four, and a label always sits directly over what it labels. */
 .pp-mast-facts {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: calc(var(--pp-u) * 3);
-  margin: calc(var(--pp-u) * 5) 0 0;
-  padding-top: calc(var(--pp-u) * 3);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--sp-4) var(--sp-5);
+  margin: var(--sp-5) 0 0;
+  padding-top: var(--sp-4);
   border-top: 1px solid var(--pp-line);
 }
 
 .pp-mast-facts dt {
   font-family: var(--pp-label);
-  font-size: 10px;
+  font-size: var(--t-micro);
   font-weight: 650;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -186,28 +253,227 @@
 }
 
 .pp-mast-facts dd {
-  margin: 7px 0 0;
-  font-size: 13.5px;
+  margin: var(--sp-1) 0 0;
+  font-size: var(--t-small);
   line-height: 1.45;
   color: var(--pp-ink);
 }
 
+/* WHAT CAME OF IT, IN THE FIRST SCREEN. These three numbers used to appear only
+   in the closing section, eight to fifteen screens down. A reader giving this
+   ninety seconds decides on the strength of the first one, so the result is
+   here, set in the project's accent — the only place in the masthead that
+   carries colour, which is what makes the eye land on it second, after the
+   name. */
+.pp-mast-out {
+  padding-left: var(--sp-5);
+  border-left: 1px solid var(--pp-line);
+}
+
+.pp-mast-out-head {
+  margin: 0 0 var(--sp-4);
+  font-family: var(--pp-label);
+  font-size: var(--t-micro);
+  font-weight: 650;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--pp-faint);
+}
+
+.pp-mast-out dl {
+  display: grid;
+  gap: var(--sp-4);
+  margin: 0;
+}
+
+.pp-mast-out dd {
+  margin: 0;
+  font-family: var(--pp-display);
+  font-size: clamp(26px, 2.5cqw, 36px);
+  font-weight: var(--pp-display-w, 700);
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: var(--pp-accent);
+}
+
+.pp-mast-out dt {
+  margin: 6px 0 0;
+  font-size: var(--t-small);
+  line-height: 1.4;
+  color: var(--pp-dim);
+}
+
+/* ---- the section index ----
+   A STUDY INSIDE A WINDOW HAS NO SCROLLBAR WORTH READING. The pane's bar is
+   thin, overlaid and says nothing about what is in the document, so a reader
+   eight screens into fifteen has no idea whether the outcome is one screen away
+   or six. This is the answer: where you are, how far through, and a list to
+   jump by — a Finder status strip rather than a website nav, which is the right
+   quotation for a document inside a Mac window.
+
+   It is full-bleed and sticky, so it reads as part of the WINDOW rather than
+   part of whichever section happens to be under it. The same breakout as a
+   bleed band: 100cqw wide, pulled back to the pane's left edge, then padded
+   back in to the measure so its text stays on the document's own left margin.
+
+   Not shown on a study with fewer than three sections — see ChapterNav. */
+.pp-nav {
+  position: sticky;
+  top: 0;
+  z-index: 6;
+  width: 100cqw;
+  margin-left: calc(50% - 50cqw);
+  padding-inline: calc(50cqw - 50%);
+  /* OPAQUE, NOT FROSTED. A backdrop-filter on a sticky element that spans the
+     pane re-filters its backdrop on every scroll frame of a ten-thousand-pixel
+     document — the one kind of cost this window cannot afford, and the house
+     rule about scroll-linked work on weak hardware. The bar sits on the page's
+     own ground anyway, so frosting it was buying a blur of the same colour. */
+  background: var(--pp-bg);
+  border-bottom: 1px solid var(--pp-line);
+}
+
+.pp-nav-in {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  min-height: 44px;
+}
+
+.pp-nav-now {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  margin-left: -8px;
+  padding: 0 8px;
+  border: 0;
+  border-radius: var(--r-xs);
+  background: none;
+  cursor: pointer;
+  font-family: var(--pp-label);
+  font-size: var(--t-micro);
+  font-weight: 650;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--pp-ink);
+}
+
+.pp-nav-now:hover {
+  background: var(--pp-sunk);
+}
+
+.pp-nav-now svg {
+  color: var(--pp-faint);
+  transition: transform 0.2s var(--pp-r-e);
+}
+
+.pp-nav[data-open] .pp-nav-now svg {
+  transform: rotate(180deg);
+}
+
+.pp-nav-n {
+  color: var(--pp-accent);
+}
+
+.pp-nav-of {
+  margin-left: auto;
+  font-family: var(--pp-mono, var(--pp-label));
+  font-size: var(--t-micro);
+  letter-spacing: 0.08em;
+  color: var(--pp-faint);
+}
+
+/* the list of everything, for a reader who wants one section and not the rest */
+.pp-nav-list {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: -8px;
+  z-index: 2;
+  display: grid;
+  gap: 1px;
+  min-width: 260px;
+  max-height: 60vh;
+  overflow-y: auto;
+  margin: 0;
+  padding: 6px;
+  list-style: none;
+  border-radius: var(--r-sm);
+  background: var(--pp-bg);
+  box-shadow:
+    0 0 0 1px var(--pp-line),
+    0 18px 44px rgba(0, 0, 0, 0.22);
+}
+
+.pp-nav-list button {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  width: 100%;
+  min-height: 34px;
+  padding: 7px 10px;
+  border: 0;
+  border-radius: var(--r-xs);
+  background: none;
+  cursor: pointer;
+  text-align: left;
+  font-family: var(--pp-label);
+  font-size: var(--t-small);
+  color: var(--pp-dim);
+}
+
+.pp-nav-list button span {
+  font-family: var(--pp-mono, var(--pp-label));
+  font-size: var(--t-micro);
+  color: var(--pp-faint);
+}
+
+.pp-nav-list button:hover {
+  background: var(--pp-sunk);
+  color: var(--pp-ink);
+}
+
+.pp-nav-list button[aria-current] {
+  color: var(--pp-ink-hi);
+  font-weight: 650;
+}
+
+.pp-nav-list button[aria-current] span {
+  color: var(--pp-accent);
+}
+
+/* HOW MUCH IS LEFT, as a line rather than a number. `--pp-prog` is written
+   straight onto the bar by the scroll handler, so this never costs a render. */
+.pp-nav-bar {
+  position: absolute;
+  left: 0;
+  bottom: -1px;
+  height: 2px;
+  width: 100%;
+  transform: scaleX(var(--pp-prog, 0));
+  transform-origin: 0 50%;
+  background: var(--pp-accent);
+}
+
 /* ---- chapter ---- */
 .pp-ch {
-  padding: calc(var(--pp-u) * 9) 0 0;
+  padding: var(--sp-7) 0 0;
+  /* the sticky bar is 45px tall and a jump lands the section under it */
+  scroll-margin-top: 52px;
 }
 
 .pp-ch.is-flush {
-  padding-top: calc(var(--pp-u) * 5);
+  padding-top: var(--sp-5);
 }
 
 .pp-ch-head {
   display: flex;
   align-items: baseline;
   gap: 14px;
-  margin: 0 0 calc(var(--pp-u) * 3);
+  margin: 0 0 var(--sp-4);
   font-family: var(--pp-label);
-  font-size: 10.5px;
+  font-size: var(--t-micro);
   font-weight: 650;
   letter-spacing: 0.16em;
   text-transform: uppercase;
@@ -234,49 +500,49 @@
 }
 
 .pp-say--xl {
-  font-size: clamp(38px, 5.8cqw, 82px);
+  font-size: var(--d-xl);
 }
 
 .pp-say--lg {
-  font-size: clamp(28px, 3.5cqw, 48px);
+  font-size: var(--d-lg);
   line-height: 1.08;
 }
 
 .pp-say--md {
-  font-size: clamp(21px, 2.1cqw, 29px);
+  font-size: var(--d-sm);
   line-height: 1.22;
   letter-spacing: -0.018em;
 }
 
 .pp-copy {
-  margin: calc(var(--pp-u) * 2.5) 0 0;
+  margin: var(--sp-4) 0 0;
   max-width: var(--pp-measure);
-  font-size: 14.5px;
+  font-size: var(--t-body);
   line-height: 1.72;
   color: var(--pp-dim);
 }
 
 .pp-copy.is-wide {
-  max-width: 86ch;
+  max-width: var(--pp-wide);
 }
 
 .pp-say + .pp-copy {
-  margin-top: calc(var(--pp-u) * 3);
+  margin-top: var(--sp-4);
 }
 
 .pp-note {
-  margin: calc(var(--pp-u) * 1.5) 0 0;
+  margin: var(--sp-2) 0 0;
   max-width: 62ch;
   font-family: var(--pp-label);
-  font-size: 11.5px;
+  font-size: var(--t-fine);
   line-height: 1.55;
   color: var(--pp-faint);
 }
 
 .pp-credit {
-  margin: calc(var(--pp-u) * 2) 0 0;
+  margin: var(--sp-3) 0 0;
   font-family: var(--pp-label);
-  font-size: 10px;
+  font-size: var(--t-micro);
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--pp-faint);
@@ -297,7 +563,7 @@
 .pp-bleed {
   position: relative;
   width: 100cqw;
-  margin: calc(var(--pp-u) * 7) 0 calc(var(--pp-u) * 7) calc(50% - 50cqw);
+  margin: var(--sp-6) 0 var(--sp-6) calc(50% - 50cqw);
   overflow: hidden;
   background: var(--pp-bleed-bg, var(--pp-sunk));
   isolation: isolate;
@@ -394,9 +660,9 @@
 }
 
 .pp-plate figcaption {
-  margin: calc(var(--pp-u) * 1.5) 0 0;
+  margin: var(--sp-2) 0 0;
   font-family: var(--pp-label);
-  font-size: 11.5px;
+  font-size: var(--t-fine);
   line-height: 1.5;
   color: var(--pp-faint);
 }
@@ -433,7 +699,7 @@
   gap: 6px;
   height: 30px;
   padding: 0 12px;
-  border-radius: 10px 10px 0 0;
+  border-radius: var(--r-sm) var(--r-sm) 0 0;
   background: var(--pp-scroller-bar, #e9e9ee);
 }
 
@@ -447,7 +713,7 @@
 .pp-scroller-bar b {
   margin-left: 10px;
   font-family: var(--pp-mono, var(--pp-label));
-  font-size: 10.5px;
+  font-size: var(--t-micro);
   font-weight: 400;
   color: rgba(0, 0, 0, 0.5);
 }
@@ -457,7 +723,7 @@
   height: var(--pp-scroller-h, 560px);
   overflow-y: auto;
   overscroll-behavior: contain;
-  border-radius: 0 0 10px 10px;
+  border-radius: 0 0 var(--r-sm) var(--r-sm);
   background: #fff;
   box-shadow: var(--pp-shadow);
   scrollbar-width: thin;
@@ -490,9 +756,9 @@
 }
 
 .pp-scroller figcaption {
-  margin: calc(var(--pp-u) * 1.5) 0 0;
+  margin: var(--sp-2) 0 0;
   font-family: var(--pp-label);
-  font-size: 11.5px;
+  font-size: var(--t-fine);
   line-height: 1.5;
   color: var(--pp-faint);
 }
@@ -527,13 +793,13 @@
 
 .pp-specimen-weights {
   grid-column: 1 / -1;
-  font-size: 15px;
+  font-size: var(--t-body);
   color: var(--pp-dim);
 }
 
 .pp-specimen-role {
   font-family: var(--pp-mono, var(--pp-label));
-  font-size: 10px;
+  font-size: var(--t-micro);
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--pp-faint);
@@ -577,7 +843,7 @@
    page; it is snapped, focusable, and it fades at the right-hand edge so it
    reads as continuing rather than ending. */
 .pp-rail {
-  margin: calc(var(--pp-u) * 4) 0 0;
+  margin: var(--sp-5) 0 0;
   /* A GRID ITEM'S min-width IS auto, WHICH MEANS "as wide as my content". The
      track inside is a horizontal scroller whose max-content is every slide laid
      end to end — so a rail dropped into Sticky or Run blew its column out to
@@ -590,9 +856,9 @@
   display: flex;
   align-items: baseline;
   gap: 10px;
-  margin: 0 0 calc(var(--pp-u) * 2);
+  margin: 0 0 var(--sp-3);
   font-family: var(--pp-label);
-  font-size: 11px;
+  font-size: var(--t-fine);
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--pp-faint);
@@ -600,35 +866,43 @@
 
 .pp-rail-n {
   padding: 2px 7px;
-  border-radius: 20px;
+  border-radius: 999px;
   background: var(--pp-sunk);
-  font-size: 10px;
+  font-size: var(--t-micro);
   letter-spacing: 0.06em;
   color: var(--pp-dim);
 }
 
 .pp-rail-track {
   display: flex;
-  gap: calc(var(--pp-u) * 2);
+  gap: var(--sp-3);
   margin: 0;
-  padding: 0 0 calc(var(--pp-u) * 2);
+  padding: 0 0 var(--sp-3);
   list-style: none;
   overflow-x: auto;
   overscroll-behavior-x: contain;
   scroll-snap-type: x proximity;
   scrollbar-width: thin;
   scrollbar-color: var(--pp-line) transparent;
-  /* It begins on the measure and leaves to the right, fading as it goes —
-     which says "there is more this way" without a chevron nobody presses.
-     50cqw is half the pane and 50% is half this column, so the width is the
-     distance from the column's left edge to the pane's right edge, whatever
-     the fold is doing to the gutter. */
-  width: calc(50cqw + 50%);
-  /* and it can never be wider than the pane, whatever a parent does */
+  /* BY DEFAULT IT STAYS IN ITS COLUMN. A rail dropped into a Split or a Sticky
+     is one of two things side by side, and a rail that reaches the pane's right
+     edge from the middle of the page reaches past it: on Layover this cut 262px
+     off the sign-up and admin rails, mask and all, so the fade that says "there
+     is more this way" landed outside the window. */
+  width: 100%;
   max-width: 100cqw;
   min-width: 0;
   -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 72px), transparent 100%);
   mask-image: linear-gradient(to right, #000 calc(100% - 72px), transparent 100%);
+}
+
+/* A RAIL THE SECTION OWNS RUNS OFF THE PAGE. Only when it is a direct child of
+   a chapter is its left edge the document's own left margin — and only then is
+   "half the pane plus half of me" the distance to the pane's right edge. It
+   begins on the measure and leaves to the right, fading as it goes, which says
+   there is more this way without a chevron nobody presses. */
+.pp-ch > .pp-rail > .pp-rail-track {
+  width: calc(50cqw + 50%);
 }
 
 .pp-rail-track:focus-visible {
@@ -655,7 +929,7 @@
   display: block;
   width: 100%;
   height: auto;
-  border-radius: var(--pp-slide-radius, 12px);
+  border-radius: var(--pp-slide-radius, var(--pp-radius));
   background: var(--pp-tint, var(--pp-sunk));
   box-shadow: var(--pp-shadow);
 }
@@ -689,7 +963,7 @@
 .pp-slide-cap {
   margin: 10px 2px 0;
   font-family: var(--pp-label);
-  font-size: 11px;
+  font-size: var(--t-fine);
   line-height: 1.45;
   color: var(--pp-faint);
 }
@@ -704,22 +978,32 @@
   display: grid;
   grid-template-columns: var(--pp-cols, 0.85fr 1.4fr);
   gap: var(--pp-gap);
-  margin: calc(var(--pp-u) * 4) 0 0;
-  align-items: start;
+  margin: var(--sp-5) 0 0;
+  /* NOT `align-items: start`, which is what this said and why the caption has
+     never once held. A sticky element can only travel inside its containing
+     block, and start-aligning the grid sized the aside column to its own
+     content — so the pin had a few pixels of room, scrolled away with
+     everything else, and the whole section was a two-column layout wearing the
+     word "sticky". Stretched, the column is as tall as the evidence beside it,
+     which is the distance the caption is supposed to hold for. */
+  align-items: stretch;
 }
 
 .pp-sticky > * {
   min-width: 0;
 }
 
+/* THERE IS SOMETHING OVERHEAD NOW. This used to pin to the very top of the
+   pane because nothing was above it; the section index is, so a caption that
+   pinned at 32px slid underneath the bar and lost its first line. */
 .pp-sticky-pin {
   position: sticky;
-  top: calc(var(--pp-u) * 4);
+  top: calc(45px + var(--sp-4));
 }
 
 .pp-sticky-flow {
   display: grid;
-  gap: calc(var(--pp-u) * 3);
+  gap: var(--sp-4);
 }
 
 .pp-sticky-flow > *,
@@ -731,16 +1015,16 @@
 .pp-figs {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  gap: calc(var(--pp-u) * 4);
-  margin: calc(var(--pp-u) * 5) 0 0;
-  padding-top: calc(var(--pp-u) * 4);
+  gap: var(--sp-5);
+  margin: var(--sp-5) 0 0;
+  padding-top: var(--sp-5);
   border-top: 1px solid var(--pp-line);
 }
 
 .pp-fig dd {
   margin: 0;
   font-family: var(--pp-display);
-  font-size: clamp(34px, 3.8cqw, 56px);
+  font-size: var(--d-fig);
   font-weight: var(--pp-display-w, 700);
   line-height: 1;
   letter-spacing: -0.035em;
@@ -750,7 +1034,7 @@
 .pp-fig dt {
   margin: 12px 0 0;
   max-width: 22ch;
-  font-size: 12.5px;
+  font-size: var(--t-small);
   line-height: 1.45;
   color: var(--pp-dim);
 }
@@ -759,7 +1043,7 @@
   margin: 6px 0 0;
   max-width: 24ch;
   font-family: var(--pp-label);
-  font-size: 11px;
+  font-size: var(--t-fine);
   color: var(--pp-faint);
 }
 
@@ -768,7 +1052,7 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(118px, 1fr));
   gap: 10px;
-  margin: calc(var(--pp-u) * 3) 0 0;
+  margin: var(--sp-4) 0 0;
   padding: 0;
   list-style: none;
 }
@@ -780,7 +1064,7 @@
   gap: 3px;
   min-height: 116px;
   padding: 13px;
-  border-radius: 10px;
+  border-radius: var(--r-sm);
   /* a white swatch on a white page is invisible without one; the ring is the
      colour's own, at low alpha, so it never reads as a border of its own */
   box-shadow: inset 0 0 0 1px var(--pp-line);
@@ -788,20 +1072,20 @@
 
 .pp-swatch-hex {
   font-family: var(--pp-mono, var(--pp-label));
-  font-size: 11px;
+  font-size: var(--t-fine);
   letter-spacing: 0.04em;
   text-transform: uppercase;
 }
 
 .pp-swatch-name {
   font-family: var(--pp-label);
-  font-size: 10.5px;
+  font-size: var(--t-micro);
   opacity: 0.72;
 }
 
 /* ---- pull ---- */
 .pp-pull {
-  margin: calc(var(--pp-u) * 5) 0 0;
+  margin: var(--sp-5) 0 0;
   padding: 0 0 0 clamp(18px, 2.4cqw, 34px);
   border-left: 2px solid var(--pp-accent);
 }
@@ -810,7 +1094,7 @@
   margin: 0;
   max-width: 30ch;
   font-family: var(--pp-display);
-  font-size: clamp(22px, 2.5cqw, 34px);
+  font-size: var(--d-md);
   font-weight: var(--pp-display-w, 700);
   line-height: 1.18;
   letter-spacing: -0.022em;
@@ -822,27 +1106,96 @@
   display: block;
   margin: 14px 0 0;
   font-family: var(--pp-label);
-  font-size: 11px;
+  font-size: var(--t-fine);
   font-style: normal;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--pp-faint);
 }
 
+/* ---- a decision, and what it cost ----
+   THE ONE BLOCK ON THE PAGE THAT IS DELIBERATELY NOT PRETTY. It is a spec
+   sheet: the decision flat at the top, then two labelled rows. The trade-off
+   row carries the accent on its rule, because the trade-off is the thing that
+   separates a designer who chose from a designer who preferred, and it is the
+   line a hiring manager is actually looking for. */
+.pp-dec {
+  padding: var(--sp-4) 0 0;
+  border-top: 2px solid var(--pp-ink-hi);
+}
+
+/* A 2px rule landing straight under a display line reads as an underline on
+   it, not as the top of the next block — so anything that arrives under a
+   Statement takes the section's own gap first. */
+.pp-say + .pp-dec,
+.pp-say + .pp-run,
+.pp-copy + .pp-dec {
+  margin-top: var(--sp-5);
+}
+
+.pp-dec-what {
+  margin: 0 0 var(--sp-4);
+  max-width: 38ch;
+  font-family: var(--pp-display);
+  font-size: var(--d-xs);
+  font-weight: var(--pp-display-w, 700);
+  line-height: 1.24;
+  letter-spacing: -0.012em;
+  color: var(--pp-ink-hi);
+  text-wrap: balance;
+}
+
+.pp-dec-row {
+  display: grid;
+  grid-template-columns: 74px minmax(0, 1fr);
+  gap: var(--sp-3);
+  padding: var(--sp-3) 0 0;
+  border-top: 1px solid var(--pp-line);
+}
+
+.pp-dec-row + .pp-dec-row {
+  margin-top: var(--sp-3);
+}
+
+.pp-dec-row span {
+  font-family: var(--pp-label);
+  font-size: var(--t-micro);
+  font-weight: 650;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--pp-faint);
+}
+
+.pp-dec-row p {
+  margin: 0;
+  max-width: 46ch;
+  font-size: var(--t-small);
+  line-height: 1.6;
+  color: var(--pp-dim);
+}
+
+.pp-dec-row--cost {
+  border-top-color: var(--pp-accent);
+}
+
+.pp-dec-row--cost span {
+  color: var(--pp-accent);
+}
+
 /* ---- columns ---- */
 .pp-cols {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: calc(var(--pp-u) * 4);
-  margin: calc(var(--pp-u) * 4) 0 0;
+  gap: var(--sp-5);
+  margin: var(--sp-5) 0 0;
 }
 
 .pp-col h4 {
-  margin: 0 0 calc(var(--pp-u) * 2);
-  padding-bottom: calc(var(--pp-u) * 1.5);
+  margin: 0 0 var(--sp-3);
+  padding-bottom: var(--sp-2);
   border-bottom: 1px solid var(--pp-line);
   font-family: var(--pp-label);
-  font-size: 11px;
+  font-size: var(--t-fine);
   font-weight: 650;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -858,7 +1211,7 @@
 }
 
 .pp-col li {
-  font-size: 13px;
+  font-size: var(--t-small);
   line-height: 1.55;
   color: var(--pp-dim);
 }
@@ -881,8 +1234,8 @@
    index.css stops the animation under reduced motion. */
 .pp-marq {
   width: 100cqw;
-  margin: calc(var(--pp-u) * 7) 0 calc(var(--pp-u) * 7) calc(50% - 50cqw);
-  padding: calc(var(--pp-u) * 2.5) 0;
+  margin: var(--sp-6) 0 var(--sp-6) calc(50% - 50cqw);
+  padding: var(--sp-4) 0;
   overflow: hidden;
   background: var(--pp-marq-bg, var(--pp-sunk));
   color: var(--pp-marq-ink, var(--pp-faint));
@@ -900,7 +1253,7 @@
 .pp-marq-track span {
   padding-right: 2.4em;
   font-family: var(--pp-display);
-  font-size: clamp(22px, 2.6cqw, 38px);
+  font-size: var(--d-md);
   font-weight: var(--pp-display-w, 700);
   letter-spacing: -0.02em;
   white-space: nowrap;
@@ -920,7 +1273,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
-  margin: calc(var(--pp-u) * 5) 0 0;
+  margin: var(--sp-5) 0 0;
 }
 
 .pp-link {
@@ -935,7 +1288,7 @@
   background: var(--pp-accent);
   color: var(--pp-on-accent, #fff);
   font-family: var(--pp-label);
-  font-size: 12.5px;
+  font-size: var(--t-small);
   font-weight: 600;
   letter-spacing: 0.01em;
   text-decoration: none;
@@ -965,8 +1318,8 @@
    inside it fetches none of its megabytes until someone asks — which is also
    what stops 20,000px of board being laid out the instant a window opens. */
 .pp-board {
-  margin: calc(var(--pp-u) * 8) 0 0;
-  padding-top: calc(var(--pp-u) * 4);
+  margin: var(--sp-7) 0 0;
+  padding-top: var(--sp-5);
   border-top: 1px solid var(--pp-line);
 }
 
@@ -976,10 +1329,10 @@
   gap: 10px;
   min-height: 44px;
   padding: 0 4px;
-  border-radius: 8px;
+  border-radius: var(--r-xs);
   cursor: pointer;
   font-family: var(--pp-label);
-  font-size: 12.5px;
+  font-size: var(--t-small);
   font-weight: 600;
   color: var(--pp-ink);
   list-style: none;
@@ -1006,7 +1359,7 @@
 .pp-board-dim {
   margin-left: auto;
   font-family: var(--pp-mono, var(--pp-label));
-  font-size: 11px;
+  font-size: var(--t-fine);
   font-weight: 400;
   color: var(--pp-faint);
 }
@@ -1014,7 +1367,7 @@
 .pp-board-note {
   margin: 10px 4px 0;
   max-width: 70ch;
-  font-size: 12.5px;
+  font-size: var(--t-small);
   line-height: 1.6;
   color: var(--pp-faint);
 }
@@ -1024,8 +1377,8 @@
      board carries a white hole where Figma rendered a video fill, and the real
      video is laid over it in the board's own coordinates */
   position: relative;
-  margin: calc(var(--pp-u) * 3) 0 0;
-  border-radius: 10px;
+  margin: var(--sp-4) 0 0;
+  border-radius: var(--r-sm);
   overflow: hidden;
   background: var(--pp-sunk);
 }
@@ -1039,7 +1392,7 @@
 .pp-strip figcaption {
   padding: 10px 14px;
   font-family: var(--pp-label);
-  font-size: 11px;
+  font-size: var(--t-fine);
   color: var(--pp-faint);
 }
 
@@ -1064,13 +1417,13 @@
   align-items: center;
   gap: 18px;
   padding: 16px 20px;
-  border-radius: calc(var(--pp-radius) * 0.7);
+  border-radius: var(--r-sm);
   background: var(--pp-sunk);
 }
 
 .pp-bars b {
   font-family: var(--pp-display);
-  font-size: clamp(24px, 2.6cqw, 34px);
+  font-size: var(--d-md);
   font-weight: var(--pp-display-w, 700);
   letter-spacing: -0.03em;
   line-height: 1;
@@ -1078,7 +1431,7 @@
 }
 
 .pp-bars span {
-  font-size: 13px;
+  font-size: var(--t-small);
   line-height: 1.5;
   color: var(--pp-dim);
 }
@@ -1088,16 +1441,16 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
   gap: 12px;
-  margin: calc(var(--pp-u) * 4) 0 0;
+  margin: var(--sp-5) 0 0;
   padding: 0;
   list-style: none;
 }
 
 .pp-voices li {
   padding: 18px 20px;
-  border-radius: calc(var(--pp-radius) * 0.7);
+  border-radius: var(--r-sm);
   background: var(--pp-sunk);
-  font-size: 13.5px;
+  font-size: var(--t-small);
   line-height: 1.55;
   color: var(--pp-ink);
 }
@@ -1132,7 +1485,7 @@
 
 .pp-arc-day {
   font-family: var(--pp-mono, var(--pp-label));
-  font-size: 11px;
+  font-size: var(--t-fine);
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--pp-faint);
@@ -1140,7 +1493,7 @@
 
 .pp-arc b {
   font-family: var(--pp-display);
-  font-size: clamp(17px, 1.7cqw, 22px);
+  font-size: var(--d-xs);
   font-weight: var(--pp-display-w, 700);
   letter-spacing: -0.02em;
   color: var(--pp-ink-hi);
@@ -1159,7 +1512,7 @@
 
 .pp-arc-note {
   grid-column: 2;
-  font-size: 12.5px;
+  font-size: var(--t-small);
   line-height: 1.5;
   color: var(--pp-dim);
 }
@@ -1170,7 +1523,7 @@
   padding: 18px 22px;
   border-left: 2px solid var(--pp-accent);
   background: var(--pp-sunk);
-  font-size: clamp(15px, 1.5cqw, 19px);
+  font-size: var(--d-xs);
   line-height: 1.55;
 }
 
@@ -1189,7 +1542,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  margin: calc(var(--pp-u) * 4) 0 0;
+  margin: var(--sp-5) 0 0;
   padding: 0;
   list-style: none;
 }
@@ -1199,7 +1552,7 @@
   border: 1px solid var(--pp-line);
   border-radius: 999px;
   font-family: var(--pp-label);
-  font-size: 11.5px;
+  font-size: var(--t-fine);
   color: var(--pp-ink);
 }
 
@@ -1208,7 +1561,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
-  margin: calc(var(--pp-u) * 4) 0 calc(var(--pp-u) * 4);
+  margin: var(--sp-5) 0 var(--sp-5);
   padding: 0;
   list-style: none;
 }
@@ -1220,13 +1573,13 @@
   padding: 11px 18px;
   border-radius: 999px;
   background: var(--pp-sunk);
-  font-size: 13px;
+  font-size: var(--t-small);
   color: var(--pp-ink);
 }
 
 .pp-steps li span {
   font-family: var(--pp-mono, var(--pp-label));
-  font-size: 10.5px;
+  font-size: var(--t-micro);
   letter-spacing: 0.08em;
   color: var(--pp-accent);
 }
@@ -1284,7 +1637,7 @@
   gap: 4px 14px;
   margin-left: auto;
   font-family: var(--pp-mono, var(--pp-label));
-  font-size: 10.5px;
+  font-size: var(--t-micro);
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--pp-faint);
@@ -1308,7 +1661,7 @@
 }
 
 .pp-pending {
-  margin-top: calc(var(--pp-u) * 6);
+  margin-top: var(--sp-6);
 }
 
 /* ---- narrower than a laptop ----
@@ -1320,6 +1673,25 @@
   .pp-split,
   .pp-sticky {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* the outcome stops being a column beside the title and becomes the band
+     under it — still above the fold, still the second thing the eye lands on */
+  .pp-mast-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--sp-6);
+  }
+
+  .pp-mast-out {
+    padding-left: 0;
+    padding-top: var(--sp-4);
+    border-left: 0;
+    border-top: 1px solid var(--pp-line);
+  }
+
+  .pp-mast-out dl {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--sp-4);
   }
 
   .pp-split.is-flip > *:first-child {
@@ -1339,24 +1711,24 @@
 
 @container cwdoc (max-width: 620px) {
   .pp {
-    --pp-gap: calc(var(--pp-u) * 3);
+    --pp-gap: var(--sp-4);
     /* the gutter here is 16px, so an 18px sideways reveal would start outside
        the page and be cut by the pane's clip on its way in */
     --pp-r-x: 9px;
   }
 
   .pp-mast {
-    padding-top: calc(var(--pp-u) * 5);
+    padding-top: var(--sp-5);
   }
 
   .pp-ch {
-    padding-top: calc(var(--pp-u) * 6);
+    padding-top: var(--sp-6);
   }
 
   .pp-bleed,
   .pp-marq {
-    margin-top: calc(var(--pp-u) * 5);
-    margin-bottom: calc(var(--pp-u) * 5);
+    margin-top: var(--sp-5);
+    margin-bottom: var(--sp-5);
   }
 
   .pp-bleed--short,
@@ -1366,11 +1738,11 @@
 
   .pp-figs {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: calc(var(--pp-u) * 3);
+    gap: var(--sp-4);
   }
 
   .pp-cols {
-    gap: calc(var(--pp-u) * 3);
+    gap: var(--sp-4);
   }
 
   /* A MOBILE COMPOSITION, NOT A SQUEEZED ONE. The phone rail keeps its slides

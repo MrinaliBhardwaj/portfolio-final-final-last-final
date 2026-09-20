@@ -18,6 +18,7 @@ import {
   Bleed,
   Chapter,
   Credit,
+  Decision,
   Figures,
   Marquee,
   Note,
@@ -188,15 +189,18 @@ export default function Layover() {
             <Statement size="lg">
               Designing for someone who is already slightly late.
             </Statement>
-            <Say>
-              Login is the first screen in a lot of products. It is not here — nobody makes
-              an account to find out whether something is useful. Cost: we lose the email of
-              everyone who browses and leaves. It was worth it.
-            </Say>
-            <Say>
-              Veg and non-veg is a header control rather than a filter three taps down,
-              because in India it is not a preference, it is the first question.
-            </Say>
+            <Run gap="28px">
+              <Decision
+                what="No login wall."
+                why="Login is the first screen in a lot of products. Nobody makes an account to find out whether something is useful."
+                cost="We lose the email of everyone who browses and leaves. It was worth it."
+              />
+              <Decision
+                delay={0.08}
+                what="Veg and non-veg is a header control, not a filter three taps down."
+                why="In India it is not a preference. It is the first question."
+              />
+            </Run>
           </div>
           <Plate
             src="/work/layover/app.webp"
@@ -255,10 +259,12 @@ export default function Layover() {
         </Statement>
         <Say wide>
           Used standing at a pass, mid-service, with one hand free and a queue in front of
-          you. Almost everything that makes a consumer app good makes this worse: white
-          ground, not black. Inter at small sizes, because it survives in a data row. Dense
-          on purpose — it competes with the queue, not with a duty-free window.
+          you.
         </Say>
+        <Decision
+          what="The operator surfaces invert the whole system."
+          why="Almost everything that makes a consumer app good makes this one worse. White ground, not black. Inter at small sizes, because it survives in a data row where Montserrat does not. Dense on purpose — it competes with the queue, not with a duty-free window."
+        />
 
         <Rail kind="wide" label="Vendor portal" count={`${VENDOR.length} of 11`}>
           {VENDOR.map(([n, cap]) => (
@@ -302,12 +308,11 @@ export default function Layover() {
         <Statement size="lg">
           You can&rsquo;t delete a legal requirement. You can only sequence it.
         </Statement>
-        <Say wide>
-          FSSAI licence, trade licence, government ID, bank proof, and email and phone
-          verification. None of it is optional. The design problem was the ORDER, not the
-          volume: identity first, documents last, and a step that can be left and returned
-          to.
-        </Say>
+        <Decision
+          what="The legal steps were sequenced, not reduced."
+          why="FSSAI licence, trade licence, government ID, bank proof, email and phone verification. None of it is optional, so the design problem was the ORDER rather than the volume: identity first, documents last."
+          cost="Six steps is still six steps. What the order buys is a step you can leave and come back to."
+        />
         <Rail kind="wide" label="Vendor onboarding" count="6 steps">
           {ONBOARD.map(([n, cap]) => (
             <Slide

@@ -83,7 +83,7 @@
   width: 100cqw;
   margin-left: calc(50% - 50cqw);
   padding-inline: calc(50cqw - 50%);
-  padding-bottom: calc(var(--pp-u) * 8);
+  padding-bottom: var(--sp-7);
   background: var(--pp-bg);
   color: var(--pp-ink);
 }
@@ -140,7 +140,7 @@
   border-radius: 999px;
   background: var(--pp-forest);
   color: #f2ede3;
-  font-size: 11px;
+  font-size: var(--t-fine);
   font-weight: 600;
 }
 
@@ -175,7 +175,7 @@
   /* the gutter back: 50cqw is half the pane, 50% is half the document's
      own content box, so this is exactly the margin the document had. */
   padding-inline: calc(50cqw - 50%);
-  padding-bottom: calc(var(--pp-u) * 8);
+  padding-bottom: var(--sp-7);
   background: var(--pp-bg);
   color: var(--pp-ink);
 }
@@ -233,7 +233,7 @@
   padding: 6px 13px;
   border: 1px solid var(--pp-line);
   border-radius: 999px;
-  font-size: 10px;
+  font-size: var(--t-micro);
   letter-spacing: 0.14em;
 }
 
@@ -266,7 +266,7 @@
   /* the gutter back: 50cqw is half the pane, 50% is half the document's
      own content box, so this is exactly the margin the document had. */
   padding-inline: calc(50cqw - 50%);
-  padding-bottom: calc(var(--pp-u) * 8);
+  padding-bottom: var(--sp-7);
   background: var(--pp-bg);
   color: var(--pp-ink);
 }
@@ -282,14 +282,14 @@
   /* the gutter back: 50cqw is half the pane, 50% is half the document's
      own content box, so this is exactly the margin the document had. */
   padding-inline: calc(50cqw - 50%);
-  padding-bottom: calc(var(--pp-u) * 8);
+  padding-bottom: var(--sp-7);
   background: var(--pp-bg);
 }
 
 /* the blue insight / solution cards she pairs throughout the decisions section */
 .pp-card {
   padding: clamp(18px, 2cqw, 28px);
-  border-radius: 14px;
+  border-radius: var(--pp-radius);
   background: var(--pp-card-bg, var(--pp-sunk));
   color: var(--pp-card-ink, inherit);
 }
@@ -300,7 +300,7 @@
   gap: 8px;
   margin: 0 0 12px;
   font-family: var(--pp-label);
-  font-size: 11px;
+  font-size: var(--t-fine);
   font-weight: 650;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -309,7 +309,10 @@
 
 .pp-card p {
   margin: 0;
-  font-size: 13.5px;
+  /* a card in a two-up split still has a measure: 81 characters a line is a
+     paragraph in a box, not a card */
+  max-width: 54ch;
+  font-size: var(--t-small);
   line-height: 1.66;
 }
 
@@ -360,8 +363,10 @@
    deck, so the page's section labels ARE that tag, drawn rather than typed, in
    Slateblue mono. */
 .pp[data-project="futurepreneurs"] .pp-ch-head {
-  gap: 0;
-  font-size: 12.5px;
+  /* 10px, not 0: the gap was nothing while the label was the only thing in
+     here, and the number now sits in front of it */
+  gap: 10px;
+  font-size: var(--t-small);
   letter-spacing: 0.02em;
   text-transform: none;
   color: var(--pp-accent);
@@ -379,11 +384,24 @@
   content: "\\>";
 }
 
-.pp[data-project="futurepreneurs"] .pp-ch-n {
-  display: none;
+/* the decision sits under the swatches it is about, so it needs the gap a
+   sibling block would have had */
+.pp[data-project="futurepreneurs"] .fp-dec {
+  margin-top: var(--sp-6);
 }
 
-/* the black sections — About, Process, Typography all sit on Outer Space */
+/* THE NUMBER STAYS. It was hidden because the tag motif was the wayfinding —
+   but the other three studies number their sections and the index counts them,
+   so a reader jumping to section four and landing on an unnumbered `<Feed\>`
+   loses the thread. Mono, in the accent: it reads as a line number beside a
+   tag, which is the same joke. */
+.pp[data-project="futurepreneurs"] .pp-ch-n {
+  font-family: var(--pp-mono, var(--pp-label));
+  color: var(--pp-accent);
+  opacity: 0.6;
+}
+
+/* the black sections — Brief, Process and Screen sit on Outer Space */
 .pp[data-project="futurepreneurs"] .pp-ch[data-tone="black"] {
   --pp-bg: #000000;
   --pp-sunk: #141418;
@@ -400,7 +418,7 @@
   /* the gutter back: 50cqw is half the pane, 50% is half the document's
      own content box, so this is exactly the margin the document had. */
   padding-inline: calc(50cqw - 50%);
-  padding-bottom: calc(var(--pp-u) * 8);
+  padding-bottom: var(--sp-7);
   background: var(--pp-bg);
   color: var(--pp-ink);
 }
@@ -422,7 +440,7 @@
   /* the gutter back: 50cqw is half the pane, 50% is half the document's
      own content box, so this is exactly the margin the document had. */
   padding-inline: calc(50cqw - 50%);
-  padding-bottom: calc(var(--pp-u) * 8);
+  padding-bottom: var(--sp-7);
   background: var(--pp-bg);
   color: var(--pp-ink);
 }
@@ -438,10 +456,10 @@
    lilac and blue. */
 .pp-mesh {
   position: absolute;
-  top: calc(var(--pp-u) * -4);
+  top: calc(var(--sp-5) * -1);
   left: calc(50% - 50cqw);
   width: 100cqw;
-  height: calc(100% + var(--pp-u) * 8);
+  height: calc(100% + var(--sp-7));
   /* 0, NOT -1. A negative z-index child paints behind the nearest ancestor
      that makes a stacking context — .pp-mast makes none, so the mesh went
      behind the page background and disappeared entirely. .pp-mast isolates
@@ -495,11 +513,11 @@
 }
 
 .mm-row {
-  margin-top: calc(var(--pp-u) * 6);
+  margin-top: var(--sp-6);
 }
 
 .mm-macro {
-  margin-top: calc(var(--pp-u) * 3);
+  margin-top: var(--sp-4);
   max-width: 460px;
 }
 
@@ -528,7 +546,7 @@
 
 .mm-seven span {
   font-family: var(--pp-mono);
-  font-size: 10.5px;
+  font-size: var(--t-micro);
   color: var(--pp-accent);
 }
 
@@ -536,14 +554,14 @@
   display: block;
   margin: 6px 0 4px;
   font-family: var(--pp-display);
-  font-size: 18px;
+  font-size: var(--d-xs);
   font-weight: 600;
   color: var(--pp-ink-hi);
 }
 
 .mm-seven p {
   margin: 0;
-  font-size: 13px;
+  font-size: var(--t-small);
   line-height: 1.5;
   color: var(--pp-dim);
 }
@@ -569,13 +587,13 @@
 
 .fp-sticky-copy {
   position: sticky;
-  top: calc(var(--pp-u) * 4);
+  top: var(--sp-5);
   align-self: start;
 }
 
 .fp-site-side {
   display: grid;
-  gap: calc(var(--pp-u) * 3);
+  gap: var(--sp-4);
   align-content: start;
 }
 
@@ -589,7 +607,7 @@
   display: grid;
   grid-template-columns: repeat(12, minmax(0, 1fr));
   align-items: start;
-  margin-top: calc(var(--pp-u) * 5);
+  margin-top: var(--sp-5);
 }
 
 .fp-print > * {
@@ -629,7 +647,7 @@
 /* ---- Layover ---- */
 
 .lo-wordmark {
-  margin: 0 0 calc(var(--pp-u) * 5);
+  margin: 0 0 var(--sp-5);
 }
 
 .lo-wordmark span {
@@ -646,8 +664,8 @@
 }
 
 .lo-wordmark figcaption {
-  margin-top: calc(var(--pp-u) * 1.5);
-  font-size: 12px;
+  margin-top: var(--sp-2);
+  font-size: var(--t-fine);
   color: var(--pp-faint);
 }
 

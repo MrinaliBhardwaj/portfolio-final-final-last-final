@@ -23,6 +23,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { ChevronDown } from "lucide-react";
 
 // ---------------------------------------------------------------- reveal ----
 
@@ -272,6 +273,7 @@ function useParallax(depth) {
 export function Chapter({ n = "", label, tone = "", flush = false, className = "", children }) {
   return (
     <section
+      id={`ch-${label.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")}`}
       className={`pp-ch${flush ? " is-flush" : ""} ${className}`.trim()}
       data-tone={tone || undefined}
       aria-label={label}
@@ -667,6 +669,44 @@ export function Pull({ by = "", className = "", children }) {
 }
 
 /**
+ * A DECISION, WITH ITS PRICE ON IT.
+ *
+ * Every study already contained these — "Login is the first screen in a lot of
+ * products. It is not here. Cost: we lose the email of everyone who browses and
+ * leaves. It was worth it." — but they were sentences in the middle of
+ * paragraphs, which is exactly where a reader skimming for product thinking
+ * fails to find them. Same words, given a shape: what she decided, why, and
+ * what it cost.
+ *
+ * `cost` is optional and is the whole point when it is there. A portfolio full
+ * of decisions with no trade-offs reads as a portfolio of preferences.
+ *
+ * @param {object} p
+ * @param {string} p.what the decision, stated flat
+ * @param {any} p.why the reason it was made
+ * @param {any} [p.cost] what it gave up — the line that earns the block
+ * @param {number} [p.delay]
+ * @param {string} [p.className]
+ */
+export function Decision({ what, why, cost = null, delay = 0, className = "" }) {
+  return (
+    <Reveal delay={delay} className={`pp-dec ${className}`.trim()}>
+      <p className="pp-dec-what">{what}</p>
+      <div className="pp-dec-row">
+        <span>Why</span>
+        <p>{why}</p>
+      </div>
+      {cost && (
+        <div className="pp-dec-row pp-dec-row--cost">
+          <span>Trade-off</span>
+          <p>{cost}</p>
+        </div>
+      )}
+    </Reveal>
+  );
+}
+
+/**
  * A LIST THAT IS AN ARGUMENT. Three columns of short bullets — "what broke /
  * what buyers needed / what I did" — is the shape a case study reaches for
  * constantly and the shape a template renders worst.
@@ -723,6 +763,211 @@ export function Marquee({ children, className = "" }) {
  */
 export function Credit({ children }) {
   return <p className="pp-credit">{children}</p>;
+}
+
+// ------------------------------------------------------------- chapters ----
+
+/**
+ * WHERE AM I, AND HOW MUCH IS LEFT.
+ *
+ * A study is eight to fifteen screens long and it lives inside a window, so the
+ * page's own scrollbar is not the browser's and carries none of the usual
+ * signals: nothing says how long this is, nothing says what is coming, and a
+ * reader who only wants the outcome has to scroll past everything to find it.
+ * That is the single biggest reason a good case study gets closed early.
+ *
+ * So the sections announce themselves. This reads them out of the DOM after
+ * mount rather than making every Chapter register itself — one query and one
+ * state write instead of eleven, and the DOM is the thing that actually decides
+ * the order anyway.
+ *
+ * TWO CHANNELS, deliberately. The progress line is a CSS custom property
+ * written straight onto the bar from a rAF-throttled scroll handler, so
+ * dragging the scrollbar never re-renders React. The current section IS state,
+ * because it changes a handful of times per study and drives text.
+ *
+ * @param {{current: HTMLElement|null}} rootRef the `.pp` article
+ * @param {{current: HTMLElement|null}} scrollerRef the pane that scrolls
+ */
+export function useChapters(rootRef, scrollerRef) {
+  const [items, setItems] = useState(/** @type {{id:string,n:string,label:string}[]} */ ([]));
+  const [at, setAt] = useState(0);
+  // AT REST THE BAR SAYS HOW LONG THE STUDY IS; PINNED, IT SAYS WHERE YOU ARE.
+  // Sitting under the masthead it used to repeat, word for word, the section
+  // head three lines below it — "01 PROJECT OVERVIEW" twice, which is exactly
+  // the kind of thing that makes a page look unfinished. Two states out of one
+  // bar: a reader at the top learns there are nine sections, and a reader eight
+  // screens down learns they are in the seventh.
+  const [stuck, setStuck] = useState(false);
+  const barRef = useRef(/** @type {HTMLElement|null} */ (null));
+
+  useEffect(() => {
+    const root = rootRef.current;
+    const scroller = scrollerRef?.current;
+    if (!root || !scroller) return undefined;
+    const secs = /** @type {HTMLElement[]} */ ([...root.querySelectorAll(":scope > .pp-ch")]);
+    setItems(
+      secs.map((s) => ({
+        id: s.id,
+        n: s.querySelector(".pp-ch-n")?.textContent?.trim() || "",
+        label: s.getAttribute("aria-label") || "",
+      })),
+    );
+    if (secs.length < 3) return undefined;
+
+    // MEASURE ONCE, NOT EVERY FRAME. Asking eleven sections where they are, on
+    // a ten-thousand-pixel document, sixty times a second is the same forced
+    // layout the parallax was rebuilt to stop doing. The offsets are cached and
+    // recomputed only when the document's height actually changes — which is
+    // what a lazy image landing or the sidebar folding does.
+    const tops = [];
+    const measure = () => {
+      const base = scroller.getBoundingClientRect().top - scroller.scrollTop;
+      for (let k = 0; k < secs.length; k++)
+        tops[k] = secs[k].getBoundingClientRect().top - base;
+    };
+
+    let raf = 0;
+    const read = () => {
+      raf = 0;
+      const top = scroller.scrollTop;
+      const span = scroller.scrollHeight - scroller.clientHeight;
+      // the reading line sits a third down the pane, not at its top edge: a
+      // section is "the one you are in" once it has arrived, not once its first
+      // pixel has
+      const line = top + scroller.clientHeight * 0.34;
+      let i = 0;
+      for (let k = 0; k < tops.length; k++) if (tops[k] <= line) i = k;
+      const frac = span > 0 ? Math.min(1, Math.max(0, top / span)) : 0;
+      if (barRef.current) barRef.current.style.setProperty("--pp-prog", String(frac));
+      setAt((was) => (was === i ? was : i));
+      const pinned = tops.length > 0 && top > tops[0] - 40;
+      setStuck((was) => (was === pinned ? was : pinned));
+    };
+    const onScroll = () => {
+      if (!raf) raf = requestAnimationFrame(read);
+    };
+    measure();
+    read();
+    scroller.addEventListener("scroll", onScroll, { passive: true });
+    // COALESCE THE REMEASURE. Every lazy image that lands changes the article's
+    // height, so this observer fires in bursts of tens — and each naive
+    // response would be eleven getBoundingClientRect calls on a ten-thousand
+    // pixel document, which is a forced layout per image. One frame, one
+    // measure, however many notifications arrive in between.
+    let pending = 0;
+    const ro = new ResizeObserver(() => {
+      if (pending) return;
+      pending = requestAnimationFrame(() => {
+        pending = 0;
+        measure();
+        read();
+      });
+    });
+    ro.observe(root);
+    return () => {
+      scroller.removeEventListener("scroll", onScroll);
+      ro.disconnect();
+      if (raf) cancelAnimationFrame(raf);
+      if (pending) cancelAnimationFrame(pending);
+    };
+  }, [rootRef, scrollerRef]);
+
+  /** @param {string} id */
+  const goTo = (id) => {
+    const scroller = scrollerRef?.current;
+    const el = rootRef.current?.querySelector(`#${CSS.escape(id)}`);
+    if (!scroller || !(el instanceof HTMLElement)) return;
+    const to =
+      el.getBoundingClientRect().top - scroller.getBoundingClientRect().top + scroller.scrollTop;
+    const reduced = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    scroller.scrollTo({ top: to - 46, behavior: reduced ? "auto" : "smooth" });
+  };
+
+  return { items, at, stuck, barRef, goTo };
+}
+
+/**
+ * THE BAR ITSELF. A Finder-ish status strip pinned to the top of the pane: the
+ * section you are in, how far through you are, and a list to jump by.
+ *
+ * NOT ANCHOR LINKS. `href="#the-brief"` would overwrite the hash this whole
+ * site routes on (`#/?case=layover`) and throw the reader back to the desktop,
+ * so every jump is a button that scrolls the pane itself.
+ *
+ * @param {object} p
+ * @param {{id:string,n:string,label:string}[]} p.items
+ * @param {number} p.at
+ * @param {boolean} p.stuck pinned under the title bar, rather than at rest
+ * @param {{current: HTMLElement|null}} p.barRef
+ * @param {(id: string) => void} p.goTo
+ */
+export function ChapterNav({ items, at, stuck, barRef, goTo }) {
+  const [open, setOpen] = useState(false);
+  const wrap = useRef(/** @type {HTMLElement|null} */ (null));
+  useEffect(() => {
+    if (!open) return undefined;
+    /** @param {MouseEvent} e */
+    const away = (e) => {
+      if (!wrap.current?.contains(/** @type {Node} */ (e.target))) setOpen(false);
+    };
+    /** @param {KeyboardEvent} e */
+    const esc = (e) => e.key === "Escape" && setOpen(false);
+    document.addEventListener("pointerdown", away);
+    document.addEventListener("keydown", esc);
+    return () => {
+      document.removeEventListener("pointerdown", away);
+      document.removeEventListener("keydown", esc);
+    };
+  }, [open]);
+
+  if (items.length < 3) return null;
+  const here = items[at] || items[0];
+  return (
+    <nav
+      className="pp-nav"
+      aria-label="Sections"
+      ref={/** @type {any} */ (barRef)}
+      data-open={open || undefined}
+      data-stuck={stuck || undefined}
+    >
+      <div className="pp-nav-in" ref={/** @type {any} */ (wrap)}>
+        <button
+          type="button"
+          className="pp-nav-now"
+          aria-expanded={open}
+          onClick={() => setOpen((v) => !v)}
+        >
+          {stuck && here.n && <span className="pp-nav-n">{here.n}</span>}
+          <span className="pp-nav-label">{stuck ? here.label : "Contents"}</span>
+          <ChevronDown size={13} strokeWidth={2.2} aria-hidden="true" />
+        </button>
+        <span className="pp-nav-of">
+          {stuck ? `${at + 1} / ${items.length}` : `${items.length} sections`}
+        </span>
+        {open && (
+          <ul className="pp-nav-list">
+            {items.map((it, i) => (
+              <li key={it.id}>
+                <button
+                  type="button"
+                  aria-current={i === at ? "true" : undefined}
+                  onClick={() => {
+                    goTo(it.id);
+                    setOpen(false);
+                  }}
+                >
+                  {it.n && <span>{it.n}</span>}
+                  {it.label}
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+      <span className="pp-nav-bar" aria-hidden="true" />
+    </nav>
+  );
 }
 
 // -------------------------------------------------------------- the page ----

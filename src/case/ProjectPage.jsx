@@ -19,9 +19,13 @@
 // diverge, chrome agrees"; the project pages are the same rule one level down.
 //
 // The MASTHEAD is the hinge between the two: identical furniture on all four
-// pages — what it is, when, her role, the lede — wearing the project's paint.
-// A reader arriving from the sidebar lands on the same object every time and
-// only then does the project take over.
+// pages — what it is, when, her role, the shape of the job, and what came of
+// it — wearing the project's paint. A reader arriving from the sidebar lands on
+// the same object every time and only then does the project take over.
+//
+// Under it, the SECTION INDEX: a study is eight to fifteen screens inside a
+// window whose scrollbar says nothing about what is in it, so the sections
+// announce themselves and can be jumped between.
 import { useEffect, useRef } from "react";
 import { ChevronRight } from "lucide-react";
 
@@ -38,8 +42,10 @@ import "@fontsource/poppins/latin-600.css";
 import "@fontsource/poppins/latin-700.css";
 
 import {
+  ChapterNav,
   ParallaxProvider,
   RevealProvider,
+  useChapters,
   useRevealRoot,
   useParallaxRoot,
   usePageMotion,
@@ -126,6 +132,7 @@ export default function ProjectPage({ project: p, scrollerRef }) {
   const animate = usePageMotion(root);
   const observe = useRevealRoot(scrollerRef, animate);
   const register = useParallaxRoot(scrollerRef, animate);
+  const chapters = useChapters(root, scrollerRef);
   const Story = STORIES[p.slug];
   const boards = p.boards || [];
 
@@ -136,25 +143,60 @@ export default function ProjectPage({ project: p, scrollerRef }) {
             `.pp` for everything this page is. Both, on purpose — see the note
             at the top of project-page.css. */}
         <article ref={root} className="cw-doc pp" data-project={p.slug}>
+          {/* THE FIRST SCREEN ANSWERS THE FIRST FOUR QUESTIONS.
+              It used to answer two. A reader got the name, a sentence and a
+              rule-separated row of whatever facts the project happened to
+              carry — three on one study, five on another, stretched edge to
+              edge so "Role" sat 1,200px from "Launch airports" and belonged to
+              nothing. The result of the work was ten thousand pixels below, at
+              the foot, where somebody spending ninety seconds never reaches.
+
+              Now: what it is and when, its name, the claim, her role and the
+              shape of the job on the left; WHAT CAME OF IT on the right, in the
+              project's own accent, in the space that was empty. Four fixed
+              slots in one order on all four studies — Role, Timeline, Scope,
+              Tools — so the four pages are the same object wearing different
+              paint, and a missing slot is simply absent rather than padded out
+              with "Location: India". */}
           <header className="pp-mast">
             {MESH.has(p.slug) && <div className="pp-mesh" aria-hidden="true" />}
-            <p className="pp-mast-kind">
-              {p.what}
-              {p.when && <span>{p.when}</span>}
-            </p>
-            <h2>{p.name}</h2>
-            {(p.blurb || p.summary) && <p className="pp-mast-lede">{p.blurb || p.summary}</p>}
-            {p.facts?.length > 0 && (
-              <dl className="pp-mast-facts">
-                {p.facts.map(([k, v]) => (
-                  <div key={k}>
-                    <dt>{k}</dt>
-                    <dd>{v}</dd>
-                  </div>
-                ))}
-              </dl>
-            )}
+            <div className="pp-mast-grid">
+              <div className="pp-mast-say">
+                <p className="pp-mast-kind">
+                  {p.what}
+                  {p.when && <span>{p.when}</span>}
+                </p>
+                <h2>{p.name}</h2>
+                {(p.blurb || p.summary) && <p className="pp-mast-lede">{p.blurb || p.summary}</p>}
+                {p.facts?.length > 0 && (
+                  <dl className="pp-mast-facts">
+                    {p.facts.map(([k, v]) => (
+                      <div key={k}>
+                        <dt>{k}</dt>
+                        <dd>{v}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                )}
+              </div>
+
+              {p.metrics?.length > 0 && (
+                <div className="pp-mast-out">
+                  <p className="pp-mast-out-head">Outcome</p>
+                  <dl>
+                    {p.metrics.map((m) => (
+                      <div key={m.label}>
+                        <dd>{m.value}</dd>
+                        <dt>{m.label}</dt>
+                      </div>
+                    ))}
+                  </dl>
+                </div>
+              )}
+            </div>
           </header>
+
+          <ChapterNav {...chapters} />
 
           {Story ? (
             <Story />

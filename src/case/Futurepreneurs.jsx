@@ -1,10 +1,21 @@
 // FUTUREPRENEURS 10.0 — the X Edition.
 //
 // The deck's single most identifiable habit is that every section is labelled
-// like a closing tag: `<About\>`, `<Theme\>`, `<Process\>`, `<Website\>`. The
+// like a closing tag: `<Brief\>`, `<System\>`, `<Feed\>`, `<Screen\>`. The
 // page's section labels ARE that tag — drawn by CSS from the plain label, so
-// the markup stays readable and a screen reader hears "About" rather than a
+// the markup stays readable and a screen reader hears "Brief" rather than a
 // mouthful of punctuation (themes.css, the Futurepreneurs block).
+//
+// ONE SYSTEM, FOUR MEDIA — not ten deliverables (20 Sep 2026). The page used to
+// follow the deck's own running order, which is an inventory: About, Theme,
+// Typography, Process, SocialmediaGrid, Instagramstories, Elements, Website,
+// Printables, Results. Ten sections, several of them a single picture, and no
+// argument anywhere — a list of things she made rather than a case for how she
+// made them. Colour and type were one system described twice, the grid and the
+// stories were both Instagram, and the laptop and the site were both the
+// website. So: the brief, the system, how it was made, and then the system
+// surviving contact with a feed, a screen and a sheet of paper. Seven sections,
+// every picture kept, the deck's own words kept.
 //
 // EVERY PICTURE IS A NODE OF HER FIGMA FILE, not a piece of the exported deck:
 // the TP monogram is her vector; the laptop, the phone, the three story phones
@@ -20,6 +31,7 @@ import {
   Chapter,
   Columns,
   Credit,
+  Decision,
   Figures,
   Marquee,
   Note,
@@ -63,7 +75,7 @@ const STEPS = ["Research", "Ideate", "Wireframe", "UI Concept", "Design"];
 export default function Futurepreneurs() {
   return (
     <>
-      <Chapter label="About" tone="black" flush>
+      <Chapter n="01" label="Brief" tone="black" flush>
         <Split ratio="1.1fr 0.9fr" middle gap="44px">
           <div>
             <Statement size="lg">Vision Made Visible: elevating an ecosystem of innovation.</Statement>
@@ -94,7 +106,7 @@ export default function Futurepreneurs() {
         <Note>Ten deliverables, one system. The flagship event of E-Cell, VIT Vellore.</Note>
       </Chapter>
 
-      <Chapter label="Theme">
+      <Chapter n="02" label="System">
         <Split ratio="0.9fr 1.1fr" gap="44px">
           <div>
             <Statement size="lg">Four colours, and one of them does all the work.</Statement>
@@ -104,6 +116,12 @@ export default function Futurepreneurs() {
               phone, on a single word. Black and white do the rest.
             </Say>
             <Swatches items={THEME} />
+            <Decision
+              className="fp-dec"
+              what="One warm colour, spent three times."
+              why="Slateblue carries the identity and black and white do the rest. Sorrell Brown appears on the closing card, on one block behind a phone, and on a single word — which is what makes it mean something when it appears."
+              cost="A palette this disciplined has nothing left to escalate with. Emphasis has to come from scale and from the mesh."
+            />
           </div>
           <Plate
             bare
@@ -114,9 +132,7 @@ export default function Futurepreneurs() {
             depth={22}
           />
         </Split>
-      </Chapter>
 
-      <Chapter label="Typography" tone="black">
         <Split ratio="1fr 1fr" gap="40px">
           <div>
             <Statement size="md">Whyte Inktrap, Gantari, Almarai.</Statement>
@@ -125,26 +141,29 @@ export default function Futurepreneurs() {
               the long-form panels. The ink traps are the point: at poster size they read as
               deliberate engineering rather than as a default.
             </Say>
-            <Note>
-              Whyte Inktrap is licensed and cannot be served on this site, so this page sets
-              Archivo — the portfolio&rsquo;s own display face, a grotesque of the same build
-              — in its place. Gantari is here, and is real: every paragraph on this page is
-              set in it.
-            </Note>
           </div>
-          <Plate
-            src={F("hall")}
-            alt="Rows of empty auditorium seats under violet light, before the event."
-            size={size(F("hall"))}
-            ratio="4 / 3"
-            from="right"
-            depth={18}
-            caption="The hall it filled."
+          <Columns
+            groups={[
+              {
+                head: "Where each one runs",
+                items: [
+                  "Whyte Inktrap — posters, titles, the mark",
+                  "Gantari Medium — body, captions, UI",
+                  "Almarai Regular — the long-form panels",
+                ],
+              },
+            ]}
           />
         </Split>
+        <Note>
+          Whyte Inktrap is licensed and cannot be served on this site, so this page sets
+          Archivo — the portfolio&rsquo;s own display face, a grotesque of the same build —
+          in its place. Gantari is here, and is real: every paragraph on this page is set in
+          it.
+        </Note>
       </Chapter>
 
-      <Chapter label="Process" tone="black" flush>
+      <Chapter n="03" label="Process" tone="black" flush>
         <Statement size="lg">Five steps, and the brand was decided in the second one.</Statement>
         <ol className="pp-steps">
           {STEPS.map((s, i) => (
@@ -158,7 +177,7 @@ export default function Futurepreneurs() {
 
       <Marquee>10 YEARS OF FUTUREPRENEURS ·</Marquee>
 
-      <Chapter label="SocialmediaGrid" flush>
+      <Chapter n="04" label="Feed" flush>
         <Split ratio="0.8fr 1.2fr" gap="44px">
           <div className="fp-sticky-copy">
             <Statement size="lg">A grid that had to survive being seen one tile at a time.</Statement>
@@ -190,10 +209,8 @@ export default function Futurepreneurs() {
             depth={12}
           />
         </Split>
-      </Chapter>
 
-      <Chapter label="Instagramstories">
-        <Statement size="lg">Registrations are now open.</Statement>
+        <Statement size="md">Registrations are now open.</Statement>
         <Say wide>
           The story set does one job per frame: the site is live, registrations are open,
           and here is exactly how to register — a QR a thumb can reach, on the mesh that
@@ -208,7 +225,7 @@ export default function Futurepreneurs() {
         />
       </Chapter>
 
-      <Chapter label="Elements" flush>
+      <Chapter n="05" label="Screen" tone="black">
         <Plate
           bare
           src={F("laptop")}
@@ -218,9 +235,7 @@ export default function Futurepreneurs() {
           className="fp-laptop"
           caption="The timeline as UI: every date a card, D-Day given the illustration."
         />
-      </Chapter>
 
-      <Chapter label="Website">
         <Split ratio="1.25fr 0.75fr" gap="40px">
           <Scroller
             src={F("site-desktop")}
@@ -249,7 +264,7 @@ export default function Futurepreneurs() {
         </Split>
       </Chapter>
 
-      <Chapter label="Printables">
+      <Chapter n="06" label="Print">
         <Statement size="lg">The things people took home.</Statement>
         <Say wide>
           The same system, printed: die-cut stickers, the invitation, the certificates. A
@@ -295,7 +310,15 @@ export default function Futurepreneurs() {
         </div>
       </Chapter>
 
-      <Chapter label="Results" tone="coral">
+      <Chapter n="07" label="Results" tone="coral">
+        <Plate
+          src={F("hall")}
+          alt="Rows of auditorium seats under violet light, at the event."
+          size={size(F("hall"))}
+          ratio="21 / 9"
+          depth={18}
+          caption="The hall it filled."
+        />
         <Statement size="xl">10 years. One system. Two thousand two hundred people.</Statement>
         <Figures
           items={[

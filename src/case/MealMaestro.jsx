@@ -17,6 +17,7 @@ import {
   Chapter,
   Columns,
   Credit,
+  Decision,
   Figures,
   Note,
   Plate,
@@ -80,7 +81,7 @@ const SEVEN = [
 export default function MealMaestro() {
   return (
     <>
-      <Chapter label="The goal" flush>
+      <Chapter n="01" label="The goal" flush>
         <Split ratio="1fr 1fr" middle gap="40px">
           <div>
             <Statement size="lg">
@@ -131,7 +132,7 @@ export default function MealMaestro() {
         </Statement>
       </Bleed>
 
-      <Chapter label="Primary research" tone="forest" flush>
+      <Chapter n="02" label="Primary research" tone="forest" flush>
         <Statement size="lg">
           Rooted in <em>real voices</em>, real data.
         </Statement>
@@ -163,7 +164,7 @@ export default function MealMaestro() {
         />
       </Chapter>
 
-      <Chapter label="Raw signal">
+      <Chapter n="03" label="Raw signal">
         <Sticky
           aside={
             <>
@@ -191,7 +192,7 @@ export default function MealMaestro() {
         </Pull>
       </Chapter>
 
-      <Chapter label="In their words" tone="forest">
+      <Chapter n="04" label="In their words" tone="forest">
         <Statement size="lg">The same sentence, eight ways.</Statement>
         <ul className="pp-voices">
           {VOICES.map((q, i) => (
@@ -203,19 +204,20 @@ export default function MealMaestro() {
         <Note>Verbatim, from the discovery interviews and the survey&rsquo;s free-text field.</Note>
       </Chapter>
 
-      <Chapter label="The friction curve">
+      <Chapter n="05" label="The week that breaks the habit">
         <Split ratio="1fr 1fr" middle gap="44px">
           <div>
-            <Statement size="lg">The week that breaks the habit.</Statement>
+            <Statement size="lg">Nobody quits on Sunday.</Statement>
             <Say>
-              Nobody quits on Sunday. Motivation is highest exactly when the decisions are
-              cheapest, and the plan collapses on the first weekday that costs something —
-              a late meeting, an empty fridge, a long commute.
+              Motivation is highest exactly when the decisions are cheapest, and the plan
+              collapses on the first weekday that costs something — a late meeting, an
+              empty fridge, a long commute.
             </Say>
-            <Say>
-              So the product cannot ask for willpower on Wednesday. It has to have already
-              decided.
-            </Say>
+            <Decision
+              what="The product decides before the week does."
+              why="It cannot ask for willpower on Wednesday, because Wednesday is where the evidence says the plan dies. The plan, the list and the next meal are chosen before the bad day arrives."
+              cost="A plan made for you is a plan you did not choose, so every screen has to be one tap from swapping a meal."
+            />
           </div>
           <ol className="pp-arc">
             {[
@@ -234,7 +236,7 @@ export default function MealMaestro() {
         </Split>
       </Chapter>
 
-      <Chapter label="The work users hire us for">
+      <Chapter n="06" label="The work users hire us for">
         <Statement size="lg">Three jobs, in their own sentences.</Statement>
         <Run gap="18px">
           {[
@@ -274,7 +276,7 @@ export default function MealMaestro() {
         </Note>
       </Chapter>
 
-      <Chapter label="Brand">
+      <Chapter n="07" label="Brand">
         <Split ratio="1fr 1fr" gap="44px">
           <div>
             <Statement size="md">
@@ -321,7 +323,7 @@ export default function MealMaestro() {
         </Split>
       </Chapter>
 
-      <Chapter label="The product" tone="forest">
+      <Chapter n="08" label="The product" tone="forest">
         <Split ratio="1.05fr 0.95fr" middle gap="40px">
           <Plate
             bare
@@ -363,7 +365,7 @@ export default function MealMaestro() {
         </Split>
       </Chapter>
 
-      <Chapter label="Track. Learn. Thrive." tone="forest" flush>
+      <Chapter n="09" label="Track. Learn. Thrive." tone="forest" flush>
         <Split ratio="0.8fr 1.2fr" middle gap="36px">
           <Plate
             bare
@@ -384,7 +386,7 @@ export default function MealMaestro() {
         </Split>
       </Chapter>
 
-      <Chapter label="Seven ways to find your meal">
+      <Chapter n="10" label="Seven ways to find your meal">
         <Split ratio="0.85fr 1.15fr" middle gap="40px">
           <Plate
             bare
@@ -405,7 +407,7 @@ export default function MealMaestro() {
         </Split>
       </Chapter>
 
-      <Chapter label="In the kitchen" flush>
+      <Chapter n="11" label="Outcome" tone="forest">
         <Split ratio="1fr 1fr" gap="24px">
           <Plate
             src={F("kitchen")}
@@ -424,9 +426,6 @@ export default function MealMaestro() {
             caption="maestro ai: ask in plain words, get a plate you can actually cook."
           />
         </Split>
-      </Chapter>
-
-      <Chapter label="Outcome" tone="forest">
         <Statement size="xl">
           Third at the GDG Design-a-thon — for an app that <em>decides</em> for you.
         </Statement>
