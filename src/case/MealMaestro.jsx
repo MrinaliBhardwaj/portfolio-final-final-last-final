@@ -357,7 +357,7 @@ export default function MealMaestro() {
             src={F("pasta")}
             alt="A bowl of masala macaroni on slate, with chilli flakes and coriander."
             size={size(F("pasta"))}
-            ratio="4 / 5"
+            ratio="2 / 3"
             from="right"
             depth={14}
             caption="Taste every detail — every recipe carries its own photograph, macros and prep time."
@@ -413,14 +413,14 @@ export default function MealMaestro() {
             src={F("kitchen")}
             alt="A hand holding a phone open on Meal Maestro, in front of jars of pasta and grains."
             size={size(F("kitchen"))}
-            ratio="4 / 5"
+            ratio="3 / 2"
             depth={16}
           />
           <Plate
             src={F("crates")}
             alt="maestro ai open on a phone, propped against wooden crates in a kitchen."
             size={size(F("crates"))}
-            ratio="4 / 5"
+            ratio="3 / 2"
             delay={0.08}
             depth={22}
             caption="maestro ai: ask in plain words, get a plate you can actually cook."

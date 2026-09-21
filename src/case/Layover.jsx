@@ -31,7 +31,6 @@ import {
   Slide,
   Split,
   Statement,
-  Sticky,
   Swatches,
 } from "./parts.jsx";
 import { size } from "./art.js";
@@ -140,7 +139,6 @@ export default function Layover() {
             src="/work/layover/cover.webp"
             alt="The Layover wordmark on a billboard, shot at dusk."
             size={size("/work/layover/cover.webp")}
-            ratio="4 / 5"
             from="right"
             depth={22}
             caption="The mark, in the place it is for."
@@ -211,7 +209,7 @@ export default function Layover() {
           />
         </Split>
 
-        <Rail kind="phone" label="Consumer app — iOS" count={`${APP.length} screens`}>
+        <Rail kind="phone" fit label="Consumer app — iOS" count={`${APP.length} screens`}>
           {APP.map(([n, cap], i) => (
             <Slide
               key={n}
@@ -222,34 +220,26 @@ export default function Layover() {
             />
           ))}
         </Rail>
-        <Note>Drag, or scroll the rail sideways.</Note>
       </Chapter>
 
       <Chapter n="04" label="Sign-up">
-        <Sticky
-          aside={
-            <>
-              <Statement size="md">We kept asking for less.</Statement>
-              <Say>
-                Five explorations, converging rather than competing: a phone number and an
-                OTP. No password, no profile, and nothing requested until checkout — at
-                which point the session returns you to wherever you left off.
-              </Say>
-            </>
-          }
-        >
-          <Rail kind="phone" label="The five passes" count="01 → final">
-            {AUTH.map(([n, cap]) => (
-              <Slide
-                key={n}
-                src={S(n)}
-                alt={`Layover sign-up — ${cap}.`}
-                size={size(S(n))}
-                caption={cap}
-              />
-            ))}
-          </Rail>
-        </Sticky>
+        <Statement size="md">We kept asking for less.</Statement>
+        <Say wide>
+          Five explorations, converging rather than competing: a phone number and an OTP.
+          No password, no profile, and nothing requested until checkout — at which point
+          the session returns you to wherever you left off.
+        </Say>
+        <Rail kind="phone" fit label="The five passes" count="01 → final">
+          {AUTH.map(([n, cap]) => (
+            <Slide
+              key={n}
+              src={S(n)}
+              alt={`Layover sign-up — ${cap}.`}
+              size={size(S(n))}
+              caption={cap}
+            />
+          ))}
+        </Rail>
       </Chapter>
 
       {/* ---- the temperature changes ---- */}
@@ -285,23 +275,20 @@ export default function Layover() {
           system instead of by a policy nobody reads.
         </Say>
 
-        <Split ratio="1fr 1fr" gap="34px">
-          <Plate
+        <Rail kind="phone" fit label="Vendor portal — on a phone" count="2 screens">
+          <Slide
             src={S("06-dashboard")}
             alt="Layover vendor portal on a phone — the dashboard."
             size={size(S("06-dashboard"))}
-            ratio="9 / 19.5"
             caption="Most stall owners do not have a desk."
           />
-          <Plate
+          <Slide
             src={S("06-incoming-order")}
             alt="Layover vendor portal on a phone — an incoming order."
             size={size(S("06-incoming-order"))}
-            ratio="9 / 19.5"
-            delay={0.08}
             caption="An incoming order, thumb-high."
           />
-        </Split>
+        </Rail>
       </Chapter>
 
       <Chapter n="06" label="Onboarding" tone="operator" flush>

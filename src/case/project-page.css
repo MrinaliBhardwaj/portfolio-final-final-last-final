@@ -934,6 +934,44 @@
   box-shadow: var(--pp-shadow);
 }
 
+/* A SET THAT FITS, RATHER THAN A RAIL THAT SCROLLS. Only above 760px of
+   container: five equal columns of 70px would be worse than dragging.
+
+   The max-width is what stops a set of two from becoming two half-page phones.
+   `--pp-fit` is the child count, written on the element by Rail, so one rule
+   covers a pair and a set of five: each screen may reach 230px and no further,
+   and the row packs from the left. */
+@container cwdoc (min-width: 620px) {
+  /* DOUBLED CLASS, ON PURPOSE. `.pp-rail--phone .pp-slide` and the reach-to-
+     the-edge `.pp-ch > .pp-rail > .pp-rail-track` are both declared below this
+     and both match at the same weight, so a single class here loses the
+     cascade and the set silently went back to being a scroller.
+
+     `auto-fit` rather than a fixed count: five columns of a tablet's width is
+     138px a screen, which is a thumbnail, not a screenshot. The set puts as
+     many as will hold 190px on a row and WRAPS the rest — two rows of phones
+     rather than five unreadable ones. The max-width is what stops a set of TWO
+     from becoming two half-page phones. */
+  .pp-rail.pp-rail--fit .pp-rail-track {
+    display: grid;
+    /* minmax with a CEILING, not 1fr: at 620px the row held two, and 1fr let
+       each of them grow to 286px — a phone screenshot bigger on a tablet than
+       on a 1600px laptop. Every screen in a set is the same size at every
+       width, and the row simply holds fewer of them. */
+    grid-template-columns: repeat(auto-fit, minmax(190px, 230px));
+    width: 100%;
+    max-width: calc(var(--pp-fit, 4) * 230px + (var(--pp-fit, 4) - 1) * var(--sp-3));
+    padding-bottom: 0;
+    overflow: visible;
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+
+  .pp-rail.pp-rail--fit .pp-slide {
+    width: auto;
+  }
+}
+
 /* a phone rail draws its slides as phones: one narrow column each, the screen
    rounded hard the way a device is */
 .pp-rail--phone .pp-slide {
@@ -1247,7 +1285,10 @@
 .pp-marq-track {
   display: flex;
   width: max-content;
-  animation: pp-marq 34s linear infinite;
+  /* FOUR COPIES, AND THE LOOP IS HALF OF THEM. -50% of a four-copy track is
+     two copies, so the seam always lands on an identical span and the band is
+     never caught with a gap in it. 16s over two copies is ~70px a second. */
+  animation: pp-marq var(--pp-marq-t, 16s) linear infinite;
 }
 
 .pp-marq-track span {

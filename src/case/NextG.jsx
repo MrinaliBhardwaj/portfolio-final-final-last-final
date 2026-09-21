@@ -153,7 +153,7 @@ export default function NextG() {
             src={F("fig/presenting")}
             alt="Presenting the redesign to the NextG team."
             size={size(F("fig/presenting"))}
-            ratio="4 / 5"
+            ratio="3 / 4"
             from="right"
             caption="Presenting it to the people who asked for it."
           />

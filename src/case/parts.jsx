@@ -15,6 +15,7 @@
 // runs a rAF loop that outlives what it is animating — both are house rules,
 // and this window is the heaviest thing on the site.
 import {
+  Children,
   createContext,
   useContext,
   useEffect,
@@ -533,21 +534,35 @@ export function Run({ gap = "", className = "", children }) {
  * does not announce its length is a rail nobody scrolls.
  * @param {object} p
  * @param {"phone"|"wide"|"free"} [p.kind] the slot shape
+ * @param {boolean} [p.fit] FIVE THINGS THAT FIT ARE NOT A SCROLLER. A rail
+ *   earns its horizontal scroll when there is more than the page can hold — six
+ *   vendor screens, eleven admin views. Five phone screens at 230px each fit
+ *   the column with room to spare, and making a reader drag through something
+ *   already in front of them is friction for its own sake. `fit` lays the set
+ *   out as one row of equal columns instead, capped so a set of TWO does not
+ *   blow each screen up to half the page. Under 760px of container it goes back
+ *   to being a rail, because five columns of 70px is nothing.
  * @param {string} [p.label]
  * @param {string} [p.count] how many there are, said out loud
  * @param {string} [p.className]
  * @param {any} p.children
  */
-export function Rail({ kind = "phone", label = "", count = "", className = "", children }) {
+export function Rail({ kind = "phone", fit = false, label = "", count = "", className = "", children }) {
+  const n = Children.count(children);
   return (
-    <Reveal className={`pp-rail pp-rail--${kind} ${className}`.trim()}>
+    <Reveal
+      className={`pp-rail pp-rail--${kind}${fit ? " pp-rail--fit" : ""} ${className}`.trim()}
+      style={fit ? /** @type {any} */ ({ "--pp-fit": n }) : undefined}
+    >
       {(label || count) && (
         <p className="pp-rail-head">
           {label}
           {count ? <span className="pp-rail-n">{count}</span> : null}
         </p>
       )}
-      <ul className="pp-rail-track" tabIndex={0} aria-label={label}>
+      {/* a fitted set is not focusable: there is nothing to scroll, so a tab
+          stop that does nothing is a tab stop in the way */}
+      <ul className="pp-rail-track" tabIndex={fit ? undefined : 0} aria-label={label}>
         {children}
       </ul>
     </Reveal>
@@ -749,6 +764,8 @@ export function Marquee({ children, className = "" }) {
   return (
     <div className={`pp-marq ${className}`.trim()} aria-hidden="true">
       <div className="pp-marq-track">
+        <span>{children}</span>
+        <span>{children}</span>
         <span>{children}</span>
         <span>{children}</span>
       </div>
