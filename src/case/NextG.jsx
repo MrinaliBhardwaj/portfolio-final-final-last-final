@@ -310,14 +310,16 @@ export default function NextG() {
             <Statement size="md">Six pages, one scroll each.</Statement>
             <Say>
               The home page, top to bottom, as it shipped — the coverage hero, the numbered
-              services, the four product views, the brands and the demo. Scroll it.
+              services, the live map, the brands, the testimonials, the leadership and the
+              demo. Scroll it.
             </Say>
           </div>
+          {/* no address in the bar: her capture was taken off her own build,
+              and nothing in her files says where the site is hosted */}
           <Scroller
             src={F("fig/site-full")}
             alt="The NextG home page, full length, as shipped."
             size={size(F("fig/site-full"))}
-            label="nextg.in"
           />
         </Split>
       </Chapter>

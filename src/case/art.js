@@ -96,7 +96,7 @@ export const ART = {
   "/work/nextg/fig/coverage.webp": [1120, 571],
   "/work/nextg/fig/presenting.webp": [720, 1280],
   "/work/nextg/fig/shop.webp": [900, 475],
-  "/work/nextg/fig/site-full.webp": [512, 4096],
+  "/work/nextg/fig/site-full.webp": [1024, 6389],
   "/work/nextg/landing-poster.webp": [1440, 624],
   "/work/regis/audit-trail.webp": [1800, 1125],
   "/work/regis/evidence-repository.webp": [1800, 1125],

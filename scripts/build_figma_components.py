@@ -79,7 +79,10 @@ SOURCES = {
     "nextg": [  # file bUB4MsJcWhbCEhPEyI7Ip6, frame 181:103
         ("shop.raw.png", "shop", "photo", 900, "235:9 careers-02"),
         ("coverage.raw.png", "coverage", "photo", 1120, "181:1902 coverage map"),
-        ("site-full.raw.png", "site-full", "photo", 512, "181:73 full-page capture"),
+        # her own stitched capture — a full-page grab patched section by
+        # section with screenshots — so the NODE is the picture, not any one
+        # fill. Rendered @2x: the frame is 512 wide, the screenshots ~1,900.
+        ("site-full.png", "site-full", "photo", 1024, "185:1306 Frame 4 @2x"),
         ("presenting.raw.jpg", "presenting", "photo", 720, "221:35 photo"),
     ],
     "layover": [  # file BRaDrcuSqhHuA7PTmJX0Zt, frame 171:3998
