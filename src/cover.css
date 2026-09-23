@@ -543,3 +543,211 @@
      hidden too, so a phone gets the bloom, the name, the menu bar and the
      dock — which is the whole of what this cover is now. */
 }
+
+/* ============ the phone: the cover is a LOCK SCREEN ============
+   640px, not the 719px above it, because this breakpoint is a CONTRACT with
+   use-is-phone.js: the markup these rules style (the status bar, the byline,
+   the Enter button) only exists where `phone` is true, and that is
+   (max-width: 640px). Two numbers here is how a phone ends up with a lock
+   screen's CSS and a desktop's DOM.
+
+   WHAT WAS WRONG. Measured at 390x844, first paint: no top bar, no control of
+   any kind (the whole screen had zero focusable elements), the roles hidden by
+   a display:none inherited from the tablet rules, and the name parked at the
+   bottom of the viewport — its second line ending 21px off the fold with the
+   scroll chevron sitting on top of it.
+
+   WHAT IT IS NOW. The screen it settles into is a home screen, so the screen
+   before it is the one you unlock: device chrome at the top, the name where a
+   lock screen puts its clock, the two roles as a byline at the foot, and one
+   button to get in. The lotus is the wallpaper it all sits on, which is what
+   it always was. */
+@media (max-width: 640px) {
+  /* the device's own bar, the same component the home screen wears; it goes
+     out exactly as PhoneHome comes in, over the same 0.55s, in the same place */
+  .cover-status {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: var(--ph-status);
+    z-index: 5;
+    color: #fff;
+    font-family: var(--font-ui, system-ui, sans-serif);
+    transition: opacity 0.55s ease;
+  }
+
+  .cover-status.is-off {
+    opacity: 0;
+  }
+
+  /* THE DIMMING IS FOR THE WORDS AND LEAVES WITH THEM (opacity is driven by
+     the name's own scroll curve in Cover.jsx). Measured off the poster at this
+     crop: y 78-250 is black sky (mean 0.001), the petals start at 250 (mean
+     0.12) and by 300 they are lit (p90 0.58) — and the name's second line ends
+     at ~318. So the top stop is heavy and lets go by 58%, which is where the
+     text stops and the bloom's own light should take over. */
+  .cover-phone-scrim {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    pointer-events: none;
+    background:
+      linear-gradient(
+        to bottom,
+        rgba(1, 1, 4, 0.78),
+        rgba(1, 1, 4, 0.5) 32%,
+        rgba(1, 1, 4, 0) 58%
+      ),
+      linear-gradient(to top, rgba(1, 1, 4, 0.55), rgba(1, 1, 4, 0) 26%);
+  }
+
+  /* The stage bottom-aligned the name because the bottom of this wallpaper was
+     the only place white script survived on it. With the scrim above, the name
+     can go where a lock screen puts its clock: straight under the status bar. */
+  .cover-stage {
+    justify-content: flex-start;
+    padding-top: calc(var(--ph-status) + 12px);
+  }
+
+  .cover-hero-inner {
+    /* BIGGER, AND THE CEILING IS ARITHMETIC. The name wraps to two lines here,
+       so the constraint is the wider word: Bhardwaj is 3.5815em (NameMark.jsx),
+       and 24vw x 3.5815 = 86vw against a content box of 100vw - 2 x 0.9rem =
+       92.6vw at 390. That is 6.6vw of air, ~13px a side. Was 22vw. */
+    --name-fs: clamp(3.8rem, 24vw, 7.4rem);
+    padding-inline: 0.9rem;
+  }
+
+  /* the two script lines pulled together — at this size the default 0.12em
+     opened a gap the name read as two separate words across */
+  .cover-name-script {
+    row-gap: 0.06em;
+  }
+
+  /* ONE WAY IN, NOT TWO. The chevron is a hint that cannot be tapped, focused
+     or read out; the button below does all three, so the hint would only be a
+     second thing pointing at the same action (PRODUCT.md #2). */
+  .cover-scroll {
+    display: none;
+  }
+
+  /* the foot: who she is, and the way in */
+  .cover-phone-foot {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: calc(var(--ph-safe) + 16px);
+    z-index: 4;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding-inline: 1.25rem;
+    /* the block is a caption and a button; only the button takes a touch, so
+       the 390x126 box around it never intercepts one meant for the page */
+    pointer-events: none;
+  }
+
+  /* a floor under the button, not a rule about it: Cover.jsx drives its
+     pointer-events from the scroll position (it stops taking taps once it has
+     faded), and an inline style wins over this either way */
+  .cover-phone-foot .cover-enter {
+    pointer-events: auto;
+  }
+
+  /* the marginalia, stood up as a byline. They are absolutely positioned
+     margin notes on a Mac; here they are simply two lines of type in a column,
+     so everything that held them to an edge is undone. */
+  .cover-phone-foot .cover-aside {
+    position: static;
+    transform: none;
+    width: auto;
+    text-align: center;
+  }
+
+  .cover-phone-foot .cover-aside-inner {
+    display: flex;
+    align-items: center;
+  }
+
+  .cover-phone-foot .cover-aside-role {
+    --role-fs: 13px;
+  }
+
+  /* Stacked, the lead-in and the role are two lines of the same caps at nearly
+     the same size, and four of them in a column read as one flat block. In the
+     margins that never mattered — there was a flower between them. Here the
+     lead-ins step back so the two ROLES are what the eye picks up. */
+  .cover-phone-foot .cover-aside-lead {
+    color: rgba(255, 255, 255, 0.5);
+  }
+
+  .cover-phone-foot .cover-aside--right .tm-phrase {
+    justify-content: center;
+  }
+
+  /* Letter-spacing is added after the LAST glyph too, so a centred line's ink
+     sits half a tracking step left of true centre. The right-hand note pulls a
+     whole step back when it is right-aligned; centred, it is half of one. */
+  .cover-phone-foot .cover-aside-lead,
+  .cover-phone-foot .cover-aside-role,
+  .cover-phone-foot .cover-aside--right .cover-aside-lead,
+  .cover-phone-foot .cover-aside--right .cover-aside-role {
+    margin-right: calc(-0.5 * var(--track));
+  }
+
+  /* THE CONTROL. Hairline and quiet rather than a filled CTA: this sits on her
+     own photograph, and a solid button would read as an ad on it. No
+     backdrop-filter — it would re-filter its backdrop on every frame of the
+     scrub, on the hardware least able to afford it — so the fill is a flat
+     wash that does the same job over the scrim. */
+  .cover-enter {
+    margin-top: 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 44px;
+    padding: 0 24px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 999px;
+    background: rgba(8, 8, 16, 0.42);
+    color: #fff;
+    font-family: var(--font-ui);
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: background 0.25s var(--ease-soft), border-color 0.25s var(--ease-soft);
+  }
+
+  .cover-enter:active {
+    background: rgba(255, 255, 255, 0.16);
+    border-color: rgba(255, 255, 255, 0.5);
+  }
+
+  .cover-enter:focus-visible {
+    outline: 2px solid rgba(255, 255, 255, 0.8);
+    outline-offset: 3px;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .cover-enter {
+      animation: cover-enter-nudge 2.4s var(--ease-soft) infinite;
+    }
+  }
+}
+
+/* the same soft nudge the chevron had, minus the centring transform it was
+   written around — this button is centred by its flex parent */
+@keyframes cover-enter-nudge {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(4px);
+  }
+}

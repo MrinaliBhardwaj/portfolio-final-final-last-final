@@ -4284,3 +4284,56 @@ The gaps a hiring manager will feel, and none of them can be filled without her:
 - **NextG's outcome is scale, not result.** "500K outlets" is what the site had
   to make legible, not what the site achieved. Any post-launch figure — enquiries,
   time on page, a line from the CEO — would replace it.
+
+---
+
+## 23 Sep 2026 — The phone's cover is a lock screen
+
+The phone settles into a home screen, so the thing standing in front of it is
+the screen you unlock. That is the whole decision; everything below follows
+from it.
+
+Measured at 390x844, first paint, before this:
+
+| | before | after |
+|---|---|---|
+| focusable controls on the first screen | **0** | **1** (Enter, 118x44) |
+| top bar | none | the device's own status bar |
+| name | 22vw, ending 21px off the fold | **24vw, starting 12px under the bar** |
+| what it says she does | nothing | **both roles, as a byline** |
+| the scroll chevron | a `<div aria-hidden="true">` over the name's last line | gone — one control, not two |
+
+**The status bar is one component now** (`PhoneStatus.jsx`), worn by the lock
+screen and the home screen both. It was inline markup inside PhoneHome; a
+second copy on the cover is how the two would have ended up a pixel apart, and
+the cover's copy has to sit *exactly* where the home screen's does, because the
+first cross-fades into the second without it moving. It goes out on the same
+`settled` signal PhoneHome comes in on, over the same 0.55s.
+
+**The roles are the same two margin notes, placed differently.** On a Mac they
+hold the outer edges of the flower; a phone has no margins to write in — 148px
+a side does not exist at 390 — so the same elements stack under the lotus as a
+byline. They were `display: none` below 1023px, which is why the phone said
+nothing about what she does at all. One copy of the markup, two placements
+(`notes` in Cover.jsx).
+
+**The name sits over lit petals now, so the words bring their own dark.** The
+poster at this crop is black sky to y=250 (mean luminance 0.001), petals from
+250 (0.12), and lit by 300 (p90 0.58) — and the name's second line ends at 318.
+A scrim carries the top down to 58%, and it fades on the name's own scroll
+curve, so the bloom itself is never dimmed: the dimming belongs to the words
+and leaves with them.
+
+**Enter jumps, it does not glide.** A smooth scroll of 2.2 viewports scrubs the
+whole bloom in half a second — forty frame decodes on the phone least able to
+afford them. It marks the ceremony spent and stands at the end of the track,
+which is the landing every deep link already performs; PhoneHome's own 0.55s
+fade-in is the transition.
+
+### Still open
+
+The desktop cover has the same hole: at scroll 0 its only visible controls are
+File / Edit / View / Go / Window / Help, and the dock is at opacity 0 for the
+whole ceremony. And on a phone, tabbing from Enter walks into **17 invisible
+focus stops** — the entire home screen, `aria-hidden` but not `inert`, sitting
+under the lock screen at opacity 0.

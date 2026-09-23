@@ -61,6 +61,7 @@ import { TECH_PROJECTS } from "./tech-projects.js";
 import TextMorph from "./TextMorph.jsx";
 import DesktopFiles from "./DesktopFiles.jsx";
 import PhoneHome from "./PhoneHome.jsx";
+import PhoneStatus from "./PhoneStatus.jsx";
 import useIsPhone from "./use-is-phone.js";
 import NameMark from "./NameMark.jsx";
 import { createParticles } from "./particles.js";
@@ -523,6 +524,33 @@ export default function Cover({ onChoose, onSettledChange }) {
   const chevronPlay = useTransform(scrollYProgress, (v) =>
     v > 0.14 ? "paused" : "running"
   );
+  // A FADED BUTTON IS STILL A BUTTON. Opacity does not stop a tap, so the CTA
+  // stops accepting them at the same point it stops being legible — otherwise
+  // it sits invisible over the bloom, swallowing thumbs. Driven by a motion
+  // value like the chevron's play state, so it costs no React render.
+  const ctaPointer = useTransform(scrollYProgress, (v) =>
+    v > 0.1 ? "none" : "auto"
+  );
+
+  // THE WAY IN, FOR PEOPLE WHO DID NOT COME FOR THE CEREMONY. The bloom is a
+  // scroll, and a scroll is not an affordance: nothing in the first screen
+  // said the site continued, and on a phone there was not one focusable
+  // control on it. This is the same landing the deep-link path already
+  // performs (see the insta-land effect) — mark the ceremony spent, then stand
+  // at the end of the track, where the desk is.
+  //
+  // Instantly, not smoothly. A smooth scroll of 2.2 viewports scrubs the whole
+  // bloom in half a second, which is forty frame decodes on the phone least
+  // able to afford them; PhoneHome's own 0.55s fade-in is the transition.
+  const enterNow = () => {
+    const track = trackRef.current;
+    if (!track) return;
+    markIntroSeen();
+    window.scrollTo({
+      top: track.offsetTop + track.offsetHeight - window.innerHeight,
+      behavior: "auto",
+    });
+  };
 
   // Beat 3's four scroll-driven transforms (designOpacity/X, techOpacity/X)
   // went with the discipline cards they animated. `split` survives them: it
@@ -564,6 +592,68 @@ export default function Cover({ onChoose, onSettledChange }) {
   }, []);
 
 
+  // BEAT 1'S MARGIN NOTES, BUILT ONCE AND PLACED TWICE. On a Mac they are
+  // marginalia: two columns holding the outer edges of the flower, read off to
+  // the side of the name. A phone has no margins to write in — 148px a side
+  // does not exist at 390 — so the same two notes stack under the lotus as a
+  // byline instead. Same elements, same morphing roles, same accessible text:
+  // only where they sit changes, which is a stylesheet's job, not a second
+  // copy's. (Before this they were simply display:none below 1023px, and the
+  // phone said nothing about what she does at all.)
+  const notes = (
+    <>
+      <motion.aside
+        className="cover-aside cover-aside--left"
+        style={{ opacity: asideOpacity }}
+      >
+        <p className="cover-aside-sr">
+          I am a UI/UX designer, product designer, visual storyteller,
+          interaction designer and systems thinker.
+        </p>
+        <motion.div
+          className="cover-aside-inner"
+          aria-hidden="true"
+          initial={{ opacity: 0, x: -8 }}
+          animate={fontReady ? { opacity: 1, x: 0 } : {}}
+          transition={{ duration: 0.9, ease: EASE, delay: 1.6 }}
+        >
+          <p className="cover-aside-lead">I am a</p>
+          <TextMorph
+            className="cover-aside-role"
+            words={DESIGN_ROLES}
+            interval={2600}
+            paused={split}
+          />
+        </motion.div>
+      </motion.aside>
+
+      <motion.aside
+        className="cover-aside cover-aside--right"
+        style={{ opacity: asideOpacity }}
+      >
+        <p className="cover-aside-sr">
+          As well as a software developer, frontend engineer, creative coder
+          and problem solver.
+        </p>
+        <motion.div
+          className="cover-aside-inner"
+          aria-hidden="true"
+          initial={{ opacity: 0, x: 8 }}
+          animate={fontReady ? { opacity: 1, x: 0 } : {}}
+          transition={{ duration: 0.9, ease: EASE, delay: 1.75 }}
+        >
+          <p className="cover-aside-lead">as well as a</p>
+          <TextMorph
+            className="cover-aside-role"
+            words={TECH_ROLES}
+            interval={2600}
+            paused={split}
+          />
+        </motion.div>
+      </motion.aside>
+    </>
+  );
+
   return (
     <div className="cover">
       {/* starfield spans the whole cover as ambient connective tissue */}
@@ -604,6 +694,33 @@ export default function Cover({ onChoose, onSettledChange }) {
           />
           <div className="cover-video-overlay" />
 
+          {/* THE PHONE'S COVER IS A LOCK SCREEN. It settles into a home screen
+              (PhoneHome), so what stands before it is the screen you unlock —
+              and a lock screen wears the device's own status bar, carries the
+              name large at the top, and offers one way in at the thumb.
+
+              The bar is the SAME component the home screen wears, in the same
+              place, so the cross-fade at settle is invisible: it goes out on
+              exactly the signal PhoneHome comes in on, over the same 0.55s. */}
+          {phone && (
+            <>
+              <div className={`cover-status${settled ? " is-off" : ""}`}>
+                <PhoneStatus />
+              </div>
+              {/* THE DIMMING BELONGS TO THE WORDS, SO IT LEAVES WITH THEM.
+                  Measured off the poster at the 390x844 crop: the band the
+                  name now sits in reads mean 0.06 luminance but p99 0.77 —
+                  black sky with lit petal tips through it, which is exactly
+                  the case white script cannot be trusted over. It fades on the
+                  name's own curve, so the bloom itself is never dimmed. */}
+              <motion.div
+                className="cover-phone-scrim"
+                style={{ opacity: nameOpacity }}
+                aria-hidden="true"
+              />
+            </>
+          )}
+
           {/* beat 1: the name, alone — then the script writes itself on via a
               mask wipe (see .is-inked). The "a design engineer" caption that
               used to sit under it is gone — the two margin notes below now
@@ -632,61 +749,15 @@ export default function Cover({ onChoose, onSettledChange }) {
             </h1>
           </motion.div>
 
-          {/* marginalia: the roles behind each discipline, pinned to the
-              vertical centre of each edge. They annotate the name, so they
-              arrive after it inks and fade out with it — long before beat 3
-              takes these margins over. The visible column is aria-hidden (a
-              word that swaps every 2.6s is unfollowable); the .cover-aside-sr
-              line carries the same content to assistive tech at every width. */}
-          <motion.aside
-            className="cover-aside cover-aside--left"
-            style={{ opacity: asideOpacity }}
-          >
-            <p className="cover-aside-sr">
-              I am a UI/UX designer, product designer, visual storyteller,
-              interaction designer and systems thinker.
-            </p>
-            <motion.div
-              className="cover-aside-inner"
-              aria-hidden="true"
-              initial={{ opacity: 0, x: -8 }}
-              animate={fontReady ? { opacity: 1, x: 0 } : {}}
-              transition={{ duration: 0.9, ease: EASE, delay: 1.6 }}
-            >
-              <p className="cover-aside-lead">I am a</p>
-              <TextMorph
-                className="cover-aside-role"
-                words={DESIGN_ROLES}
-                interval={2600}
-                paused={split}
-              />
-            </motion.div>
-          </motion.aside>
-
-          <motion.aside
-            className="cover-aside cover-aside--right"
-            style={{ opacity: asideOpacity }}
-          >
-            <p className="cover-aside-sr">
-              As well as a software developer, frontend engineer, creative coder
-              and problem solver.
-            </p>
-            <motion.div
-              className="cover-aside-inner"
-              aria-hidden="true"
-              initial={{ opacity: 0, x: 8 }}
-              animate={fontReady ? { opacity: 1, x: 0 } : {}}
-              transition={{ duration: 0.9, ease: EASE, delay: 1.75 }}
-            >
-              <p className="cover-aside-lead">as well as a</p>
-              <TextMorph
-                className="cover-aside-role"
-                words={TECH_ROLES}
-                interval={2600}
-                paused={split}
-              />
-            </motion.div>
-          </motion.aside>
+          {/* marginalia: the roles behind each discipline. On a Mac they pin
+              to the vertical centre of each edge; on a phone they stack into
+              the byline below (see `notes` above, and the foot below). They
+              annotate the name, so they arrive after it inks and fade out with
+              it — long before beat 3 takes these margins over. The visible
+              column is aria-hidden (a word that swaps every 2.6s is
+              unfollowable); the .cover-aside-sr line carries the same content
+              to assistive tech at every width. */}
+          {!phone && notes}
 
           {/* BEAT 3 IS NOW THE DESKTOP ITSELF. The two discipline cards that
               lived here — "Design / What blooms in sight / …" and "Tech / What
@@ -716,6 +787,32 @@ export default function Cover({ onChoose, onSettledChange }) {
           >
             <ChevronDown size={24} strokeWidth={2} />
           </motion.div>
+
+          {/* THE FOOT OF THE LOCK SCREEN: who she is, and the way in.
+              A bare chevron is a hint, not a control — it cannot be tapped,
+              focused or read aloud, and on a phone it was the ONLY thing under
+              the name. The button is the affordance; the chevron above is
+              hidden here so there is exactly one of them (PRODUCT.md #2). */}
+          {phone && (
+            <div className="cover-phone-foot">
+              {notes}
+              <motion.button
+                type="button"
+                className="cover-enter"
+                onClick={enterNow}
+                aria-label="Enter the home screen"
+                style={{
+                  opacity: chevronOpacity,
+                  pointerEvents: ctaPointer,
+                  // park the nudge once it is gone, as the chevron does
+                  animationPlayState: chevronPlay,
+                }}
+              >
+                Enter
+                <ChevronDown size={14} strokeWidth={2.2} aria-hidden="true" />
+              </motion.button>
+            </div>
+          )}
         </div>
       </section>
 

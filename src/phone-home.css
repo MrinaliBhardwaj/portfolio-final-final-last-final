@@ -16,11 +16,14 @@
    now (App.jsx puts it on every phone route), so the numbers both of them
    need — its icon, its height, the margin and the safe area — live here rather
    than inside .ph, where the dock could no longer see them. */
+/* --ph-status is up here for the same reason: the status bar is the DEVICE's
+   chrome, not this screen's (PhoneStatus.jsx), and the cover wears it too. */
 :root {
   --ph-margin: 22px;
   --ph-dock-icon: clamp(46px, 15vw, 60px);
   --ph-dock: calc(var(--ph-dock-icon) + 26px);
   --ph-safe: max(10px, env(safe-area-inset-bottom, 0px));
+  --ph-status: 54px;
 }
 
 @media (max-height: 700px) {
@@ -44,7 +47,6 @@
   /* the row gap is where an icon's name lives, exactly as on iOS */
   --ph-gap-y: 24px;
   --ph-label: 16px;
-  --ph-status: 54px;
   --ph-dots: 26px;
   /* (the dock's own figures are on :root above — the cell is derived from the
      height left after the dock, so measuring the dock from the cell would be a
