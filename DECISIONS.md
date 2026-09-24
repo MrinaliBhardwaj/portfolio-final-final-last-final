@@ -4337,3 +4337,37 @@ File / Edit / View / Go / Window / Help, and the dock is at opacity 0 for the
 whole ceremony. And on a phone, tabbing from Enter walks into **17 invisible
 focus stops** — the entire home screen, `aria-hidden` but not `inert`, sitting
 under the lock screen at opacity 0.
+
+---
+
+## 25 Sep 2026 — The phone keeps the lock screen, loses the button
+
+Two days of it on the phone, and her call on the composition: the name belongs
+at the foot, under the flower, where it was. So:
+
+- **The Enter button is gone**, by request. The chevron that used to stand
+  where it stood is gone with it — the name runs to the fold again, and the
+  21px the descender is lifted clear by is not somewhere a 24px cue can stand
+  (it used to sit *on* the last line, which was the original complaint).
+- **The name is back at the foot**, at the bigger 24vw, with the two script
+  lines set tight: row-gap 0.12em → **0.02em**. At 22vw that leading held two
+  lines apart; at 24vw it grew with the ink and the pair read as two words
+  rather than one name.
+- **The notes moved to the sky.** They cannot go under the name any more, and
+  the top band is the one other place on this wallpaper where white type needs
+  no help: 0.001 mean luminance from the status bar down to y=250.
+- **The scrim is deleted.** It existed to make petals safe for the name when
+  the name was up top. Both blocks sit on black now, so the flower is not
+  dimmed by anything.
+
+The status bar stays: it is still the device's chrome, still one component
+shared with the home screen, still cross-fading in place at settle.
+
+### The cost, stated plainly
+
+A phone arriving at `#/` now has **no control and no cue** on the first screen —
+not one focusable element, and nothing that says the page continues. It is the
+state the site was in before 23 Sep, minus the chevron. The desktop has the
+same hole (its only visible controls at scroll 0 are the six menu-bar titles).
+Both are open, and neither is a bug in the code: they are a composition that
+has not yet found somewhere to put the way in.

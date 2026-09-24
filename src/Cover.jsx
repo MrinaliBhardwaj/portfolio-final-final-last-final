@@ -524,33 +524,12 @@ export default function Cover({ onChoose, onSettledChange }) {
   const chevronPlay = useTransform(scrollYProgress, (v) =>
     v > 0.14 ? "paused" : "running"
   );
-  // A FADED BUTTON IS STILL A BUTTON. Opacity does not stop a tap, so the CTA
-  // stops accepting them at the same point it stops being legible — otherwise
-  // it sits invisible over the bloom, swallowing thumbs. Driven by a motion
-  // value like the chevron's play state, so it costs no React render.
-  const ctaPointer = useTransform(scrollYProgress, (v) =>
-    v > 0.1 ? "none" : "auto"
-  );
-
-  // THE WAY IN, FOR PEOPLE WHO DID NOT COME FOR THE CEREMONY. The bloom is a
-  // scroll, and a scroll is not an affordance: nothing in the first screen
-  // said the site continued, and on a phone there was not one focusable
-  // control on it. This is the same landing the deep-link path already
-  // performs (see the insta-land effect) — mark the ceremony spent, then stand
-  // at the end of the track, where the desk is.
-  //
-  // Instantly, not smoothly. A smooth scroll of 2.2 viewports scrubs the whole
-  // bloom in half a second, which is forty frame decodes on the phone least
-  // able to afford them; PhoneHome's own 0.55s fade-in is the transition.
-  const enterNow = () => {
-    const track = trackRef.current;
-    if (!track) return;
-    markIntroSeen();
-    window.scrollTo({
-      top: track.offsetTop + track.offsetHeight - window.innerHeight,
-      behavior: "auto",
-    });
-  };
+  // THE ENTER BUTTON IS GONE (25 Sep 2026, by request). It stood at the foot
+  // of the phone cover for two days and was the only focusable control on that
+  // screen; the chevron below is a hint again, not an affordance. The hole it
+  // leaves is real and it is written down in DECISIONS.md, not papered over
+  // here: a phone arriving at #/ has nothing to press, and the way on is to
+  // scroll.
 
   // Beat 3's four scroll-driven transforms (designOpacity/X, techOpacity/X)
   // went with the discipline cards they animated. `split` survives them: it
@@ -702,23 +681,15 @@ export default function Cover({ onChoose, onSettledChange }) {
               The bar is the SAME component the home screen wears, in the same
               place, so the cross-fade at settle is invisible: it goes out on
               exactly the signal PhoneHome comes in on, over the same 0.55s. */}
+          {/* NO SCRIM ON THIS SCREEN. There was one, when the name was up
+              under the status bar and its second line crossed lit petals. The
+              name is back at the foot and the notes are in the sky, and both
+              of those bands measure 0.001 luminance on the poster at this
+              crop — so the flower is never dimmed by anything. */}
           {phone && (
-            <>
-              <div className={`cover-status${settled ? " is-off" : ""}`}>
-                <PhoneStatus />
-              </div>
-              {/* THE DIMMING BELONGS TO THE WORDS, SO IT LEAVES WITH THEM.
-                  Measured off the poster at the 390x844 crop: the band the
-                  name now sits in reads mean 0.06 luminance but p99 0.77 —
-                  black sky with lit petal tips through it, which is exactly
-                  the case white script cannot be trusted over. It fades on the
-                  name's own curve, so the bloom itself is never dimmed. */}
-              <motion.div
-                className="cover-phone-scrim"
-                style={{ opacity: nameOpacity }}
-                aria-hidden="true"
-              />
-            </>
+            <div className={`cover-status${settled ? " is-off" : ""}`}>
+              <PhoneStatus />
+            </div>
           )}
 
           {/* beat 1: the name, alone — then the script writes itself on via a
@@ -788,31 +759,13 @@ export default function Cover({ onChoose, onSettledChange }) {
             <ChevronDown size={24} strokeWidth={2} />
           </motion.div>
 
-          {/* THE FOOT OF THE LOCK SCREEN: who she is, and the way in.
-              A bare chevron is a hint, not a control — it cannot be tapped,
-              focused or read aloud, and on a phone it was the ONLY thing under
-              the name. The button is the affordance; the chevron above is
-              hidden here so there is exactly one of them (PRODUCT.md #2). */}
-          {phone && (
-            <div className="cover-phone-foot">
-              {notes}
-              <motion.button
-                type="button"
-                className="cover-enter"
-                onClick={enterNow}
-                aria-label="Enter the home screen"
-                style={{
-                  opacity: chevronOpacity,
-                  pointerEvents: ctaPointer,
-                  // park the nudge once it is gone, as the chevron does
-                  animationPlayState: chevronPlay,
-                }}
-              >
-                Enter
-                <ChevronDown size={14} strokeWidth={2.2} aria-hidden="true" />
-              </motion.button>
-            </div>
-          )}
+          {/* THE NOTES, AT THE TOP OF THE PHONE. The name is at the foot, where
+              it has always looked right — so these go to the one other place
+              on this wallpaper where white type needs nothing to survive: the
+              sky above the flower, which measures 0.001 luminance at this crop
+              from the status bar down to y=250. Top line, bottom line, the
+              bloom between them, and no scrim anywhere. */}
+          {phone && <div className="cover-phone-notes">{notes}</div>}
         </div>
       </section>
 
