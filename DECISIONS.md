@@ -4371,3 +4371,76 @@ state the site was in before 23 Sep, minus the chevron. The desktop has the
 same hole (its only visible controls at scroll 0 are the six menu-bar titles).
 Both are open, and neither is a bug in the code: they are a composition that
 has not yet found somewhere to put the way in.
+
+---
+
+## 28 Sep 2026 — The phone stops being a narrow Mac
+
+Ten routes, measured at 390x844 in headless Chrome before anything was
+touched. The numbers, not opinions:
+
+| | before | after |
+|---|---|---|
+| routes with a findable way home | **0 of 9** | **9 of 9** |
+| what "home" was | a 22x20 monogram, or a 12x12 red dot | **one labelled 79x44 control** |
+| two competing ways home on one screen | 4 routes | **0** |
+| the dock, floating over content | **all 6 non-home routes** | **home only** |
+| windows | 86vh sheets, home screen showing above | **full screen** |
+| tap targets under 44px (case study) | 7 | **0** |
+| tap targets under 44px (tech) | 8 | **0 controls** |
+| smallest type in a case study | 10.5px | **11.5px** |
+| `#/?note=about` on a phone | a white window, title cut off, no way out | **redirects to #/notes** |
+
+### One control, in place of two Mac metaphors
+
+Every world already had a home link — the "mb" monogram — and every window had
+the red traffic light. Both are the right answer on a Mac and unreadable on a
+phone: nobody parses a 12px dot as "back", and the monogram is a logo, not a
+button. `PhoneBack.jsx` replaces both below 640px: a labelled pill, 44px tall,
+where iOS puts back. It takes its colour from whatever bar it lands in
+(`currentColor` mixed into fill and border), so one component reads correctly
+on the notes cream, the editor's near-black and the design world's white.
+
+`WindowLights` renders it INSTEAD of the three lights on a phone, which fixes
+three worlds from one file: minimise means "leave it open on the desktop" and
+maximise means fullscreen, and a phone has neither a desktop nor (on iOS) the
+Fullscreen API. Close is the only one of the three that survives translation.
+
+### The dock belongs to the home screen
+
+A Mac's dock outlives every window, so it sat on all six phone routes — 85px
+of every case study, world and readme, permanently under the thumb and over
+the content. An iPhone's dock is part of the home screen and an app covers it.
+It now shows on `#/` only, and `body:has(.cw)` hides it under an open window.
+The way between apps on a phone is home, and home is one control away.
+
+### Windows are screens
+
+Both were bottom sheets stopping at 86vh with rounded top corners — a Mac
+window parked on an iPhone, with the home screen visible above it. They fill
+the display now, their title bars are iOS navigation bars (back / title /
+neighbours), and they cannot be dragged: the drag only ever fought the thumb
+pressing the bar. `overscroll-behavior: contain` stops reading to the end of a
+study from carrying on into rewinding the lotus behind it.
+
+The case study's project rail is gone on a phone: on a Mac it is a sidebar
+answering "how much work is there", and at 390 it was a cut-off row of three
+thumbnails between the reader and the study they had just opened. Its two jobs
+are covered — the chevrons step through the work, and Home is the shelf.
+
+### Type
+
+The case-study page derives every size from four tokens, so the phone retunes
+the two small ones (10.5 to 11.5, 12 to 12.5) and every eyebrow, caption and
+section label follows. The tech world's editor chrome and the design world's
+canvas labels got the same 12.5px floor.
+
+### Still open
+
+- The gallery's dome puts its photos at 41-47px. They are a sphere you drag,
+  not a grid you tap, and enlarging them would change what the world is.
+- `#/notes` on a portrait phone is still "turn your phone sideways" — the
+  artwork is 1673px of baked-in handwriting and cannot reflow. It has a way
+  home now, which it did not before.
+- The phone cover still has no control on its first screen (25 Sep, by
+  request).

@@ -434,12 +434,22 @@ export default function App() {
           route, also in one place: it used to belong to the home screen while
           the worlds got the Mac dock's phone rail, so the thing you launched
           Figma from jumped to the left edge the moment it opened. */}
+      {/* THE DOCK BELONGS TO THE HOME SCREEN, AND ONLY TO IT (25 Sep 2026).
+          A Mac's dock is system chrome that outlives every window, so it sits
+          on every route. An iPhone's is not: it is part of the home screen,
+          and an app covers it. Ours was floating on all six phone routes —
+          85px of every case study, every world and every readme, permanently
+          under the visitor's thumb, over the content they came to read. The
+          way between apps on a phone is home, which is now one labelled
+          control on every screen (PhoneBack.jsx). */}
       {phone ? (
-        <PhoneDock
-          visible={route === "" ? coverSettled : true}
-          active={route || null}
-          minimised={minimised}
-        />
+        route === "" && (
+          <PhoneDock
+            visible={coverSettled}
+            active={null}
+            minimised={minimised}
+          />
+        )
       ) : (
         <Dock
           visible={route === "" ? coverSettled : true}

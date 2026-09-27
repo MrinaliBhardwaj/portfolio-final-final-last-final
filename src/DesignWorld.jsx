@@ -16,6 +16,8 @@ import InteractiveDots from "./InteractiveDots.jsx";
 import useSectionSpy from "./useSectionSpy.js";
 import { PROJECTS } from "./projects.js";
 import { FIGMA_PAGES, pageBySlug } from "./figma-pages.js";
+import PhoneBack from "./PhoneBack.jsx";
+import useIsPhone from "./use-is-phone.js";
 import FigmaCanvas from "./FigmaCanvas.jsx";
 import "./world-tabs.css";
 import "./design-world.css";
@@ -282,6 +284,7 @@ const hashPage = () =>
   (window.location.hash.replace(/^#\/?/, "").split("?")[0].split("/")[1] || "");
 
 export default function DesignWorld() {
+  const { phone } = useIsPhone();
   // THE FILE HAS PROJECT PAGES AGAIN — but not the ones it used to have. The
   // deleted #/design/<slug> was a second CASE STUDY competing with the
   // desktop's window. These are pages of the FILE: one per project, holding
@@ -358,9 +361,15 @@ export default function DesignWorld() {
         )}
         <div className="dw-content dw-content--page">
           <header className="dw-top">
-            <a className="dw-mark" href="#/" aria-label="Mrinali Bhardwaj — home">
-              mb
-            </a>
+            {/* the monogram is a 22px target with no word on it; on a phone
+                it becomes the labelled control (PhoneBack.jsx) */}
+            {phone ? (
+              <PhoneBack />
+            ) : (
+              <a className="dw-mark" href="#/" aria-label="Mrinali Bhardwaj — home">
+                mb
+              </a>
+            )}
             <span className="dw-mfile">
               <FigmaMark size={12} aria-hidden="true" />
               design.fig
@@ -429,9 +438,15 @@ export default function DesignWorld() {
             The badge wears the same Inter lowercase "mb" as the desktop tab bar
             — this world's monogram is set in the app's own UI type. */}
         <header className="dw-top">
-          <a className="dw-mark" href="#/" aria-label="Mrinali Bhardwaj — home">
-            mb
-          </a>
+          {/* the badge is a 38px target with no word on it; on a phone it
+              becomes the labelled control (PhoneBack.jsx) */}
+          {phone ? (
+            <PhoneBack />
+          ) : (
+            <a className="dw-mark" href="#/" aria-label="Mrinali Bhardwaj — home">
+              mb
+            </a>
+          )}
 
           <span className="dw-mfile">
             <FigmaMark size={12} aria-hidden="true" />

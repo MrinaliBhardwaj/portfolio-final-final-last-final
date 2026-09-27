@@ -30,6 +30,7 @@ import { motion, useDragControls } from "framer-motion";
 import { Maximize2 } from "lucide-react";
 import Scene from "./Scene.jsx";
 import SceneTwo from "./SceneTwo.jsx";
+import useIsPhone from "./use-is-phone.js";
 import "./case-window.css";
 import "./notes-world.css";
 
@@ -40,6 +41,17 @@ export default function NoteWindow({ index, z, onClose, onFocus }) {
   const [rolled, setRolled] = useState(false);
   const controls = useDragControls();
   const bodyRef = useRef(null);
+  const { phone } = useIsPhone();
+
+  // A PHONE NEVER GETS THE WINDOW. The home screen's About Me tile already
+  // goes to #/notes for this reason — the artwork is 1673px of baked-in
+  // handwriting, which is 23% of itself at 390 — but the address is public and
+  // a deep link to #/?note=about landed a Mac window on a phone: a white sheet
+  // with the title cut off and no way out of it. Same destination, the one
+  // that carries the rotate-to-read gate.
+  useEffect(() => {
+    if (phone) window.location.hash = "/notes";
+  }, [phone]);
 
   // WHAT `100dvh` MEANT, INSIDE A WINDOW. Both sheets size themselves against
   // the viewport — `.nw .sheet` reserves a screen of height, and page two

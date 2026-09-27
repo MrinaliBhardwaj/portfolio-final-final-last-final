@@ -19,6 +19,8 @@
 // boolean would be worse than a keyed string; App re-reads it on every route
 // change, which is exactly when it can change.
 import { Minus, Plus, X } from "lucide-react";
+import PhoneBack from "./PhoneBack.jsx";
+import useIsPhone from "./use-is-phone.js";
 
 const KEY = "mb-minimised";
 
@@ -65,6 +67,8 @@ export const toggleFullscreen = () => {
 };
 
 export default function WindowLights({ world, label }) {
+  const { phone } = useIsPhone();
+
   const close = () => {
     clearMinimised(world);
     home();
@@ -77,6 +81,13 @@ export default function WindowLights({ world, label }) {
   };
 
   const maximise = toggleFullscreen;
+
+  // A PHONE GETS ONE CONTROL, NOT THREE. Minimise means "leave it open on the
+  // desktop", and a phone has no desktop to leave it on; maximise means
+  // fullscreen, which iOS Safari has never granted to anything but a video.
+  // Both are Mac verbs. Close is the one that survives translation, so on a
+  // phone the cluster IS close — labelled, and 44px of it.
+  if (phone) return <PhoneBack onClick={close} />;
 
   return (
     <div className="wlights">

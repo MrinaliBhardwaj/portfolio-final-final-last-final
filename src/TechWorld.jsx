@@ -22,6 +22,8 @@ import TechLanyard from "./TechLanyard.jsx";
 import WorldTabs from "./WorldTabs.jsx";
 import useSectionSpy from "./useSectionSpy.js";
 import { TECH_PROJECTS as projects } from "./tech-projects.js";
+import PhoneBack from "./PhoneBack.jsx";
+import useIsPhone from "./use-is-phone.js";
 
 import { GITHUB, LINKEDIN } from "./links.js";
 import "./world-tabs.css";
@@ -303,6 +305,7 @@ const skills = [
 ];
 
 export default function TechWorld() {
+  const { phone } = useIsPhone();
   const [activeSection, selectFile] = useSectionSpy(SECTION_IDS);
   const [line, setLine] = useState(1);
   const [open, setOpen] = useState(() => new Set());
@@ -371,9 +374,15 @@ export default function TechWorld() {
           {/* the monogram, not the display face: `mb` in Pinyon like the cover
               and every other world, rather than the Archivo caps it used to
               wear (that face belongs to the CONTENT, not the chrome) */}
-          <a className="tw-mark" href="#/" aria-label="Mrinali Bhardwaj — home">
-            mb
-          </a>
+          {/* the monogram is a 22px target with no word on it; on a phone
+              it becomes the labelled control (PhoneBack.jsx) */}
+          {phone ? (
+            <PhoneBack />
+          ) : (
+            <a className="tw-mark" href="#/" aria-label="Mrinali Bhardwaj — home">
+              mb
+            </a>
+          )}
           <nav className="tw-nav" aria-label="Sections">
             {NAV.map((n) => (
               <button key={n.id} type="button" onClick={() => selectFile(n.id)}>

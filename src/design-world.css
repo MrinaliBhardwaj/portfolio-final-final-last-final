@@ -1934,3 +1934,24 @@
     height: auto;
   }
 }
+
+/* ---- the phone (25 Sep 2026) ----
+   Figma's mobile toolbar, sized for a thumb: every control in it was 40px or
+   under, and the canvas captions had fallen to 11px. */
+@media (max-width: 640px) {
+  .dw-mlayers,
+  .dw-hello,
+  .dwh-m-download {
+    min-height: 44px;
+  }
+
+  /* the mail icon is square, so the height rule alone left it 40 wide */
+  .dw-hello {
+    min-width: 44px;
+  }
+
+  .cvf-label,
+  .dwh-m-xp-kind {
+    font-size: 12.5px;
+  }
+}

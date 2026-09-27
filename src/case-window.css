@@ -1149,29 +1149,27 @@
 }
 
 /* ---- the phone ----
-   A near-fullscreen sheet, and NOT draggable: dragging a window that already
-   fills the screen does nothing but fight the page, and a phone has no desktop
-   to drag it around on. The title bar stays because it is what says "window",
-   and the lights stay real — close and roll-up both still mean something. */
-@media (max-width: 640px) {
-  .cw {
-    top: auto;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    margin-left: 0;
-    max-height: 86vh;
-    border-radius: 14px 14px 0 0;
-    border-bottom: 0;
-  }
+   A SCREEN, NOT A SHEET (25 Sep 2026). It used to stop at 86vh with rounded
+   top corners, which left the home screen showing above it and read as a Mac
+   window parked on an iPhone. A case study is the thing you came for; it gets
+   the whole display, the way an app does.
 
+   The title bar stays, but it is an iOS navigation bar now: Back on the left
+   at 44px (PhoneBack.jsx), the project centred, its neighbours on the right.
+   The three lights are gone — roll-up and fill-the-screen are things you do to
+   a window on a desk, and this one has no desk. */
+@media (max-width: 640px) {
+  .cw,
   .cw.is-full {
     top: 0;
+    bottom: auto;
+    left: 0;
     width: 100%;
     margin-left: 0;
     height: 100dvh;
     max-height: none;
     border-radius: 0;
+    border: 0;
   }
 
   .cw.is-full .cw-doc {
@@ -1180,16 +1178,53 @@
   }
 
   .cw-bar {
+    grid-template-columns: auto 1fr;
+    height: 52px;
+    padding: 0 10px;
     cursor: default;
+    /* the drag is off here, so the bar gives the gesture back to the page */
+    touch-action: auto;
+  }
+
+  .cw-lights {
+    display: none;
+  }
+
+  .cw-nav {
+    justify-self: end;
+    gap: 0;
+  }
+
+  .cw-nav button {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
   }
 
   .cw-title {
-    max-width: 48%;
-    font-size: 12.5px;
+    max-width: 44%;
+    font-size: 13px;
+  }
+
+  /* THE PROJECT RAIL GOES. On a Mac it is a sidebar that answers "how much
+     work is there"; at 390 it became a cut-off row of three thumbnails sitting
+     between the reader and the study they opened. Its two jobs are covered on
+     a phone: the chevrons in the bar step through the work, and Home is the
+     shelf it all sits on. */
+  .cw-side {
+    display: none;
   }
 
   .cw-body {
     padding: 16px 16px calc(20px + env(safe-area-inset-bottom, 0px));
+  }
+
+  /* the window fills the screen, so the page behind it is the 320vh lotus
+     track: without this, reading to the end of a study carries on into
+     rewinding the ceremony */
+  .cw-main,
+  .cw-body {
+    overscroll-behavior: contain;
   }
 
   /* The home-bar inset is the sheet's problem, not the container query's — a

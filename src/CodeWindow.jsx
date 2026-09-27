@@ -21,6 +21,8 @@ import { useRef, useState } from "react";
 import { motion, useDragControls } from "framer-motion";
 import { ChevronLeft, ChevronRight, ArrowUpRight, ArrowRight } from "lucide-react";
 import { TECH_PROJECTS, repoUrl } from "./tech-projects.js";
+import PhoneBack from "./PhoneBack.jsx";
+import useIsPhone from "./use-is-phone.js";
 import "./code-window.css";
 
 // Matches CaseWindow's cascade exactly — the two kinds of window share one
@@ -61,6 +63,7 @@ export default function CodeWindow({ project, index, z, onClose, onFocus, onSwit
   const [rolled, setRolled] = useState(false);
   const [big, setBig] = useState(false);
   const controls = useDragControls();
+  const { phone } = useIsPhone();
 
   const at = TECH_PROJECTS.findIndex((x) => x.key === p.key);
   const step = (d) => () =>
@@ -83,7 +86,9 @@ export default function CodeWindow({ project, index, z, onClose, onFocus, onSwit
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.97, transition: { duration: 0.14 } }}
       transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
-      drag
+      // not on a phone: it fills the screen there, and a drag started from the
+      // title bar only ever fought the thumb pressing it
+      drag={!phone}
       dragListener={false}
       dragControls={controls}
       dragMomentum={false}
@@ -94,9 +99,13 @@ export default function CodeWindow({ project, index, z, onClose, onFocus, onSwit
     >
       <div
         className="rw-bar"
-        onPointerDown={(e) => controls.start(e)}
-        onDoubleClick={() => setRolled((r) => !r)}
+        onPointerDown={phone ? undefined : (e) => controls.start(e)}
+        onDoubleClick={phone ? undefined : () => setRolled((r) => !r)}
       >
+        {/* the phone's one control, in place of three Mac verbs — see
+            PhoneBack.jsx */}
+        {phone && <PhoneBack />}
+
         <div className="rw-lights">
           <button
             type="button"

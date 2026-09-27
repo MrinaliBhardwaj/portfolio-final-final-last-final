@@ -37,6 +37,8 @@ import { motion, useDragControls } from "framer-motion";
 import { ChevronLeft, ChevronRight, ChevronDown, Folder } from "lucide-react";
 import { PROJECTS } from "./projects.js";
 import ProjectPage from "./case/ProjectPage.jsx";
+import PhoneBack from "./PhoneBack.jsx";
+import useIsPhone from "./use-is-phone.js";
 import "./case-window.css";
 
 // HOW MANY FULL-SCREEN WINDOWS ARE OPEN. A count rather than a boolean because
@@ -207,6 +209,7 @@ export default function CaseWindow({ project, index, z, onClose, onFocus, onSwit
     setTucked(next);
   };
   const controls = useDragControls();
+  const { phone } = useIsPhone();
 
   // browse the work without closing the window — this is what makes the
   // reference's back/forward chevrons real rather than decorative
@@ -293,8 +296,10 @@ export default function CaseWindow({ project, index, z, onClose, onFocus, onSwit
       // Dragged by the TITLE BAR only, the way a real window is — grabbing the
       // body of a Mac window selects text, it doesn't move the window. Hence
       // dragListener={false} plus the controls started from the bar below.
-      // a full-screen window has nowhere to be dragged to
-      drag={!full}
+      // a full-screen window has nowhere to be dragged to — and neither has a
+      // phone's, which fills the screen and has no desktop behind it. Dragging
+      // there only fought the thumb that was trying to press the title bar.
+      drag={!full && !phone}
       dragListener={false}
       dragControls={controls}
       dragMomentum={false}
@@ -305,9 +310,15 @@ export default function CaseWindow({ project, index, z, onClose, onFocus, onSwit
     >
       <div
         className="cw-bar"
-        onPointerDown={(e) => controls.start(e)}
-        onDoubleClick={() => setRolled((r) => !r)}
+        onPointerDown={phone ? undefined : (e) => controls.start(e)}
+        onDoubleClick={phone ? undefined : () => setRolled((r) => !r)}
       >
+        {/* A PHONE GETS BACK, NOT THREE LIGHTS. Roll-up and fill-the-screen are
+            things you do to a window on a desk; this one already fills the
+            screen and has no desk to sit on. Close is the verb that survives,
+            and on a phone it is the way home. */}
+        {phone && <PhoneBack />}
+
         <div className="cw-lights">
           <button
             type="button"

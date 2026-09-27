@@ -133,3 +133,10 @@ body.dg-scroll-lock {
     display: none;
   }
 }
+
+/* ---- the phone (25 Sep 2026) ---- one way home; see PhoneBack.jsx */
+@media (max-width: 640px) {
+  .gw-mark {
+    display: none;
+  }
+}

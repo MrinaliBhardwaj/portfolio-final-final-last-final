@@ -485,3 +485,59 @@
     transition: none;
   }
 }
+
+/* ============ the way back (PhoneBack.jsx) ============
+   One control, on every phone screen that is not the home screen: the worlds'
+   22px monogram and the windows' 12px traffic lights both become this. It
+   takes its colour from whatever bar it is dropped into — currentColor mixed
+   into the fill and the border — so one component sits right on the notes
+   cream, the editor's near-black and the design world's white.
+
+   44px of height is the whole point of it, so it is stated here and not left
+   to the bar: every bar it lands in is a MAC bar, sized for a cursor. */
+.pback {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  min-height: 44px;
+  padding: 0 14px 0 7px;
+  border: 1px solid color-mix(in srgb, currentColor 18%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, currentColor 8%, transparent);
+  color: inherit;
+  font-family: var(--font-ui, system-ui, sans-serif);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.pback:active {
+  background: color-mix(in srgb, currentColor 18%, transparent);
+}
+
+.pback:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
+.pback-word {
+  padding-bottom: 1px;
+}
+
+/* A WINDOW COVERS THE DOCK, the way an app covers an iPhone's. Windows open on
+   the home route, so the dock is still mounted under them; a case study or a
+   readme filling the screen would otherwise leave four live tap targets
+   underneath the thing being read. `:has` rather than a flag passed down from
+   Cover through App: the windows are owned by the cover and the dock is its
+   uncle, and a class on the body would have to be kept in sync by hand. */
+@media (max-width: 640px) {
+  body:has(.cw) .ph-dock,
+  body:has(.rw) .ph-dock {
+    display: none;
+  }
+}

@@ -1818,3 +1818,20 @@
     scale: 1;
   }
 }
+
+/* ============ the phone ============
+   THE SCALE MOVES UP A STEP, IT DOES NOT BREAK. Every size on this page comes
+   out of the four text tokens, so a phone only has to retune the tokens — and
+   only the two small ones, which is where the problem was: 10.5px eyebrows and
+   12px captions are a laptop's sizes read at laptop distance. A phone is held
+   closer but its pixels are smaller and its reader is moving, and 10.5px is
+   under the 12px floor this project holds everywhere else.
+
+   --t-small and --t-body are unchanged: 13.5 and 15.5 are already right at
+   this width, and moving them would reflow every measure on the page. */
+@media (max-width: 640px) {
+  .pp {
+    --t-micro: 11.5px;
+    --t-fine: 12.5px;
+  }
+}

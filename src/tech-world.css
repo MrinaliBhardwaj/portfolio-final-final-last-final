@@ -611,3 +611,60 @@ a.lens-r:hover {
     display: none;
   }
 }
+
+/* ---- the phone (25 Sep 2026) ----
+   The editor's chrome is authored for a cursor: the section nav measured 34x15
+   to 66x15, the social links 146x22. Nothing here changes what the world IS —
+   it is still a code editor — only what a thumb has to hit, and how small the
+   smallest type is allowed to get on a screen held at arm's length. */
+@media (max-width: 640px) {
+  /* ONE ROW, AND IT SCROLLS. With Back on the left the five section names no
+     longer fit beside it, and `flex-wrap` dropped "contact" onto a second line
+     under a header that is supposed to be a single bar. An editor's tab strip
+     scrolls sideways; so does this. */
+  .tw-top {
+    gap: 10px;
+    padding: 8px 10px;
+    justify-content: flex-start;
+  }
+
+  .tw-nav {
+    flex: 1 1 auto;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    gap: 0 2px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .tw-nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .tw-nav button {
+    flex: 0 0 auto;
+    min-height: 44px;
+    padding: 0 8px;
+    font-size: 0.82rem;
+    white-space: nowrap;
+  }
+
+  /* the identity chips (gh / in / cv) are links, not labels */
+  .badge {
+    min-height: 40px;
+    padding: 0 10px;
+    font-size: 12.5px;
+  }
+
+  .badge-k,
+  .badge-v {
+    font-size: 12.5px;
+  }
+
+  .lens-tag,
+  .lens-r,
+  .hint {
+    font-size: 12.5px;
+  }
+}

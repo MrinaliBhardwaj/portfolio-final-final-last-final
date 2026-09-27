@@ -232,3 +232,24 @@
     max-width: 236px;
   }
 }
+
+/* ---- the phone (25 Sep 2026) ----
+   One way home, not two: the monogram is the same trip as the Back control
+   that replaced the lights (PhoneBack.jsx), and two of them is the thing
+   PRODUCT.md #2 forbids. The mute button is a real control and gets a real
+   target. */
+@media (max-width: 640px) {
+  .pw-mark {
+    display: none;
+  }
+
+  .pw-p-mute {
+    width: 44px;
+    height: 44px;
+  }
+
+  .pw-p-desc,
+  .pw-p-bugs {
+    font-size: 12.5px;
+  }
+}

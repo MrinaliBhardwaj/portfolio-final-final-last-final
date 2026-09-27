@@ -339,31 +339,45 @@
    nowhere to be dragged to, and the drag would only fight the page scroll. The
    title bar and its three lights stay, because they are what says "window". */
 @media (max-width: 640px) {
-  .rw {
-    top: auto;
-    bottom: 0;
+  .rw,
+  .rw.is-big {
+    top: 0;
+    bottom: auto;
     left: 0;
     width: 100%;
     margin-left: 0;
-    max-height: 86vh;
-    border-radius: 14px 14px 0 0;
-    border-bottom: 0;
-  }
-
-  .rw.is-big {
-    top: auto;
-    width: 100%;
-    margin-left: 0;
-    max-height: 94vh;
+    height: 100dvh;
+    max-height: none;
+    border-radius: 0;
+    border: 0;
   }
 
   .rw-bar {
+    grid-template-columns: auto 1fr;
+    height: 52px;
+    padding: 0 10px;
     cursor: default;
+    touch-action: auto;
+  }
+
+  .rw-lights {
+    display: none;
+  }
+
+  .rw-nav {
+    justify-self: end;
+    gap: 0;
+  }
+
+  .rw-nav button {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
   }
 
   .rw-title {
-    max-width: 46%;
-    font-size: 11.5px;
+    max-width: 42%;
+    font-size: 12.5px;
   }
 
   /* the breadcrumb is the first thing to go: three path segments in a 320px
@@ -374,6 +388,7 @@
 
   .rw-doc {
     padding: 16px 16px calc(20px + env(safe-area-inset-bottom, 0px));
+    overscroll-behavior: contain;
   }
 }
 
@@ -381,5 +396,14 @@
   .rw-nav button,
   .rw-open {
     transition: none;
+  }
+}
+
+/* the readme's two actions are links out; on a phone they are what the screen
+   is FOR, and they were 31px tall */
+@media (max-width: 640px) {
+  .rw-cta,
+  .rw-open {
+    min-height: 44px;
   }
 }
