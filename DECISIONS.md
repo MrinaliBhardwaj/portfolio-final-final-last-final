@@ -4444,3 +4444,56 @@ canvas labels got the same 12.5px floor.
   home now, which it did not before.
 - The phone cover still has no control on its first screen (25 Sep, by
   request).
+
+## 30 Sep 2026 — The site was telling Google not to index it
+
+The site has been live on Vercel at **www.mrinali.in** the whole time. It was
+not in Google's index at all: `site:mrinali.in` returned zero pages, while the
+GitHub repo ranked for her name. The code was findable and the website was not.
+
+The cause was four strings. `index.html` carried
+
+    <link rel="canonical" href="https://mrinalibhardwaj.com/" />
+
+and `mrinalibhardwaj.com` was never registered — it is NXDOMAIN on a public
+resolver. A canonical tag does not describe the page it sits on; it names the
+authoritative copy. Google read the instruction, went to the address, found no
+such host, and had nothing to index. `og:url`, `og:image` and `twitter:image`
+pointed at the same dead domain, so every link pasted into a recruiter's inbox
+also rendered without the lotus, despite `og.jpg` sitting on the live host at
+200 the entire time.
+
+All four now read `https://www.mrinali.in/`. **www, not the apex**, because the
+apex 301s to www and a canonical should name the URL that serves a 200 directly.
+The four move together, in one commit, if the domain ever changes.
+
+### What was NOT wrong
+
+Worth recording, because a list of plausible SEO faults arrived with this and
+almost none of them existed. `robots.txt` was already `Allow: /` and is served
+correctly on www. There are zero `noindex` or `nofollow` tags in the source.
+There is no server, so there were no redirect chains to unpick beyond the
+ordinary http -> https -> www hop, and no 404s. Meta description, Open Graph
+and Twitter cards were all present. 37 of 37 images carry an `alt` attribute,
+17 of them deliberately empty because they are decorative. 239 of 254 images
+are already webp; `og.jpg` stays jpg because Facebook and LinkedIn will not
+render a webp share card. Server-side rendering was never the problem — Google
+executes JavaScript, and an SPA indexes fine.
+
+### The one that is real, and unfixed
+
+Hash routing means the site has exactly **one URL**. `#/design`, `#/tech` and
+`#/?case=layover` are fragments, never sent to a server, invisible to a
+crawler. So a sitemap can honestly list one entry, only one `h1` counts, and
+breadcrumbs, per-page canonicals and orphan-page linking have nothing to
+describe. This is the thing to change if the case studies should rank on their
+own, and the change is real paths plus a build-time prerender — NOT a Next.js
+migration, which would cost the cover ceremony, the window manager and the
+worlds to buy something Google does not need.
+
+An `FAQPage` schema was asked for and deliberately not added: there is no FAQ,
+and inventing questions nobody asked to farm a rich result is the same
+fabrication the case studies have been written to avoid. `Person` schema plus a
+crawlable author bio is the honest version of that request, and it is worth
+doing — the About Me scrapbook is 1673px of baked-in handwriting, so there is
+currently no bio a crawler can read.

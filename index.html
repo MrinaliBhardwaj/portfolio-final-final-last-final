@@ -9,7 +9,19 @@
       name="description"
       content="Mrinali Bhardwaj. One person, two practices: design and tech."
     />
-    <link rel="canonical" href="https://mrinalibhardwaj.com/" />
+    <!-- THE ONE TAG THAT CAN UNPUBLISH THE WHOLE SITE. A canonical does not
+         describe this page, it NAMES the authoritative copy of it — so a
+         crawler that reads it stops treating this URL as the original and goes
+         to the address given here instead. It read mrinalibhardwaj.com until
+         30 Sep 2026, a domain that was never registered: Google followed the
+         instruction, found NXDOMAIN, and indexed nothing. `site:mrinali.in`
+         returned zero pages while the GitHub repo ranked for her name.
+
+         So it must always be the host that actually serves a 200, and `www`
+         is that host — the apex 301s to it, and a canonical should not point
+         at a redirect. If this ever moves, this string and the three below
+         move WITH it, in the same commit. -->
+    <link rel="canonical" href="https://www.mrinali.in/" />
 
     <!-- Tab and home-screen icons: her monogram, "mb" in Pinyon Script — the
          same mark every world signs itself with — cut from the font as
@@ -33,7 +45,10 @@
          og:image MUST be absolute: LinkedIn and Facebook do not resolve a
          relative path. If the domain below is ever wrong, the card silently
          falls back to no image at all, so it is the one string to update when
-         this ships somewhere new. -->
+         this ships somewhere new. It WAS wrong, for as long as the site has
+         been live — every link she pasted into a recruiter's inbox rendered
+         without the lotus. The comment predicted the failure and the tag kept
+         it anyway; see the canonical note above. -->
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Mrinali Bhardwaj" />
     <meta property="og:title" content="Mrinali Bhardwaj — design & engineering" />
@@ -41,8 +56,8 @@
       property="og:description"
       content="One person, two practices. A design portfolio that opens like a Figma file, and an engineering one that opens like an editor."
     />
-    <meta property="og:url" content="https://mrinalibhardwaj.com/" />
-    <meta property="og:image" content="https://mrinalibhardwaj.com/og.jpg" />
+    <meta property="og:url" content="https://www.mrinali.in/" />
+    <meta property="og:image" content="https://www.mrinali.in/og.jpg" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta
@@ -56,7 +71,7 @@
       name="twitter:description"
       content="One person, two practices. A design portfolio that opens like a Figma file, and an engineering one that opens like an editor."
     />
-    <meta name="twitter:image" content="https://mrinalibhardwaj.com/og.jpg" />
+    <meta name="twitter:image" content="https://www.mrinali.in/og.jpg" />
 
     <!-- the cover's resting pose: on screen at first paint, so the lotus is
          never absent while the bloom's frames stream in -->
