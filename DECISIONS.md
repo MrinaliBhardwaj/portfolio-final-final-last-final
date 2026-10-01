@@ -4497,3 +4497,62 @@ fabrication the case studies have been written to avoid. `Person` schema plus a
 crawlable author bio is the honest version of that request, and it is worth
 doing — the About Me scrapbook is 1673px of baked-in handwriting, so there is
 currently no bio a crawler can read.
+
+## 2 Oct 2026 — The desk's entrance leaves the main thread
+
+The settle — the moment the files and the menu bar arrive at the end of the
+bloom — stalls. Measured in headless Chrome at 4x CPU throttle, scrolling the
+whole 320vh track in 2.5s: the median frame is a healthy 17.5ms, but p95 is
+~148ms and the worst single frame is 400-800ms, with 8-13 frames over 100ms out
+of ~110. It is a spike, not a slow page.
+
+`DesktopFiles` animated all seventeen tiles with framer — opacity and scale,
+staggered `0.1 + i * 0.035`. That is seventeen JS-driven animations scheduled on
+the main thread at the one moment the main thread is already paying for the tail
+of the scrub. The tell: the first tile has a 100ms delay and took **723ms** to
+become visible, because its animation could not get a frame to start on.
+
+They are CSS transitions now — same 0.45s, same easing, same per-tile offsets,
+carried as an inline `transition-delay`. opacity and transform are the two
+properties a compositor runs by itself, so the entrance no longer touches the
+main thread. `whileTap` became `:active`, and the entrance now honours
+`prefers-reduced-motion`, which the framer version never did. framer-motion is
+no longer imported by this file.
+
+### What this did NOT turn out to be
+
+Recorded so the next session does not pay for it again. Every one of these was
+tested by injecting CSS/JS into the built site and measuring, and every one came
+back inside the noise:
+
+- the desk images (all 17 land at 2.7s, long before the reveal; pre-decoding
+  them with `img.decode()` changed nothing)
+- `filter: drop-shadow` on the tiles, and their permanent `will-change`
+- the dock's `filter: url(#dock-glass-distortion)` — the feTurbulence /
+  feSpecularLighting chain — and its `backdrop-filter`
+- the menu bar's `backdrop-filter: blur(22px)`
+- all three filter constructs removed together
+- the particle field's canvas, which clears and redraws full-screen every frame
+  forever and looked like an obvious permanent invalidation of those filters
+- application JavaScript: a CPU profile over the settle put every app function
+  under 1% of samples, with 39% in `(program)`
+
+### The method, and a warning about it
+
+The first harness drove the scroll with one CDP round trip per step — 32
+blocking calls against a throttled main thread — and its own latency produced
+the 600ms "frames" it was reporting. Several A/B rounds were measuring the tool.
+The scroll is driven from inside the page now, in one call. **This machine
+swings 2-4x between runs**, so a single run proves nothing and before/after
+comparisons taken minutes apart are fiction; compare interleaved variants of the
+SAME build instead, which is what caught the tile cost (p95 148ms with the tiles
+against 90ms without, in the same session).
+
+### Still open — the strongest remaining lead
+
+A trace of the settle window ranks `ImageDecoder::DecodeFrameBufferAtIndex` at
+**896ms**. That is the lotus's full-size frames: the atlas already carries a
+complete scrubbable timeline, and the 241 full-size frames stream in behind it
+as a refinement — including, apparently, straight through the settle. They
+should be finished, or abandoned, before the desk arrives. That is the next
+thing to measure, and it is probably bigger than the tiles were.

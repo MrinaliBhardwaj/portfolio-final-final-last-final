@@ -27,6 +27,46 @@
   display: block;
   text-decoration: none;
   will-change: transform, opacity;
+
+  /* THE ENTRANCE LIVES HERE, NOT IN FRAMER. Seventeen tiles fading and
+     settling at once is cheap for the compositor and expensive for the main
+     thread, and the main thread is the one already busy: the desk reveals
+     while the bloom is still easing to its last frame. As framer animations
+     this cost p95 148ms per frame over the settle against 90ms with the tiles
+     removed, and the first tile needed 723ms to appear on a 100ms delay — it
+     could not get a frame to start on. opacity and transform are the two
+     properties a compositor can run by itself, so as a transition the whole
+     entrance leaves the main thread entirely.
+
+     The per-tile offset is an inline transition-delay from DesktopFiles.jsx,
+     which is the same `0.1 + i * 0.035` the framer stagger used. */
+  opacity: 0;
+  transform: scale(0.97);
+  transition: opacity 0.45s ease-out, transform 0.45s ease-out;
+}
+
+/* The desk is shown. On a born-settled load this class is present in the first
+   render, so there is no transition to run and the files are simply there —
+   which is what `initial={false}` bought before. */
+.cover-desktop.is-in .dpiece {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* framer's `whileTap`, which a pseudo-class does for free. The delay must be
+   cleared or a press would wait out the tile's entrance offset first. */
+.cover-desktop.is-in .dpiece:not(.is-art):active {
+  transform: scale(0.94);
+  transition-duration: 0.12s;
+  transition-delay: 0s;
+}
+
+/* The entrance is decoration, so it is the first thing to go. The tiles still
+   arrive — they just arrive at once, in place. */
+@media (prefers-reduced-motion: reduce) {
+  .dpiece {
+    transition: none;
+  }
 }
 
 .dpiece.is-art {

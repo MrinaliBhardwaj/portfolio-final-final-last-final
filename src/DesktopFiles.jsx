@@ -53,7 +53,6 @@
 // pieces are much larger than the old tiles and a centre that clears the flower
 // no longer means the artwork does.
 import { useEffect, useRef } from "react";
-import { motion } from "framer-motion";
 import useIsPhone from "./use-is-phone.js";
 
 // The artboard. Positions are percentages of the stage: x against its width, y
@@ -507,7 +506,7 @@ export default function DesktopFiles({ visible, onOpenCase, onOpenNote, onOpenEm
 
   return (
     <div
-      className={`cover-desktop${isPhone ? " is-phone" : ""}`}
+      className={`cover-desktop${isPhone ? " is-phone" : ""}${visible ? " is-in" : ""}`}
       aria-hidden={!visible}
       ref={layerRef}
     >
@@ -557,6 +556,16 @@ export default function DesktopFiles({ visible, onOpenCase, onOpenNote, onOpenEm
           // click should never be behind a thing you cannot.
           zIndex: interactive ? 100 + i : i + 1,
           pointerEvents,
+          // THE STAGGER, AS A TRANSITION-DELAY. It used to be framer's `delay`,
+          // which means JS schedules and drives all seventeen entrances on the
+          // main thread — at the one moment the main thread is already paying
+          // for the end of the scrub. Measured at 4x CPU throttle, p95 frame
+          // time over the settle was 148ms with the tiles and 90ms without
+          // them, and the first tile took 723ms to appear despite a 100ms
+          // delay, because its animation could not get a frame. As a CSS
+          // transition the same curve runs on the compositor and the main
+          // thread never sees it. Identical duration, easing and offsets.
+          transitionDelay: visible ? `${(0.1 + i * 0.035).toFixed(3)}s` : "0s",
         };
 
         const inner = (
@@ -586,23 +595,20 @@ export default function DesktopFiles({ visible, onOpenCase, onOpenNote, onOpenEm
         // does not make these openable and neither do we.
         if (!interactive) {
           return (
-            <motion.div
+            <div
               key={p.key}
               className="dpiece is-art"
               data-key={p.key}
               style={style}
               aria-hidden="true"
-              initial={false}
-              animate={visible ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.97 }}
-              transition={{ duration: 0.45, ease: "easeOut", delay: visible ? 0.1 + i * 0.035 : 0 }}
             >
               {inner}
-            </motion.div>
+            </div>
           );
         }
 
         return (
-          <motion.a
+          <a
             key={p.key}
             className="dpiece"
             data-key={p.key}
@@ -624,16 +630,13 @@ export default function DesktopFiles({ visible, onOpenCase, onOpenNote, onOpenEm
               else if (p.opensNote) onOpenNote?.(p.opensNote);
               else if (p.opensEmpty) onOpenEmpty?.(p.opensEmpty);
             }}
-            initial={false}
             // No flight. A desktop's files don't arrive, they're there when the
             // screen is — a short fade in place is all the entrance a machine
-            // that was already on gets.
-            animate={visible ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.97 }}
-            whileTap={{ scale: 0.94 }}
-            transition={{ duration: 0.45, ease: "easeOut", delay: visible ? 0.1 + i * 0.035 : 0 }}
+            // that was already on gets. The fade itself, and the press that
+            // used to be framer's `whileTap`, live in desktop-files.css.
           >
             {inner}
-          </motion.a>
+          </a>
         );
       })}
     </div>
