@@ -4556,3 +4556,51 @@ complete scrubbable timeline, and the 241 full-size frames stream in behind it
 as a refinement — including, apparently, straight through the settle. They
 should be finished, or abandoned, before the desk arrives. That is the next
 thing to measure, and it is probably bigger than the tiles were.
+
+## 5 Oct 2026 — The refinement tier waits for the ceremony to finish
+
+The lotus ships in two tiers: one small sprite atlas covering all forty indices,
+preloaded in the HTML, and forty full-size 1600x900 frames streamed in behind it
+as a refinement. `whenSpare()` gated the START of that stream — but once the
+first frame went out, the other thirty-nine fetched and decoded straight through
+whatever the page was doing, including the scrub and the settle at the end of
+it. A trace of that window ranked `ImageDecoder::DecodeFrameBufferAtIndex` at
+896ms, the largest single cost there.
+
+The gate is per frame now, and it is two gates: the scrub must be STILL for
+250ms, and then the main thread must be IDLE. The second one is the one that
+matters — the scroll stopping and the desk arriving are the same instant, so
+"the scroll stopped" alone would have aimed the decodes straight at the thing
+they were supposed to avoid.
+
+**Decoded during a continuous 2.5s scrub of the whole track: 6 frames, down from
+40.** That is a behavioural count, not a timing, so it does not move with the
+machine. Decode time over the window fell 896ms -> 398ms alongside it.
+
+The end state is unchanged: sitting still, all 40/40 arrive within 5s, verified
+by resource timing. Nothing is stranded on teardown — `destroy()` releases any
+worker parked on the stillness gate.
+
+### The cost, stated plainly
+
+A visitor who lands and scrolls immediately without pausing now sees the bloom
+at atlas resolution — 480x270 tiles upscaled — where before they would have had
+some full-size frames arriving mid-scrub. They get softness instead of jank.
+That is the right trade for a page whose complaint was jank, but it IS a trade,
+and a partial refinement would be worse than either: `paintFrame` uses each
+index's own frame or its own tile, so a half-refined timeline pops between sharp
+and soft as you scrub across it.
+
+### What could not be shown
+
+No frame-time improvement is demonstrable. p95 over the settle measured 148ms,
+208ms and 315ms across three sessions of the same afternoon on builds that only
+got faster — the machine's own 2-4x swing is larger than the effect. The decode
+count is the honest evidence here; the frame timings are not.
+
+### Next lead
+
+The same trace puts `Blink.ForcedStyleAndLayout.UpdateTime` at 552ms, with
+`LocalFrameView::UpdateStyleAndLayout` at 568ms. That is forced synchronous
+layout — something reading geometry in a hot path and making the engine lay out
+mid-frame. It is now the largest nameable cost in the settle window.

@@ -46,6 +46,11 @@ const TILE_H = 270;
 // without starving the atlas or the rest of the page of bandwidth.
 const FETCH_CONCURRENCY = 6;
 
+// How long the scroll must be still before the refinement tier may decode
+// again. Short enough that a visitor who stops reading gets crisp frames
+// almost immediately, long enough that it never fires between two wheel ticks.
+const QUIET_MS = 250;
+
 export function createLotusScrubber(canvas, getProgress, opts = {}) {
   const { onStep } = opts;
   const ctx = canvas.getContext("2d", { alpha: true });
@@ -56,6 +61,14 @@ export function createLotusScrubber(canvas, getProgress, opts = {}) {
   let atlas = null;
   const frames = new Array(FRAME_COUNT);
   const aborter = new AbortController();
+
+  // IS THE CEREMONY MOVING RIGHT NOW? The refinement tier is gated on this.
+  // `lastMoveAt` is stamped by the loop whenever scroll progress changes, so
+  // "quiet" means the visitor has stopped scrubbing for QUIET_MS — which is
+  // also the moment the desk begins to arrive, hence the second gate.
+  let lastMoveAt = 0;
+  let lastProgress = -1;
+  let quietWaiters = [];
 
   let lastIndex = -1;
   let dirty = true; // force a repaint (resize, or a better frame arrived)
@@ -186,11 +199,40 @@ export function createLotusScrubber(canvas, getProgress, opts = {}) {
     });
   }
 
+  // A REFINEMENT MUST NOT COMPETE WITH THE CEREMONY IT REFINES. `whenSpare`
+  // below used to gate only the START of the run: once the first frame went
+  // out, the remaining thirty-nine fetched and decoded straight through
+  // whatever the page was doing — including the scrub itself and the settle at
+  // the end of it, where the desk arrives. A trace of that window ranked
+  // ImageDecoder::DecodeFrameBufferAtIndex at 896ms, the largest single cost
+  // there, and every one of those decodes was for a frame the atlas was
+  // already covering.
+  //
+  // So the gate is per frame now, and it is two gates. First the scrub must be
+  // STILL — decoding a 1600x900 bitmap while someone is scrubbing is the one
+  // moment it cannot afford. Then the main thread must be IDLE, which is what
+  // keeps it out of the settle: the scroll stops and the desk starts arriving
+  // in the same instant, so "the scroll stopped" alone would aim this straight
+  // at the thing it is trying to avoid.
+  //
+  // NOTHING IS LOST BY WAITING. The atlas covers every index from the moment
+  // it decodes, so a frame that arrives late — or never, on a page that is
+  // never idle — costs sharpness on a rewind, not the bloom.
+  function untilQuiet() {
+    if (destroyed) return Promise.resolve();
+    if (performance.now() - lastMoveAt >= QUIET_MS) return Promise.resolve();
+    return new Promise((resolve) => quietWaiters.push(resolve));
+  }
+
   async function loadFrames() {
     const order = stridedOrder(FRAME_COUNT);
     let cursor = 0;
     const worker = async () => {
       while (!destroyed) {
+        await untilQuiet();
+        if (destroyed) return;
+        await whenSpare();
+        if (destroyed) return;
         const at = cursor++;
         if (at >= order.length) return;
         const i = order[at];
@@ -237,6 +279,16 @@ export function createLotusScrubber(canvas, getProgress, opts = {}) {
       if (Math.abs(target - smoothF) < 0.004) smoothF = target; // settle
     }
 
+    // Stamp movement, and release the refinement workers once it has stopped.
+    if (p !== lastProgress) {
+      lastProgress = p;
+      lastMoveAt = now;
+    } else if (quietWaiters.length && now - lastMoveAt >= QUIET_MS) {
+      const waiting = quietWaiters;
+      quietWaiters = [];
+      for (const release of waiting) release();
+    }
+
     const i = Math.round(smoothF);
     if (i !== lastIndex || dirty) {
       if (paintFrame(i)) {
@@ -262,7 +314,6 @@ export function createLotusScrubber(canvas, getProgress, opts = {}) {
   if (!reduced) {
     raf = requestAnimationFrame(loop);
     loadAtlas()
-      .then(() => !destroyed && whenSpare())
       .then(() => !destroyed && loadFrames())
       .catch(() => {
         /* offline or blocked: the poster holds, and so does the layout */
@@ -273,6 +324,10 @@ export function createLotusScrubber(canvas, getProgress, opts = {}) {
     destroy() {
       destroyed = true;
       cancelAnimationFrame(raf);
+      // the loop is gone, so nothing else will ever release these
+      const stranded = quietWaiters;
+      quietWaiters = [];
+      for (const release of stranded) release();
       ro.disconnect();
       window.removeEventListener("resize", sizeCanvas);
       aborter.abort();
