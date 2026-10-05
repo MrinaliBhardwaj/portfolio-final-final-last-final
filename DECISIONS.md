@@ -4604,3 +4604,60 @@ The same trace puts `Blink.ForcedStyleAndLayout.UpdateTime` at 552ms, with
 `LocalFrameView::UpdateStyleAndLayout` at 568ms. That is forced synchronous
 layout — something reading geometry in a hot path and making the engine lay out
 mid-frame. It is now the largest nameable cost in the settle window.
+
+## 6 Oct 2026 — useScroll was re-measuring a wall for every frame of the bloom
+
+`Blink.ForcedStyleAndLayout` was 552ms across the settle window. The cause was
+one line:
+
+    const { scrollYProgress } = useScroll({
+      target: trackRef, offset: ["start start", "end end"],
+    });
+
+`useScroll` with a `target` cannot know the target is static, so on every
+scroll it re-derives the element's position in the document — walking
+`offsetTop` / `offsetLeft` / `offsetParent` from `.cover-track` up through
+`.cover` to `<body>`, and re-reading the viewport off `documentElement`. Every
+one of those is a layout-forcing read.
+
+Instrumented by wrapping the accessors and counting during a scrub: **about 625
+layout-forcing reads over 26 frames, ~24 per frame**, all of them recomputing a
+constant. The track is 320vh of CSS. Its geometry cannot move while you are
+scrolling it; only a resize changes it.
+
+So the geometry is measured once — on mount, on resize, and from a
+ResizeObserver on the track — and the scroll handler is arithmetic on
+`window.scrollY`. The two edges are exactly what the offset strings meant, and
+they are the same expression the mount-time effect already used to land a
+returning visitor at the foot of the track.
+
+| | before | after |
+|---|---|---|
+| layout-forcing reads per scrub | ~625 | **9** |
+| `Blink.ForcedStyleAndLayout` | 552ms | **248ms** |
+| `LocalFrameView::UpdateStyleAndLayout` | 568ms | 329ms |
+
+### Proved identical, not assumed
+
+`scrollYProgress` drives seven things — the name's opacity and lift, the
+chevron's opacity and play state, both role columns, the split threshold and
+the settle. Replacing the thing that produces it is not a refactor you verify
+by reading. The same probe was run against a build of the previous `Cover.jsx`
+and against this one, sampling every one of them at five points along the
+track, and then again after resizing the viewport:
+
+    frac   name (before -> after)   aside   desk shown
+    0.00          1 -> 1            1 -> 1    false
+    0.25       0.05 -> 0.05         0 -> 0    false
+    0.50          0 -> 0            0 -> 0    false
+    1.00          0 -> 0            0 -> 0     true
+
+Identical. After a resize to 1100x700 the track's span re-derived correctly —
+progress 1 moved from scrollY 2079 to 1540, which is 320vh of 700 less the
+viewport — and the same curve re-mapped onto it, which is the one path the
+cached geometry introduces and the one that would have been silently wrong.
+
+A note on the harness: the first probe reported the name pinned at 1 for the
+whole track and looked like a regression. It was the wrong selector —
+`nameOpacity` sits on `.cover-hero-inner`, not `.cover-name-script`. Check the
+instrument against a known-good build before believing it.

@@ -13,7 +13,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import {
   AnimatePresence,
   motion,
-  useScroll,
+  useMotionValue,
   useTransform,
   useMotionValueEvent,
 } from "framer-motion";
@@ -475,11 +475,57 @@ export default function Cover({ onChoose, onSettledChange }) {
     setLanded(true);
   }, [landed]);
 
-  // scroll progress across the tall track drives everything on the stage
-  const { scrollYProgress } = useScroll({
-    target: trackRef,
-    offset: ["start start", "end end"],
-  });
+  // SCROLL PROGRESS ACROSS THE TALL TRACK DRIVES EVERYTHING ON THE STAGE.
+  //
+  // This was `useScroll({ target: trackRef, offset: ["start start", "end end"] })`,
+  // which is the obvious way to write it and was costing a forced synchronous
+  // layout twice per frame for the entire bloom. useScroll cannot know a
+  // target is static, so on every scroll it re-derives the element's position
+  // in the document by walking offsetTop / offsetLeft / offsetParent from the
+  // track up through .cover to the body, and re-reads the viewport off
+  // documentElement. Instrumented over a scrub: 26 layout-forcing property
+  // reads per frame, all of them recomputing a constant — the track is 320vh
+  // of CSS, and its geometry cannot move while you are scrolling it. The trace
+  // put Blink.ForcedStyleAndLayout at 552ms across the settle window.
+  //
+  // So the geometry is measured once, on mount and on resize, and the scroll
+  // handler is arithmetic on window.scrollY. The two edges are exactly what
+  // "start start" and "end end" meant: progress 0 where the track's top meets
+  // the viewport's top, 1 where their bottoms meet — the same expression the
+  // mount-time effect above already uses to land a returning visitor.
+  //
+  // Nothing downstream changes. This is still a MotionValue carrying the same
+  // clamped 0..1, so the five useTransforms and the change listener below
+  // cannot tell the difference.
+  const scrollYProgress = useMotionValue(bornSettled ? 1 : 0);
+  useEffect(() => {
+    const track = trackRef.current;
+    if (!track) return;
+    let start = 0;
+    let span = 1;
+    const update = () => {
+      const v = (window.scrollY - start) / span;
+      scrollYProgress.set(v < 0 ? 0 : v > 1 ? 1 : v);
+    };
+    // the only forced layout left on this path, and it is once per resize
+    const measure = () => {
+      start = track.offsetTop;
+      span = Math.max(1, track.offsetHeight - window.innerHeight);
+      update();
+    };
+    measure();
+    window.addEventListener("scroll", update, { passive: true });
+    window.addEventListener("resize", measure);
+    // fires on the initial layout as well, which is what catches the stage
+    // settling into its real height once the fonts have landed
+    const ro = new ResizeObserver(measure);
+    ro.observe(track);
+    return () => {
+      window.removeEventListener("scroll", update);
+      window.removeEventListener("resize", measure);
+      ro.disconnect();
+    };
+  }, [scrollYProgress]);
   useMotionValueEvent(scrollYProgress, "change", (v) => {
     progressRef.current = v;
     // Both of these are THRESHOLDS, but this callback fires on every scroll
