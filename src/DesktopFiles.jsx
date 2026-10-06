@@ -54,6 +54,7 @@
 // no longer means the artwork does.
 import { useEffect, useRef } from "react";
 import useIsPhone from "./use-is-phone.js";
+import CdPlayer from "./CdPlayer.jsx";
 
 // The artboard. Positions are percentages of the stage: x against its width, y
 // against its height, so the composition holds its proportions across the width
@@ -204,7 +205,9 @@ const PIECES = [
     x: 1316, y: 112, w: 215, h: 197.898,
     glass: { radius: 24.432, pad: 20.77 },
   },
-  { key: "cd-case", src: `${A}/cd-case.webp`, x: 97, y: 92, w: 285, h: 285 },
+  // The one piece on the desk that is a CONTROL rather than a picture: its
+  // disc spins under the pointer and plays on a click. See CdPlayer.jsx.
+  { key: "cd-case", src: `${A}/cd-case.webp`, x: 97, y: 92, w: 285, h: 285, player: true },
   // The frog's picture is BIGGER than the plate behind it and hangs over both
   // ends — 15.9px above, 25px below. So the piece is sized to the picture and
   // the plate is inset within it, not the other way round.
@@ -512,7 +515,7 @@ export default function DesktopFiles({ visible, onOpenCase, onOpenNote, onOpenEm
     >
       {shown.map((p, i) => {
         const [l, t] = isPhone ? p.phone : [leftPct(p), topPct(p)];
-        const interactive = !!(p.opensCase || p.opensNote || p.opensEmpty || p.href);
+        const interactive = !!(p.opensCase || p.opensNote || p.opensEmpty || p.href || p.player);
         // Sized and centred here rather than in CSS. The box has to be pulled
         // back by half its own HEIGHT, and a percentage margin resolves against
         // the container's WIDTH — so the vertical figure is width-relative too,
@@ -590,6 +593,14 @@ export default function DesktopFiles({ visible, onOpenCase, onOpenNote, onOpenEm
             )}
           </>
         );
+
+        // The CD is neither a link nor a picture — it is a transport control,
+        // and it brings its own element, its own label and its own audio.
+        if (p.player) {
+          return (
+            <CdPlayer key={p.key} piece={p} style={style} visible={visible} />
+          );
+        }
 
         // Paint only. Not a link, not focusable, not announced — the artboard
         // does not make these openable and neither do we.

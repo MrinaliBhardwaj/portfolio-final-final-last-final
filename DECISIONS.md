@@ -4661,3 +4661,76 @@ A note on the harness: the first probe reported the name pinned at 1 for the
 whole track and looked like a regression. It was the wrong selector —
 `nameOpacity` sits on `.cover-hero-inner`, not `.cover-name-script`. Check the
 instrument against a known-good build before believing it.
+
+## 6 Oct 2026 — The CD on the desk plays
+
+The brief was hover-to-play: hover the CD, the song starts and the disc spins;
+unhover, it stops. It shipped as **hover spins, click plays**, because hover
+cannot start audio.
+
+Chrome, Safari and Firefox all require USER ACTIVATION before audio with sound
+may begin, and the qualifying events are click, pointerdown, keydown and
+touchend. `mouseenter` is not one of them — `play()` from a hover handler is
+rejected with NotAllowedError. Activation is sticky per page, so hover-to-play
+would have worked for anyone who had already clicked something, and this site's
+first-run path is land, SCROLL through the bloom, arrive at the desk. Scrolling
+grants no activation either. It would have worked perfectly on the machine it
+was built on, where you click constantly while developing, and been silent for
+a visitor. A click is also simply what a CD player has.
+
+The hover still earns its keep: the disc spins under the pointer, silently, and
+keeps spinning for as long as the track plays.
+
+### No second asset was needed
+
+`cd-case.webp` is one flat 570x570 image of a disc inside a jewel case, so the
+obvious route was exporting the disc separately. Instead a copy of the SAME
+file is overlaid, clipped with `clip-path: circle(40% at 50% 50%)`, and only
+that copy rotates. A rotating circle sweeps exactly the circle it already
+occupied, so the case does not stir and the crop boundary never moves. The clip
+is set a little inside the disc's true ~41% radius deliberately: erring inward
+means it can never catch the case, and the sliver of rim left behind reads the
+same spinning or still.
+
+The still image keeps its `drop-shadow`; the spinning copy carries no filter.
+A filtered layer that rotates must be re-rasterised every frame it moves, which
+would have put real raster cost behind the pointer for as long as it rested
+there — the same class of cost as the rest of this week's work.
+
+### Cost
+
+`preload="none"`, so the file is fetched on the first click and never before —
+verified: 0 requests at rest, 0 on hover, one 78KB request on the click.
+Playback is off the main thread and the spin is a compositor animation, so
+neither touches the frame budget.
+
+`public/audio/desk-track.mp3` is twenty seconds of generated silence — a valid
+file so the whole mechanism is testable. **Replacing that one file is the whole
+swap.** Prefer a 30-45s seamless loop to a whole song: nobody holds a pointer
+still for four minutes, a loop starts without a buffering gap, and it is a
+tenth of the bytes. Whatever goes there has to be licensed for a public site.
+
+### Two bugs that only a trusted click could find
+
+A scripted `element.click()` does not grant user activation, so testing this
+with one proves nothing. Driven instead by CDP `Input.dispatchMouseEvent`,
+which the browser treats as a person:
+
+1. **The button lied about its own state.** `playing` was set from the
+   resolution of `play()`, and that promise settles when playback has actually
+   BEGUN — with `preload="none"`, after the file is fetched and buffered. The
+   audio ran while the label still read "Play the music", and a second click
+   inside that window called `play()` again instead of stopping. The element's
+   `paused` is never stale, so the decision now reads it and the React state is
+   driven by the element's own `play` / `pause` events.
+
+2. **The fade never ran, in any browser.** `start` was `performance.now()`
+   taken inside the click handler, compared against the rAF timestamp — but a
+   rAF callback is handed the timestamp of the frame it belongs to, and input
+   is processed at the START of a frame. The first callback's timestamp was
+   ~29ms EARLIER than its own start, the ratio went negative, and `volume =
+   -0.24` throws IndexSizeError, which killed the rAF chain on frame one. Both
+   directions were broken (fading out overshot to 1.24), so the track would
+   have started silent and stopped dead — precisely what the fade exists to
+   prevent. The baseline is taken from the first callback now, so both ends of
+   the subtraction are on one clock, and the value is clamped besides.

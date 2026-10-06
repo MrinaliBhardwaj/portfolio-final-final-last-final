@@ -427,3 +427,61 @@
     transform: none;
   }
 }
+
+/* ─────────────────────────── THE CD PLAYS ───────────────────────────
+   One object on the desk is a transport control. The logic, and why it is a
+   click rather than the hover it was designed as, is in CdPlayer.jsx. */
+
+/* a <button> has to be told it is not one */
+.dpiece-cd {
+  appearance: none;
+  -webkit-appearance: none;
+  background: none;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+/* THE DISC: the same artwork as the still beneath it, clipped to the disc and
+   carrying NO filter. `.dpiece img` has a drop-shadow, and a filtered layer
+   that rotates must be re-rasterised every frame it moves — so the shadow
+   stays on the still image, which never stirs, and only this unfiltered copy
+   turns. Rotating a circle sweeps exactly the circle it already occupied, so
+   the jewel case does not move with it and no second asset is needed.
+
+   40%, where the disc's true radius is nearer 41%: erring INSIDE the rim means
+   the crop can never catch the case, and the sliver of rim it leaves behind is
+   a plain ring that reads identically spinning or still. */
+.cd-disc {
+  position: absolute;
+  inset: 0;
+  background-position: center;
+  background-size: contain;
+  background-repeat: no-repeat;
+  clip-path: circle(40% at 50% 50%);
+  transform-origin: 50% 50%;
+  animation: cd-spin 4s linear infinite;
+  animation-play-state: paused;
+  pointer-events: none;
+}
+
+.dpiece-cd.is-spinning .cd-disc {
+  animation-play-state: running;
+}
+
+@keyframes cd-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Nothing to degrade to but the still disc, which is what the desk already
+   looks like — so the object simply stops being the one thing that moves. */
+@media (prefers-reduced-motion: reduce) {
+  .cd-disc {
+    animation: none;
+  }
+}
