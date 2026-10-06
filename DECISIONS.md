@@ -4795,3 +4795,63 @@ it. They use the panel's own `#8c8c8c` and `#e5e5e5` now — 4.15:1 and 11.09:1.
 The 4.15 is the panel's existing key grey, shared with X / Y / W / H / Export,
 so it is the system's number rather than a new one; if that floor is ever
 raised it should be raised for all of them at once.
+
+## 6 Oct 2026 — The properties panel, measured instead of remembered
+
+The first pass at this panel was written from memory and did not look like
+Figma. So Figma was opened on her machine with the NextG file in it, a frame
+selected, and the Design tab read off the screen.
+
+**What Figma actually shows for a selected frame**, top to bottom:
+
+    Design | Prototype ............................. 42% ⌄
+    Frame ⌄ ................................ ⠿ ✦ ◐ ❐ ⌄
+    Position .......................................... ⬚
+      Alignment    [⊣ ⊹ ⊢] [⊤ ⊹ ⊥]                     ≡
+      Position     X 0            Y 3021
+      Rotation     ⌐ 0°           ⟲ ⇄ ⇅
+    Auto layout ....................................... ⬚
+      Resizing     W 1600 Fill    H 3689 ⌄             ⤢
+    Appearance ..................................... 👁 ◌
+      Opacity 100%      Corner radius 0
+    Fill ........................................... ⠿ +
+      ■ FFFFFF   100 %                             👁 −
+    Stroke ............................................ +
+    Effects ........................................... +
+    Export ............................................ +
+
+Every label sits ABOVE its control in grey; every value sits in a dark rounded
+field with a grey glyph for a prefix; sections are divided by hairlines with a
+white title and the affordances pushed right. Panel #2C2C2C — which is already
+`--dw-panel` in this project — with #383838 for the field beds and the internal
+hairlines.
+
+### What the old one got wrong
+
+- It showed the layer's **name**. Figma does not: the name is in the layers
+  panel on the other side of the canvas. The right panel shows the TYPE.
+- X, Y, W and H sat in one 2x2 grid. Figma splits them: X/Y under Position,
+  W/H under Resizing, with Rotation between them.
+- It invented a **"Contents · N layers"** row. There is no such thing in Figma.
+- No Position, Appearance, Fill, Stroke or Effects sections at all.
+- Its Fill row said **Image** for every artboard, which is where this started.
+
+### What is claimed, and what is not
+
+X, Y, W and H are real, out of the file. Rotation 0°, opacity 100% and corner
+radius 0 are Figma's defaults for an untouched frame, which these are.
+
+The fill is the one thing deliberately left blank on a project page. Fills
+cannot be read from `get_metadata`; sampling the exports was tried and returns
+**1E1E1E — Figma's own canvas grey**, because the exports carry board margin,
+not the frame's fill. An empty Fill section with a `+` is a real Figma state; a
+wrong hex is not. Where a fill IS known — the design world's own boards, which
+she authored in code — it still renders, and the hero's genuine image fill
+still reads "Image", because there it is true.
+
+### A note for next time
+
+`position: fixed; top: 44px; right: 0` is how this panel is placed. It was
+briefly rebuilt as a flex child and landed at the top-left corner of the page,
+fully rendered and completely in the wrong place, because `.dw--page` is a
+block layout. Check the positioning before assuming the container flexes.

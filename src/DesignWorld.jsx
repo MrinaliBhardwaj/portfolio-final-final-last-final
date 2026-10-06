@@ -10,6 +10,7 @@ import { motion } from "framer-motion";
 import { ArrowUpRight, Layers, Mail } from "lucide-react";
 import { FigmaMark } from "./BrandIcons.jsx";
 import FigmaPanel from "./FigmaPanel.jsx";
+import PropsPanel from "./FigmaProps.jsx";
 import WorldTabs from "./WorldTabs.jsx";
 import DesignHero from "./DesignHero.jsx";
 import InteractiveDots from "./InteractiveDots.jsx";
@@ -164,83 +165,6 @@ function Frame({ frame, active, tone, area, children }) {
         </span>
       </div>
     </motion.section>
-  );
-}
-
-/* the right-hand properties panel, tracking the selected frame */
-function PropsPanel({ frame }) {
-  const p = frame.props;
-  const rows = [
-    ["X", p.x],
-    ["Y", p.y],
-    ["W", p.w],
-    ["H", p.h],
-  ];
-  return (
-    <aside className="dwp" aria-label="Properties">
-      <div className="dwp-head">
-        <span className="dwp-tab">Design</span>
-        <span className="dwp-zoom">100%</span>
-      </div>
-      <p className="dwp-selected">{frame.name}</p>
-      {/* Figma names the selection's TYPE under its name. Saying "Frame" here
-          is the whole difference between a panel that reads as a pasted
-          screenshot and one that reads as a file someone built. */}
-      {frame.type && <p className="dwp-type">{frame.type}</p>}
-      <div className="dwp-grid">
-        {rows.map(([k, v]) => (
-          <div className="dwp-cell" key={k}>
-            <span className="dwp-k">{k}</span>
-            <span className="dwp-v">{v}</span>
-          </div>
-        ))}
-      </div>
-      {frame.children?.length > 0 && (
-        <div className="dwp-sec">
-          <p className="dwp-label">Contents</p>
-          <p className="dwp-contents">
-            {frame.children.length} layer{frame.children.length === 1 ? "" : "s"}
-          </p>
-        </div>
-      )}
-
-      {/* NO FILL ROW WHEN THE FILL IS UNKNOWN. Guessing one is how the panel
-          came to call every artboard an image in the first place. */}
-      {p.fill && (
-      <div className="dwp-sec">
-        <p className="dwp-label">Fill</p>
-        <div className="dwp-fill">
-          {p.fill?.type === "image" ? (
-            <>
-              <span
-                className="dwp-swatch dwp-swatch--img"
-                style={{ backgroundImage: `url(${p.fill.src})` }}
-              />
-              <span className="dwp-v">Image</span>
-              <span className="dwp-k">Fill</span>
-            </>
-          ) : p.fill === "transparent" ? (
-            <>
-              <span className="dwp-swatch dwp-swatch--none" />
-              <span className="dwp-v">Transparent</span>
-            </>
-          ) : (
-            <>
-              <span className="dwp-swatch" style={{ background: p.fill }} />
-              <span className="dwp-v">{p.fill.replace("#", "")}</span>
-              <span className="dwp-k">100%</span>
-            </>
-          )}
-        </div>
-      </div>
-      )}
-      <div className="dwp-sec">
-        <p className="dwp-label">Export</p>
-        <p className="dwp-export">
-          <span className="dwp-k">+</span> PNG 2x
-        </p>
-      </div>
-    </aside>
   );
 }
 

@@ -1492,121 +1492,304 @@
   }
 }
 
-/* ============ the properties panel (right) ============ */
+/* ============ the properties panel (right) ============
+   Measured off Figma itself rather than recalled: #2C2C2C panel, #383838
+   hairlines and field beds, a white section title with its affordances pushed
+   right, and every grey label sitting ABOVE its control. See FigmaProps.jsx
+   for the layout it is dressing and for what the panel does and does not
+   claim. */
 .dwp {
   display: none;
 }
 
 @media (min-width: 1100px) {
+  /* Fixed to the right edge under the tab bar, exactly as before — the page
+     is a block layout, so a flexed aside simply lands at the top left. The
+     surface is the project's own --dw-panel, which is already #2C2C2C: the
+     value Figma actually uses, measured off the running app. The hairlines
+     INSIDE the panel are #383838, Figma's own, which has no token here. */
   .dwp {
     display: block;
     position: fixed;
     top: 44px;
     right: 0;
     bottom: 0;
-    width: 240px;
+    width: 241px;
     z-index: 40;
     background: var(--dw-panel);
     border-left: 1px solid var(--dw-panel-line);
-    font-size: 11.5px;
-    color: #c4c4c4;
-    user-select: none;
     overflow-y: auto;
+    font-family: var(--font-ui);
+    font-size: 11.5px;
+    color: #e6e6e6;
+    user-select: none;
+    -webkit-font-smoothing: antialiased;
   }
-}
 
-.dwp-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  height: 40px;
-  padding: 0 14px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-}
+  /* Design | Prototype, and the zoom that sits at the far end of the row */
+  .dwp-tabs {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    height: 40px;
+    padding: 0 8px;
+    border-bottom: 1px solid #383838;
+  }
 
-.dwp-tab {
-  font-weight: 600;
-  color: #e5e5e5;
-}
+  .dwp-tab {
+    padding: 4px 8px;
+    border-radius: 5px;
+    font-size: 11px;
+    font-weight: 500;
+    color: #9b9b9b;
+  }
 
-.dwp-zoom {
-  color: #8c8c8c;
-}
+  .dwp-tab.is-on {
+    background: #383838;
+    color: #e6e6e6;
+  }
 
-.dwp-selected {
-  padding: 12px 14px 4px;
-  font-weight: 600;
-  color: #e5e5e5;
-}
+  .dwp-zoom {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    margin-left: auto;
+    padding-right: 2px;
+    font-size: 11px;
+    color: #b3b3b3;
+  }
 
-.dwp-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 6px;
-  padding: 8px 14px 4px;
-}
+  /* the selection's TYPE — the line that stops an artboard reading as an image */
+  .dwp-sel {
+    display: flex;
+    align-items: center;
+    height: 40px;
+    padding: 0 8px;
+    border-bottom: 1px solid #383838;
+  }
 
-.dwp-cell {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: rgba(255, 255, 255, 0.06);
-  border-radius: 4px;
-  padding: 5px 8px;
-}
+  .dwp-sel-type {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #fff;
+  }
 
-.dwp-k {
-  color: #8c8c8c;
-}
+  .dwp-sel-acts {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    margin-left: auto;
+    color: #b3b3b3;
+  }
 
-.dwp-v {
-  color: #e5e5e5;
-  font-variant-numeric: tabular-nums;
-}
+  .dwp-sel-acts svg {
+    width: 12px;
+    height: 12px;
+  }
 
-.dwp-sec {
-  padding: 10px 14px 0;
-  margin-top: 6px;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-}
+  .dwp-chev {
+    width: 8px;
+    height: 8px;
+    color: #b3b3b3;
+    flex: none;
+  }
 
-.dwp-label {
-  font-weight: 600;
-  color: #8c8c8c;
-  margin-bottom: 8px;
-}
+  /* one section: a hairline, a white title, affordances right, then controls */
+  .dwp-s {
+    padding: 10px 8px 12px;
+    border-bottom: 1px solid #383838;
+  }
 
-.dwp-fill {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
+  .dwp-s-top {
+    display: flex;
+    align-items: center;
+    min-height: 20px;
+  }
 
-.dwp-swatch {
-  width: 14px;
-  height: 14px;
-  border-radius: 3px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-}
+  .dwp-s-title {
+    margin: 0;
+    font-size: 11.5px;
+    font-weight: 600;
+    color: #e6e6e6;
+  }
 
-/* a transparent fill: Figma's checkerboard swatch instead of a colour */
-.dwp-swatch--none {
-  background:
-    linear-gradient(45deg, #bcbcbc 25%, transparent 25% 75%, #bcbcbc 75%) 0 0 / 7px 7px,
-    linear-gradient(45deg, #bcbcbc 25%, transparent 25% 75%, #bcbcbc 75%) 3.5px 3.5px / 7px 7px,
-    #fff;
-}
+  .dwp-s-acts {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-left: auto;
+    color: #b3b3b3;
+  }
 
-/* an image fill: a thumbnail of the painting, the way Figma previews it */
-.dwp-swatch--img {
-  background-size: cover;
-  background-position: center;
-  border-color: rgba(255, 255, 255, 0.28);
-}
+  .dwp-s-acts svg {
+    width: 12px;
+    height: 12px;
+  }
 
-.dwp-export {
-  color: #c4c4c4;
-  padding-bottom: 14px;
+  .dwp-lab {
+    margin: 10px 0 5px;
+    font-size: 10.5px;
+    color: #9b9b9b;
+  }
+
+  .dwp-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    align-items: center;
+  }
+
+  .dwp-row--labs .dwp-lab {
+    margin: 10px 0 5px;
+  }
+
+  /* a field: grey glyph, value, and nothing else until you hover it */
+  .dwp-f {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 26px;
+    padding: 0 7px;
+    border-radius: 5px;
+    background: #383838;
+    border: 1px solid transparent;
+    font-size: 11px;
+    min-width: 0;
+  }
+
+  .dwp-f:hover {
+    border-color: #4c4c4c;
+  }
+
+  .dwp-f-g {
+    display: inline-flex;
+    align-items: center;
+    width: 11px;
+    flex: none;
+    color: #8c8c8c;
+    font-size: 10.5px;
+  }
+
+  .dwp-f-g svg {
+    width: 11px;
+    height: 11px;
+  }
+
+  .dwp-f-v {
+    color: #e6e6e6;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .dwp-f-t {
+    margin-left: auto;
+    display: inline-flex;
+  }
+
+  .dwp-f-o {
+    margin-left: auto;
+    color: #e6e6e6;
+  }
+
+  .dwp-f-pc {
+    color: #8c8c8c;
+  }
+
+  /* the alignment marks: two groups of three, then distribute on its own */
+  .dwp-align {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .dwp-grp {
+    display: inline-flex;
+    background: #383838;
+    border-radius: 5px;
+    padding: 1px;
+  }
+
+  .dwp-ib {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    border: 0;
+    background: none;
+    border-radius: 4px;
+    color: #b3b3b3;
+    cursor: default;
+  }
+
+  .dwp-ib:hover {
+    background: #4a4a4a;
+    color: #e6e6e6;
+  }
+
+  .dwp-ib svg {
+    width: 12px;
+    height: 12px;
+  }
+
+  .dwp-ibs {
+    display: inline-flex;
+    justify-content: flex-end;
+    gap: 2px;
+  }
+
+  /* the fill row: swatch, hex, opacity, then eye and minus at the end */
+  .dwp-fillrow {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    height: 26px;
+    margin-top: 8px;
+    padding: 0 7px;
+    border-radius: 5px;
+    font-size: 11px;
+  }
+
+  .dwp-fillrow:hover {
+    background: #383838;
+  }
+
+  .dwp-fillrow-acts {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-left: auto;
+    color: #b3b3b3;
+  }
+
+  .dwp-fillrow-acts svg {
+    width: 12px;
+    height: 12px;
+  }
+
+  .dwp-sw {
+    width: 14px;
+    height: 14px;
+    flex: none;
+    border-radius: 3px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background-size: cover;
+    background-position: center;
+  }
+
+  .dwp-sw--none {
+    background: linear-gradient(
+      to top right,
+      transparent calc(50% - 1px),
+      #e05a4e 50%,
+      transparent calc(50% + 1px)
+    );
+  }
 }
 
 /* ============ mobile ============ */
@@ -1954,26 +2137,4 @@
   .dwh-m-xp-kind {
     font-size: 12.5px;
   }
-}
-
-/* The selection's TYPE, under its name — what Figma puts there, and the line
-   that stops an artboard reading as a pasted image.
-
-   The colours are the panel's OWN two greys, #8c8c8c for a key and #e5e5e5 for
-   a value, not new ones. They were written as black at 42% and 72% first,
-   which measured 1.5:1 against this panel's rgb(44,44,44) — invisible, and it
-   looked fine in a screenshot only because the crop flattered it. The panel is
-   dark; a label that assumes a light one is a label nobody reads. */
-.dwp-type {
-  margin: 2px 0 0;
-  font-size: 10.5px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: #8c8c8c;
-}
-
-.dwp-contents {
-  margin: 0;
-  font-size: 11.5px;
-  color: #e5e5e5;
 }
