@@ -183,6 +183,10 @@ function PropsPanel({ frame }) {
         <span className="dwp-zoom">100%</span>
       </div>
       <p className="dwp-selected">{frame.name}</p>
+      {/* Figma names the selection's TYPE under its name. Saying "Frame" here
+          is the whole difference between a panel that reads as a pasted
+          screenshot and one that reads as a file someone built. */}
+      {frame.type && <p className="dwp-type">{frame.type}</p>}
       <div className="dwp-grid">
         {rows.map(([k, v]) => (
           <div className="dwp-cell" key={k}>
@@ -191,6 +195,18 @@ function PropsPanel({ frame }) {
           </div>
         ))}
       </div>
+      {frame.children?.length > 0 && (
+        <div className="dwp-sec">
+          <p className="dwp-label">Contents</p>
+          <p className="dwp-contents">
+            {frame.children.length} layer{frame.children.length === 1 ? "" : "s"}
+          </p>
+        </div>
+      )}
+
+      {/* NO FILL ROW WHEN THE FILL IS UNKNOWN. Guessing one is how the panel
+          came to call every artboard an image in the first place. */}
+      {p.fill && (
       <div className="dwp-sec">
         <p className="dwp-label">Fill</p>
         <div className="dwp-fill">
@@ -217,6 +233,7 @@ function PropsPanel({ frame }) {
           )}
         </div>
       </div>
+      )}
       <div className="dwp-sec">
         <p className="dwp-label">Export</p>
         <p className="dwp-export">
@@ -333,11 +350,20 @@ export default function DesignWorld() {
   // page's frames, the properties panel reads the selected frame's REAL Figma
   // x/y/w/h, and the canvas is the file's own placement rather than a layout.
   if (page) {
+    // A FRAME IS NOT AN IMAGE. This used to hand every frame
+    // `fill: { type: "image", src: f.src }` and `children: []`, which described
+    // what this PAGE is showing — an exported webp — rather than what the node
+    // IS. The properties panel then told every visitor that each of her
+    // artboards was an image fill, and the layers tree showed each one empty:
+    // the exact reading she did not want, and the opposite of the truth. The
+    // children come from figma-pages.js now, read out of the real file, and
+    // the fill is simply not claimed, because an export does not know it.
     const layers = page.frames.map((f) => ({
       id: f.node,
       name: f.name,
-      props: { x: f.x, y: f.y, w: f.w, h: f.h, fill: { type: "image", src: f.src } },
-      children: [],
+      type: "Frame",
+      props: { x: f.x, y: f.y, w: f.w, h: f.h },
+      children: f.children || [],
     }));
     const selected = layers.find((l) => l.id === pick.node) || layers[0];
     return (

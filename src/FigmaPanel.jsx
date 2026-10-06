@@ -56,6 +56,19 @@ const ICONS = {
       />
     </svg>
   ),
+  // Shapes — rectangles, ellipses, lines, vectors. Figma gives each its own
+  // glyph; one honest "this is drawn geometry" mark is enough here, and
+  // without it every rectangle in a real layer tree would read as a frame.
+  vector: (
+    <svg viewBox="0 0 12 12" fill="none" aria-hidden="true">
+      <path
+        d="M2.2 8.6 6 2.4l3.8 6.2H2.2Z"
+        stroke="currentColor"
+        strokeWidth="1.1"
+        strokeLinejoin="round"
+      />
+    </svg>
+  ),
   component: (
     <svg viewBox="0 0 12 12" fill="none" aria-hidden="true">
       <path

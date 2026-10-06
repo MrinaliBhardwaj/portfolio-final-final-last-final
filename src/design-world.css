@@ -1955,3 +1955,25 @@
     font-size: 12.5px;
   }
 }
+
+/* The selection's TYPE, under its name — what Figma puts there, and the line
+   that stops an artboard reading as a pasted image.
+
+   The colours are the panel's OWN two greys, #8c8c8c for a key and #e5e5e5 for
+   a value, not new ones. They were written as black at 42% and 72% first,
+   which measured 1.5:1 against this panel's rgb(44,44,44) — invisible, and it
+   looked fine in a screenshot only because the crop flattered it. The panel is
+   dark; a label that assumes a light one is a label nobody reads. */
+.dwp-type {
+  margin: 2px 0 0;
+  font-size: 10.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #8c8c8c;
+}
+
+.dwp-contents {
+  margin: 0;
+  font-size: 11.5px;
+  color: #e5e5e5;
+}

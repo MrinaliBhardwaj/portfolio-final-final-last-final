@@ -4734,3 +4734,64 @@ which the browser treats as a person:
    have started silent and stopped dead — precisely what the fade exists to
    prevent. The baseline is taken from the first callback now, so both ends of
    the subtraction are on one clock, and the value is clamped besides.
+
+## 6 Oct 2026 — A frame is a frame, not an image
+
+The design world's project pages described every one of her artboards as an
+image. The properties panel's Fill row read **Image**, and the layers tree
+showed each frame empty. Both came from one line in `DesignWorld.jsx`:
+
+    props: { ..., fill: { type: "image", src: f.src } },
+    children: [],
+
+which describes what the PAGE is showing — an exported webp — rather than what
+the node IS. A recruiter reading that panel was being told she pastes
+screenshots into Figma.
+
+She does not. Read back out of the file with `get_metadata`, the NextG hero is
+`frame "browser"` → `frame "chrome"` (three ellipses and a `url` frame holding
+`text "nextgapex.com"`) and `frame "HERO — native reconstruction"`, whose
+`outlet field` is about three hundred hand-placed lines and ellipses, over a
+navbar of nine text layers. Layover's screens carry `<instance>` nodes —
+actual component instances — inside mask groups.
+
+So the panel now says what is true: the selection is a **Frame**, it reports
+its **Contents** as a layer count, and it claims no fill at all, because an
+export does not know one. The layers tree renders each frame's real first-level
+children from `figma-pages.js`, with a new `vector` glyph so rectangles and
+ellipses stop reading as frames.
+
+**First level only** — which is what Figma's own panel shows before you expand
+a row, and what keeps the outlet field's three hundred lines out of it.
+
+### Done, and not done
+
+NextG's nine frames carry real children. **Layover (45 frames) and Regis (12)
+do not yet**, and they differ in why:
+
+- Layover's key is in `scripts/build_figma_components.py`
+  (`BRaDrcuSqhHuA7PTmJX0Zt`) — it is only a question of spending the pulls.
+- **Regis has no file key anywhere in the repo.** `figma-pages.js` stores the
+  display name "Compliance Checker — Regis" and nothing else, and the build
+  script never had the file. That page needs her link before it can be read.
+
+Nothing was invented for either: a frame with no `children` renders exactly as
+it did before, minus the false Image row.
+
+### A note on the method
+
+`get_metadata` returns a whole subtree, and the big frames blow the tool's
+token limit — at which point the result is written to a file instead, which is
+*cheaper*, not dearer: `scratchpad/kids.py` parses it to first-level rows for
+nothing. The small frames are the ones that cost context. Worth knowing before
+the remaining 57 are pulled.
+
+### And one bug this caught in itself
+
+The two new rows were written as black at 42% and 72%. The properties panel on
+a project page is `rgb(44,44,44)`: **contrast 1.5:1**, invisible. A screenshot
+flattered it enough to look fine, and only measuring the computed colour showed
+it. They use the panel's own `#8c8c8c` and `#e5e5e5` now — 4.15:1 and 11.09:1.
+The 4.15 is the panel's existing key grey, shared with X / Y / W / H / Export,
+so it is the system's number rather than a new one; if that floor is ever
+raised it should be raised for all of them at once.

@@ -18,6 +18,13 @@
 // is at 100%, so it holds up when you zoom in past fit.
 
 /**
+ * One row under a frame in the layers panel: the layer's name exactly as it is
+ * in Figma, and which glyph FigmaPanel should draw for it.
+ *
+ * @typedef {object} FrameLayer
+ * @property {"frame"|"text"|"image"|"component"|"vector"} icon
+ * @property {string} name
+ *
  * @typedef {object} PageFrame
  * @property {string} node   the Figma node id, so a frame can be re-pulled
  * @property {string} name   the layer name, exactly as it is in the file
@@ -27,6 +34,9 @@
  * @property {number} h
  * @property {string} src    the export, absolute from /public
  * @property {string} alt
+ * @property {FrameLayer[]} [children]  the frame's real first-level layers,
+ *   read out of the file with get_metadata. Optional only because the pages
+ *   whose file keys the repo does not hold have not been read yet.
  *
  * A heading she wrote on the canvas, outside any frame. Only Layover has these;
  * Regis and NextG carry no text of their own, which is why `sections` is
@@ -52,6 +62,20 @@ const R = "/work/regis";
 const N = "/work/nextg";
 
 /** @type {FigmaPage[]} */
+// THE LAYERS ARE THE REAL ONES.
+//
+// Each frame below carries its actual first-level children, read out of the
+// Figma file with get_metadata — the names she gave them, in her order. They
+// are here because the design world's layers panel used to render every frame
+// with `children: []` and its properties panel described every one as an image
+// fill, which is what the page is SHOWING (an exported webp) rather than what
+// the node IS. A recruiter reading that panel was being told she pastes
+// screenshots into Figma, when the file is frames, text layers, component
+// instances and auto-layout all the way down.
+//
+// First level only, which is exactly what Figma's own panel shows before you
+// expand a row — and mercifully so: the NextG hero's "outlet field" alone
+// holds about three hundred hand-placed lines and ellipses.
 export const FIGMA_PAGES = [
   {
     slug: "regis",
@@ -132,46 +156,90 @@ export const FIGMA_PAGES = [
     frames: [
       {
         node: "144:361", name: "browser", x: 2132, y: 165, w: 1440, h: 951,
+        children: [
+          { icon: "frame", name: "chrome" },
+          { icon: "frame", name: "HERO \u2014 native reconstruction" },
+        ],
         src: `${N}/f-browser.webp`,
         alt: "NextG's landing page in a browser frame: the headline “Every outlet, One growth engine.” over a constellation of linked dots, with 500K+ retail outlets, 900+ towns and cities and 20+ challenger brands beneath it.",
       },
       {
         node: "144:701", name: "states", x: 2143, y: 1269, w: 1440, h: 374,
+        children: [
+          { icon: "frame", name: "state 0.00" },
+          { icon: "frame", name: "state 0.55" },
+          { icon: "frame", name: "state 1.00" },
+        ],
         src: `${N}/f-states.webp`,
         alt: "Three states of the same NextG component at 0.00, 0.55 and 1.00.",
       },
       {
         node: "144:4986", name: "row", x: 2135, y: 1726, w: 1440, h: 548,
+        children: [
+          { icon: "frame", name: "Services" },
+          { icon: "frame", name: "Industries" },
+        ],
         src: `${N}/f-services.webp`,
         alt: "NextG's services and industries sections, side by side.",
       },
       {
         node: "144:5037", name: "row", x: 2135, y: 2349, w: 1440, h: 548,
+        children: [
+          { icon: "frame", name: "Brands" },
+          { icon: "frame", name: "Testimonials" },
+        ],
         src: `${N}/f-brands.webp`,
         alt: "NextG's brands and testimonials sections, side by side.",
       },
       {
         node: "144:5097", name: "row", x: 2135, y: 3012, w: 1440, h: 548,
+        children: [
+          { icon: "frame", name: "Leadership" },
+          { icon: "frame", name: "Closing band" },
+        ],
         src: `${N}/f-leadership.webp`,
         alt: "NextG's leadership section beside its closing band.",
       },
       {
         node: "144:5145", name: "featured – coverage map", x: 2135, y: 3744, w: 1440, h: 665,
+        children: [
+          { icon: "frame", name: "screen \u2014 tab1" },
+          { icon: "vector", name: "Rectangle" },
+          { icon: "vector", name: "Ellipse" },
+          { icon: "text", name: "1" },
+          { icon: "text", name: "2" },
+          { icon: "text", name: "3" },
+        ],
         src: `${N}/f-coverage.webp`,
         alt: "NextG's coverage map view: every outlet, beat and territory on one live map, with 94% coverage, 900+ towns live and 512K outlets.",
       },
       {
         node: "144:5201", name: "other views", x: 2135, y: 4600, w: 1440, h: 307,
+        children: [
+          { icon: "frame", name: "Execution" },
+          { icon: "frame", name: "Live intelligence" },
+          { icon: "frame", name: "Field ops" },
+        ],
         src: `${N}/f-other-views.webp`,
         alt: "Three further NextG views: execution, live intelligence and field ops.",
       },
       {
         node: "144:2396", name: "row", x: 2135, y: 5033, w: 1440, h: 647,
+        children: [
+          { icon: "frame", name: "Book a demo" },
+          { icon: "frame", name: "The shop" },
+        ],
         src: `${N}/f-demo.webp`,
         alt: "NextG's book-a-demo section beside the shop.",
       },
       {
         node: "144:2546", name: "phones", x: 2135, y: 5806, w: 1440, h: 706,
+        children: [
+          { icon: "frame", name: "Hero" },
+          { icon: "frame", name: "Coordinated growth" },
+          { icon: "frame", name: "Product showcase" },
+          { icon: "frame", name: "Navigation drawer" },
+        ],
         src: `${N}/f-phones.webp`,
         alt: "Four NextG mobile screens in a row: the hero, coordinated growth, the product showcase and the navigation drawer.",
       },
