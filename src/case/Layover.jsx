@@ -318,7 +318,7 @@ export default function Layover() {
           <div>
             <Statement size="md">Marketplaces don&rsquo;t fail loudly.</Statement>
             <Say>
-              A stall goes stale, or starts refusing orders, and travellers quietly stop
+              A stall goes slow, or starts refusing orders, and travellers quietly stop
               coming back. By the time it shows up in monthly revenue it has been true for
               weeks. Admin is the set of tools for catching that before a traveller does.
             </Say>

@@ -179,7 +179,7 @@ export const PROJECTS = [
     dims: "1080 × 1350",
     role: "Brand identity, UI design, product design",
     summary:
-      "A layover is dead time you've already paid for. Layover turns it into something usable: enter your airport or PNR and it shows what's actually open in your terminal right now — order a meal to your gate, or book into a lounge. Built around Indian airports (Delhi, Mumbai, Bengaluru, Hyderabad) and the details that matters there: terminal-aware delivery, veg and non-veg filters as a first-class control, and a live prep timer so you know whether you have time before boarding.",
+      "A layover is dead time you've already paid for. Layover turns it into something usable: enter your airport or PNR and it shows what's actually open in your terminal right now — order a meal to your gate, or book into a lounge. Built around Indian airports (Delhi, Mumbai, Bengaluru, Hyderabad) and the details that matter there: terminal-aware delivery, veg and non-veg filters as a first-class control, and a live prep timer so you know whether you have time before boarding.",
     // CORRECTED FROM HER OWN BOARD (5 Sep 2026). The case study states the role
     // as "Product Designer, co-lead" and names five surfaces; this said three,
     // and the two were now contradicting each other on the same page. Her
