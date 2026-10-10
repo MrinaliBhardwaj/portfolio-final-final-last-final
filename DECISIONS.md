@@ -4870,8 +4870,18 @@ An earlier session reported Regis as unpullable because no Figma file key
 existed anywhere in the repo. The key was real and already given — it was in a
 chat message from **3 Sep 2026**, used that day to pull the twelve exports, and
 simply never written down. So the first change here is that **all three file
-keys now live in `figma-pages.js`** next to the node ids they belong to. A key
-that only exists in a transcript is a key the next session will not find.
+keys now live in `figma-pages.js`**. A key that only exists in a transcript is
+a key the next session will not find.
+
+They went in as `fileKey` fields on each page and came straight back out again
+(11 Oct 2026): a field is data, and data ships to the browser inside the
+bundle. No code reads them — they exist for whoever next re-pulls a page — so
+they are a **comment at the top of the file** instead, which is as greppable
+and reaches no one. The three Figma files are private, which is what makes
+writing them down safe at all: a file key is what a share URL carries, so for
+a file set to "anyone with the link" the key would be the credential. Worth
+knowing before adding a fourth. Note the repo itself is public, so the comment
+is not a hiding place — it keeps keys out of the shipped bundle, nothing more.
 
 ### Reading 45 frames without 45 round trips
 

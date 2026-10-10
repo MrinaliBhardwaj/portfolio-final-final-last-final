@@ -16,6 +16,32 @@
 // The exports are PNG at 2x from the same node ids, resized to 1800 wide and
 // carried as WebP. 1800 is ~1.25x the 1440 the frame is drawn at when the page
 // is at 100%, so it holds up when you zoom in past fit.
+//
+// ---------------------------------------------------------------------------
+// THE FILE KEYS, SO A PAGE CAN BE RE-PULLED.
+//
+//   regis    8qMVRhvaHKN41AHP72kx86   "Compliance Checker — Regis"
+//   nextg    bUB4MsJcWhbCEhPEyI7Ip6   "NextG"
+//   layover  BRaDrcuSqhHuA7PTmJX0Zt   "layover Casestudy"
+//
+// Written down because they were not. Regis's key lived in one chat message
+// from 3 Sep 2026 and nowhere in the repo, so a later session went looking for
+// it, found nothing, and reported the page as unpullable — when it had been
+// used that same day to pull all twelve of its exports. The other two have
+// been in scripts/build_figma_components.py since 18 Sep.
+//
+// A COMMENT, NOT A FIELD. These were briefly `fileKey` properties on each
+// page, which shipped them inside the JS bundle. No code reads them — they
+// exist for whoever next needs to re-pull a page — so a comment does the same
+// job and reaches no browser. The three files are private; a Figma file key
+// is what a share URL carries, so for a file set to "anyone with the link"
+// the key would BE the credential, and these would not be written here.
+//
+// To re-pull: `use_figma` with the key and a read-only script beats
+// `get_metadata` on anything large — Layover's page overflows the MCP
+// transport, and per-frame metadata runs about 10k tokens a frame. See
+// DECISIONS.md, "Layover and Regis get their real layers".
+// ---------------------------------------------------------------------------
 
 /**
  * One row under a frame in the layers panel: the layer's name exactly as it is
@@ -53,10 +79,6 @@
  * @property {string} slug   the route: #/design/<slug>
  * @property {string} name   the page name, in the Pages list
  * @property {string} file   the Figma file this page was mirrored from
- * @property {string} fileKey  that file's key, so the page can be re-pulled.
- *   Written down because it was not: Regis's key was sitting in a chat
- *   message from September and nowhere in the repo, so a later session went
- *   looking for it, found nothing, and reported the page as unpullable.
  * @property {string} [link] that file, if it is shareable
  * @property {PageSection[]} [sections]
  * @property {PageFrame[]} frames
@@ -113,7 +135,6 @@ export const FIGMA_PAGES = [
     slug: "regis",
     name: "Regis",
     file: "Compliance Checker — Regis",
-    fileKey: "8qMVRhvaHKN41AHP72kx86",
     // Twelve 1440x900 frames on a 3 x 4 grid: 1540 apart across (a 100px
     // gutter), 1000 apart down. No captions, no section headers — the page is
     // the frames and their names, which is what Figma draws.
@@ -257,7 +278,6 @@ export const FIGMA_PAGES = [
     slug: "nextg",
     name: "NextG Apex",
     file: "NextG",
-    fileKey: "bUB4MsJcWhbCEhPEyI7Ip6",
     // One column at x ~2135, top to bottom, with the file's own uneven gaps —
     // 153, 83, 75, 115, 184, 191, 126, 126 — kept rather than regularised.
     frames: [
@@ -356,7 +376,6 @@ export const FIGMA_PAGES = [
     slug: "layover",
     name: "Layover",
     file: "layover Casestudy",
-    fileKey: "BRaDrcuSqhHuA7PTmJX0Zt",
     // THE PAGE IS NAMED "SCREENS" (204:1140) and it is the most written-down of
     // the three: eight numbered sections, each with a title and a line of
     // argument, and forty-five screens each captioned underneath.
