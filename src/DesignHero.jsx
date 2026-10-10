@@ -16,6 +16,10 @@
 const U = (n) => `calc(${n} * var(--u))`;
 const A = "/design-hero";
 
+// The same trick for her MOBILE frame — node 361:489, "iPhone 16 - 1", a
+// 393×852 artboard. `--um` (= 100cqw / 393) is set on .dwh-m-stage.
+const UM = (n) => `calc(${n} * var(--um))`;
+
 // the intro copy, shared by the fixed poster and the mobile reflow below
 const INTRO =
   "I am an aspiring design engineer based in India, currently pursuing a bachelors degree in computer science at VIT University. My academic background allows me to work at the intersection of tech and design";
@@ -78,6 +82,61 @@ const SKILLS = [
 
 // centre of the folder, minus half the label box
 const skillLabelX = (s) => s.fx + (FOLDER_W - s.lw) / 2;
+
+// ---------------------------------------------------------------------------
+// HER MOBILE FRAME'S OWN NUMBERS (node 361:489). Same content, re-composed by
+// her for a phone — so these are a second set of real coordinates, not the
+// poster's scaled down.
+//
+// Experience is a 2×2 again but tighter: blocks 129.917 wide, the four lines
+// at a shared 0 / 13.43 / 29.62 / 46.6, dates centred under the block. In the
+// file the right-hand column reaches its alignment with a per-line x offset;
+// here the block is simply `text-align: right`, which lands in the same place
+// and survives a font that measures differently from her Helvetica.
+// `w` is the block's ALIGNMENT width, which is not its box width in the file.
+// Her right-hand blocks are 129.917 boxes whose lines all end at about x=100
+// inside them — the file reaches that with a per-line offset on the left
+// column and an explicit right edge on the other. Taking the box at face value
+// put the right column 30px further right, hanging 3px off the sheet. 100 is
+// where her text actually ends; the sheet's inner edge is 28px beyond it.
+const M_EXP = [
+  { x: 4.95, y: 54.38, w: 129.917, align: "left", kind: "Leadership", role: "Design Executive", org: "Entrepreneurship Cell", date: "Jan 2024 – Jan 2025", rs: 11.152 },
+  { x: 198, y: 51.79, w: 100, align: "right", kind: "Internship", role: "Graphic Designer", org: "Moon Finance", date: "Jan 2025 – Jul 2025", rs: 12.635 },
+  { x: 4.55, y: 134.71, w: 129.917, align: "left", kind: "Freelance", role: "Design Engineer", org: "NextG Apex", date: "June 2026 - July 2026", rs: 12.635 },
+  { x: 198, y: 134.79, w: 100, align: "right", kind: "Freelance", role: "UI/ UX Designer", org: "LUMA Technologies", date: "Jul 2025 - Oct 2025", rs: 12.636 },
+];
+
+// the three hand-drawn connectors between the columns, and the tick at the
+// sheet's right edge. All three are in the file; none is decorative licence.
+const M_RULES = [
+  { x: 122.84, y: 83.3, w: 66.16, rot: 0.41 },
+  { x: 114.78, y: 165.02, w: 70.98, rot: 0 },
+  { x: 325.7, y: 124.02, w: 21.132, rot: -90 },
+];
+
+// folder centres, and the label centred under each — stored as the centre
+// because that is how the file positions them (translate -50%, -50%)
+const M_FOLDER_W = 43.583;
+const M_FOLDER_H = 43.645;
+const M_SKILLS = [
+  { cx: 33.79, cy: 44.31, lx: 32.66, ly: 74.1, label: ["UI/UX", "Design"] },
+  { cx: 104.79, cy: 93.22, lx: 105.68, ly: 124.3, label: ["Branding"] },
+  { cx: 46.79, cy: 137.22, lx: 47.91, ly: 167.55, label: ["Graphic", "Design"] },
+];
+
+function MobileExperience({ e }) {
+  // the three top lines hang off whichever edge the column aligns to; the date
+  // is centred across the block, as it is on the poster
+  const side = e.align === "right" ? "right" : "left";
+  return (
+    <div className="dwh-m-xp" style={{ left: UM(e.x), top: UM(e.y), width: UM(e.w) }}>
+      <span className="dwh-m-xp-kind" style={{ top: UM(0), fontSize: UM(9.477), [side]: 0 }}>{e.kind}</span>
+      <span className="dwh-m-xp-role" style={{ top: UM(13.43), fontSize: UM(e.rs), [side]: 0 }}>{e.role}</span>
+      <span className="dwh-m-xp-org" style={{ top: UM(29.62), fontSize: UM(11.122), [side]: 0 }}>{e.org}</span>
+      <span className="dwh-m-xp-date" style={{ top: UM(46.6), fontSize: UM(9.476) }}>{e.date}</span>
+    </div>
+  );
+}
 
 function ExperienceEntry({ e }) {
   const right = e.align === "right";
@@ -261,74 +320,123 @@ export default function DesignHero() {
         ))}
       </div>
 
-      {/* ============ MOBILE REFLOW ============ */}
-      {/* The poster above is a fixed 1316×741 artboard; scaled to a phone it
-          collapses to ~4px text. Below 768px the CSS hides every poster layer
-          and shows this flowed, readable version of the very same content —
-          on the poster's own cream sheet, so it still reads as her document. */}
+      {/* ============ MOBILE: HER OWN MOBILE FRAME ============ */}
+      {/* Figma node 361:489, "iPhone 16 - 1" — 393×852.
+
+          What was here before was a REFLOW: the poster's content re-stacked
+          into one readable column, written because the 1316×741 poster shrinks
+          to ~4px type on a phone. It was legible and it was not her design.
+          She drew a mobile frame, so this is that frame, composed the way the
+          poster is composed — a fixed stage at her coordinates, scaled by
+          `--um` (= 100cqw / 393). The poster's own layers stay hidden below
+          768px; only the stage changes.
+
+          Every asset is already vendored for the poster and reused as-is: the
+          pond painting (twice, at her two offsets), the PROFILE.DOC tab, the
+          childhood photo, the softwares crop, the folder ×3. Nothing new was
+          downloaded, so nothing can expire. */}
       <div className="dwh-m">
-        <div className="dwh-m-hero">
-          <img
-            className="dwh-m-photo"
-            src={`${A}/mini-mri.webp`}
+        <div className="dwh-m-stage">
+          {/* the painting, bleeding past the sheet on every side */}
+          <img className="dwh-m-bg" src={`${A}/bg-pond.webp`} alt="" aria-hidden="true"
+            style={{ left: UM(-860), top: UM(154), width: UM(1521.429), height: UM(852) }} />
+          <img className="dwh-m-bg" src={`${A}/bg-pond.webp`} alt="" aria-hidden="true"
+            style={{ left: UM(-561), top: UM(-66), width: UM(1251.786), height: UM(701) }} />
+
+          {/* the cream sheet: 340×665, centred */}
+          <div className="dwh-m-sheet"
+            style={{ left: UM(27), top: UM(94), width: UM(340), height: UM(665) }} />
+
+          <img className="dwh-m-tab" src={`${A}/profile-tab.png`} alt="" aria-hidden="true"
+            style={{ left: UM(-7), top: UM(16), width: UM(289), height: UM(79.377) }} />
+
+          <span className="dwh-m-meet" style={{ left: UM(52.01), top: UM(104.97), fontSize: UM(20) }}>
+            Meet
+          </span>
+          <span className="dwh-m-name" style={{ left: UM(47), top: UM(127.33), fontSize: UM(43.244) }}>
+            Mrinali Bhardwaj!
+          </span>
+
+          {/* Her frame sets this 8.737px, top-right. The TYPE is hers and is
+              kept; the HIT AREA is not something a design file expresses, and
+              a ~9px target fails WCAG 2.5.5 badly on the one device this frame
+              is for. The padding below takes it past 44px without moving a
+              pixel of the composition. */}
+          <a className="dwh-m-download" href="/resume-design.pdf" target="_blank" rel="noreferrer"
+            style={{ left: UM(284), top: UM(103), fontSize: UM(8.737) }}>
+            View Resume
+            <span className="dwh-m-download-arrow" aria-hidden="true">↗</span>
+          </a>
+
+          <p className="dwh-m-intro"
+            style={{ left: UM(42), top: UM(180), width: UM(309), fontSize: UM(12) }}>
+            {INTRO}
+          </p>
+
+          {/* ---- experience, softwares ---- */}
+          <div className="dwh-m-group"
+            style={{ left: UM(41), top: UM(244.21), width: UM(351), height: UM(290.773) }}>
+            <span className="dwh-m-head" style={{ left: UM(2.94), top: UM(28.85), fontSize: UM(14.997) }}>
+              Experience
+            </span>
+            {M_EXP.map((e) => (
+              <MobileExperience key={e.role + e.org} e={e} />
+            ))}
+            {M_RULES.map((r, i) => (
+              <span key={i} className="dwh-m-rule"
+                style={{ left: UM(r.x), top: UM(r.y), width: UM(r.w), transform: `rotate(${r.rot}deg)` }} />
+            ))}
+            {/* the crop carries its own "Softwares" label above the tiles, so
+                her separate label node is deliberately NOT rendered — drawing
+                it would print the word twice */}
+            <img className="dwh-m-soft" src={`${A}/softwares.png`}
+              alt="Softwares: Figma, Photoshop, Illustrator, VS Code"
+              style={{ left: UM(125), top: UM(200), width: UM(161), height: UM(66) }} />
+          </div>
+
+          {/* the childhood photo, over the sheet's bottom-left corner */}
+          <img className="dwh-m-photo" src={`${A}/mini-mri.webp`}
             alt="Mrinali as a child in a blue bucket hat"
-          />
-          <div className="dwh-m-headline">
-            <span className="dwh-m-meet">Meet</span>
-            <span className="dwh-m-name">Mrinali Bhardwaj!</span>
+            style={{ left: UM(-48), top: UM(435.35), width: UM(303), height: UM(325.209) }} />
+
+          {/* ---- skill set ---- */}
+          <div className="dwh-m-group"
+            style={{ left: UM(207), top: UM(553.6), width: UM(126.582), height: UM(185.553) }}>
+            <span className="dwh-m-head" style={{ left: UM(0), top: UM(-7), fontSize: UM(15) }}>
+              Skill Set
+            </span>
+            {M_SKILLS.map((s, i) => (
+              <img key={i} className="dwh-m-folder" src={`${A}/folder.png`} alt="" aria-hidden="true"
+                style={{
+                  left: UM(s.cx - M_FOLDER_W / 2), top: UM(s.cy - M_FOLDER_H / 2),
+                  width: UM(M_FOLDER_W), height: UM(M_FOLDER_H),
+                }} />
+            ))}
+            {M_SKILLS.map((s, i) => (
+              <span key={`l${i}`} className="dwh-m-skill-label"
+                style={{ left: UM(s.lx), top: UM(s.ly), fontSize: UM(7.478) }}>
+                {s.label.map((line, j) => (
+                  <span key={j}>{line}</span>
+                ))}
+              </span>
+            ))}
           </div>
         </div>
 
-        <p className="dwh-m-intro">{INTRO}</p>
-
-        <a className="dwh-m-download" href="/resume-design.pdf" target="_blank" rel="noreferrer">
-          View Resume
-          <span aria-hidden="true">↗</span>
-        </a>
-
-        <section className="dwh-m-sec">
-          <h3 className="dwh-m-h">Experience</h3>
-          <div className="dwh-m-list">
-            {EXPERIENCE.map((e) => (
-              <div className="dwh-m-xp" key={e.role + e.org}>
-                <span className="dwh-m-xp-kind">{e.kind}</span>
-                <p className="dwh-m-xp-role">{e.role}</p>
-                <p className="dwh-m-xp-org">{e.org}</p>
-                <p className="dwh-m-xp-date">{e.date}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        <section className="dwh-m-sec">
-          <h3 className="dwh-m-h">Skill Set</h3>
-          <ul className="dwh-m-skills">
-            {SKILLS.map((s, i) => (
-              <li key={i}>{s.label.join(" ")}</li>
-            ))}
-          </ul>
-        </section>
-
-        {/* the softwares crop carries its own "Softwares" label + tiles,
-            composited over cream so it drops onto this sheet seamlessly */}
-        <section className="dwh-m-sec">
-          <img
-            className="dwh-m-soft"
-            src={`${A}/softwares.png`}
-            alt="Softwares: Figma, Photoshop, Illustrator, VS Code"
-          />
-        </section>
-
-        <section className="dwh-m-sec">
-          <h3 className="dwh-m-h">Education</h3>
-          <div className="dwh-m-list">
-            {EDUCATION.map((ed) => (
-              <div className="dwh-m-edu" key={ed.title}>
-                <p className="dwh-m-edu-title">{ed.title}</p>
-                <p className="dwh-m-edu-sub">{ed.sub}</p>
-              </div>
-            ))}
-          </div>
+        {/* EDUCATION IS NOT IN HER MOBILE FRAME. The poster has it, the phone
+            frame does not — and three real credentials (a Google certificate,
+            the B.Tech with its CGPA, the CBSE line) are not mine to delete on
+            the strength of one artboard. It continues below the stage in the
+            sheet's own type, where it reads as the document carrying on past
+            the fold. Say the word and it goes. */}
+        <section className="dwh-m-edu">
+          <h3 className="dwh-m-edu-h">Education</h3>
+          {EDUCATION.map((ed) => (
+            <div className="dwh-m-edu-row" key={ed.title}>
+              <p className="dwh-m-edu-title">{ed.title}</p>
+              <p className="dwh-m-edu-sub">{ed.sub}</p>
+            </div>
+          ))}
         </section>
       </div>
     </div>

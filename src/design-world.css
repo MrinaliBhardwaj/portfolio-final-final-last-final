@@ -1966,155 +1966,206 @@
     height: auto;
     background: transparent;
   }
-  /* hide every poster layer; the reflow takes over */
+  /* hide every poster layer; her mobile frame takes over */
   .dwh > :not(.dwh-m) {
     display: none;
   }
-  /* the poster rule `.dwh img { position: absolute }` also catches the reflow's
-     images (photo, softwares), pulling them out of flow — put them back */
-  .dwh-m img {
-    position: static;
-  }
+
+  /* FULL BLEED, AND THE CONTAINER FOR --um.
+     Her frame is 393 wide — an iPhone 16 — and carries its own margin inside
+     it: the cream sheet is inset 27px from the frame's edge. Rendered inside
+     .dw-canvas's 20px gutter it came out 353 wide, so the painting stopped
+     short of the screen and every one of her type sizes shrank by 10%. This
+     breaks out of that gutter so the frame is the phone, as drawn.
+     It also has to BE the container: --um reads 100cqw, and the nearest
+     container was .cvf-body, which is still the padded 353. */
   .dwh-m {
     display: block;
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
+    container-type: inline-size;
     background: #f6f5f2;
-    color: #33323a;
-    padding: 1.5rem 1.4rem 2rem;
+    color: #4a4a58;
     font-family: var(--font-ui);
   }
 
-  /* header: the childhood photo above the script name, which needs the full
-     column width (side-by-side, the wide Pinyon script overran the photo) */
-  .dwh-m-hero {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.7rem;
-    margin-bottom: 1.4rem;
+  /* HER MOBILE ARTBOARD (DesignHero.jsx, Figma node 361:489).
+     Same contract as the poster: a fixed 393x852 stage, every child at her
+     own coordinate, one unit (--um) doing all the scaling. */
+  .dwh-m-stage {
+    --um: calc(100cqw / 393);
+    position: relative;
+    width: 100%;
+    aspect-ratio: 393 / 852;
+    overflow: hidden; /* the painting and the photo bleed; the frame clips */
+    background: #4a4a58;
+  }
+
+  /* everything on the stage is absolutely placed */
+  .dwh-m-stage > *,
+  .dwh-m-group > *,
+  .dwh-m-xp > span {
+    position: absolute;
+  }
+
+  /* ---- art layers ---- */
+  /* `max-width: none` IS LOad-BEARING. The painting is 1521 and 1251 wide in
+     her frame, hanging off both sides of a 393 stage; the global
+     `img { max-width: 100% }` reset clamped both to 393, which left the sheet
+     floating on flat grey instead of on her pond. The poster never showed this
+     because its background is 1316 wide on a 1316 stage — exactly 100%, so the
+     clamp was a no-op there and the bug stayed hidden until a wider-than-stage
+     image met it. */
+  .dwh-m-bg {
+    max-width: none;
+    object-fit: cover;
+    z-index: 0;
+  }
+  .dwh-m-sheet {
+    background: #f6f5f2;
+    z-index: 1;
+  }
+  .dwh-m-tab {
+    object-fit: fill;
+    z-index: 4;
   }
   .dwh-m-photo {
-    width: 92px;
-    height: 92px;
-    flex-shrink: 0;
-    object-fit: cover;
-    object-position: top center;
-    border-radius: 14px;
+    object-fit: contain;
+    object-position: bottom left;
+    z-index: 5;
   }
-  .dwh-m-headline {
-    display: flex;
-    flex-direction: column;
-    gap: 0.15rem;
+
+  .dwh-m-meet,
+  .dwh-m-name,
+  .dwh-m-intro,
+  .dwh-m-download,
+  .dwh-m-group {
+    z-index: 6;
   }
+
+  /* ---- headline ---- */
   .dwh-m-meet {
-    font-weight: 300;
-    font-size: 1rem;
-    color: #6a6873;
+    font-weight: 200;
+    line-height: 1;
+    white-space: nowrap;
   }
   .dwh-m-name {
     font-family: "Pinyon Script", cursive;
-    font-size: 2.4rem;
-    line-height: 1.05;
-    color: #2e2d35;
+    line-height: 1;
+    white-space: nowrap;
   }
-
   .dwh-m-intro {
-    margin: 0 0 1.5rem;
+    margin: 0;
     font-weight: 300;
-    font-size: 0.95rem;
-    line-height: 1.55;
-    color: #4a4a58;
+    line-height: 1.35;
+    text-align: justify; /* her frame justifies it */
   }
 
-  /* `a.` rather than a bare class: the global reset in index.css sets
-     `a { color: inherit }` (specificity 0,0,1), and this button's text was
-     rendering nearly invisible — dark ink on its own dark fill — because a
-     single class alone (0,1,0) was somehow losing to that reset in testing.
-     Qualifying with the tag name (0,1,1) makes the win unambiguous rather
-     than relying on source order between two files. */
   a.dwh-m-download {
     display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    padding: 0.7rem 1.15rem;
-    margin-bottom: 2.2rem;
-    background: #2e2d35;
-    color: #f6f5f2;
-    font-size: 0.85rem;
+    align-items: baseline;
+    gap: calc(2 * var(--um));
     font-weight: 500;
     text-decoration: none;
-    border-radius: 8px;
-  }
-
-  .dwh-m-sec {
-    margin-bottom: 1.9rem;
-  }
-  .dwh-m-h {
-    margin: 0 0 0.9rem;
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: #2e2d35;
-    padding-bottom: 0.5rem;
-    border-bottom: 1px solid rgba(46, 45, 53, 0.14);
-  }
-  .dwh-m-list {
-    display: flex;
-    flex-direction: column;
-    gap: 1.2rem;
-  }
-
-  /* experience & education entries */
-  .dwh-m-xp-kind {
-    display: inline-block;
-    margin-bottom: 0.25rem;
-    font-size: 0.72rem;
-    font-weight: 600;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--dw-pink);
-  }
-  .dwh-m-xp-role,
-  .dwh-m-edu-title {
-    margin: 0;
-    font-size: 0.98rem;
-    font-weight: 700;
-    color: #2e2d35;
-  }
-  .dwh-m-xp-org {
-    margin: 0.1rem 0 0;
-    font-size: 0.9rem;
-    font-weight: 400;
     color: #4a4a58;
+    white-space: nowrap;
   }
-  .dwh-m-xp-date,
-  .dwh-m-edu-sub {
-    margin: 0.15rem 0 0;
-    font-size: 0.82rem;
-    font-weight: 300;
-    color: #6a6873;
+  /* THE HIT AREA, NOT THE LOOK. Her frame sets this type at 8.737px, which is
+     a ~9px tap target on the one device the frame is for. A design file has no
+     way to say "but make it tappable", so this says it: a transparent box
+     centred on the link, never smaller than 44px, changing nothing visible. */
+  a.dwh-m-download::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: max(44px, 100%);
+    height: 44px;
+    transform: translate(-50%, -50%);
+  }
+  .dwh-m-download-arrow {
+    font-size: 0.95em;
   }
 
-  .dwh-m-skills {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.55rem;
+  /* ---- section headings ---- */
+  .dwh-m-head {
+    font-weight: 300;
+    line-height: 1;
+    white-space: nowrap;
   }
-  .dwh-m-skills li {
-    padding: 0.42rem 0.85rem;
-    background: #eceae4;
-    border: 1px solid rgba(46, 45, 53, 0.12);
-    border-radius: 999px;
-    font-size: 0.82rem;
-    font-weight: 500;
-    color: #33323a;
+
+  /* ---- experience 2x2 ---- */
+  .dwh-m-xp > span {
+    white-space: nowrap;
+    line-height: 1.2;
+    font-family: var(--hv);
+  }
+  .dwh-m-xp-kind,
+  .dwh-m-xp-org {
+    font-weight: 300;
+  }
+  .dwh-m-xp-role {
+    font-weight: 700;
+  }
+  .dwh-m-xp-date {
+    left: 0;
+    right: 0;
+    text-align: center;
+  }
+
+  /* the connectors drawn between the columns */
+  .dwh-m-rule {
+    height: 0;
+    border-top: 1px solid rgba(74, 72, 88, 0.5);
+    transform-origin: left center;
   }
 
   .dwh-m-soft {
-    width: 100%;
-    max-width: 280px;
-    height: auto;
+    object-fit: contain;
+    object-position: top left;
+  }
+
+  /* ---- skill set ---- */
+  .dwh-m-folder {
+    object-fit: contain;
+  }
+  /* her label x is the CENTRE of the label, which is how the file stores it */
+  .dwh-m-skill-label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transform: translateX(-50%);
+    line-height: 1.2;
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  /* ---- education, which her mobile frame does not have (DesignHero.jsx) ---- */
+  .dwh-m-edu {
+    background: #f6f5f2;
+    padding: 1.7rem 1.5rem 2.2rem;
+  }
+  .dwh-m-edu-h {
+    margin: 0 0 1rem;
+    font-size: 1rem;
+    font-weight: 300;
+    line-height: 1;
+  }
+  .dwh-m-edu-row + .dwh-m-edu-row {
+    margin-top: 0.95rem;
+  }
+  .dwh-m-edu-title {
+    margin: 0;
+    font-size: 0.85rem;
+    font-weight: 500;
+    line-height: 1.3;
+  }
+  .dwh-m-edu-sub {
+    margin: 0.15rem 0 0;
+    font-size: 0.78rem;
+    font-weight: 300;
+    line-height: 1.3;
+    opacity: 0.72;
   }
 }
 
@@ -2123,8 +2174,7 @@
    under, and the canvas captions had fallen to 11px. */
 @media (max-width: 640px) {
   .dw-mlayers,
-  .dw-hello,
-  .dwh-m-download {
+  .dw-hello {
     min-height: 44px;
   }
 
@@ -2133,8 +2183,14 @@
     min-width: 44px;
   }
 
-  .cvf-label,
-  .dwh-m-xp-kind {
+  .cvf-label {
     font-size: 12.5px;
   }
+
+  /* `.dwh-m-download` and `.dwh-m-xp-kind` used to be listed above, back when
+     the mobile hero was a flowed stack that could take a min-height and a
+     12.5px floor. They are now placed children of a fixed artboard, where a
+     min-height would stretch the link out of the composition and a fixed
+     font-size would opt them out of `--um` entirely. The link keeps its 44px
+     target through `a.dwh-m-download::after` instead. */
 }

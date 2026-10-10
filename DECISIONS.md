@@ -4941,3 +4941,62 @@ nothing was ever collapsed. The moment Layover arrived shut it was measured at
 subtree is now `aria-hidden` with its buttons at `tabIndex -1`; expanding a row
 restores both. Verified in the browser: 45 closed, 212 child buttons, 0
 tabbable; expand one and exactly its 6 rows come back.
+
+---
+
+## The phone gets her mobile frame, not a reflow (11 Oct 2026)
+
+The design hero had two versions: the 1316×741 poster, and — below 768px — a
+**reflow**, the poster's content re-stacked into one readable column. The
+reflow existed because the poster shrinks to ~4px type on a phone. It was
+legible, and it was not her design.
+
+She drew a mobile frame. Figma node `361:489`, "iPhone 16 - 1", 393×852. So
+the phone now renders that frame, built the way the poster is built: a fixed
+stage at her coordinates, one unit (`--um` = 100cqw / 393) doing the scaling.
+Measured at 393px the sheet lands at x27 w340, the intro at 12.01px, the name
+at 43.28px, the skill labels at 7.48px — her file's numbers, to two decimals.
+
+### Three things the file does not say
+
+**The frame is the phone, so it is full-bleed.** Her 393 artboard already
+contains its own margin — the cream sheet is inset 27px. Rendered inside
+`.dw-canvas`'s 20px gutter it came out 353 wide, which stopped the painting
+short of the screen and shrank every type size by 10%. `.dwh-m` breaks out of
+that gutter, and has to be the container-query container too, since `--um`
+reads `100cqw` and the nearest container was still the padded body.
+
+**`max-width: none` on the background is load-bearing.** The painting is 1521
+and 1251 wide, hanging off both sides. The global `img { max-width: 100% }`
+reset clamped both to 393 and left the sheet floating on flat grey. The poster
+never showed this: its background is 1316 wide on a 1316 stage, exactly 100%,
+so the clamp was a no-op there. The bug needed an image wider than its stage
+to appear, and the poster never had one.
+
+**The right column aligns at 100, not at its box width.** Her right-hand
+blocks are 129.917 boxes whose lines all end around x=100 inside them — the
+file reaches that with per-line offsets rather than an alignment property.
+Taking the box at face value put the column 30px right, hanging 3px off the
+sheet. Verified after: block right edges at 339, sheet inner edge 367, nothing
+escaping the sheet at 360, 393 or 430.
+
+### Two deliberate departures, both flagged
+
+**The resume link keeps her type and gains a hit area.** She sets it 8.737px,
+top-right. That is a ~9px tap target on the one device this frame is for. A
+design file has no way to express "but make it tappable", so
+`a.dwh-m-download::after` draws a transparent 44px box centred on it —
+measured at 64.6 × 44, changing nothing visible.
+
+**Education is kept, and her frame does not have it.** The poster has it; the
+phone frame does not. Three real credentials are not something to delete on
+the strength of one artboard, so it continues below the stage in the sheet's
+own type. Easy to remove if that was the intent.
+
+### The thing worth her decision
+
+Reproduced faithfully, the smallest type on a real phone is **7.48px** (skill
+labels) and **9.48px** (the Freelance/Internship line and the dates) at 393px
+— 6.85px and 8.7px on a 360px Android. That is her composition exactly, and it
+is below what anyone can comfortably read. Fixing it means changing her
+layout, not the code, so it is left alone and raised instead.
