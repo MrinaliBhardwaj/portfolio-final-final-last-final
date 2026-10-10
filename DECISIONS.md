@@ -4988,10 +4988,38 @@ design file has no way to express "but make it tappable", so
 `a.dwh-m-download::after` draws a transparent 44px box centred on it —
 measured at 64.6 × 44, changing nothing visible.
 
-**Education is kept, and her frame does not have it.** The poster has it; the
-phone frame does not. Three real credentials are not something to delete on
-the strength of one artboard, so it continues below the stage in the sheet's
-own type. Easy to remove if that was the intent.
+**Education is not on the phone.** Her mobile frame omits it and the
+omission is deliberate — confirmed 11 Oct. The poster still carries all three
+credentials in full, which is where they read properly anyway.
+
+### The tab was the one thing not taken from her frame
+
+Her mobile frame places the folder tab as a node called "image 25" at
+(-7, 16) 289x79.377 — aspect 3.64. That is a different crop from the tab this
+repo vendored for the poster, which is 400x72, aspect **5.56**. Pouring one
+into the other stretched the tab half again as tall and left it floating over
+the painting instead of sitting on the sheet.
+
+So the tab alone is placed from the POSTER, where this exact asset is already
+correct, scaled by the ratio of the two sheets (340 / 1206 = 0.2819). It keeps
+its native aspect, bleeds the same 51 units left of the sheet and laps the
+same 5 over its top edge. Measured after: aspect 5.56, bottom 95.48 against a
+sheet top of 94.07.
+
+### PROFTLE.DOC is now PROFILE.DOC
+
+The tab has read "PROFTLE" since July, baked into `profile-tab.png` and
+flagged in the code as unfixable without a re-export. It was fixed in the
+asset instead. In this serif typewriter face a capital I is the T's stem and
+foot under a narrow top serif, so: the crossbar's outer arms (x107-109,
+x113-114 at y41-43) were cleared to the paper sampled directly above them —
+which carries the tab's own gradient and grain rather than a flat swatch — and
+the glyph's own foot was mirrored up to form the top serif, so both ends match
+exactly rather than approximately. The poster renders this tab near 1:1, where
+a one-pixel asymmetry would have read as a broken letter.
+
+Both the poster and the mobile frame use that one file, so both now read
+correctly. **The Figma file still says PROFTLE** — a re-export would undo it.
 
 ### The thing worth her decision
 

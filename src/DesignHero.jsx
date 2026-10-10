@@ -10,9 +10,14 @@
 // Raster art is vendored under public/design-hero/ (downloaded from the Figma
 // asset API — see DECISIONS.md). The folder icon is one export reused ×3.
 //
-// KNOWN (baked into her asset, flagged to her): the tab reads "PROFTLE.DOC",
-// a typo for "PROFILE.DOC". It lives in profile-tab.png and can't be fixed in
-// code — awaiting a corrected export if she wants it.
+// FIXED 11 Oct 2026: the tab read "PROFTLE.DOC", a typo for "PROFILE.DOC",
+// baked into profile-tab.png and still present in the Figma file. It was
+// repaired in the asset rather than waiting for a re-export: in this serif
+// typewriter face a capital I is the T's stem and foot under a narrow top
+// serif, so the crossbar's outer arms were cleared to the paper directly above
+// them, and the glyph's own foot was mirrored up to form the top serif. Both
+// the poster and the mobile frame use that one file, so both read correctly.
+// THE FIGMA FILE STILL SAYS PROFTLE — a re-export would undo this.
 const U = (n) => `calc(${n} * var(--u))`;
 const A = "/design-hero";
 
@@ -176,9 +181,10 @@ export default function DesignHero() {
       {/* the cream sheet */}
       <div className="dwh-sheet" style={{ left: U(55), top: U(67), width: U(1206), height: U(607) }} />
 
-      {/* the manila PROFTLE.DOC folder tab (her typo, baked in). Cropped from
-          the rendered frame at its exact spot, so the painting behind it in the
-          crop realigns with the real painting — seamless. */}
+      {/* the manila PROFILE.DOC folder tab. Cropped from the rendered frame at
+          its exact spot, so the painting behind it in the crop realigns with
+          the real painting — seamless. (The T→I repair is at the top of this
+          file; the crop is why the asset carries painting at all.) */}
       <img
         className="dwh-tab"
         src={`${A}/profile-tab.png`}
@@ -347,8 +353,19 @@ export default function DesignHero() {
           <div className="dwh-m-sheet"
             style={{ left: UM(27), top: UM(94), width: UM(340), height: UM(665) }} />
 
+          {/* THE TAB IS NOT AT HER COORDINATES, AND THAT IS THE POINT.
+              Her mobile frame places a node called "image 25" at
+              (-7, 16) 289x79.377 — aspect 3.64. That is a DIFFERENT crop from
+              the tab this repo vendored for the poster, which is 400x72,
+              aspect 5.56. Pouring one into the other stretched the tab half
+              again as tall and left it floating over the painting instead of
+              sitting on the sheet.
+              So the placement comes from the poster, where this exact asset is
+              already right, scaled by the two sheets: 340 / 1206 = 0.2819.
+              The tab keeps its 400x72 aspect, bleeds the same 51 units left of
+              the sheet, and laps the same 5 units over its top edge. */}
           <img className="dwh-m-tab" src={`${A}/profile-tab.png`} alt="" aria-hidden="true"
-            style={{ left: UM(-7), top: UM(16), width: UM(289), height: UM(79.377) }} />
+            style={{ left: UM(12.62), top: UM(75.11), width: UM(112.77), height: UM(20.3) }} />
 
           <span className="dwh-m-meet" style={{ left: UM(52.01), top: UM(104.97), fontSize: UM(20) }}>
             Meet
@@ -423,21 +440,13 @@ export default function DesignHero() {
           </div>
         </div>
 
-        {/* EDUCATION IS NOT IN HER MOBILE FRAME. The poster has it, the phone
-            frame does not — and three real credentials (a Google certificate,
-            the B.Tech with its CGPA, the CBSE line) are not mine to delete on
-            the strength of one artboard. It continues below the stage in the
-            sheet's own type, where it reads as the document carrying on past
-            the fold. Say the word and it goes. */}
-        <section className="dwh-m-edu">
-          <h3 className="dwh-m-edu-h">Education</h3>
-          {EDUCATION.map((ed) => (
-            <div className="dwh-m-edu-row" key={ed.title}>
-              <p className="dwh-m-edu-title">{ed.title}</p>
-              <p className="dwh-m-edu-sub">{ed.sub}</p>
-            </div>
-          ))}
-        </section>
+        {/* EDUCATION IS NOT IN HER MOBILE FRAME, and is not here either.
+            It was carried below the stage for one commit on the reasoning that
+            three real credentials should not go on the strength of one
+            artboard; she confirmed the omission is deliberate, so the phone
+            now ends where her frame ends. The poster still carries it in full
+            (EDUCATION above, the group at U(826)/U(420)), which is where it
+            reads properly anyway. */}
       </div>
     </div>
   );
