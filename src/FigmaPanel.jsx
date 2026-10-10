@@ -104,8 +104,8 @@ const ICONS = {
 };
 
 // one section-frame with its expandable child layers
-function FrameLayer({ frame, activeId, onSelect }) {
-  const [open, setOpen] = useState(true);
+function FrameLayer({ frame, activeId, onSelect, startOpen = true }) {
+  const [open, setOpen] = useState(startOpen);
   const isActive = frame.id === activeId;
 
   return (
@@ -131,10 +131,20 @@ function FrameLayer({ frame, activeId, onSelect }) {
         </button>
       </div>
 
+      {/* A COLLAPSED ROW IS NOT A TAB STOP.
+          `.fp-children.is-closed` is `opacity: 0; height: 0; overflow: hidden`
+          — invisible, but every button inside stays focusable and stays in the
+          accessibility tree. That cost nothing while every frame started open;
+          the moment Layover's forty-five started closed it became 212
+          invisible tab stops between the first layer and the canvas. So the
+          subtree is taken out of the tab order and hidden from assistive tech
+          while it is shut, which is what the zero height already means
+          visually. */}
       {frame.children && (
         <div
           className={cx("fp-children", open ? "is-open" : "is-closed")}
           style={{ maxHeight: open ? `${frame.children.length * 40}px` : "0px" }}
+          aria-hidden={open ? undefined : "true"}
         >
           {frame.children.map((child) => (
             <div className="fp-row fp-row--child" key={child.name}>
@@ -142,6 +152,7 @@ function FrameLayer({ frame, activeId, onSelect }) {
                 type="button"
                 className="fp-row-main"
                 onClick={() => onSelect(frame.id)}
+                tabIndex={open ? 0 : -1}
               >
                 <span className="fp-glyph">{ICONS[child.icon]}</span>
                 <span className="fp-name">{child.name}</span>
@@ -181,6 +192,17 @@ export default function FigmaPanel({
     { name: "design", href: "#/design", slug: "" },
     ...FIGMA_PAGES.map((p) => ({ name: p.name, href: `#/design/${p.slug}`, slug: p.slug })),
   ].map((p) => ({ ...p, current: p.slug === pageSlug }));
+
+  // A SHORT PAGE ARRIVES OPEN; A LONG ONE ARRIVES READABLE.
+  //
+  // Every frame used to start expanded, which is right for the design page's
+  // nine and for Regis's twelve. Layover has forty-five, and once its frames
+  // carried real layers that became about two hundred rows unfurled on
+  // arrival — a scroll bar where a tree should be. Figma itself opens a file
+  // with the tree collapsed for the same reason. The threshold is derived
+  // from the data rather than passed in, so a frame added later is covered
+  // without touching either call site.
+  const startOpen = frames.length <= 12;
 
   // On phones the panel is a bottom SHEET pulled up from the toolbar's Layers
   // button (Figma mobile's own gesture). Picking a layer jumps to the frame and
@@ -237,6 +259,7 @@ export default function FigmaPanel({
             frame={f}
             activeId={activeId}
             onSelect={pick}
+            startOpen={startOpen}
           />
         ))}
       </div>

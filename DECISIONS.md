@@ -4855,3 +4855,79 @@ still reads "Image", because there it is true.
 briefly rebuilt as a flex child and landed at the top-left corner of the page,
 fully rendered and completely in the wrong place, because `.dw--page` is a
 block layout. Check the positioning before assuming the container flexes.
+
+---
+
+## Layover and Regis get their real layers (10 Oct 2026)
+
+NextG's nine frames carried real children; Layover's 45 and Regis's 12 carried
+none, so their layers panels listed a frame and nothing under it. Both are now
+pulled from the files. 57 frames, every one with its actual layers.
+
+### Regis was never blocked
+
+An earlier session reported Regis as unpullable because no Figma file key
+existed anywhere in the repo. The key was real and already given — it was in a
+chat message from **3 Sep 2026**, used that day to pull the twelve exports, and
+simply never written down. So the first change here is that **all three file
+keys now live in `figma-pages.js`** next to the node ids they belong to. A key
+that only exists in a transcript is a key the next session will not find.
+
+### Reading 45 frames without 45 round trips
+
+`get_metadata` on Layover's whole page overflows the MCP transport — it comes
+back truncated mid-string at ~137k characters and fails to parse. Per-frame
+metadata works but costs about 10k tokens a frame, so 45 of them is most of a
+session's budget spent on XML.
+
+`use_figma` runs JavaScript inside the file and returns only what the script
+returns. One read-only call per project walked the frames and returned the
+layer names already shaped, already filtered. **Two calls instead of fifty-
+seven.** When a whole subtree is needed, the metadata tool is right; when a
+narrow slice of a large subtree is needed, the plugin API is right.
+
+### A wrapper is a child that fills its parent
+
+Ten of Regis's twelve screens read, at depth one, as exactly two rows:
+`Sidebar` and `page`. True, and useless — the panel has one level of expansion
+and spending it on a wrapper says nothing.
+
+Naming cannot find a wrapper: Regis calls them `page` and `page-body`, Layover
+calls them `main_frame`, `main content`, and in several places just `Frame`.
+Two naming-based rules were tried and each worked on one file and failed on the
+other. **Geometry is the invariant.** Where a frame has three or fewer children
+and one of them covers 60% or more of the board, that child is structural — it
+is skipped and its own children are listed. It bottoms out at three levels.
+Everything else is depth one.
+
+Then three filters: Figma's auto-generated names are dropped (`Group 36965`,
+`Rectangle 5705`, `Mask group`), repeats are collapsed — also a hard
+requirement, since FigmaPanel keys its rows by name and duplicates would
+collide — and the list is capped at seven.
+
+Two rows were removed by hand, both from Layover's vendor screens: an invented
+person's name and a `pan_id….pdf` filename. Placeholder content in her file,
+with no business being published as text on a live site.
+
+### Still no image icons
+
+In Figma an image is a rectangle with an image fill, and fills do not come back
+from metadata — the same gap that leaves the Fill row empty in the properties
+panel. An image layer is therefore indistinguishable from a plain rectangle;
+both read as `vector`. Guessing would have been easy and wrong.
+
+### Forty-five frames arrive collapsed, and collapsed means collapsed
+
+Every frame used to start expanded, which is right for nine frames and fine for
+twelve. With real layers attached, Layover's 45 became about 200 rows unfurled
+on arrival. Frames now start open only when a page has 12 or fewer — derived
+from the data, so a frame added later is covered without touching a call site.
+
+That immediately exposed an older bug. `.fp-children.is-closed` is
+`opacity: 0; height: 0; overflow: hidden` — invisible, but every button inside
+stays focusable and stays in the accessibility tree. It cost nothing while
+nothing was ever collapsed. The moment Layover arrived shut it was measured at
+**212 invisible tab stops** between the first layer and the canvas. The closed
+subtree is now `aria-hidden` with its buttons at `tabIndex -1`; expanding a row
+restores both. Verified in the browser: 45 closed, 212 child buttons, 0
+tabbable; expand one and exactly its 6 rows come back.
