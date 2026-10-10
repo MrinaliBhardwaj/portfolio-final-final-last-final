@@ -353,19 +353,21 @@ export default function DesignHero() {
           <div className="dwh-m-sheet"
             style={{ left: UM(27), top: UM(94), width: UM(340), height: UM(665) }} />
 
-          {/* THE TAB IS NOT AT HER COORDINATES, AND THAT IS THE POINT.
-              Her mobile frame places a node called "image 25" at
-              (-7, 16) 289x79.377 — aspect 3.64. That is a DIFFERENT crop from
-              the tab this repo vendored for the poster, which is 400x72,
-              aspect 5.56. Pouring one into the other stretched the tab half
-              again as tall and left it floating over the painting instead of
-              sitting on the sheet.
-              So the placement comes from the poster, where this exact asset is
-              already right, scaled by the two sheets: 340 / 1206 = 0.2819.
-              The tab keeps its 400x72 aspect, bleeds the same 51 units left of
-              the sheet, and laps the same 5 units over its top edge. */}
+          {/* HER X AND WIDTH; OUR HEIGHT.
+              Her frame places the tab as "image 25" at (-7, 16) 289x79.377 —
+              aspect 3.64. The tab vendored for the poster is 400x72, aspect
+              5.56, a TIGHTER CROP of the same artwork: hers carries more above
+              and below. Filling her box with our crop stretched it half again
+              as tall, which is what made it look wrong.
+              Fixed by measuring her rendered frame instead of guessing. Tab
+              left x28, top y60, upper block out to x136, lower block to x223,
+              sheet top y94; the same landmarks in our asset are x51, y22,
+              x199, x319, y67. Fitting those gives a scale of 0.7276 and a
+              width of 291 — so HER 289 was right all along and only the height
+              was wrong. Width and left stay hers; the height is 289 / 5.5556,
+              and the top is set so our asset's own sheet edge lands on y94. */}
           <img className="dwh-m-tab" src={`${A}/profile-tab.png`} alt="" aria-hidden="true"
-            style={{ left: UM(12.62), top: UM(75.11), width: UM(112.77), height: UM(20.3) }} />
+            style={{ left: UM(-7), top: UM(45.59), width: UM(289), height: UM(52.02) }} />
 
           <span className="dwh-m-meet" style={{ left: UM(52.01), top: UM(104.97), fontSize: UM(20) }}>
             Meet

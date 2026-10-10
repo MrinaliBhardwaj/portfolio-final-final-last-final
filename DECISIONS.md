@@ -4992,19 +4992,35 @@ measured at 64.6 × 44, changing nothing visible.
 omission is deliberate — confirmed 11 Oct. The poster still carries all three
 credentials in full, which is where they read properly anyway.
 
-### The tab was the one thing not taken from her frame
+### The tab: measured, after being guessed at twice
 
-Her mobile frame places the folder tab as a node called "image 25" at
-(-7, 16) 289x79.377 — aspect 3.64. That is a different crop from the tab this
-repo vendored for the poster, which is 400x72, aspect **5.56**. Pouring one
-into the other stretched the tab half again as tall and left it floating over
-the painting instead of sitting on the sheet.
+Her frame places the tab as a node called "image 25" at (-7, 16) 289x79.377 —
+aspect 3.64. The tab vendored for the poster is 400x72, aspect **5.56**: a
+tighter crop of the same artwork, where hers carries more above and below.
+Filling her box with our crop stretched it half again as tall, which is what
+made it look wrong.
 
-So the tab alone is placed from the POSTER, where this exact asset is already
-correct, scaled by the ratio of the two sheets (340 / 1206 = 0.2819). It keeps
-its native aspect, bleeds the same 51 units left of the sheet and laps the
-same 5 over its top edge. Measured after: aspect 5.56, bottom 95.48 against a
-sheet top of 94.07.
+The first fix was wrong too, and wrong in a way worth naming: the tab's width
+was **estimated off a low-res screenshot** at ~133, and a confident derivation
+was then built on top of that guess — scaling the poster's own placement by
+the ratio of the two sheets. It produced a tab barely half the right size.
+A guess with a derivation stacked on it still reads as a measurement.
+
+What settled it was rendering her frame at full size and scanning it:
+
+| landmark | her render | our asset (400x72) |
+|---|---|---|
+| tab left | x 28 | x 51 |
+| tab top | y 60 | y 22 |
+| upper block right | x 136 | x 199 |
+| lower block right | x 223 | x 319 |
+| sheet top | y 94 | y 67 |
+
+Fitting those gives a scale of 0.7276 and a rendered width of **291** — so her
+289 was right all along, and only the height was ever wrong. Width and left
+stay hers; the height is 289 / 5.5556 and the top is set so our asset's own
+sheet edge lands on y94. Verified after: every landmark within 2px of hers,
+aspect 5.56.
 
 ### PROFTLE.DOC is now PROFILE.DOC
 
