@@ -89,56 +89,114 @@ const SKILLS = [
 const skillLabelX = (s) => s.fx + (FOLDER_W - s.lw) / 2;
 
 // ---------------------------------------------------------------------------
-// HER MOBILE FRAME'S OWN NUMBERS (node 361:489). Same content, re-composed by
-// her for a phone — so these are a second set of real coordinates, not the
-// poster's scaled down.
+// THE MOBILE FRAME, ON A GRID.
 //
-// Experience is a 2×2 again but tighter: blocks 129.917 wide, the four lines
-// at a shared 0 / 13.43 / 29.62 / 46.6, dates centred under the block. In the
-// file the right-hand column reaches its alignment with a per-line x offset;
-// here the block is simply `text-align: right`, which lands in the same place
-// and survives a font that measures differently from her Helvetica.
-// `w` is the block's ALIGNMENT width, which is not its box width in the file.
-// Her right-hand blocks are 129.917 boxes whose lines all end at about x=100
-// inside them — the file reaches that with a per-line offset on the left
-// column and an explicit right edge on the other. Taking the box at face value
-// put the right column 30px further right, hanging 3px off the sheet. 100 is
-// where her text actually ends; the sheet's inner edge is 28px beyond it.
+// Her frame (node 361:489) gave the composition: the stepped tab, the script
+// name, a justified intro, experience as a 2x2 with hand-drawn connectors, the
+// softwares tiles, the photo bleeding off the bottom-left, three scattered
+// skill folders. All of that is kept. What is NOT kept is her measurements,
+// because reproduced literally they had two problems a phone cannot absorb:
+//
+//   TYPE. The smallest text rendered at 7.48px (skill labels) and 9.48px (the
+//   Leadership/Internship line and the dates), under a 12px intro. Nobody
+//   reads 7px on a phone. Everything is raised to a floor of 10.5px with the
+//   body at 15px, and the hierarchy is kept by ratio instead of by shrinking.
+//
+//   MARGINS. The frame had SIX different left edges — the intro at 42, "Meet"
+//   at 52, the name at 47, the experience head at 44, its blocks at 46, and a
+//   right column ending at 339 against a sheet edge of 367. Nothing lined up
+//   with anything. There is now one padding and two rails, CL and CR; every
+//   element starts or ends on one of them.
+//
+// The stage grew 852 -> 1040 to pay for the larger type. That is the honest
+// trade: her artboard is one phone screen, and this content at a readable size
+// is not one phone screen. A phone scrolls.
+const PAD = 24;
+const SHEET_X = 27;
+const SHEET_W = 340;
+const SHEET_Y = 94;
+const SHEET_H = 956;                  // 94 -> 1050
+const STAGE_W = 393;
+const STAGE_H = 1100;
+const CL = SHEET_X + PAD;             // 51  — the left rail
+const CR = SHEET_X + SHEET_W - PAD;   // 343 — the right rail
+const CW = CR - CL;                   // 292 — content width
+
+// Type scale. The ratios are hers; the floor is not.
+//
+// These are STAGE units, so they scale with the viewport: a 360px Android
+// renders them at 0.916 of the number below. The floor is therefore set for
+// the narrowest common phone rather than for the 393 the frame was drawn at —
+// date 11 and skill 11.5 land at 10.1 and 10.5 on a 360, where her frame's
+// own 9.477 and 7.478 would have landed at 8.7 and 6.9.
+const T = {
+  meet: 19, name: 42, resume: 12, intro: 15, head: 17,
+  kind: 11, role: 14, org: 12, date: 11, skill: 11.5,
+};
+
+// Experience: two rails, two rows. The left column is wider because it carries
+// "Entrepreneurship Cell" and "June 2026 - July 2026", the two longest strings
+// in the block; the right only has to clear "LUMA Technologies".
+const COL_L = 130;
+const COL_R = 110;
+const ROW_Y = [432, 524];
+const XP_LINE = { kind: 0, role: 19, org: 40, date: 60 };
+
 const M_EXP = [
-  { x: 4.95, y: 54.38, w: 129.917, align: "left", kind: "Leadership", role: "Design Executive", org: "Entrepreneurship Cell", date: "Jan 2024 – Jan 2025", rs: 11.152 },
-  { x: 198, y: 51.79, w: 100, align: "right", kind: "Internship", role: "Graphic Designer", org: "Moon Finance", date: "Jan 2025 – Jul 2025", rs: 12.635 },
-  { x: 4.55, y: 134.71, w: 129.917, align: "left", kind: "Freelance", role: "Design Engineer", org: "NextG Apex", date: "June 2026 - July 2026", rs: 12.635 },
-  { x: 198, y: 134.79, w: 100, align: "right", kind: "Freelance", role: "UI/ UX Designer", org: "LUMA Technologies", date: "Jul 2025 - Oct 2025", rs: 12.636 },
+  { x: CL, y: ROW_Y[0], w: COL_L, align: "left", kind: "Leadership", role: "Design Executive", org: "Entrepreneurship Cell", date: "Jan 2024 – Jan 2025" },
+  { x: CR - COL_R, y: ROW_Y[0], w: COL_R, align: "right", kind: "Internship", role: "Graphic Designer", org: "Moon Finance", date: "Jan 2025 – Jul 2025" },
+  { x: CL, y: ROW_Y[1], w: COL_L, align: "left", kind: "Freelance", role: "Design Engineer", org: "NextG Apex", date: "June 2026 - July 2026" },
+  { x: CR - COL_R, y: ROW_Y[1], w: COL_R, align: "right", kind: "Freelance", role: "UI/ UX Designer", org: "LUMA Technologies", date: "Jul 2025 - Oct 2025" },
 ];
 
-// the three hand-drawn connectors between the columns, and the tick at the
-// sheet's right edge. All three are in the file; none is decorative licence.
-const M_RULES = [
-  { x: 122.84, y: 83.3, w: 66.16, rot: 0.41 },
-  { x: 114.78, y: 165.02, w: 70.98, rot: 0 },
-  { x: 325.7, y: 124.02, w: 21.132, rot: -90 },
-];
+// The two connectors, centred in the gutter between the columns and sitting on
+// the role line. Her third rule was a 21-unit vertical tick at the sheet's
+// right edge; on this grid it lands on the rail with nothing to connect, where
+// it reads as a rendering artifact rather than a drawn mark, so it is dropped.
+const GUT_L = CL + COL_L;             // 181
+const GUT_R = CR - COL_R;             // 233
+const M_RULES = ROW_Y.map((y) => ({ x: GUT_L + 5, y: y + XP_LINE.role + 7, w: GUT_R - GUT_L - 10 }));
 
-// folder centres, and the label centred under each — stored as the centre
-// because that is how the file positions them (translate -50%, -50%)
-const M_FOLDER_W = 43.583;
-const M_FOLDER_H = 43.645;
+// Softwares keeps the crop's own aspect (264 x 108 on the poster) and ends on
+// the right rail.
+const SOFT_W = 175;
+const SOFT_H = SOFT_W / (264 / 108);
+const SOFT_X = CR - SOFT_W;
+const SOFT_Y = 640;
+const SKILL_Y = 752;
+
+// The photo sits on the sheet's bottom edge and bleeds off the left, as she
+// drew it. Its aspect is the asset's own.
+const PHOTO_W = 300;
+const PHOTO_H = PHOTO_W / (303 / 325.209);
+const PHOTO_X = -44;
+const PHOTO_Y = SHEET_Y + SHEET_H - PHOTO_H;
+
+// Skill folders: her scatter, stored as centres because that is how a
+// scattered cluster wants to be positioned.
+//
+// THE LABELS ARE ONE LINE NOW. Her frame wraps them ("UI/UX" / "Design"),
+// which was free at 7.5px and is not at 11: two lines plus a 50-unit folder
+// needs 84 units of stagger, and at the 58 her scatter uses, each folder
+// landed on the label above it. One line needs 70, and "Graphic Design" at
+// 11px measures ~80 against a 110-wide column, so it fits without wrapping.
+const M_FOLDER = 46;
 const M_SKILLS = [
-  { cx: 33.79, cy: 44.31, lx: 32.66, ly: 74.1, label: ["UI/UX", "Design"] },
-  { cx: 104.79, cy: 93.22, lx: 105.68, ly: 124.3, label: ["Branding"] },
-  { cx: 46.79, cy: 137.22, lx: 47.91, ly: 167.55, label: ["Graphic", "Design"] },
+  { cx: 285, cy: 810, label: ["UI/UX Design"] },
+  { cx: 318, cy: 890, label: ["Branding"] },
+  { cx: 297, cy: 970, label: ["Graphic Design"] },
 ];
 
 function MobileExperience({ e }) {
-  // the three top lines hang off whichever edge the column aligns to; the date
+  // the three top lines hang off whichever rail the column aligns to; the date
   // is centred across the block, as it is on the poster
   const side = e.align === "right" ? "right" : "left";
   return (
     <div className="dwh-m-xp" style={{ left: UM(e.x), top: UM(e.y), width: UM(e.w) }}>
-      <span className="dwh-m-xp-kind" style={{ top: UM(0), fontSize: UM(9.477), [side]: 0 }}>{e.kind}</span>
-      <span className="dwh-m-xp-role" style={{ top: UM(13.43), fontSize: UM(e.rs), [side]: 0 }}>{e.role}</span>
-      <span className="dwh-m-xp-org" style={{ top: UM(29.62), fontSize: UM(11.122), [side]: 0 }}>{e.org}</span>
-      <span className="dwh-m-xp-date" style={{ top: UM(46.6), fontSize: UM(9.476) }}>{e.date}</span>
+      <span className="dwh-m-xp-kind" style={{ top: UM(XP_LINE.kind), fontSize: UM(T.kind), [side]: 0 }}>{e.kind}</span>
+      <span className="dwh-m-xp-role" style={{ top: UM(XP_LINE.role), fontSize: UM(T.role), [side]: 0 }}>{e.role}</span>
+      <span className="dwh-m-xp-org" style={{ top: UM(XP_LINE.org), fontSize: UM(T.org), [side]: 0 }}>{e.org}</span>
+      <span className="dwh-m-xp-date" style={{ top: UM(XP_LINE.date), fontSize: UM(T.date) }}>{e.date}</span>
     </div>
   );
 }
@@ -326,129 +384,104 @@ export default function DesignHero() {
         ))}
       </div>
 
-      {/* ============ MOBILE: HER OWN MOBILE FRAME ============ */}
-      {/* Figma node 361:489, "iPhone 16 - 1" — 393×852.
-
-          What was here before was a REFLOW: the poster's content re-stacked
-          into one readable column, written because the 1316×741 poster shrinks
-          to ~4px type on a phone. It was legible and it was not her design.
-          She drew a mobile frame, so this is that frame, composed the way the
-          poster is composed — a fixed stage at her coordinates, scaled by
-          `--um` (= 100cqw / 393). The poster's own layers stay hidden below
-          768px; only the stage changes.
-
-          Every asset is already vendored for the poster and reused as-is: the
-          pond painting (twice, at her two offsets), the PROFILE.DOC tab, the
-          childhood photo, the softwares crop, the folder ×3. Nothing new was
-          downloaded, so nothing can expire. */}
+      {/* ============ MOBILE: HER FRAME, ON A GRID ============ */}
+      {/* Figma node 361:489, "iPhone 16 - 1". Her composition, her assets, her
+          art direction — laid out on the rails defined at the top of this file
+          rather than at her literal coordinates, because reproduced to the
+          pixel the type bottomed out at 7.48px and nothing shared a margin.
+          The poster's own layers stay hidden below 768px; only this changes. */}
       <div className="dwh-m">
         <div className="dwh-m-stage">
           {/* the painting, bleeding past the sheet on every side */}
           <img className="dwh-m-bg" src={`${A}/bg-pond.webp`} alt="" aria-hidden="true"
-            style={{ left: UM(-860), top: UM(154), width: UM(1521.429), height: UM(852) }} />
+            style={{ left: UM(-860), top: UM(154), width: UM(1521.429), height: UM(1100) }} />
           <img className="dwh-m-bg" src={`${A}/bg-pond.webp`} alt="" aria-hidden="true"
-            style={{ left: UM(-561), top: UM(-66), width: UM(1251.786), height: UM(701) }} />
+            style={{ left: UM(-561), top: UM(-66), width: UM(1251.786), height: UM(900) }} />
 
-          {/* the cream sheet: 340×665, centred */}
           <div className="dwh-m-sheet"
-            style={{ left: UM(27), top: UM(94), width: UM(340), height: UM(665) }} />
+            style={{ left: UM(SHEET_X), top: UM(SHEET_Y), width: UM(SHEET_W), height: UM(SHEET_H) }} />
 
-          {/* HER X AND WIDTH; OUR HEIGHT.
-              Her frame places the tab as "image 25" at (-7, 16) 289x79.377 —
-              aspect 3.64. The tab vendored for the poster is 400x72, aspect
-              5.56, a TIGHTER CROP of the same artwork: hers carries more above
-              and below. Filling her box with our crop stretched it half again
-              as tall, which is what made it look wrong.
-              Fixed by measuring her rendered frame instead of guessing. Tab
-              left x28, top y60, upper block out to x136, lower block to x223,
-              sheet top y94; the same landmarks in our asset are x51, y22,
-              x199, x319, y67. Fitting those gives a scale of 0.7276 and a
-              width of 291 — so HER 289 was right all along and only the height
-              was wrong. Width and left stay hers; the height is 289 / 5.5556,
-              and the top is set so our asset's own sheet edge lands on y94. */}
+          {/* HER X AND WIDTH; OUR HEIGHT. Her frame places the tab as
+              "image 25" at (-7, 16) 289x79.377 — aspect 3.64. The tab vendored
+              for the poster is 400x72, aspect 5.56: a tighter crop of the same
+              artwork. Filling her box with our crop stretched it half again as
+              tall. Scanning her rendered frame gave the landmarks (tab left
+              x28, top y60, blocks out to x136 and x223, sheet top y94; ours
+              x51, y22, x199, x319, y67), which fit at a scale of 0.7276 for a
+              width of 291 — so her 289 was right and only the height was not. */}
           <img className="dwh-m-tab" src={`${A}/profile-tab.png`} alt="" aria-hidden="true"
             style={{ left: UM(-7), top: UM(45.59), width: UM(289), height: UM(52.02) }} />
 
-          <span className="dwh-m-meet" style={{ left: UM(52.01), top: UM(104.97), fontSize: UM(20) }}>
+          <span className="dwh-m-meet" style={{ left: UM(CL), top: UM(128), fontSize: UM(T.meet) }}>
             Meet
           </span>
-          <span className="dwh-m-name" style={{ left: UM(47), top: UM(127.33), fontSize: UM(43.244) }}>
+          {/* the script overhangs its own box, so it sits a touch left of the
+              rail to read as optically aligned with "Meet" above it */}
+          <span className="dwh-m-name" style={{ left: UM(CL - 4), top: UM(150), fontSize: UM(T.name) }}>
             Mrinali Bhardwaj!
           </span>
 
-          {/* Her frame sets this 8.737px, top-right. The TYPE is hers and is
-              kept; the HIT AREA is not something a design file expresses, and
-              a ~9px target fails WCAG 2.5.5 badly on the one device this frame
-              is for. The padding below takes it past 44px without moving a
-              pixel of the composition. */}
+          {/* her frame sets this 8.737px; the type is now 12 and the 44px hit
+              area is handled by `a.dwh-m-download::after` in design-world.css */}
           <a className="dwh-m-download" href="/resume-design.pdf" target="_blank" rel="noreferrer"
-            style={{ left: UM(284), top: UM(103), fontSize: UM(8.737) }}>
+            style={{ right: UM(STAGE_W - CR), top: UM(128), fontSize: UM(T.resume) }}>
             View Resume
             <span className="dwh-m-download-arrow" aria-hidden="true">↗</span>
           </a>
 
           <p className="dwh-m-intro"
-            style={{ left: UM(42), top: UM(180), width: UM(309), fontSize: UM(12) }}>
+            style={{ left: UM(CL), top: UM(222), width: UM(CW), fontSize: UM(T.intro) }}>
             {INTRO}
           </p>
 
-          {/* ---- experience, softwares ---- */}
-          <div className="dwh-m-group"
-            style={{ left: UM(41), top: UM(244.21), width: UM(351), height: UM(290.773) }}>
-            <span className="dwh-m-head" style={{ left: UM(2.94), top: UM(28.85), fontSize: UM(14.997) }}>
-              Experience
-            </span>
-            {M_EXP.map((e) => (
-              <MobileExperience key={e.role + e.org} e={e} />
-            ))}
-            {M_RULES.map((r, i) => (
-              <span key={i} className="dwh-m-rule"
-                style={{ left: UM(r.x), top: UM(r.y), width: UM(r.w), transform: `rotate(${r.rot}deg)` }} />
-            ))}
-            {/* the crop carries its own "Softwares" label above the tiles, so
-                her separate label node is deliberately NOT rendered — drawing
-                it would print the word twice */}
-            <img className="dwh-m-soft" src={`${A}/softwares.png`}
-              alt="Softwares: Figma, Photoshop, Illustrator, VS Code"
-              style={{ left: UM(125), top: UM(200), width: UM(161), height: UM(66) }} />
-          </div>
+          {/* ---- experience ---- */}
+          <span className="dwh-m-head" style={{ left: UM(CL), top: UM(400), fontSize: UM(T.head) }}>
+            Experience
+          </span>
+          {M_EXP.map((e) => (
+            <MobileExperience key={e.role + e.org} e={e} />
+          ))}
+          {M_RULES.map((r, i) => (
+            <span key={i} className="dwh-m-rule"
+              style={{ left: UM(r.x), top: UM(r.y), width: UM(r.w) }} />
+          ))}
 
-          {/* the childhood photo, over the sheet's bottom-left corner */}
+          {/* the crop carries its own "Softwares" label above the tiles, so her
+              separate label node is deliberately not rendered — drawing it
+              would print the word twice */}
+          <img className="dwh-m-soft" src={`${A}/softwares.png`}
+            alt="Softwares: Figma, Photoshop, Illustrator, VS Code"
+            style={{ left: UM(SOFT_X), top: UM(SOFT_Y), width: UM(SOFT_W), height: UM(SOFT_H) }} />
+
+          {/* on the sheet's bottom edge, bleeding off the left as she drew it */}
           <img className="dwh-m-photo" src={`${A}/mini-mri.webp`}
             alt="Mrinali as a child in a blue bucket hat"
-            style={{ left: UM(-48), top: UM(435.35), width: UM(303), height: UM(325.209) }} />
+            style={{ left: UM(PHOTO_X), top: UM(PHOTO_Y), width: UM(PHOTO_W), height: UM(PHOTO_H) }} />
 
           {/* ---- skill set ---- */}
-          <div className="dwh-m-group"
-            style={{ left: UM(207), top: UM(553.6), width: UM(126.582), height: UM(185.553) }}>
-            <span className="dwh-m-head" style={{ left: UM(0), top: UM(-7), fontSize: UM(15) }}>
-              Skill Set
+          <span className="dwh-m-head" style={{ left: UM(GUT_R), top: UM(SKILL_Y), fontSize: UM(T.head) }}>
+            Skill Set
+          </span>
+          {M_SKILLS.map((s, i) => (
+            <img key={i} className="dwh-m-folder" src={`${A}/folder.png`} alt="" aria-hidden="true"
+              style={{
+                left: UM(s.cx - M_FOLDER / 2), top: UM(s.cy - M_FOLDER / 2),
+                width: UM(M_FOLDER), height: UM(M_FOLDER),
+              }} />
+          ))}
+          {M_SKILLS.map((s, i) => (
+            <span key={`l${i}`} className="dwh-m-skill-label"
+              style={{ left: UM(s.cx), top: UM(s.cy + M_FOLDER / 2 + 6), fontSize: UM(T.skill) }}>
+              {s.label.map((line, j) => (
+                <span key={j}>{line}</span>
+              ))}
             </span>
-            {M_SKILLS.map((s, i) => (
-              <img key={i} className="dwh-m-folder" src={`${A}/folder.png`} alt="" aria-hidden="true"
-                style={{
-                  left: UM(s.cx - M_FOLDER_W / 2), top: UM(s.cy - M_FOLDER_H / 2),
-                  width: UM(M_FOLDER_W), height: UM(M_FOLDER_H),
-                }} />
-            ))}
-            {M_SKILLS.map((s, i) => (
-              <span key={`l${i}`} className="dwh-m-skill-label"
-                style={{ left: UM(s.lx), top: UM(s.ly), fontSize: UM(7.478) }}>
-                {s.label.map((line, j) => (
-                  <span key={j}>{line}</span>
-                ))}
-              </span>
-            ))}
-          </div>
+          ))}
         </div>
 
-        {/* EDUCATION IS NOT IN HER MOBILE FRAME, and is not here either.
-            It was carried below the stage for one commit on the reasoning that
-            three real credentials should not go on the strength of one
-            artboard; she confirmed the omission is deliberate, so the phone
-            now ends where her frame ends. The poster still carries it in full
-            (EDUCATION above, the group at U(826)/U(420)), which is where it
-            reads properly anyway. */}
+        {/* EDUCATION IS NOT IN HER MOBILE FRAME, and is not here either — she
+            confirmed the omission is deliberate. The poster still carries all
+            three credentials, which is where they read properly anyway. */}
       </div>
     </div>
   );

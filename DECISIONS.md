@@ -5044,3 +5044,63 @@ labels) and **9.48px** (the Freelance/Internship line and the dates) at 393px
 — 6.85px and 8.7px on a 360px Android. That is her composition exactly, and it
 is below what anyone can comfortably read. Fixing it means changing her
 layout, not the code, so it is left alone and raised instead.
+
+---
+
+## The mobile frame gets a grid (11 Oct 2026)
+
+Reproducing her mobile frame faithfully was the right first move and the wrong
+final one. Measured at 393px it had two problems a phone cannot absorb.
+
+**Type.** The smallest text rendered at **7.48px** (skill labels) and
+**9.48px** (the Leadership/Internship line and the dates) under a 12px intro.
+Nobody reads 7px on a phone.
+
+**Margins.** The frame had **six different left edges** — the intro at 42,
+"Meet" at 52, the name at 47, the Experience head at 44, its blocks at 46, and
+a right column ending at 339 against a sheet edge of 367. Nothing lined up
+with anything, which is what "the spacing is off" actually was.
+
+### What it is now
+
+One padding and two rails. `PAD` 24 inside the sheet gives `CL` 51 and `CR`
+343; every element starts or ends on one of them. Verified: Meet, the intro,
+the Experience head and both left blocks at 51.0; the resume link, the intro,
+both right blocks and the softwares crop at 343.3.
+
+A type scale with a floor instead of her literal sizes — intro 15, heads 17,
+role 14, org 12, kind and date 11, skill labels 11.5. These are STAGE units,
+so they scale with the viewport: the floor is set for a 360px Android, where
+11 and 11.5 land at 10.1 and 10.5 rather than her 8.7 and 6.9.
+
+**The stage grew 852 → 1100** to pay for it. That is the honest trade: her
+artboard is one phone screen, and this content at a readable size is not one
+phone screen. A phone scrolls.
+
+Her composition is kept whole — the stepped tab, the script name, the
+justified intro, experience as a 2x2 with connectors, the softwares tiles, the
+photo bleeding off the bottom-left, the scattered folders.
+
+### Two things her frame could afford and this cannot
+
+**The skill labels are one line.** Hers wrap ("UI/UX" / "Design"), which is
+free at 7.5px and is not at 11.5: two lines plus a folder needs 84 units of
+stagger, and at the 58 her scatter uses, each folder landed on the label above
+it. One line needs 70, and "Graphic Design" measures ~80 against a 110-wide
+column, so it fits.
+
+**Her third connector is gone.** It was a 21-unit vertical tick at the sheet's
+right edge. On this grid it lands on the rail with nothing to connect, where
+it reads as a rendering artifact rather than a drawn mark.
+
+### A bug the flattening introduced, and the rule it leaves behind
+
+Removing the `.dwh-m-group` wrappers to put everything on one grid dropped
+Experience, Softwares and Skill Set to `z-index: auto`, which paints BELOW any
+positioned element carrying a z-index — so the sheet (1) and the photo (5)
+covered them and all three rendered invisibly behind the cream. It was found
+by screenshot, not by the measurements, which happily reported correct
+geometry for elements nobody could see. **Geometry checks cannot see stacking;
+an element can be perfectly placed and still not be on screen.** The content
+classes are now listed individually in the z-index rule so the next element
+added to the stage has to make the choice on purpose.

@@ -1996,7 +1996,7 @@
     --um: calc(100cqw / 393);
     position: relative;
     width: 100%;
-    aspect-ratio: 393 / 852;
+    aspect-ratio: 393 / 1100;
     overflow: hidden; /* the painting and the photo bleed; the frame clips */
     background: #4a4a58;
   }
@@ -2035,11 +2035,25 @@
     z-index: 5;
   }
 
+  /* EVERYTHING THAT IS CONTENT SITS ABOVE THE SHEET AND THE PHOTO.
+     These used to be wrapped in `.dwh-m-group`, which carried the z-index for
+     them. Flattening the markup onto one grid dropped them to `z-index: auto`,
+     which paints BELOW any positioned element with a z-index — so the sheet
+     (1) and the photo (5) covered them and Experience, Softwares and Skill Set
+     rendered invisibly behind the cream. They are listed individually now so
+     the next element added to the stage has to make the same choice on
+     purpose. Softwares and the folders sit above the photo deliberately: that
+     is her stacking, where the photo bleeds under them. */
   .dwh-m-meet,
   .dwh-m-name,
   .dwh-m-intro,
   .dwh-m-download,
-  .dwh-m-group {
+  .dwh-m-head,
+  .dwh-m-xp,
+  .dwh-m-rule,
+  .dwh-m-soft,
+  .dwh-m-folder,
+  .dwh-m-skill-label {
     z-index: 6;
   }
 
