@@ -63,6 +63,13 @@ const FRAMES = [
       h: 741,
       fill: { type: "image", src: "/design-hero/bg-pond.webp" },
     },
+    // A DIFFERENT ARTBOARD ON A PHONE, SO A DIFFERENT SIZE TO REPORT.
+    // `props` is the desktop poster. Below 768px every poster layer is hidden
+    // and her mobile frame takes over (DesignHero.jsx, Figma node 361:489),
+    // so the dimension pill was stating 1316 x 741 under a 393 x 1100 frame.
+    // Declared, not measured: the pill reports the ARTBOARD, which is why
+    // props.w is 1316 and not however many px the poster happens to occupy.
+    mobile: { w: 393, h: 1100 },
     children: [
       { icon: "image", name: "PROFILE.DOC" },
       { icon: "text", name: "Meet Mrinali Bhardwaj" },
@@ -160,8 +167,21 @@ function Frame({ frame, active, tone, area, children }) {
         <span className="cvf-handle cvf-handle--tr" aria-hidden="true" />
         <span className="cvf-handle cvf-handle--bl" aria-hidden="true" />
         <span className="cvf-handle cvf-handle--br" aria-hidden="true" />
-        <span className="cvf-dims" aria-hidden="true">
-          {frame.props.w} × {frame.props.h}
+        {/* Both sizes ship and CSS picks one, rather than a resize listener:
+            the breakpoint that swaps the artboard is a media query, so the
+            label that names its size should be answered by the same query. */}
+        <span
+          className={`cvf-dims${frame.mobile ? " has-mobile" : ""}`}
+          aria-hidden="true"
+        >
+          <span className="cvf-dims-d">
+            {frame.props.w} × {frame.props.h}
+          </span>
+          {frame.mobile && (
+            <span className="cvf-dims-m">
+              {frame.mobile.w} × {frame.mobile.h}
+            </span>
+          )}
         </span>
       </div>
     </motion.section>

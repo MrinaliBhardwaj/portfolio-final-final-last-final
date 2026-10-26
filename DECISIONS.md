@@ -5126,3 +5126,46 @@ a dead override would imply the element still animates for everyone else.
 Verified in the browser, not from the diff: `animationName: none`,
 `maskImage: none`, `opacity: 1`, and `getAnimations()` empty on the element,
 with the name rendering whole at scroll top.
+
+## On a phone the profile frame moves, not just its contents (26 Oct 2026)
+
+**The defect.** Her mobile artboard is 393 wide and the canvas lays every frame
+out inside a 20px gutter, so `.cvf` measured 353. The breakout that fixed that
+was written on `.dwh-m` — the artwork — and nothing else. But the frame-name
+label, the blue selection ring, the four corner handles and the dimension pill
+are all drawn by the FRAME, which had not moved: measured at a 393 viewport,
+the ring sat at 20 → 373.3 with the artwork at 0 → 393.3, overhanging its own
+selection by 20px on each side, and the top-left and bottom-left handles were
+at x = −4, off the screen.
+
+**The fix is to move `.cvf--poster` instead.** `width: 100vw` with
+`margin-left: calc(50% - 50vw)` — where the 50% resolves against the grid area
+— is exactly the gutter, whatever the clamp makes it, so the frame and the
+canvas padding can never drift apart. `.dwh-m` keeps only the container job it
+also has (`--um` reads `100cqw`, and the element that unit is measured against
+should be named, not inherited from whichever ancestor happens to carry
+containment). Nothing about the composition changes: the stage is still 393
+units wide, so not one type size moved.
+
+**Only the poster bleeds.** Every other frame keeps the gutter — measured 20 →
+340 at 360px, 20 → 410 at 430px. A canvas where every frame is flush to both
+edges is not a canvas.
+
+**And the pill was naming the wrong artboard.** It read `frame.props.w × h`,
+which is the desktop poster: 1316 × 741, under a 393 × 1100 frame. The hero
+now declares `mobile: { w: 393, h: 1100 }` and ships both labels, with the
+media query picking one — the breakpoint that swaps the artboard should be the
+same breakpoint that names its size, rather than a resize listener racing it.
+
+Verified at 360 / 393 / 430: frame, body, stage and artwork all share one left
+and right edge, no horizontal scroll, the pill reads 393 × 1100. At 1280 the
+poster is inset at 288 → 976.7 and the pill reads 1316 × 741 again.
+
+**Still open, found while measuring this:** `profile-tab.png` is a 400×72 crop
+that is only folder in x 50–319 / y 21–71; the rest is opaque desktop
+pond-painting, which works on the poster because the crop is pasted back at
+1:1 over the painting it came from. On the phone it is scaled to 0.723 over a
+different crop of that painting, so it does not realign — a hard-edged
+rectangle of foreign landscape sits around the tab from x −7 to 282. The fix
+is a mobile-only copy of the asset cut to the folder silhouette with alpha, so
+the real background shows through. Not done here.

@@ -248,6 +248,11 @@
   opacity: 1;
 }
 
+/* the pill carries both artboard sizes; the phone query below swaps them */
+.cvf-dims-m {
+  display: none;
+}
+
 /* tonal variants: a dark frame and the one vermilion frame */
 .cvf--dark .cvf-body {
   background: #232323;
@@ -1954,6 +1959,40 @@
   }
 
   /* ---- design hero: swap the fixed poster for the flowed mobile profile ---- */
+
+  /* THE FRAME IS THE PHONE, CHROME INCLUDED.
+     Her mobile artboard IS 393 wide, so on a 393 phone it has to reach both
+     screen edges or her own 27px margin stops being her margin. The frame
+     steps out of .dw-canvas's gutter to do it — 50% of the grid area minus
+     50vw is exactly that gutter, whatever the clamp resolves it to, so the
+     two can never drift apart. Only the poster bleeds; every other frame
+     keeps the gutter, which is what still reads as a canvas. */
+  .cvf--poster {
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
+  }
+  /* the label stays on the canvas even though its frame left it */
+  .cvf--poster > .cvf-label {
+    padding-left: clamp(1.25rem, 4vw, 3rem);
+  }
+  /* handles sit INSIDE a flush frame; at -4px they were half off-screen */
+  .cvf--poster .cvf-handle--tl,
+  .cvf--poster .cvf-handle--bl {
+    left: 0;
+  }
+  .cvf--poster .cvf-handle--tr,
+  .cvf--poster .cvf-handle--br {
+    right: 0;
+  }
+
+  /* the artboard on screen is hers, so the pill names hers */
+  .cvf-dims.has-mobile .cvf-dims-d {
+    display: none;
+  }
+  .cvf-dims.has-mobile .cvf-dims-m {
+    display: inline;
+  }
+
   /* release the poster's fixed artboard so the body grows to the content */
   .cvf--poster .cvf-body {
     aspect-ratio: auto;
@@ -1975,14 +2014,17 @@
      Her frame is 393 wide — an iPhone 16 — and carries its own margin inside
      it: the cream sheet is inset 27px from the frame's edge. Rendered inside
      .dw-canvas's 20px gutter it came out 353 wide, so the painting stopped
-     short of the screen and every one of her type sizes shrank by 10%. This
-     breaks out of that gutter so the frame is the phone, as drawn.
-     It also has to BE the container: --um reads 100cqw, and the nearest
-     container was .cvf-body, which is still the padded 353. */
+     short of the screen and every one of her type sizes shrank by 10%.
+
+     THE BREAKOUT MOVED UP TO .cvf--poster (above). It used to live here, on
+     the content alone, which is why the artwork spilled 20px past its own
+     selection ring on both sides: the ring, the handles, the label and the
+     dimension pill are all drawn by the FRAME, and the frame had not moved.
+     What is left here is the container job — --um reads 100cqw, so the
+     element the unit is measured against is named explicitly rather than
+     being whichever ancestor happens to carry containment. */
   .dwh-m {
     display: block;
-    width: 100vw;
-    margin-left: calc(50% - 50vw);
     container-type: inline-size;
     background: #f6f5f2;
     color: #4a4a58;
