@@ -738,10 +738,11 @@ export default function Cover({ onChoose, onSettledChange }) {
             </div>
           )}
 
-          {/* beat 1: the name, alone — then the script writes itself on via a
-              mask wipe (see .is-inked). The "a design engineer" caption that
-              used to sit under it is gone — the two margin notes below now
-              carry the roles, and they say it in far more detail. */}
+          {/* beat 1: the name, alone. It used to write itself on via a mask
+              wipe; that reveal is gone (26 Oct 2026) and it now arrives whole
+              — see .is-inked in cover.css. The "a design engineer" caption
+              that used to sit under it is gone too — the two margin notes
+              below now carry the roles, and they say it in far more detail. */}
           <motion.div
             className="cover-hero-inner"
             style={{ opacity: nameOpacity, y: nameLift }}
@@ -753,9 +754,9 @@ export default function Cover({ onChoose, onSettledChange }) {
                 outlines are kerned per pair now; see NameMark.jsx for the
                 measurements and for why the two capitals are left apart.
 
-                The wipe still sweeps the h1 as one box, and `fontReady` still
-                gates it — not because the name needs a font any more, but
-                because it is beat 1 of a sequence the margin notes below share.
+                `fontReady` still gates the h1 — not because the name needs a
+                font any more, but because it is beat 1 of a sequence the
+                margin notes below share.
 
                 The visible artwork is aria-hidden and this line is the
                 accessible name, the same split .cover-aside-sr uses: a screen

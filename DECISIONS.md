@@ -5104,3 +5104,25 @@ geometry for elements nobody could see. **Geometry checks cannot see stacking;
 an element can be perfectly placed and still not be on screen.** The content
 classes are now listed individually in the z-index rule so the next element
 added to the stage has to make the choice on purpose.
+
+## The cover's name arrives whole — the ink wipe is gone (26 Oct 2026)
+
+**Her call.** "Mrinali Bhardwaj" on the cover used to draw itself on
+left→right over 1.8s: `.cover-name-script.is-inked` carried a 220%-wide
+gradient mask whose position slid from 100% to 0% (`@keyframes cover-ink`),
+so the opaque edge swept across the artwork like ink laying down. That reveal
+is removed. The name is simply there.
+
+**The class stays, because it is also the gate.** `.cover-name-script` is
+`opacity: 0` in its base rule and nothing else turns it on, so `.is-inked` is
+now a one-line `opacity: 1`. It still hangs off `fontReady` in Cover.jsx —
+not because the name needs a font any more (it is vector artwork, NameMark.jsx)
+but because it is beat 1 of the sequence the two margin notes share.
+
+**The `prefers-reduced-motion` override went with it.** It existed only to
+cancel the sweep; with no motion left there is nothing to reduce, and keeping
+a dead override would imply the element still animates for everyone else.
+
+Verified in the browser, not from the diff: `animationName: none`,
+`maskImage: none`, `opacity: 1`, and `getAnimations()` empty on the element,
+with the name rendering whole at scroll top.

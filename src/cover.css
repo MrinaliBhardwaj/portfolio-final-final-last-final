@@ -172,10 +172,10 @@
   pointer-events: none;
 }
 
-/* the name, set in Ballet script, spanning the lower width of the stage.
-   Hidden until Cover.jsx confirms the font is loaded (kills the
-   fallback-script flash), then .is-inked writes it on left→right with an
-   animated gradient mask — the script draws itself like ink. */
+/* the name, spanning the lower width of the stage. Hidden until Cover.jsx
+   flips `fontReady` — beat 1 of the cover's sequence — then .is-inked shows
+   it. It used to draw itself on left→right under a mask wipe; see .is-inked
+   for why that is gone. */
 .cover-name-script {
   /* A ROW OF TWO DRAWINGS, not a line of text. Flex rather than inline-block:
      inline boxes align on a text baseline, which would drag the h1's font
@@ -200,9 +200,7 @@
   margin: 0;
   color: #fff;
   /* was text-shadow, which does nothing to an svg fill. Same offset, blur and
-     alpha, so the halo over the petals is unchanged. Filters resolve BEFORE
-     masks, so the wipe below reveals the shadow with the stroke rather than
-     leaving it hanging in mid-air. */
+     alpha, so the halo over the petals is unchanged. */
   filter: drop-shadow(0 2px 40px rgba(0, 0, 0, 0.55));
   opacity: 0;
   /* The swash-overhang padding that used to live here is gone with the text.
@@ -221,36 +219,15 @@
   overflow: visible;
 }
 
+/* THE INK WIPE IS GONE (26 Oct 2026, on her instruction). This class used to
+   carry a 1.8s left→right gradient-mask sweep (`@keyframes cover-ink`) that
+   drew the script on like ink. The class stays, because it is also the GATE:
+   the base rule above is `opacity: 0` and nothing else turns the name on. It
+   simply has nothing to animate now, so the name arrives whole. The
+   prefers-reduced-motion override went with the sweep — there is no motion
+   left to reduce. */
 .cover-name-script.is-inked {
-  /* left ~46% of the (220%-wide) mask is opaque; sliding its position from
-     100% to 0% sweeps the opaque edge across the text left→right */
-  -webkit-mask-image: linear-gradient(105deg, #000 46%, transparent 54%);
-  mask-image: linear-gradient(105deg, #000 46%, transparent 54%);
-  -webkit-mask-size: 220% 100%;
-  mask-size: 220% 100%;
-  animation: cover-ink 1.8s var(--ease-soft) 0.25s both;
-}
-
-@keyframes cover-ink {
-  from {
-    opacity: 1;
-    -webkit-mask-position: 100% 0;
-    mask-position: 100% 0;
-  }
-  to {
-    opacity: 1;
-    -webkit-mask-position: 0% 0;
-    mask-position: 0% 0;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .cover-name-script.is-inked {
-    animation: none;
-    opacity: 1;
-    -webkit-mask-image: none;
-    mask-image: none;
-  }
+  opacity: 1;
 }
 
 /* scroll indicator */
