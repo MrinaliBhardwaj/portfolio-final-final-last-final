@@ -5161,11 +5161,39 @@ Verified at 360 / 393 / 430: frame, body, stage and artwork all share one left
 and right edge, no horizontal scroll, the pill reads 393 × 1100. At 1280 the
 poster is inset at 288 → 976.7 and the pill reads 1316 × 741 again.
 
-**Still open, found while measuring this:** `profile-tab.png` is a 400×72 crop
-that is only folder in x 50–319 / y 21–71; the rest is opaque desktop
-pond-painting, which works on the poster because the crop is pasted back at
-1:1 over the painting it came from. On the phone it is scaled to 0.723 over a
-different crop of that painting, so it does not realign — a hard-edged
-rectangle of foreign landscape sits around the tab from x −7 to 282. The fix
-is a mobile-only copy of the asset cut to the folder silhouette with alpha, so
-the real background shows through. Not done here.
+**Found while measuring this, and fixed next (see below):** `profile-tab.png`
+ships 64% foreign painting, which the phone cannot realign.
+
+
+## The folder tab is cut out of its own crop (26 Oct 2026)
+
+**Why the asset carries painting at all.** `profile-tab.png` is a 400×72 crop
+lifted from the rendered poster at its exact spot, so the pond inside the crop
+lines up with the pond behind it and the seam vanishes. Only x 50–319 / y 21–71
+of those 28,800 pixels is actually folder; the other 64% is landscape.
+
+**Why that breaks on a phone.** The trick only works at 1:1 over the painting
+it came from. The phone scales the crop to 0.723 and lays it over a different
+crop of the same painting, so nothing realigns — a hard-edged rectangle of
+foreign landscape sat around the tab from x −7 to 282, which is what read as a
+block of the wrong width.
+
+**The cut.** `profile-tab-cut.png` is the same artwork with everything but the
+folder alpha'd out. The silhouette is taken per row as the span from the
+leftmost to the rightmost cream pixel, which fills the dark PROFILE.DOC
+lettering back in without reaching any painting — verified run by run: no row
+carries a cream pixel past the folder's own right edge. Transparent pixels get
+the folder's colour bled into them over six passes, because a browser samples
+RGB under alpha 0 when it scales an image down and pond-dark RGB would fringe
+the edge. A 0.7px blur outside the silhouette antialiases it. 36% of the asset
+survives, and the file is *smaller* than the original (33.9 KB vs 36.1 KB).
+
+**The poster keeps the uncut asset**, where the painting is load-bearing.
+
+**The box is derived from the sheet now, not from her node.** With the painting
+gone the folder's own edges are what you see, so x=50 in the asset lands on the
+sheet's left edge and y=67 — where the folder body begins — lands on the
+sheet's top. Measured: folder left 27.01 against a sheet at 27.00, body top
+93.99 against 93.99. The vertical falls out as 45.59, which is the same number
+the earlier landmark scan found by hand — two independent methods agreeing is
+what says the derivation is right rather than fitted.

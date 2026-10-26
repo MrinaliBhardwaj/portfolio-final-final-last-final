@@ -159,6 +159,28 @@ const M_RULES = ROW_Y.map((y) => ({ x: GUT_L + 5, y: y + XP_LINE.role + 7, w: GU
 
 // Softwares keeps the crop's own aspect (264 x 108 on the poster) and ends on
 // the right rail.
+// THE FOLDER TAB, DERIVED FROM THE SHEET RATHER THAN PLACED AGAINST IT.
+//
+// profile-tab.png is a 400x72 crop taken from the rendered poster, and only
+// x 50..319 / y 21..71 of it is folder — the rest was opaque pond-painting.
+// That works on the poster, where the crop is pasted back at 1:1 over the
+// painting it came from and the seam disappears. On the phone it is scaled to
+// 0.72 over a DIFFERENT crop of that painting, so it cannot realign: a hard
+// rectangle of foreign landscape sat around the tab from x -7 to 282.
+// profile-tab-cut.png is the same artwork with everything but the folder cut
+// to alpha (36% of the asset survives), so the real background shows through.
+//
+// With the painting gone the folder's own edges are what you see, so they are
+// placed off the sheet instead of off her node box: x=50 in the asset is the
+// folder's left edge and y=67 is where its body begins, so those land on the
+// sheet's left edge and top. The vertical falls out as 45.59 — the same number
+// the landmark scan found by hand, which is what says the derivation is right.
+const TAB_W = 289;                       // her node's width, and it was right
+const TAB_K = TAB_W / 400;               // asset px -> stage units
+const TAB_H = 72 * TAB_K;                // the asset's own aspect, not her box
+const TAB_X = SHEET_X - 50 * TAB_K;      // folder left edge == sheet left edge
+const TAB_Y = SHEET_Y - 67 * TAB_K;      // folder body top  == sheet top
+
 const SOFT_W = 175;
 const SOFT_H = SOFT_W / (264 / 108);
 const SOFT_X = CR - SOFT_W;
@@ -401,16 +423,12 @@ export default function DesignHero() {
           <div className="dwh-m-sheet"
             style={{ left: UM(SHEET_X), top: UM(SHEET_Y), width: UM(SHEET_W), height: UM(SHEET_H) }} />
 
-          {/* HER X AND WIDTH; OUR HEIGHT. Her frame places the tab as
-              "image 25" at (-7, 16) 289x79.377 — aspect 3.64. The tab vendored
-              for the poster is 400x72, aspect 5.56: a tighter crop of the same
-              artwork. Filling her box with our crop stretched it half again as
-              tall. Scanning her rendered frame gave the landmarks (tab left
-              x28, top y60, blocks out to x136 and x223, sheet top y94; ours
-              x51, y22, x199, x319, y67), which fit at a scale of 0.7276 for a
-              width of 291 — so her 289 was right and only the height was not. */}
-          <img className="dwh-m-tab" src={`${A}/profile-tab.png`} alt="" aria-hidden="true"
-            style={{ left: UM(-7), top: UM(45.59), width: UM(289), height: UM(52.02) }} />
+          {/* HER WIDTH; THE ASSET'S HEIGHT; THE SHEET'S EDGES. Her frame
+              places the tab as "image 25" at (-7, 16) 289x79.377 — aspect
+              3.64 against the asset's 5.56, which is why filling her box
+              stretched it half again as tall. See TAB_* above for the rest. */}
+          <img className="dwh-m-tab" src={`${A}/profile-tab-cut.png`} alt="" aria-hidden="true"
+            style={{ left: UM(TAB_X), top: UM(TAB_Y), width: UM(TAB_W), height: UM(TAB_H) }} />
 
           <span className="dwh-m-meet" style={{ left: UM(CL), top: UM(128), fontSize: UM(T.meet) }}>
             Meet
