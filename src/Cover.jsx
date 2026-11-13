@@ -9,7 +9,13 @@
 //      surfaces, and her work scatters across the screen as files. The two
 //      discipline cards that used to fill this beat were deleted on
 //      18 Aug 2026; see the note where .cover-split used to be rendered.
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import {
+  startTransition,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import {
   AnimatePresence,
   motion,
@@ -64,8 +70,8 @@ import PhoneHome from "./PhoneHome.jsx";
 import PhoneStatus from "./PhoneStatus.jsx";
 import useIsPhone from "./use-is-phone.js";
 import NameMark from "./NameMark.jsx";
-import { createParticles } from "./particles.js";
 import { createLotusScrubber } from "./lotus.js";
+import { rehearseDesk } from "./rehearsal.js";
 
 // The two margin notes flanking the name — the roles behind each discipline.
 // Module constants, not inline literals: TextMorph keys its interval effect on
@@ -115,7 +121,26 @@ export function landedAlready() {
 // settles as it re-opens past progress ~0.77.
 const SCRUB_END = 1;
 
-const EASE = [0.22, 1, 0.36, 1];
+// SCROLL PROGRESS -> WHERE IN THE BLOOM. Ease the scrub's HEAD without killing
+// its TAIL. The sequence's head is the clip's static "fully open, holding"
+// tail, so a linear map left the flower frozen for the first stretch of scroll
+// — hence a boost.
+//
+// That boost used to be `r * (2 - r)`, whose slope is 2(1-r): it hits ZERO at
+// the end. The last of the 40 frames was therefore reached at progress 0.887
+// and held for the remaining 11%, which at 320vh is ~224px — a quarter of a
+// screen of scrolling against a frozen flower. Fixing the head had quietly
+// moved the dead stretch to the bottom.
+//
+// The boost is now carried by (1-r)², whose value AND slope both vanish at
+// r = 1. Head rate is 2.2x (a touch faster than the old 2x), the tail runs at
+// exactly linear rate, and the final frame lands on the final pixel of the
+// track. The only flat spot left is the half-frame rounding step every frame
+// gets — ~25px, one twentieth of the old stall.
+const scrubPosition = (progress) => {
+  const r = Math.min(1, progress / SCRUB_END);
+  return r + 1.2 * r * (1 - r) * (1 - r);
+};
 
 // HOME IS A PLACE, NOT A CORRIDOR (2026-08-18). The scrub is the front door,
 // not the hallway to every room: once a visitor has seen the ceremony, every
@@ -226,23 +251,30 @@ export default function Cover({ onChoose, onSettledChange }) {
   // a deep-linked window marks the intro seen, so it counts as spent here too,
   // or the window would arrive over an un-settled stage.
   const bornSettled = landedAlready();
+  const coverRef = useRef(null);
+  const scrubberRef = useRef(null);
   const progressRef = useRef(bornSettled ? 1 : 0);
-  // mirror the two scroll-driven booleans so we only enter React's scheduler
-  // when one actually flips, not on every scroll tick (see below)
-  const splitRef = useRef(bornSettled);
+  // mirror the scroll-driven boolean so we only enter React's scheduler when
+  // it actually flips, not on every scroll tick (see below)
   const settledRef = useRef(bornSettled);
-  const [split, setSplit] = useState(bornSettled);
+  // THE CEREMONY RE-RENDERS NOTHING UNTIL IT IS OVER. A cold first scroll used
+  // to commit React nine times in four seconds, seven of them the whole Cover
+  // (measured: scripts/measure-cover.mjs --commits), each one 100-260ms at 4x
+  // CPU throttle that the bloom spent frozen. What they were, and where each
+  // went:
+  //   · `split` at 0.5 — its only job was pausing the two role columns.
+  //     They read this ref from their own timers now; no state, no render.
+  //   · `fontReady` — a class on the root element, set from the effect below.
+  //   · four `windowChunkArrived` bumps — the window chunks used to warm up on
+  //     the first idle moment, which on a first visit IS the first scroll.
+  //     They wait for the desk now, and an arrival nobody is waiting for
+  //     re-renders nobody.
+  // One commit is left, at the settle, and it is a transition.
+  const notesGoneRef = useRef(bornSettled);
   // the same threshold the dock surfaces on, mirrored into state because the
-  // desktop files render inside the stage (see DesktopFiles.jsx). Same guarded
-  // pattern as `split` below: two renders per scroll direction, not sixty.
+  // desktop files render inside the stage (see DesktopFiles.jsx). Guarded on a
+  // ref in the scroll handler: one render per scroll direction, not sixty.
   const [settled, setSettled] = useState(bornSettled);
-  // Hold the name invisible until BOTH its scripts have actually loaded — the
-  // capitals are Ballet and the lowercase is Pinyon, and each has a fallback
-  // (Segoe Script) close enough in metrics that font-display:swap flashed the
-  // wrong script on every cold load. Waiting on Ballet alone would still let
-  // "rinali"/"hardwaj" pop from the fallback a beat later. allSettled, not all,
-  // so one failed fetch cannot leave the name hidden behind the timeout.
-  const [fontReady, setFontReady] = useState(false);
 
   // OPEN WINDOWS, in stacking order — the array IS the z-order, last is
   // frontmost, which is how a window manager actually works and saves carrying
@@ -281,20 +313,27 @@ export default function Cover({ onChoose, onSettledChange }) {
   const [, windowChunkArrived] = useState(0);
   const noteArrival = () => windowChunkArrived((n) => n + 1);
 
-  // WARM THE WINDOW CHUNKS once the desktop is idle — the same bargain the
-  // worlds strike in App.jsx. A window is opened by a deliberate double-click
-  // on a desk file, many seconds after load at the earliest, so there is always
-  // time to have them ready and the window opens in the frame it is asked for.
-  // Deferred to idle rather than fetched on mount so the lotus atlas and the
-  // desk's images get the first seconds to themselves.
+  // WARM THE WINDOW CHUNKS ONCE THE DESK HAS ARRIVED — not "once the page is
+  // idle", which is what this said before. On a first visit the first idle
+  // moment is a second or two after load, which is exactly when a visitor
+  // starts to scroll: four chunks were being fetched, parsed and evaluated
+  // through the bloom, and each arrival re-rendered the whole Cover. A window
+  // is opened by a double-click on a desk file, and there are no desk files
+  // until `settled` — so that is the earliest anyone could want one, and the
+  // beat after the desk's own entrance is the first moment that is truly free.
+  //
+  // An arrival re-renders nothing here. The module is kept in `windowKind`,
+  // and the effect below is the one that announces a chunk somebody is
+  // actually waiting on.
   useEffect(() => {
+    if (!settled) return;
     let cancelled = false;
+    let idleId = 0;
     const run = async () => {
       for (const kind of ["case", "note", "readme", "empty"]) {
         if (cancelled) return;
         try {
           await loadWindowKind(kind);
-          if (!cancelled) noteArrival();
         } catch {
           // not fatal: the effect below asks again when a window of this kind
           // is actually opened, and that is where a real failure would show
@@ -302,13 +341,17 @@ export default function Cover({ onChoose, onSettledChange }) {
       }
     };
     const idle = window.requestIdleCallback;
-    const id = idle ? idle(run, { timeout: 5000 }) : setTimeout(run, 2500);
+    // the desk's entrance runs ~1.4s; let it finish, then take an idle moment
+    const timer = setTimeout(() => {
+      if (idle) idleId = idle(run, { timeout: 4000 });
+      else run();
+    }, 1800);
     return () => {
       cancelled = true;
-      if (idle) window.cancelIdleCallback?.(id);
-      else clearTimeout(id);
+      clearTimeout(timer);
+      if (idleId) window.cancelIdleCallback?.(idleId);
     };
-  }, []);
+  }, [settled]);
 
   // The safety net for the two cases idle never covered: a deep link, which
   // asks for a window on the first render, and a click that beats the warming.
@@ -387,13 +430,25 @@ export default function Cover({ onChoose, onSettledChange }) {
     });
   };
 
+  // BEAT 1 WAITS FOR ITS TYPE, AND SAYS SO WITH A CLASS. The name is vector
+  // artwork and needs no font, but the margin notes beside it are set in one,
+  // and the two arrive as a sequence — so the stage holds both back until the
+  // faces have loaded (allSettled, not all, plus a timeout, so one failed
+  // fetch cannot leave the cover blank).
+  //
+  // This was a `fontReady` state. Its flip re-rendered the entire Cover about
+  // a second after load — on a first visit, squarely inside the first scroll —
+  // to change one class name and start two fades. It is `.is-ready` on the
+  // root element now and cover.css does the rest: no render, and the notes'
+  // entrance is a compositor transition rather than two JS-driven tweens.
   useEffect(() => {
     let alive = true;
+    const ready = () => alive && coverRef.current?.classList.add("is-ready");
     Promise.allSettled([
       document.fonts.load('400 1em "Ballet Variable"'),
       document.fonts.load('400 1em "Pinyon Script"'),
-    ]).then(() => alive && setFontReady(true));
-    const t = setTimeout(() => alive && setFontReady(true), 2500);
+    ]).then(ready);
+    const t = setTimeout(ready, 2500);
     return () => {
       alive = false;
       clearTimeout(t);
@@ -449,9 +504,8 @@ export default function Cover({ onChoose, onSettledChange }) {
       // only so the effect is still correct if it is ever reached with them
       // false. App is told either way — it seeds its own copy the same way.
       progressRef.current = 1;
-      splitRef.current = true;
+      notesGoneRef.current = true;
       settledRef.current = true;
-      setSplit(true);
       setSettled(true);
       onSettledChange?.(true);
     }
@@ -528,26 +582,39 @@ export default function Cover({ onChoose, onSettledChange }) {
   }, [scrollYProgress]);
   useMotionValueEvent(scrollYProgress, "change", (v) => {
     progressRef.current = v;
-    // Both of these are THRESHOLDS, but this callback fires on every scroll
-    // tick. Calling the setters unconditionally entered React's dispatch path
-    // ~60x/second during the scrub (React bails on an identical value, but only
-    // after scheduling), and a genuine flip re-renders Cover AND App — which
-    // re-renders the Dock and the whole AnimatePresence subtree. Guarding on a
-    // ref means React hears about it exactly twice per scroll direction.
-    const nextSplit = v > 0.5;
-    if (nextSplit !== splitRef.current) {
-      splitRef.current = nextSplit;
-      // the identity diverges as the re-bloom starts — brighten the nav labels
-      setSplit(nextSplit);
-    }
+    // The bloom hears about it HERE, inside the scroll event, not a frame
+    // later from a loop — the worker that paints it has no way to ask.
+    scrubberRef.current?.setProgress(scrubPosition(v));
+    // The margin notes are fully faded by 0.22 (asideOpacity). Past that their
+    // role columns have nobody to morph for, so they stop — by ref, see above.
+    notesGoneRef.current = v > 0.24;
+    // A THRESHOLD, but this callback fires on every scroll tick. Calling the
+    // setters unconditionally entered React's dispatch path ~60x/second during
+    // the scrub (React bails on an identical value, but only after
+    // scheduling). Guarding on a ref means React hears about it exactly once
+    // per scroll direction.
     const nextSettled = v > 0.77;
     if (nextSettled !== settledRef.current) {
       settledRef.current = nextSettled;
-      // once the divergence scene has fully settled, the dock (owned by App,
+      // Once the divergence scene has fully settled, the dock (owned by App,
       // where it persists across routes) surfaces — and the desktop files
-      // fade in alongside it
-      onSettledChange?.(nextSettled);
-      setSettled(nextSettled);
+      // fade in alongside it.
+      //
+      // THE EYE IS TOLD FIRST, AND NOT BY REACT. Both entrances are CSS
+      // transitions keyed on this one attribute (dock.css, desktop-files.css),
+      // so writing it here starts them in the very next frame, on the
+      // compositor, whatever else the page is doing.
+      document.documentElement.dataset.desk = nextSettled ? "up" : "down";
+      // REACT FOLLOWS, AS A TRANSITION. It still has to know — aria-hidden,
+      // tab order and pointer-events hang off `settled` — but that flip
+      // re-renders Cover AND App while the visitor is still scrolling. An
+      // urgent update would do all of it in one uninterruptible task; a
+      // transition lets React take it in slices between frames. Nothing
+      // visible waits for it any more.
+      startTransition(() => {
+        onSettledChange?.(nextSettled);
+        setSettled(nextSettled);
+      });
       // the ceremony has been seen to its end: from here on, #/ lands on the
       // settled desktop directly (see the layout effect above)
       if (nextSettled) markIntroSeen();
@@ -578,44 +645,36 @@ export default function Cover({ onChoose, onSettledChange }) {
   // scroll.
 
   // Beat 3's four scroll-driven transforms (designOpacity/X, techOpacity/X)
-  // went with the discipline cards they animated. `split` survives them: it
-  // still pauses the two TextMorph columns at the divergence.
+  // went with the discipline cards they animated.
 
-  // Paint the frame matching scroll progress, and drive the starfield from the
-  // SAME loop — one requestAnimationFrame for the whole cover. Two independent
-  // loops meant two wake-ups per frame with no ordering guarantee between the
-  // scrub paint and the particle paint.
+  // The lotus and the starfield over it. Both canvases are handed to a worker
+  // and painted there (lotus.js says why); all this component does afterwards
+  // is report the scroll position, from the change handler above.
   useEffect(() => {
-    const particles = createParticles(particlesRef.current);
-    const scrubber = createLotusScrubber(
-      canvasRef.current,
-      () => {
-        // Ease the scrub's HEAD without killing its TAIL. The sequence's head
-        // is the clip's static "fully open, holding" tail, so a linear map left
-        // the flower frozen for the first stretch of scroll — hence a boost.
-        //
-        // That boost used to be `r * (2 - r)`, whose slope is 2(1-r): it hits
-        // ZERO at the end. The last of the 40 frames was therefore reached at
-        // progress 0.887 and held for the remaining 11%, which at 320vh is
-        // ~224px — a quarter of a screen of scrolling against a frozen flower.
-        // Fixing the head had quietly moved the dead stretch to the bottom.
-        //
-        // The boost is now carried by (1-r)², whose value AND slope both vanish
-        // at r = 1. Head rate is 2.2x (a touch faster than the old 2x), the tail
-        // runs at exactly linear rate, and the final frame lands on the final
-        // pixel of the track. The only flat spot left is the half-frame rounding
-        // step every frame gets — ~25px, one twentieth of the old stall.
-        const r = Math.min(1, progressRef.current / SCRUB_END);
-        return r + 1.2 * r * (1 - r) * (1 - r);
-      },
-      { onStep: particles.step }
-    );
+    const scrubber = createLotusScrubber(canvasRef.current, {
+      particlesCanvas: particlesRef.current,
+      progress: scrubPosition(progressRef.current),
+    });
+    scrubberRef.current = scrubber;
     return () => {
+      scrubberRef.current = null;
       scrubber.destroy();
-      particles.destroy();
     };
   }, []);
 
+
+  // THE DESK REHEARSES WHILE THE VISITOR READS THE NAME. On a visit that still
+  // owes the ceremony, the dock and the files make their entrance once,
+  // invisibly, so the GPU has already built what the real one needs — see
+  // rehearsal.js, which is the whole explanation. Not on a born-settled visit
+  // (the desk is on screen for real from the first frame) and not on a phone
+  // (no Mac dock, no desk files).
+  useEffect(() => {
+    if (bornSettled || phone) return;
+    return rehearseDesk();
+    // a mount-time decision, like the landing above
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phone]);
 
   // BEAT 1'S MARGIN NOTES, BUILT ONCE AND PLACED TWICE. On a Mac they are
   // marginalia: two columns holding the outer edges of the flower, read off to
@@ -635,21 +694,17 @@ export default function Cover({ onChoose, onSettledChange }) {
           I am a UI/UX designer, product designer, visual storyteller,
           interaction designer and systems thinker.
         </p>
-        <motion.div
-          className="cover-aside-inner"
-          aria-hidden="true"
-          initial={{ opacity: 0, x: -8 }}
-          animate={fontReady ? { opacity: 1, x: 0 } : {}}
-          transition={{ duration: 0.9, ease: EASE, delay: 1.6 }}
-        >
+        {/* the entrance (a fade and an 8px drift, 1.6s after the type lands)
+            is `.is-ready .cover-aside-inner` in cover.css */}
+        <div className="cover-aside-inner" aria-hidden="true">
           <p className="cover-aside-lead">I am a</p>
           <TextMorph
             className="cover-aside-role"
             words={DESIGN_ROLES}
             interval={2600}
-            paused={split}
+            pausedRef={notesGoneRef}
           />
-        </motion.div>
+        </div>
       </motion.aside>
 
       <motion.aside
@@ -660,27 +715,21 @@ export default function Cover({ onChoose, onSettledChange }) {
           As well as a software developer, frontend engineer, creative coder
           and problem solver.
         </p>
-        <motion.div
-          className="cover-aside-inner"
-          aria-hidden="true"
-          initial={{ opacity: 0, x: 8 }}
-          animate={fontReady ? { opacity: 1, x: 0 } : {}}
-          transition={{ duration: 0.9, ease: EASE, delay: 1.75 }}
-        >
+        <div className="cover-aside-inner" aria-hidden="true">
           <p className="cover-aside-lead">as well as a</p>
           <TextMorph
             className="cover-aside-role"
             words={TECH_ROLES}
             interval={2600}
-            paused={split}
+            pausedRef={notesGoneRef}
           />
-        </motion.div>
+        </div>
       </motion.aside>
     </>
   );
 
   return (
-    <div className="cover">
+    <div className="cover" ref={coverRef}>
       {/* starfield spans the whole cover as ambient connective tissue */}
       <canvas ref={particlesRef} className="cover-particles" aria-hidden="true" />
 
@@ -740,7 +789,7 @@ export default function Cover({ onChoose, onSettledChange }) {
 
           {/* beat 1: the name, alone. It used to write itself on via a mask
               wipe; that reveal is gone (26 Oct 2026) and it now arrives whole
-              — see .is-inked in cover.css. The "a design engineer" caption
+              — see .is-ready in cover.css. The "a design engineer" caption
               that used to sit under it is gone too — the two margin notes
               below now carry the roles, and they say it in far more detail. */}
           <motion.div
@@ -754,14 +803,14 @@ export default function Cover({ onChoose, onSettledChange }) {
                 outlines are kerned per pair now; see NameMark.jsx for the
                 measurements and for why the two capitals are left apart.
 
-                `fontReady` still gates the h1 — not because the name needs a
-                font any more, but because it is beat 1 of a sequence the
-                margin notes below share.
+                The stage's `.is-ready` still gates the h1 — not because the
+                name needs a font any more, but because it is beat 1 of a
+                sequence the margin notes below share.
 
                 The visible artwork is aria-hidden and this line is the
                 accessible name, the same split .cover-aside-sr uses: a screen
                 reader gets the text, the screen gets the drawing. */}
-            <h1 className={`cover-name-script${fontReady ? " is-inked" : ""}`}>
+            <h1 className="cover-name-script">
               <span className="cover-aside-sr">Mrinali Bhardwaj</span>
               <NameMark />
             </h1>

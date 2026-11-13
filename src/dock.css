@@ -1,8 +1,26 @@
 /* ============ the liquid-glass dock (the surfacing OS layer) ============ */
 /* a detached interface layer: fixed, bottom-centre, floating over the page */
-/* centred via auto margins (not translateX) so Framer Motion can own the
-   transform for the rise-from-below entrance */
+/* centred via auto margins (not translateX) so the rise-from-below entrance
+   can own the transform */
 .dock {
+  /* THE ENTRANCE: it rises 150px out of a 14px blur over 1.4s. This was a
+     framer `animate` on the element, started by a React render; it is a
+     transition on <html data-desk="up"> now — the same attribute the desk's
+     files answer to, written from the scroll handler itself (Cover.jsx) — so
+     the dock begins to rise in the frame the bloom crosses its threshold
+     rather than whenever React next gets a turn. Same distance, same blur,
+     same duration, same curve.
+
+     The resting filter is `blur(0px)`, not `none`, on purpose: that is what
+     framer left behind too, and a filter — even an empty one — is what makes
+     this element the backdrop root for the glass inside it. */
+  transform: translateY(150px);
+  opacity: 0;
+  filter: blur(14px);
+  transition:
+    transform 1.4s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 1.4s cubic-bezier(0.22, 1, 0.36, 1),
+    filter 1.4s cubic-bezier(0.22, 1, 0.36, 1);
   position: fixed;
   left: 0;
   right: 0;
@@ -11,6 +29,35 @@
   width: max-content;
   z-index: 60;
   will-change: transform, opacity, filter;
+}
+
+:root[data-desk="up"] .dock,
+:root[data-desk="rehearse"] .dock {
+  transform: none;
+  opacity: 1;
+  filter: blur(0px);
+}
+
+/* THE DOCK'S CURTAIN (see rehearsal.js). While the cover is still on its first
+   beat, the dock makes this whole entrance once behind a parent at 1% opacity,
+   so the GPU has already built every program the real one needs. The rest of
+   the time the wrapper is `display: contents` — no box, no stacking context,
+   nothing between the dock and the page. */
+.dock-curtain {
+  display: contents;
+}
+:root[data-desk="rehearse"] .dock-curtain,
+:root[data-desk="strike"] .dock-curtain {
+  display: block;
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  opacity: 0.01;
+  pointer-events: none;
+}
+/* struck at once: the curtain is about to open and nothing may be mid-fall */
+:root[data-desk="strike"] .dock {
+  transition: none;
 }
 
 .dock-filter {
@@ -402,8 +449,11 @@
   }
 }
 
+/* reduced motion: it fades in where it stands — no travel, no blur */
 @media (prefers-reduced-motion: reduce) {
   .dock {
+    transform: none;
+    filter: blur(0px);
     transition: opacity 0.3s linear;
   }
 }

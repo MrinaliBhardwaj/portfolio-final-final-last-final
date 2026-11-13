@@ -509,7 +509,7 @@ export default function DesktopFiles({ visible, onOpenCase, onOpenNote, onOpenEm
 
   return (
     <div
-      className={`cover-desktop${isPhone ? " is-phone" : ""}${visible ? " is-in" : ""}`}
+      className={`cover-desktop${isPhone ? " is-phone" : ""}`}
       aria-hidden={!visible}
       ref={layerRef}
     >
@@ -568,7 +568,7 @@ export default function DesktopFiles({ visible, onOpenCase, onOpenNote, onOpenEm
           // delay, because its animation could not get a frame. As a CSS
           // transition the same curve runs on the compositor and the main
           // thread never sees it. Identical duration, easing and offsets.
-          transitionDelay: visible ? `${(0.1 + i * 0.035).toFixed(3)}s` : "0s",
+          "--stagger": `${(0.1 + i * 0.035).toFixed(3)}s`,
         };
 
         const inner = (

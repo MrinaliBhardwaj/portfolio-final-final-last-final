@@ -173,9 +173,9 @@
 }
 
 /* the name, spanning the lower width of the stage. Hidden until Cover.jsx
-   flips `fontReady` — beat 1 of the cover's sequence — then .is-inked shows
-   it. It used to draw itself on left→right under a mask wipe; see .is-inked
-   for why that is gone. */
+   marks the stage .is-ready — beat 1 of the cover's sequence — and then simply
+   there. It used to draw itself on left→right under a mask wipe; see the
+   .is-ready rule below for why that is gone. */
 .cover-name-script {
   /* A ROW OF TWO DRAWINGS, not a line of text. Flex rather than inline-block:
      inline boxes align on a text baseline, which would drag the h1's font
@@ -219,14 +219,19 @@
   overflow: visible;
 }
 
-/* THE INK WIPE IS GONE (26 Oct 2026, on her instruction). This class used to
-   carry a 1.8s left→right gradient-mask sweep (`@keyframes cover-ink`) that
-   drew the script on like ink. The class stays, because it is also the GATE:
-   the base rule above is `opacity: 0` and nothing else turns the name on. It
-   simply has nothing to animate now, so the name arrives whole. The
+/* THE INK WIPE IS GONE (26 Oct 2026, on her instruction). This used to carry
+   a 1.8s left→right gradient-mask sweep (`@keyframes cover-ink`) that drew the
+   script on like ink. The rule stays, because it is also the GATE: the base
+   rule above is `opacity: 0` and nothing else turns the name on. It simply has
+   nothing to animate now, so the name arrives whole. The
    prefers-reduced-motion override went with the sweep — there is no motion
-   left to reduce. */
-.cover-name-script.is-inked {
+   left to reduce.
+
+   THE GATE IS ON THE STAGE (.cover.is-ready), set once from Cover.jsx when the
+   type has loaded. It was a class on this element driven by React state, and
+   flipping that state re-rendered the whole cover a second after load to
+   change this one declaration. */
+.cover.is-ready .cover-name-script {
   opacity: 1;
 }
 
@@ -352,6 +357,38 @@
   align-items: flex-end;
 }
 
+/* THE NOTES' ENTRANCE: a fade and an 8px drift in from their own margin, 1.6s
+   after the type lands (the right one a beat behind the left). These were two
+   framer tweens started by a React re-render; they are a transition on the
+   stage's .is-ready now, which is opacity and transform only — the two
+   properties a compositor animates without asking the page. Same 0.9s, same
+   curve, same delays.
+
+   Scoped to .cover-aside so the phone's copy of the notes (.cover-phone-notes
+   wraps the same two asides) gets it too. */
+.cover-aside .cover-aside-inner {
+  opacity: 0;
+  transform: translateX(-8px);
+}
+.cover-aside--right .cover-aside-inner {
+  transform: translateX(8px);
+}
+.cover.is-ready .cover-aside .cover-aside-inner {
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity 0.9s cubic-bezier(0.22, 1, 0.36, 1) 1.6s,
+    transform 0.9s cubic-bezier(0.22, 1, 0.36, 1) 1.6s;
+}
+.cover.is-ready .cover-aside--right .cover-aside-inner {
+  transition-delay: 1.75s;
+}
+@media (prefers-reduced-motion: reduce) {
+  .cover.is-ready .cover-aside .cover-aside-inner {
+    transition: none;
+  }
+}
+
 /* Inter LIGHT caps, set tight: weight 300, leading 0.85, tracking -0.04em.
    Inter's variable wght axis runs 100-900, so 300 is a real master, not a
    synthesised weight. Three faces were tried in this slot before this one, and
@@ -427,7 +464,7 @@
 /* TextMorph's own scaffolding (see TextMorph.jsx) */
 .tm {
   display: block;
-  position: relative; /* popLayout pops the outgoing phrase out of flow */
+  position: relative; /* the outgoing phrase is laid over the incoming one */
 }
 
 .tm-phrase {
@@ -447,6 +484,79 @@
 .tm-char {
   display: inline-block;
   white-space: pre;
+}
+
+/* THE MORPH. The incoming word resolves character by character out of a 5px
+   blur and a 5px drift; the outgoing one leaves the same way, upward. These
+   were framer animations, one per character, started from script on every
+   tick; as keyframes they are opacity, transform and filter on elements that
+   never change size, which the compositor runs alone. See TextMorph.jsx.
+
+   --i is the character's index across the whole phrase, so the stagger runs
+   on through word breaks instead of restarting at each one. */
+.tm-phrase.is-in {
+  animation: tm-phrase-in 0.4s ease-in-out both;
+}
+.tm-phrase.is-in .tm-char {
+  animation: tm-char-in 0.3s ease-in-out both;
+  animation-delay: calc(var(--i, 0) * 30ms);
+}
+
+/* The outgoing word is laid over the incoming one rather than beside it, so
+   the slot is only ever one line tall. Stretched to the slot's width so the
+   justify-content rules that align the live word align this one identically —
+   left in the left margin, right in the right, centred on a phone. */
+.tm-phrase.is-out {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  pointer-events: none;
+  animation: tm-phrase-out 0.4s ease-in-out both;
+}
+.tm-phrase.is-out .tm-char {
+  animation: tm-char-out 0.3s ease-in-out both;
+  animation-delay: calc(var(--i, 0) * 30ms);
+}
+
+@keyframes tm-phrase-in {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes tm-phrase-out {
+  from { opacity: 1; transform: translateY(0); }
+  to { opacity: 0; transform: translateY(-5px); }
+}
+@keyframes tm-char-in {
+  from { opacity: 0; transform: translateY(5px); filter: blur(5px); }
+  to { opacity: 1; transform: translateY(0); filter: blur(0); }
+}
+@keyframes tm-char-out {
+  from { opacity: 1; transform: translateY(0); filter: blur(0); }
+  to { opacity: 0; transform: translateY(-5px); filter: blur(5px); }
+}
+
+/* reduced motion: a plain crossfade — no drift, no blur, no stagger */
+@media (prefers-reduced-motion: reduce) {
+  .tm-phrase.is-in,
+  .tm-phrase.is-out {
+    animation-name: tm-fade-in;
+  }
+  .tm-phrase.is-out {
+    animation-name: tm-fade-out;
+  }
+  .tm-phrase.is-in .tm-char,
+  .tm-phrase.is-out .tm-char {
+    animation: none;
+  }
+}
+@keyframes tm-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes tm-fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
 }
 
 /* Below the desktop breakpoint these are hidden: the two margins are needed

@@ -60,15 +60,20 @@ function Clock() {
 
   useEffect(() => {
     let timer;
-    const tick = () => {
+    // Schedules the next tick; does not tick. The state was seeded with the
+    // time a moment ago, so setting it again on mount only bought a second
+    // render of the clock inside the page's first second.
+    const schedule = () => {
       const d = new Date();
-      setNow(d);
       timer = setTimeout(
-        tick,
+        () => {
+          setNow(new Date());
+          schedule();
+        },
         60000 - (d.getSeconds() * 1000 + d.getMilliseconds()) + 50
       );
     };
-    tick();
+    schedule();
     return () => clearTimeout(timer);
   }, []);
 

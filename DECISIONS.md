@@ -5197,3 +5197,57 @@ sheet's top. Measured: folder left 27.01 against a sheet at 27.00, body top
 93.99 against 93.99. The vertical falls out as 45.59, which is the same number
 the earlier landmark scan found by hand — two independent methods agreeing is
 what says the derivation is right rather than fitted.
+
+## 13 Nov 2026 — The first scroll: it was never (only) the page
+
+**The complaint, again:** a first-time visitor's first scroll lags — the lotus
+and the desk's icons stutter — and then it is smooth forever after.
+
+**Why every earlier fix missed.** They all measured the page's main thread.
+The biggest cost was in the GPU process: a browser builds a shader program the
+first time each new KIND of drawing appears, the presenting thread waits for
+it, and nothing reaches the screen meanwhile. On a cold profile one first
+scroll linked **~70 programs, ~2s of waiting**, in blocks up to 600ms — nearly
+all at the settle, when the dock's blur and seventeen files first appear. The
+browser keeps what it builds, which is exactly why only the FIRST scroll lagged.
+
+**What changed (all measured with `scripts/measure-cover.mjs`, new this day —
+cold profile, real wheel gesture, counts frames that reach the screen):**
+
+- **The lotus and starfield are painted in a worker** (`lotus.worker.js`,
+  engine in `lotus-core.js`, OffscreenCanvas). A busy page can no longer
+  freeze the flower, and the forty full frames fetch/decode off the page, so
+  they no longer wait for the scroll to stop. Main-thread fallback kept.
+- **A dress rehearsal** (`rehearsal.js`): on a first visit the dock and desk
+  make their entrance once behind a 1%-opacity parent while the visitor reads
+  the name, so the shaders exist before the scroll needs them.
+- **The desk/dock reveal is CSS on `<html data-desk>`**, written from the
+  scroll handler; React follows as a transition for aria/tab order only.
+- **React commits during the ceremony: 9 → 2.** `split` and `fontReady` are no
+  longer state; window chunks and world chunks warm AFTER the desk settles,
+  not "on idle" (idle on a first visit IS the first scroll); `setMinimised`
+  bails on an equal list; the clock no longer double-renders at mount.
+- **TextMorph is CSS keyframes**, not ~40 framer animations per tick.
+- **The starfield blits pre-drawn dots.** Its batched multi-arc paths were
+  being CPU-rasterised and uploaded as full-screen textures 4x per frame —
+  ~1.3s of GPU thread per 6s, forever. Lotus frames are uploaded ahead of use
+  and drawn with bilinear ("medium" forced a mip chain per frame).
+- The atlas preload is `as="fetch"` so the fetch that uses it can match it.
+
+**Result, interleaved A/B, this machine, no throttle, cold profile:**
+
+| | before | after |
+|---|---|---|
+| frames on screen during the scroll | 17–25 fps | **44–45 fps** |
+| longest freeze, scroll 3.5s after load | 483–601ms | **164–165ms** |
+| longest freeze, scroll 1.5s after load | 961–1599ms | **186–203ms** |
+| shader programs linked mid-scroll (3.5s) | 45 | **7–9** |
+
+**Honest limits.** (1) The rehearsal needs ~2–3s after load on this machine; a
+visitor who scrolls sooner still pays some compiles (freezes stay ~200ms, not
+~1s, because the rest of the work is gone). (2) Sharp lotus frames now arrive
+a little later than before when the GPU is busy rehearsing (16–24 of 40 at
+3.5s). (3) Under 4x CPU throttle the rehearsal starts too late to help; that
+profile is slower than her real machine. (4) The phone path is not rehearsed.
+(5) Feel was measured by frame counts, not by eye — it wants a look in a real
+browser, in a fresh profile/incognito window.

@@ -7,7 +7,15 @@
 // OS layer: on the cover it surfaces once the divergence settles; on the
 // worlds it is always present, showing which "app" is open, and switches
 // between them like tabs (a quick crossfade, no wipe ceremony).
-import { lazy, Suspense, useEffect, useLayoutEffect, useRef, useState } from "react";
+import {
+  lazy,
+  Suspense,
+  useEffect,
+  useInsertionEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import { AnimatePresence, motion, MotionConfig } from "framer-motion";
 import Cover, { hasSeenIntro, landedAlready } from "./Cover.jsx";
 import { clearMinimised, minimisedWorlds } from "./WindowLights.jsx";
@@ -257,6 +265,21 @@ export default function App() {
   // rendered retracted and then re-rendered surfaced in the same frame, with
   // framer re-projecting both passes.
   const [coverSettled, setCoverSettled] = useState(landedAlready);
+  // IS THE DESKTOP UP? The dock's rise and the desk files' entrance are CSS,
+  // keyed on <html data-desk> (dock.css, desktop-files.css). On the cover the
+  // scroll handler writes that attribute itself, ahead of React, the moment
+  // the bloom settles (Cover.jsx); this keeps it true to React's own answer
+  // everywhere else — a world always has its dock, a returning visitor lands
+  // on a desk that is already there.
+  //
+  // An INSERTION effect, because it has to beat every layout effect in the
+  // same commit: Cover's reads the track's geometry, which forces a style
+  // pass, and a dock first styled "down" and then flipped "up" would play its
+  // whole 1.4s rise on a page that was supposed to be born settled.
+  const deskUp = route === "" ? coverSettled : true;
+  useInsertionEffect(() => {
+    document.documentElement.dataset.desk = deskUp ? "up" : "down";
+  }, [deskUp]);
   // worlds the yellow light was used on: still "open", so the dock keeps their
   // dot even though you are back on the desktop (see WindowLights.jsx)
   const [minimised, setMinimised] = useState(minimisedWorlds);
@@ -292,7 +315,18 @@ export default function App() {
     // Opening a world un-minimises it; landing anywhere re-reads the set, which
     // is how the lights' sessionStorage writes reach the dock without threading
     // a setter down through five unrelated world components.
-    setMinimised(route ? clearMinimised(route) : minimisedWorlds());
+    //
+    // Compared, not just assigned: both helpers build a fresh array every
+    // call, and a fresh array is a state change to React even when it holds
+    // the same nothing. On the cover that was a second render of the entire
+    // app straight after the first — on a slow machine it landed a second or
+    // two after load, which is when a visitor starts to scroll.
+    const next = route ? clearMinimised(route) : minimisedWorlds();
+    setMinimised((prev) =>
+      prev.length === next.length && prev.every((w, i) => w === next[i])
+        ? prev
+        : next
+    );
     // The scroll reset and the dock retraction are FIRST-VISIT behaviours on
     // the cover. Once the ceremony has been seen, Cover lands itself at the
     // settled desktop in a layout effect and announces settled — and THIS
@@ -309,21 +343,32 @@ export default function App() {
     }
   }, [route]);
 
-  // WARM THE WORLDS once the page has nothing better to do. This is the other
-  // half of the code split above: the chunks leave the critical path, then come
-  // back during the first idle window so a click still opens instantly. Idle is
-  // the whole point — fetching eagerly on mount would just re-create the
-  // problem the split solves, competing with the lotus atlas and the desk's
-  // images for the same first seconds of bandwidth.
+  // WARM THE WORLDS — the other half of the code split above: the chunks leave
+  // the critical path, then come back before anyone can click, so a world
+  // still opens instantly.
+  //
+  // WHEN, EXACTLY, is the part that was wrong. This used to run on the first
+  // requestIdleCallback after mount. On a first visit the page goes idle a
+  // second or two after it loads — which is precisely when a visitor starts to
+  // scroll — so five chunks were being fetched, parsed and evaluated through
+  // the bloom and into the desk's entrance. "Idle" was never the right
+  // question on the cover; "is the ceremony over" is. So on the cover this
+  // waits for the desk to settle, lets its entrance finish, and only then asks
+  // for an idle moment. On any other route there is no ceremony to protect and
+  // it starts as it always did.
   //
   // Sequential, not Promise.all: five parallel fetches on a slow connection is
   // five things arriving late. One at a time keeps each one cheap, and the
   // order matches how likely a visitor is to want it.
+  const warmable = route !== "" || coverSettled;
+  const warmStarted = useRef(false);
   useEffect(() => {
-    let cancelled = false;
+    // once started it runs to the end — scrolling back up the cover must not
+    // strand it half way, and App never unmounts
+    if (!warmable || warmStarted.current) return;
+    warmStarted.current = true;
     const run = async () => {
       for (const load of WARM) {
-        if (cancelled) return;
         try {
           await load();
         } catch {
@@ -333,17 +378,14 @@ export default function App() {
       }
     };
     const idle = window.requestIdleCallback;
-    // Safari has no requestIdleCallback; a timeout is a fine stand-in, and the
-    // 2s floor keeps this behind the cover's own loading either way.
-    const id = idle
-      ? idle(run, { timeout: 4000 })
-      : setTimeout(run, 2000);
-    return () => {
-      cancelled = true;
-      if (idle) window.cancelIdleCallback?.(id);
-      else clearTimeout(id);
-    };
-  }, []);
+    // 2s: past the dock's 1.4s rise and the desk tiles' stagger. Safari has no
+    // requestIdleCallback; after that wait, starting directly is a fine
+    // stand-in.
+    setTimeout(() => {
+      if (idle) idle(run, { timeout: 4000 });
+      else run();
+    }, 2000);
+  }, [warmable]);
 
   // launching a world is just navigation now — no slide-wipe. The world's
   // own grow-open (WorldWindow) carries the transition, unfolding from

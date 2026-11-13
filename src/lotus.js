@@ -1,340 +1,228 @@
-// Scroll-scrubbing for the cover lotus, from a pre-decoded FRAME SEQUENCE.
+// The cover's two canvases — the lotus scrub and the starfield over it — and
+// the one decision about them that matters: WHICH THREAD PAINTS THEM.
 //
-// WHY NOT A VIDEO
-// ---------------
-// This used to scrub `public/lotus-bloom.mp4` by seeking a <video>, with a
-// runtime frame cache in front of it. The clip is encoded with exactly ONE
-// keyframe for all 241 frames (`ffprobe -select_streams v:0
-// -show_entries packet=flags` returns a single `K`), so there is no seek point
-// after t=0: seeking mid-clip decodes every preceding frame, seeking backwards
-// restarts from zero. Its `moov` was also the last box in the file, so nothing
-// could seek until all 6 MB had arrived. Building the cache from that video
-// still paid the full cost — it just paid it once, over the first several
-// seconds, which is exactly how long the stutter lasted.
+// THEY ARE PAINTED IN A WORKER (lotus.worker.js), and this is why.
 //
-// So the frames are extracted at build time instead (scripts/build_lotus_frames.py)
-// and shipped as images. Every frame is independently decodable, nothing is a
-// seek, and no video decoder is involved at runtime.
+// The bloom used to be drawn from a requestAnimationFrame loop on the page.
+// That makes the flower exactly as smooth as the main thread is free, and on a
+// first visit the main thread is the busiest it will ever be: React is still
+// settling, fonts and code chunks are landing, the desk is about to arrive.
+// Measured on a cold first scroll (headless Chrome, 4x CPU throttle,
+// scripts/measure-cover.mjs): the page managed 15-20 frames across the whole
+// four-second bloom, with single stalls of 700-1000ms. The scroll itself never
+// stalled — the browser scrolls on its own thread — so what a visitor saw was
+// a wheel that turned and a flower that did not.
 //
-// TWO TIERS, so responsiveness never waits on fidelity:
-//   A. one sprite atlas of every frame, small — preloaded in index.html, so it
-//      lands during HTML parse. One request, one decode, and the WHOLE timeline
-//      is scrubbable. This is the zero-stutter guarantee.
-//   B. the full-size frames, streamed in behind it, each swapping into its slot
-//      as it decodes.
-// Because A covers every index from the moment it lands, there is never a
-// missing frame — no nearest-neighbour search, no popping.
+// Every earlier fix made the main thread a little less busy, and each was
+// real, but none could change the arrangement: the flower was still waiting in
+// the same queue as everything else. Moving it off that thread does. An
+// OffscreenCanvas presents straight to the compositor, so:
 //
-// Frame order is already reversed on disk (f00 is the top-of-page resting pose,
-// identical to the preloaded poster), so there is no reverse flag here.
+//   · a long task on the page can no longer freeze the bloom. The worker keeps
+//     easing toward the last scroll position it was told about, and catches up
+//     the instant the next one arrives;
+//   · fetching and decoding the forty full-size frames costs the page nothing,
+//     so they no longer have to wait for the visitor to stop scrolling. They
+//     start the moment the atlas is in — which is what puts the SHARP flower,
+//     not the soft atlas one, under a first-time visitor's first scroll;
+//   · the starfield's clear-and-redraw goes with it. The page now does no
+//     per-frame canvas work at all.
 //
-// The loop also drives the particle field, so the cover runs ONE
-// requestAnimationFrame, not two competing ones.
+// The page's whole part is to say where the scroll is (`setProgress`, called
+// from the scroll handler, so not even a frame late) and how big the canvases
+// are.
+//
+// THE FALLBACK is the same engine (lotus-core.js) run on the page, with its
+// refinement tier gated on stillness and idleness exactly as it was — for a
+// browser without OffscreenCanvas-in-a-worker, which today means Safari before
+// 16.4 and Firefox before 105.
+import { createLotusEngine, ATLAS_URL } from "./lotus-core.js";
+import { createParticles } from "./particles.js";
 
-const FRAME_COUNT = 40;
-const ATLAS_URL = "/lotus/atlas.webp";
-const frameUrl = (i) => `/lotus/f${String(i).padStart(2, "0")}.webp`;
+// 1.5 rather than 2: a backing store's area (and so its fill cost) grows with
+// the square of this, and the source frames are 1600 wide.
+const dprCap = () => Math.min(window.devicePixelRatio || 1, 1.5);
+const boxOf = (el) => [
+  el.clientWidth || window.innerWidth,
+  el.clientHeight || window.innerHeight,
+  dprCap(),
+];
 
-// must match scripts/build_lotus_frames.py
-const FRAME_W = 1600;
-const FRAME_H = 900;
-const ATLAS_COLS = 8;
-const TILE_W = 480;
-const TILE_H = 270;
+const canUseWorker = () =>
+  typeof Worker !== "undefined" &&
+  typeof OffscreenCanvas !== "undefined" &&
+  typeof HTMLCanvasElement !== "undefined" &&
+  "transferControlToOffscreen" in HTMLCanvasElement.prototype;
 
-// How many frames to fetch at once. Enough to saturate an HTTP/2 connection
-// without starving the atlas or the rest of the page of bandwidth.
-const FETCH_CONCURRENCY = 6;
+// The atlas is preloaded by index.html as a fetch, so asking for it here is
+// answered from that preload without touching the network again. A Blob is a
+// handle, not the bytes — handing it to the worker copies nothing.
+const fetchAtlas = () =>
+  fetch(ATLAS_URL)
+    .then((r) => (r.ok ? r.blob() : null))
+    .catch(() => null);
 
-// How long the scroll must be still before the refinement tier may decode
-// again. Short enough that a visitor who stops reading gets crisp frames
-// almost immediately, long enough that it never fires between two wheel ticks.
-const QUIET_MS = 250;
+// A CANVAS CAN ONLY BE HANDED OVER ONCE. transferControlToOffscreen() throws
+// on its second call for the same element, and React's StrictMode mounts every
+// effect twice in development — mount, unmount, mount — against the SAME
+// element. So a live session is remembered per canvas: tearing one down only
+// pauses it and schedules the real end for the next task, and a remount that
+// arrives before then (StrictMode's does, synchronously) takes the session
+// back instead of starting a second.
+const sessions = new WeakMap();
 
-export function createLotusScrubber(canvas, getProgress, opts = {}) {
-  const { onStep } = opts;
-  const ctx = canvas.getContext("2d", { alpha: true });
+/**
+ * @param {HTMLCanvasElement} canvas the lotus
+ * @param {{ particlesCanvas?: HTMLCanvasElement | null, progress?: number }} [opts]
+ * @returns {{ setProgress: (p: number) => void, destroy: () => void }}
+ */
+export function createLotusScrubber(canvas, opts = {}) {
+  const { particlesCanvas = null, progress = 0 } = opts;
   const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  let raf = 0;
-  let destroyed = false;
-  let atlas = null;
-  const frames = new Array(FRAME_COUNT);
-  const aborter = new AbortController();
-
-  // IS THE CEREMONY MOVING RIGHT NOW? The refinement tier is gated on this.
-  // `lastMoveAt` is stamped by the loop whenever scroll progress changes, so
-  // "quiet" means the visitor has stopped scrubbing for QUIET_MS — which is
-  // also the moment the desk begins to arrive, hence the second gate.
-  let lastMoveAt = 0;
-  let lastProgress = -1;
-  let quietWaiters = [];
-
-  let lastIndex = -1;
-  let dirty = true; // force a repaint (resize, or a better frame arrived)
-  let lastT = 0;
-
-  // Temporally smoothed frame position. Wheel scrolls arrive as coarse steps —
-  // a tick can jump several frames at once — so mapping scroll straight to a
-  // frame makes the bloom stutter. The painted position eases toward the live
-  // target every frame instead. Time-based, so the ~quarter-second settle feels
-  // identical at 60Hz and 120Hz.
-  let smoothF = -1;
-
-  function sizeCanvas() {
-    const cssW = canvas.clientWidth || window.innerWidth;
-    const cssH = canvas.clientHeight || window.innerHeight;
-    // A degenerate box means layout hasn't run yet (this effect can commit
-    // before the element has been laid out, and a hidden tab may skip layout
-    // entirely). Sizing to 0 here would leave a permanently blank canvas that
-    // only a later window resize could rescue — so bail and let the
-    // ResizeObserver below call us back the moment a real box exists.
-    if (cssW < 1 || cssH < 1) return;
-    // 1.5 rather than 2: the backing store's area (and so the per-frame fill
-    // cost) grows with the square of this, and the source frames are 1600 wide.
-    const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
-    let bw = Math.round(cssW * dpr);
-    let bh = Math.round(cssH * dpr);
-    // Never ask drawImage to magnify. If cover-fitting the source into this
-    // backing store would upscale, shrink the backing store until it doesn't
-    // and let CSS stretch the canvas ELEMENT the rest of the way — the
-    // compositor does that in hardware for free, whereas drawImage would
-    // resample on the CPU every single frame.
-    const cover = Math.max(bw / FRAME_W, bh / FRAME_H);
-    if (cover > 1) {
-      bw = Math.round(bw / cover);
-      bh = Math.round(bh / cover);
-    }
-    canvas.width = bw;
-    canvas.height = bh;
-    // "medium" not "high": at ~1:1 the difference is invisible on a soft
-    // organic subject, and "high" resampling is real per-frame cost.
-    ctx.imageSmoothingEnabled = true;
-    ctx.imageSmoothingQuality = "medium";
-    dirty = true; // context state and contents are reset by the resize
+  // Reduced motion: fetch nothing, decode nothing, run nothing. The preloaded
+  // poster (the resting pose, identical to frame 0) is the whole experience,
+  // under a starfield painted once and left still.
+  if (reduced) {
+    const stars = particlesCanvas ? createParticles(particlesCanvas) : null;
+    return { setProgress() {}, destroy: () => stars?.destroy() };
   }
 
-  // object-fit: cover, from an arbitrary source rect
-  function coverDraw(src, sx, sy, sw, sh) {
-    const cw = canvas.width;
-    const ch = canvas.height;
-    const s = Math.max(cw / sw, ch / sh);
-    const dw = sw * s;
-    const dh = sh * s;
-    ctx.drawImage(src, sx, sy, sw, sh, (cw - dw) / 2, (ch - dh) / 2, dw, dh);
+  return canUseWorker()
+    ? inWorker(canvas, particlesCanvas, progress)
+    : onPage(canvas, particlesCanvas, progress);
+}
+
+function reveal(canvas) {
+  canvas.style.opacity = "1";
+  performance.mark?.("lotus-scrubbable");
+}
+
+function inWorker(canvas, particlesCanvas, progress) {
+  let session = sessions.get(canvas);
+  let last = progress;
+
+  if (session) {
+    clearTimeout(session.ending);
+    session.worker.postMessage({ type: "resume", p: progress });
+  } else {
+    let worker;
+    try {
+      worker = new Worker(new URL("./lotus.worker.js", import.meta.url), {
+        type: "module",
+      });
+    } catch {
+      // a policy that forbids workers: paint on the page instead
+      return onPage(canvas, particlesCanvas, progress);
+    }
+    session = { worker, ending: 0 };
+    sessions.set(canvas, session);
+
+    worker.onmessage = (ev) => {
+      if (ev.data.type === "ready") reveal(canvas);
+      // how many full-size frames are in — for scripts/measure-cover.mjs, and
+      // for anyone wondering in devtools why the flower is soft
+      else if (ev.data.type === "frames") canvas.dataset.frames = ev.data.n;
+    };
+    // If the worker dies, the canvases went with it and cannot be taken back.
+    // What is left is the poster underneath — the resting lotus, which is the
+    // same picture reduced motion shows on purpose.
+    worker.onerror = () => {
+      canvas.style.opacity = "0";
+    };
+
+    const lotus = canvas.transferControlToOffscreen();
+    const particles = particlesCanvas?.transferControlToOffscreen() ?? null;
+    worker.postMessage(
+      {
+        type: "init",
+        lotus,
+        particles,
+        origin: window.location.origin,
+        lotusSize: boxOf(canvas),
+        particlesSize: particlesCanvas ? boxOf(particlesCanvas) : null,
+        progress,
+      },
+      particles ? [lotus, particles] : [lotus]
+    );
+    fetchAtlas().then((blob) => worker.postMessage({ type: "atlas", blob }));
   }
 
-  function paintFrame(i) {
-    const hi = frames[i];
-    if (hi) {
-      coverDraw(hi, 0, 0, hi.width, hi.height);
-      return true;
+  const { worker } = session;
+  // ResizeObserver, not a window listener: it fires on the initial layout too,
+  // which is what recovers a canvas that had no box yet when it was handed
+  // over, and it tracks the element's own box rather than assuming it always
+  // matches the viewport.
+  const ro = new ResizeObserver((entries) => {
+    for (const e of entries) {
+      worker.postMessage({
+        type: "size",
+        which: e.target === canvas ? "lotus" : "particles",
+        size: boxOf(e.target),
+      });
     }
-    if (atlas) {
-      const col = i % ATLAS_COLS;
-      const row = Math.floor(i / ATLAS_COLS);
-      coverDraw(atlas, col * TILE_W, row * TILE_H, TILE_W, TILE_H);
-      return true;
-    }
-    return false; // nothing decoded yet — the poster still holds the stage
-  }
+  });
+  ro.observe(canvas);
+  if (particlesCanvas) ro.observe(particlesCanvas);
 
-  async function loadAtlas() {
-    const resp = await fetch(ATLAS_URL, { signal: aborter.signal });
-    const blob = await resp.blob();
-    if (destroyed) return;
-    // Decoding from a Blob happens OFF the main thread, unlike
-    // createImageBitmap(<video>), which had to run synchronously against the
-    // element's current frame. This is why the new path cannot block scroll.
-    const bmp = await createImageBitmap(blob);
-    if (destroyed) {
-      bmp.close?.();
-      return;
-    }
-    atlas = bmp;
-    dirty = true;
-    canvas.style.opacity = "1";
-    performance.mark?.("lotus-scrubbable");
-  }
+  return {
+    setProgress(p) {
+      if (p === last) return;
+      last = p;
+      worker.postMessage({ type: "progress", p });
+    },
+    destroy() {
+      ro.disconnect();
+      worker.postMessage({ type: "pause" });
+      session.ending = setTimeout(() => {
+        worker.terminate();
+        sessions.delete(canvas);
+      }, 0);
+    },
+  };
+}
 
-  // Strided [8,4,2,1]: the timeline gets coarse full-length coverage first,
-  // then refines. Unlike the old video path, where each pass restarted near
-  // index 0 and so forced a backward seek (a full re-decode from frame 0),
-  // these are independent image fetches — order costs nothing.
-  function stridedOrder(n) {
-    const order = [];
-    const seen = new Set();
-    for (const stride of [8, 4, 2, 1]) {
-      for (let i = 0; i < n; i += stride) {
-        if (!seen.has(i)) {
-          seen.add(i);
-          order.push(i);
-        }
-      }
-    }
-    for (let i = 0; i < n; i++) {
-      if (!seen.has(i)) order.push(i);
-    }
-    return order;
-  }
+// The engine on the main thread. Same code, same picture — it simply shares
+// the page's frame budget, so the refinement tier goes back behind its gates.
+function onPage(canvas, particlesCanvas, progress) {
+  const stars = particlesCanvas ? createParticles(particlesCanvas) : null;
 
-  // WAIT FOR A GAP BEFORE PULLING FORTY FULL-SIZE FRAMES. This used to start
-  // the instant the atlas decoded, which is the busiest moment the page has:
-  // React is still mounting, the desk's art is still decoding, and forty more
-  // fetches and forty more createImageBitmap calls land on top of it. Measured
-  // on the built site at 4x CPU throttle, holding these back took 680ms off
-  // the main thread's blocked time and 200ms off first paint.
-  //
-  // NOTHING ABOUT THE BLOOM IS REDUCED BY THIS — same forty frames, same
-  // 1600x900, same order. They simply arrive in the first idle moment instead
-  // of during the scramble, and until they do the atlas is already covering
-  // every index, which is exactly the arrangement the two tiers exist for.
-  // The 1.2s timeout is the backstop: a page that never goes idle (a visitor
-  // scrolling immediately) must not be a page that never refines.
-  function whenSpare() {
-    return new Promise((resolve) => {
+  // WAIT FOR A GAP BEFORE EACH FULL-SIZE FRAME. On this thread a decode
+  // competes with React mounting, the desk's art and the scrub itself;
+  // measured at 4x CPU throttle, holding these back took 680ms off the main
+  // thread's blocked time. The 1.2s timeout is the backstop: a page that never
+  // goes idle must not be a page that never refines.
+  const whenSpare = () =>
+    new Promise((resolve) => {
       const idle = window.requestIdleCallback;
       if (idle) idle(() => resolve(), { timeout: 1200 });
       else setTimeout(resolve, 600);
     });
-  }
 
-  // A REFINEMENT MUST NOT COMPETE WITH THE CEREMONY IT REFINES. `whenSpare`
-  // below used to gate only the START of the run: once the first frame went
-  // out, the remaining thirty-nine fetched and decoded straight through
-  // whatever the page was doing — including the scrub itself and the settle at
-  // the end of it, where the desk arrives. A trace of that window ranked
-  // ImageDecoder::DecodeFrameBufferAtIndex at 896ms, the largest single cost
-  // there, and every one of those decodes was for a frame the atlas was
-  // already covering.
-  //
-  // So the gate is per frame now, and it is two gates. First the scrub must be
-  // STILL — decoding a 1600x900 bitmap while someone is scrubbing is the one
-  // moment it cannot afford. Then the main thread must be IDLE, which is what
-  // keeps it out of the settle: the scroll stops and the desk starts arriving
-  // in the same instant, so "the scroll stopped" alone would aim this straight
-  // at the thing it is trying to avoid.
-  //
-  // NOTHING IS LOST BY WAITING. The atlas covers every index from the moment
-  // it decodes, so a frame that arrives late — or never, on a page that is
-  // never idle — costs sharpness on a rewind, not the bloom.
-  function untilQuiet() {
-    if (destroyed) return Promise.resolve();
-    if (performance.now() - lastMoveAt >= QUIET_MS) return Promise.resolve();
-    return new Promise((resolve) => quietWaiters.push(resolve));
-  }
-
-  async function loadFrames() {
-    const order = stridedOrder(FRAME_COUNT);
-    let cursor = 0;
-    const worker = async () => {
-      while (!destroyed) {
-        await untilQuiet();
-        if (destroyed) return;
-        await whenSpare();
-        if (destroyed) return;
-        const at = cursor++;
-        if (at >= order.length) return;
-        const i = order[at];
-        try {
-          // `low`, because these are the REFINEMENT tier: the atlas already
-          // covers every index, so a frame arriving a moment later costs
-          // nothing visible, while competing with the desk's art and the
-          // bundle for bandwidth costs a slower opening.
-          const resp = await fetch(frameUrl(i), {
-            signal: aborter.signal,
-            priority: "low",
-          });
-          const blob = await resp.blob();
-          if (destroyed) return;
-          const bmp = await createImageBitmap(blob);
-          if (destroyed) {
-            bmp.close?.();
-            return;
-          }
-          frames[i] = bmp;
-          // if this frame is the one currently on screen, repaint it crisp
-          if (i === lastIndex) dirty = true;
-        } catch {
-          /* a dropped frame just keeps its atlas tile — nothing to recover */
-        }
-      }
-    };
-    await Promise.all(
-      Array.from({ length: FETCH_CONCURRENCY }, worker)
-    );
-  }
-
-  function loop(now) {
-    if (destroyed) return;
-    const dt = Math.min(0.1, lastT ? (now - lastT) / 1000 : 1 / 60);
-    lastT = now;
-
-    const p = Math.min(1, Math.max(0, getProgress()));
-    const target = p * (FRAME_COUNT - 1);
-    if (smoothF < 0) {
-      smoothF = target; // first paint: land on position, don't ease in from 0
-    } else {
-      smoothF += (target - smoothF) * (1 - Math.exp(-dt * 11));
-      if (Math.abs(target - smoothF) < 0.004) smoothF = target; // settle
-    }
-
-    // Stamp movement, and release the refinement workers once it has stopped.
-    if (p !== lastProgress) {
-      lastProgress = p;
-      lastMoveAt = now;
-    } else if (quietWaiters.length && now - lastMoveAt >= QUIET_MS) {
-      const waiting = quietWaiters;
-      quietWaiters = [];
-      for (const release of waiting) release();
-    }
-
-    const i = Math.round(smoothF);
-    if (i !== lastIndex || dirty) {
-      if (paintFrame(i)) {
-        lastIndex = i;
-        dirty = false;
-      }
-    }
-
-    onStep?.(dt);
-    raf = requestAnimationFrame(loop);
-  }
-
-  sizeCanvas();
-  // ResizeObserver, not just a window listener: it fires on the initial layout
-  // too, which is what recovers the 0x0 case above, and it tracks the element's
-  // own box rather than assuming it always matches the viewport.
-  const ro = new ResizeObserver(sizeCanvas);
+  const engine = createLotusEngine(canvas, {
+    gated: true,
+    whenSpare,
+    onReady: () => reveal(canvas),
+    onFrames: (n) => {
+      canvas.dataset.frames = n;
+    },
+    onStep: stars?.step,
+  });
+  const measure = () => engine.setSize(...boxOf(canvas));
+  measure();
+  const ro = new ResizeObserver(measure);
   ro.observe(canvas);
-  window.addEventListener("resize", sizeCanvas);
 
-  // Reduced motion: fetch nothing, decode nothing, run nothing. The preloaded
-  // poster (the resting pose, identical to frame 0) is the whole experience.
-  if (!reduced) {
-    raf = requestAnimationFrame(loop);
-    loadAtlas()
-      .then(() => !destroyed && loadFrames())
-      .catch(() => {
-        /* offline or blocked: the poster holds, and so does the layout */
-      });
-  }
+  engine.setProgress(progress);
+  engine.start();
+  fetchAtlas().then((blob) => engine.load(blob ?? undefined));
 
   return {
+    setProgress: engine.setProgress,
     destroy() {
-      destroyed = true;
-      cancelAnimationFrame(raf);
-      // the loop is gone, so nothing else will ever release these
-      const stranded = quietWaiters;
-      quietWaiters = [];
-      for (const release of stranded) release();
       ro.disconnect();
-      window.removeEventListener("resize", sizeCanvas);
-      aborter.abort();
-      atlas?.close?.();
-      atlas = null;
-      for (const f of frames) f?.close?.();
-      frames.length = 0;
+      engine.destroy();
+      stars?.destroy();
       canvas.style.opacity = "0";
     },
   };

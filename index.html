@@ -85,11 +85,19 @@
          during HTML parse, rather than waiting for React to mount and an
          effect to run — the moment it decodes the whole scroll timeline is
          scrubbable, which is what makes the first scroll smooth instead of
-         stuttering. The full-size frames stream in behind it. -->
+         stuttering. The full-size frames stream in behind it.
+
+         as="fetch", WITH crossorigin, because that is how it is asked for:
+         lotus.js calls fetch() and hands the Blob to a worker. This said
+         as="image" for months, which no fetch() can ever match — the preload
+         was downloaded, unused, and the real request went out again behind
+         it. A same-origin fetch() is CORS-mode with same-origin credentials,
+         and "anonymous" is the spelling of exactly that. -->
     <link
       rel="preload"
-      as="image"
+      as="fetch"
       href="/lotus/atlas.webp"
+      crossorigin="anonymous"
       fetchpriority="high"
     />
 

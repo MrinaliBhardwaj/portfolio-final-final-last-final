@@ -19,7 +19,6 @@
 // nothing here is a placeholder, so the `is-placeholder` branch and its two CSS
 // rules went too rather than sitting dead. `ClaudeMark` is still exported from
 // BrandIcons if it ever comes back.
-import { motion } from "framer-motion";
 import {
   FigmaMarkColor,
   GmailMark,
@@ -32,7 +31,6 @@ import {
 import FroggieMark from "./FroggieMark.jsx";
 import { EMAIL, GITHUB, INSTAGRAM, LINKEDIN } from "./links.js";
 
-const EASE = [0.22, 1, 0.36, 1];
 
 // The refraction filter, preserved from the source component but with a gentler
 // displacement scale suited to a small, thin dock.
@@ -247,16 +245,14 @@ export default function Dock({ visible, onChoose, active, minimised = [] }) {
   ];
 
   return (
-    <motion.div
+    // The rise is CSS, keyed on <html data-desk> (dock.css). `visible` carries
+    // only what a stylesheet cannot. The wrapper is the curtain the dock
+    // rehearses behind on a first visit (rehearsal.js); otherwise it is
+    // `display: contents` and is not there.
+    <div className="dock-curtain">
+    <div
       className="dock"
       style={{ pointerEvents: visible ? "auto" : "none" }}
-      initial={false}
-      animate={
-        visible
-          ? { y: 0, opacity: 1, filter: "blur(0px)" }
-          : { y: 150, opacity: 0, filter: "blur(14px)" }
-      }
-      transition={{ duration: 1.4, ease: EASE }}
       aria-hidden={!visible}
     >
       <div className="dock-glass">
@@ -274,6 +270,7 @@ export default function Dock({ visible, onChoose, active, minimised = [] }) {
         </div>
       </div>
       <GlassFilter />
-    </motion.div>
+    </div>
+    </div>
   );
 }
