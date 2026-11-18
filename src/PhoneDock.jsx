@@ -55,8 +55,10 @@ const APPS = [
     aria: "Game — the Lotus Pond, catch coding bugs with a pixel frog",
     href: "#/pond",
     mark: <FroggieMark className="ph-mark-glyph" aria-hidden="true" />,
-    skin: "bleed",
-    bg: "#123a52",
+    // on a white tile like the three beside it; the sticker is wider than it
+    // is tall, so a shorter height gives it about the width the others have
+    skin: "light",
+    glyph: "54%",
   },
 ];
 

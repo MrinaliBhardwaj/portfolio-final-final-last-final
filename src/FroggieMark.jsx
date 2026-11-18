@@ -8,40 +8,23 @@
 // HER PIXEL FROG (18 Nov 2026). This used to be a frog drawn here in SVG
 // ellipses, in the game's palette. It is now her own pixel-art sticker —
 // public/dock/froggie.webp, cropped to the sticker's edge and saved at 320px,
-// which covers the largest this tile ever draws at a 2x screen. Pixel art suits
-// it better than the vector frog did: the game is "catch coding bugs with a
-// pixel frog". Both docks (Mac and phone) draw this one component, so the
-// icon is the same everywhere.
+// which covers the largest this ever draws at a 2x screen.
 //
-// The night-pond tile is what makes it read as an APP icon beside VS Code and
-// Figma, which carry their own tiles. A bare sticker would have floated. The
-// sticker brings its own white outline, so it holds against the dark pond.
+// NO TILE OF ITS OWN, the same day, on her call: on the Mac it sits bare in
+// the dock beside Figma and Photos, and on the phone it gets the same white
+// tile those do (PhoneDock.jsx, skin "light"). The night-pond tile it used to
+// carry made it the odd one out on both. So this draws the sticker and nothing
+// else, and the viewBox IS the sticker — 320x234 — so a caller sizing it by
+// height (the phone does) gets the frog, not a padded square around it.
 const SRC = "/dock/froggie.webp";
-// the sticker's own proportions (320x234), so it is never stretched
-const ASPECT = 234 / 320;
 
 export default function FroggieMark({ size = 24, ...rest }) {
-  // 88% of the tile wide, centred, and a hair low: the sticker's lily pad is
-  // its base, so true centre would read as floating upward
-  const w = 28.2;
-  const h = w * ASPECT;
   return (
-    <svg viewBox="0 0 32 32" width={size} height={size} {...rest}>
-      <defs>
-        <linearGradient id="fg-pond" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#2a2b55" />
-          <stop offset="1" stopColor="#0e1b30" />
-        </linearGradient>
-      </defs>
-
-      {/* the pond at night */}
-      <rect width="32" height="32" rx="7.2" fill="url(#fg-pond)" />
+    <svg viewBox="0 0 320 234" width={size} height={(size * 234) / 320} {...rest}>
       <image
         href={SRC}
-        x={(32 - w) / 2}
-        y={(32 - h) / 2 + 0.6}
-        width={w}
-        height={h}
+        width="320"
+        height="234"
         preserveAspectRatio="xMidYMid meet"
       />
     </svg>
