@@ -488,8 +488,12 @@
   background-position: center;
   background-size: contain;
   background-repeat: no-repeat;
-  clip-path: circle(40% at 50% 50%);
-  transform-origin: 50% 50%;
+  /* MEASURED, 18 Nov 2026: a circle fitted to the printed edge of
+     cd-case.webp puts the disc at radius 42.5% of the width, centred
+     at (50.1%, 50.4%), not the 40% / 50% this guessed. Spinning
+     about the same centre keeps it from wobbling in the case. */
+  clip-path: circle(42.5% at 50.1% 50.4%);
+  transform-origin: 50.1% 50.4%;
   animation: cd-spin 4s linear infinite;
   animation-play-state: paused;
   pointer-events: none;
