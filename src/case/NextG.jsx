@@ -237,8 +237,8 @@ export default function NextG() {
             <Statement size="md">One family, held to four sizes.</Statement>
             <Say>
               Mono started out on every label. Wide-tracked uppercase mono is the house style
-              of template design, so I pulled it back to genuine data readouts ( counts,
-              percentages, coordinates)  and let Archivo carry the editorial voice.
+              of template design, so I pulled it back to genuine data readouts (counts,
+              percentages, coordinates) and let Archivo carry the editorial voice.
             </Say>
             <Note>
               The scale below is set in the real face, at her real tracking. Archivo and
