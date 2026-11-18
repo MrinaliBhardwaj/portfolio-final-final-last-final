@@ -32,6 +32,7 @@
 // scrolls straight through it.
 import { useRef, useState } from "react";
 import { DESK, windowHref } from "./DesktopFiles.jsx";
+import { useDeskTrack } from "./CdPlayer.jsx";
 import {
   GitHubMark,
   LinkedInMarkColor,
@@ -231,6 +232,32 @@ function Art({ p }) {
   return img;
 }
 
+/** THE CD PLAYS ON THE PHONE TOO. A tap is the switch (a tap is a user
+ *  activation, so the browser lets it start), and the disc spins for exactly
+ *  as long as there is sound, which is the only on-air light it needs. Same
+ *  hook as the desk's CdPlayer, so same fade, same stop-when-hidden. */
+function PhoneCd({ p, style, visible }) {
+  const { playing, label, toggle, audio } = useDeskTrack();
+  return (
+    <button
+      type="button"
+      className={`ph-tile ph-cd${playing ? " is-spinning" : ""}`}
+      data-key={p.key}
+      style={style}
+      aria-label={label}
+      aria-pressed={playing}
+      tabIndex={visible ? undefined : -1}
+      onClick={toggle}
+    >
+      <span className="ph-tile-art">
+        <Art p={p} />
+        <span className="ph-cd-disc" aria-hidden="true" style={{ backgroundImage: `url(${p.src})` }} />
+      </span>
+      {audio}
+    </button>
+  );
+}
+
 /** one grid tile — a link if the desk says it opens something, paint if not */
 function Tile({ p, visible, onOpenCase, onOpenNote, onOpenEmpty }) {
   const live = !!(p.opensCase || p.opensNote || p.opensEmpty || p.href);
@@ -266,6 +293,8 @@ function Tile({ p, visible, onOpenCase, onOpenNote, onOpenEmpty }) {
     return (
       <div className="ph-tile is-spacer" data-key={p.key} style={style} aria-hidden="true" />
     );
+
+  if (p.player) return <PhoneCd p={p} style={style} visible={visible} />;
 
   if (!live)
     return (

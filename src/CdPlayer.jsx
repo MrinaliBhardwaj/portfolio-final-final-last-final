@@ -23,13 +23,14 @@
 // the jewel case stays put and only the disc turns. No second asset: it is the
 // same file, clipped.
 //
-// SWAPPING THE TRACK. public/audio/desk-track.mp3 is twenty seconds of
-// generated silence — a valid file so the whole mechanism is testable, and
-// nothing anyone would want to hear. Replace that file and nothing here
-// changes. Prefer a 30-45s SEAMLESS LOOP over a whole song: nobody holds a
-// pointer still for four minutes, a loop starts without a buffering gap, and
-// it is a tenth of the bytes. It is fetched on the first click and never
+// THE TRACK (18 Nov 2026): her choice, "I Wish you Roses" (instrumental),
+// the whole song, looping. 3.4MB, but fetched on the first click and never
 // before (`preload="none"`), so until someone asks for it, it costs nothing.
+//
+// THE PHONE'S CD PLAYS TOO (PhoneHome.jsx). A tap is a user activation just
+// as a click is. The audio logic lives in useDeskTrack() below so both CDs
+// run the same fade, the same stop-when-hidden rule and the same honest
+// play/pause state, and the two can never drift.
 import { useCallback, useEffect, useRef, useState } from "react";
 
 const TRACK = "/audio/desk-track.mp3";
@@ -38,11 +39,10 @@ const TRACK = "/audio/desk-track.mp3";
 // a track dead on pause sounds like the page broke rather than like a stop.
 const FADE_MS = 120;
 
-export default function CdPlayer({ piece, style, visible }) {
+export function useDeskTrack() {
   const audioRef = useRef(null);
   const fadeRef = useRef(0);
   const [playing, setPlaying] = useState(false);
-  const [hovered, setHovered] = useState(false);
   const [blocked, setBlocked] = useState(false);
 
   // Ramp the volume rather than stepping it. rAF rather than a timer so the
@@ -121,15 +121,40 @@ export default function CdPlayer({ piece, style, visible }) {
 
   useEffect(() => () => cancelAnimationFrame(fadeRef.current), []);
 
-  // Spin while the pointer is on it, and keep spinning for as long as it
-  // plays — a stopped disc with sound coming out of it would read as broken.
-  const spinning = hovered || playing;
-
   const label = blocked
     ? "The browser blocked the music"
     : playing
       ? "Stop the music"
       : "Play the music";
+
+  // The element is the source of truth for whether it is playing; these
+  // events keep the label, the pressed state and the spin honest from the
+  // instant playback starts, rather than a beat later.
+  const audio = (
+    <audio
+      ref={audioRef}
+      src={TRACK}
+      preload="none"
+      loop
+      onPlay={() => {
+        setPlaying(true);
+        setBlocked(false);
+      }}
+      onPause={() => setPlaying(false)}
+      onEnded={() => setPlaying(false)}
+    />
+  );
+
+  return { playing, label, toggle, audio };
+}
+
+export default function CdPlayer({ piece, style, visible }) {
+  const { playing, label, toggle, audio } = useDeskTrack();
+  const [hovered, setHovered] = useState(false);
+
+  // Spin while the pointer is on it, and keep spinning for as long as it
+  // plays — a stopped disc with sound coming out of it would read as broken.
+  const spinning = hovered || playing;
 
   return (
     <button
@@ -155,21 +180,7 @@ export default function CdPlayer({ piece, style, visible }) {
           style={{ backgroundImage: `url(${piece.src})` }}
         />
       </span>
-      {/* The element is the source of truth for whether it is playing; these
-          two events are what keep the label, the pressed state and the spin
-          honest from the instant playback starts, rather than a beat later. */}
-      <audio
-        ref={audioRef}
-        src={TRACK}
-        preload="none"
-        loop
-        onPlay={() => {
-          setPlaying(true);
-          setBlocked(false);
-        }}
-        onPause={() => setPlaying(false)}
-        onEnded={() => setPlaying(false)}
-      />
+      {audio}
     </button>
   );
 }

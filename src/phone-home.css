@@ -196,6 +196,49 @@
   transform: scale(0.92);
 }
 
+/* ---- the CD: a button that is a tile (PhoneHome.jsx, PhoneCd) ---- */
+.ph-cd {
+  appearance: none;
+  -webkit-appearance: none;
+  background: none;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  cursor: pointer;
+}
+/* The disc: the same artwork clipped to the disc, as on the desk
+   (desktop-files.css, .cd-disc). A SQUARE layer centred in the tile, because
+   the 2x2 cell is not square and a circle clip measured off a rectangle is
+   not the disc. `translate` is its own property so the spin's `transform`
+   does not undo the centring. */
+.ph-cd-disc {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(100cqw, 100cqh);
+  height: min(100cqw, 100cqh);
+  translate: -50% -50%;
+  background-position: center;
+  background-size: contain;
+  background-repeat: no-repeat;
+  clip-path: circle(40% at 50% 50%);
+  animation: cd-spin 4s linear infinite;
+  animation-play-state: paused;
+  pointer-events: none;
+}
+.ph-cd .ph-tile-art {
+  container-type: size; /* the disc squares itself off this box */
+}
+.ph-cd.is-spinning .ph-cd-disc {
+  animation-play-state: running;
+}
+@media (prefers-reduced-motion: reduce) {
+  .ph-cd-disc {
+    animation: none;
+  }
+}
+
 .ph-img {
   display: block;
   width: 100%;

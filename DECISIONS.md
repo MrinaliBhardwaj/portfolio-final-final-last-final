@@ -5351,3 +5351,9 @@ are. Measured after the change: identical positions (Meal Maestro 27,64 at
 - Replacements by role: labels and aria names take a colon ("Figma: enter the design world"); numbered captions, credits and dateline-style labels take the site's middle dot ("01 · Business details", "Layover · brand & product design"); prose takes a comma, colon, full stop or parentheses, whichever the sentence needs. En dashes in ranges (Jan 2024 – Jan 2025, ₹50–500) are a different mark and stay.
 - Check: `scan-dash.mjs`-style DOM scan over every route (innerText, alt/aria-label/title, ::before/::after content) came back clean on all ten routes.
 - Text baked into images can't be scanned; none was found by eye, but new artwork should follow the rule too.
+
+## 18 Nov 2026 — The CD plays her song, on the desk and the phone
+- Track: "I Wish you Roses" (Kali Uchis, instrumental), the whole song, looping, at `public/audio/desk-track.mp3` (3.4MB, metadata stripped, no re-encode). Fetched only on first click (`preload="none"`).
+- Click/tap to play, never hover: browsers block sound until a click/tap/keypress, and unexpected sound in public was her own worry. Desk: disc spins on hover as the "this does something" cue, keeps spinning while it plays. Phone: the CD tile is now a button; the disc spins while playing. No caption anywhere; the spinning disc is the on-air light.
+- Shared logic in `useDeskTrack()` (CdPlayer.jsx): 120ms fade in/out, stops when the tab is hidden.
+- LICENSING: a commercial recording on a public site can draw a takedown. Her call; flagged.
