@@ -5372,3 +5372,8 @@ are. Measured after the change: identical positions (Meal Maestro 27,64 at
 - Images are only what cannot be text: the product screens, the before/after dialogs, the two dot plots, the swatches, and her two photographs. Cut at 2× from her section frames by `scripts/build_regis_shots.py` (16 files, ~850 KB). Trail and board screens are cut above her in-stage captions (the page sets those as text) and the stage margin is put back.
 - Copy changes are punctuation only (no em dashes on the site). Dropped on purpose: the cover's "REGIS ↗" arrow (no destination in her files) and the trail caption's pointer to "What I could not fix", a section not in this frame.
 - New dependency: @fontsource-variable/source-serif-4. The Figma board still folds at the foot of the page as the source, like the other studies.
+
+## Visitor analytics: Vercel Web Analytics (2026-11-19)
+- Cookieless, free on Hobby, no consent banner on the cover. `src/SiteAnalytics.jsx` reports the hash room (#/design → /design) as the path so rooms show separately.
+- Must be switched on in Vercel → project → Analytics. Hobby has no custom events (CD plays, resume opens need Pro).
+- Instagram links use `?utm_source=instagram`: the in-app browser often drops the referrer.

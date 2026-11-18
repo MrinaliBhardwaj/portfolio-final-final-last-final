@@ -44,10 +44,12 @@ import "@fontsource/space-mono/latin-ext-400.css";
 import "@fontsource/caveat/latin-400.css";
 import "@fontsource/caveat/latin-ext-400.css";
 import App from "./App.jsx";
+import SiteAnalytics from "./SiteAnalytics.jsx";
 import "./index.css";
 
 createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <App />
+    <SiteAnalytics />
   </React.StrictMode>
 );
