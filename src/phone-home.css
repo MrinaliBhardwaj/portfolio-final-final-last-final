@@ -50,12 +50,16 @@
   --ph-dots: 26px;
   /* HOW FAR THE PAGE DOTS STAND OFF THE DOCK. They sat with their centre 9px
      above its top edge and read as resting on it; iOS floats them clear,
-     about 22pt centre-to-edge on an iPhone 16, measured off her reference. */
+     about 22pt centre-to-edge on an iPhone 16, measured off her reference.
+     ONLY THE DOTS MOVE. This was also added to the grid's height budget, which
+     shrank the cell — and so every icon and the CD — by ~2px; she had asked
+     for the top of the screen to stay exactly as it was. The dots have the
+     room without it: the grid's last row ends ~20px above them. */
   --ph-dots-lift: 13px;
   /* (the dock's own figures are on :root above — the cell is derived from the
      height left after the dock, so measuring the dock from the cell would be a
      circular definition CSS resolves to nothing) */
-  --ph-chrome: calc(var(--ph-status) + var(--ph-dots) + var(--ph-dots-lift) + var(--ph-dock) + var(--ph-safe) + 18px);
+  --ph-chrome: calc(var(--ph-status) + var(--ph-dots) + var(--ph-dock) + var(--ph-safe) + 18px);
   --ph-cell: clamp(
     46px,
     min(
@@ -171,7 +175,7 @@
   top: var(--ph-status);
   left: 0;
   right: 0;
-  bottom: calc(var(--ph-dock) + var(--ph-safe) + var(--ph-dots) + var(--ph-dots-lift));
+  bottom: calc(var(--ph-dock) + var(--ph-safe) + var(--ph-dots));
   display: flex;
   overflow-x: auto;
   overflow-y: hidden;
@@ -213,15 +217,13 @@
   grid-auto-rows: var(--ph-cell);
   column-gap: var(--ph-gap-x);
   row-gap: var(--ph-gap-y);
-  /* THE GRID ALWAYS SPANS THE SCREEN, as iOS's does. The cell is the smaller
-     of what the width and the height allow, and in Safari — whose toolbars
-     take ~110pt of an iPhone 16 — the height wins by a long way, so the four
-     columns used to huddle in the middle with ~60px of empty margin a side
-     and labels cut to "Futurepren…". The margins are fixed now and the spare
-     width goes into the gaps: a two-column widget grows with them (CSS grid
-     widens a spanning item across the space it spans), so the frog and the
-     crowd still meet the screen's margins exactly. */
-  justify-content: space-between;
+  /* CENTRED, AS IT WAS. For a day this was `space-between`, spreading the
+     spare width into the gaps so the grid always met the screen's margins.
+     That moved and resized the folders and the CD, which she had asked to be
+     left alone, so it is back (18 Nov 2026). The cost it was paying off is
+     real and still here: in Safari the cell is height-bound, so the four
+     columns sit narrower than the screen. */
+  justify-content: center;
   align-content: start;
   padding: 10px var(--ph-margin) var(--ph-label);
 }
@@ -289,26 +291,6 @@
   pointer-events: none;
 }
 
-/* THE FROG STANDS UP IN ITS CARD. The art is a 380x684 cut-out with clear
-   space above and below the animal — the frog itself is 519 tall, 76% of the
-   file. Contained as-is it would sit small in a square; scaled so the ANIMAL
-   (not the file) is 88% of the card's height, it fills the widget the way her
-   reference has it, with its own feet clear of the corners. */
-.ph-widget.is-frog .ph-img {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: auto;
-  height: calc(92% * 684 / 519);
-  transform: translate(-50%, -49%);
-  /* The file's left and right edges cut straight through the frog's toes —
-     the art was framed for the desk, where its own plate hid them. A short
-     fade at each side lets the feet trail off instead of ending on a ruler
-     line in the middle of the card. */
-  -webkit-mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
-  mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
-}
-
 /* the desk's own treatments, carried over: the dragonfly's glass plate and the
    frog's card (see DesktopFiles.jsx) */
 .ph-glass {
@@ -339,12 +321,11 @@
 .ph-tile-label {
   position: absolute;
   top: 100%;
-  /* a label may be wider than its icon, up to about its column's pitch —
-     "Futurepreneurs" is ~75px at this size, and the 49px cell Safari leaves
-     with its toolbars showing would otherwise cut it. The columns are spread
-     ~100px apart there, so the boxes still never meet. */
-  left: -16px;
-  right: -16px;
+  /* 8px either side of the icon, as it was. It was widened for a day, while
+     the columns were spread across the screen; with them centred again at an
+     18px gap, wider boxes let neighbouring labels run into each other. */
+  left: -8px;
+  right: -8px;
   margin-top: 5px;
   font-size: 10.5px;
   line-height: 1.1;

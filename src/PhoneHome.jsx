@@ -58,10 +58,17 @@ const tile = (key, span, over = {}) => ({ ...DESK[key], span, ...over });
 //   1   Meal Maestro Futurepren.  ┌─── CD ────────────┐
 //   2   Layover      NextG Apex   └───────────────────┘
 //   3   About Me     ·            ·            ·          ← the bloom shows
-//   4   ┌── frog ──────────────┐  ·            ·          ← through here
-//   5   └──────────────────────┘  Tech résumé  Design résumé
+//   4   ·            ·            ·            ·          ← through here
+//   5   ·            ·            Tech résumé  Design résumé
 //   6   ┌── crowd ─────────────────────────────────────────┐
 //   7   └──────────────────────────────────────────────────┘
+//
+// THE FROG IS OFF THE PHONE (18 Nov 2026, her call). It sat at rows 4-5,
+// columns 1-2. Nothing moved up into its place on purpose: closing the gap
+// would take page one to six rows, the cell would grow to fill the height,
+// and every icon and the CD with it — and she asked for the top of the screen
+// to stay exactly as it was. The open cells are the bloom's to show through.
+// It is still on the Mac's desk; putting it back is the line below.
 //
 // Every tile is PINNED to its cell. The previous layout leaned on
 // auto-placement, which cannot leave a hole: it packs each tile into the first
@@ -72,14 +79,7 @@ const tile = (key, span, over = {}) => ({ ...DESK[key], span, ...over });
 // WHAT CHANGED, AND THE APPLE RULE BEHIND EACH:
 //   · The crowd is a MEDIUM widget, 4x2 — the full width of the screen. It was
 //     a 2x1, which is not a size iOS has: widgets come in 2x2, 4x2 and 4x4.
-//   · The frog sits on top of it as a SMALL widget, 2x2, on a widget's own
-//     dark card. It used to float on a 4%-white plate inherited from the desk,
-//     which read as a smudge rather than a widget (see .ph-widget).
-//   · The résumés are on row 5, so their icons bottom-align with the frog the
-//     way iOS lines an icon row up with the bottom row of a widget. Her mock
-//     has them centred on the frog, which is between two rows — the grid has
-//     no such slot. Row 5 rather than row 4 keeps the upper cells clear, which
-//     is where her mock lets the lotus show.
+//   · The résumés stay on row 5, directly above the crowd.
 //   · Tech before Design, as the reference orders them.
 //   · The full-row hole the bloom used to get (rows 4-5) is gone: the flower
 //     now shows through the open cells beside About Me and above the résumés,
@@ -106,9 +106,8 @@ const PAGE_ONE = [
   // both were spending a row that the work and the flower use better. Both are
   // still on the desk, and putting either back is a line here.
   //
-  // The widgets drop the desk's own treatments: the frog's plate is replaced
-  // by the widget card, and the crowd's desk radius by the widget radius.
-  tile("frog-jar", [2, 2], { at: [1, 4], plate: undefined, widget: "frog" }),
+  // The crowd drops the desk's own radius for the widget radius.
+  // tile("frog-jar", [2, 2], { at: [1, 4], plate: undefined, widget: "frog" }),
   tile("resume-tech", [1, 1], { at: [3, 5] }),
   tile("resume-design", [1, 1], { at: [4, 5] }),
   tile("crowd", [4, 2], { at: [1, 6], radius: undefined, widget: "photo" }),
@@ -218,7 +217,7 @@ function Art({ p }) {
   );
   // A WIDGET IS A CARD, the way iOS draws one: a dark rounded body that
   // clips whatever it holds. "photo" fills it edge to edge, like the Photos
-  // widget; "frog" stands the cut-out frog up inside it (see .ph-widget).
+  // widget (see .ph-widget).
   if (p.widget)
     return <span className={`ph-widget is-${p.widget}`}>{img}</span>;
   // the dragonfly's glass plate and the frog's card, as on the desk

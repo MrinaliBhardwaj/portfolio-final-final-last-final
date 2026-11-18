@@ -5300,3 +5300,18 @@ iPhone SE). Measured: full 2-row crowd at 852, 740 and 659 tall, no overflow;
 
 Not checkable here: Chrome emulation cannot split small/large viewports the
 way Safari does, so the real-phone look is hers to confirm.
+
+### 18 Nov 2026, later still — the top goes back, the frog goes
+
+She noticed the folders and the CD had changed size and position — which she
+had asked to be left alone. Two changes from the redesign caused it, and both
+are reverted: the grid's `justify-content: space-between` (spread the columns
+across the screen, moving and widening the CD) and adding the page dots' lift
+to the grid's height budget (shrank every cell ~2px). The cell formula is now
+character-for-character the pre-redesign one; labels are back to 8px a side.
+The dots stay raised — only the dots move.
+
+The frog is off the phone (her call). Nothing moved up into its rows: closing
+the gap would make page one six rows, the height-bound cell would grow, and
+the top would change size again. The open cells show the bloom. The crowd
+stays a full-width 4x2 widget with its container-query fallback.
