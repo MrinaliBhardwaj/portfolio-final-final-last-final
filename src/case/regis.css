@@ -1,0 +1,929 @@
+/* ================================ REGIS ================================
+   Her study's own system, read off the file (8qMVRhvaHKN41AHP72kx86): a warm
+   paper ground, one vermilion that means "a statutory date has passed", Inter
+   SemiBold for the questions, Source Serif 4 for everything that is read,
+   JetBrains Mono for labels, and HAIRLINES instead of cards, which is also the
+   product's own rule ("Hairlines, not cards", 09 · The system).
+
+   The page is laid out the way her board is: a question on the left, a quiet
+   serif answer on the right, then the evidence. The two ink bands are where her
+   own board goes dark (the walkthrough's opening, and the close). */
+
+.pp[data-project="regis"] {
+  --pp-bg: #fcf9f2;
+  --pp-sunk: #f4efe3; /* her screen stages */
+  --pp-ink-hi: #15161a;
+  --pp-ink: #2a2924;
+  --pp-dim: #57544c;
+  --pp-faint: #8a867b;
+  --pp-line: #e5dfd1;
+  --pp-accent: #b42318;
+  --pp-on-accent: #fcf9f2;
+
+  --pp-display: "Inter Variable", "Inter", system-ui, sans-serif;
+  --pp-display-w: 600;
+  --pp-display-track: -0.035em; /* 52px at -1.8px */
+  --pp-body: "Source Serif 4 Variable", Georgia, serif;
+  --pp-label: "JetBrains Mono Variable", ui-monospace, monospace;
+  --pp-mono: "JetBrains Mono Variable", ui-monospace, monospace;
+
+  --pp-shadow: none;
+  --pp-radius: 0px;
+  --pp-mast-size: clamp(44px, 6.8cqw, 96px);
+
+  --rg-rule: #d6cfbd; /* the strong hairline between sections */
+  --rg-chip: #efeadc;
+  --rg-band: #1c1a16; /* her ink bands */
+  --rg-serif: "Source Serif 4 Variable", Georgia, serif;
+  --rg-hand: "Caveat", cursive;
+  --rg-grot: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+/* her section label: "01 · TRIAGE", mono, grey, no weight */
+.pp[data-project="regis"] .pp-ch-head {
+  font-weight: 400;
+  letter-spacing: 0.13em;
+}
+.pp[data-project="regis"] .pp-ch-n {
+  color: var(--pp-faint);
+}
+.pp[data-project="regis"] .pp-ch-n::after {
+  content: " ·";
+}
+
+/* SECTIONS ARE DIVIDED BY A FULL-WIDTH HAIRLINE, as on her board, and given
+   her air: ~110px above each heading rather than the page's default 64. */
+.pp[data-project="regis"] .pp-ch {
+  position: relative;
+  padding-top: var(--sp-8);
+}
+.pp[data-project="regis"] .pp-ch + .pp-ch::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: calc(50% - 50cqw);
+  width: 100cqw;
+  height: 1px;
+  background: var(--rg-rule);
+}
+.pp[data-project="regis"] .pp-ch[data-tone="ink"]::before,
+.pp[data-project="regis"] .pp-ch[data-tone="ink"] + .pp-ch::before {
+  display: none;
+}
+
+/* sections whose heading IS the label (her "★ My role", the cover, the
+   close) keep the label for the index and for a screen reader, not the eye */
+.pp[data-project="regis"] .rg-nohead > .pp-ch-head {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ---- her ink bands ---- */
+.pp[data-project="regis"] .pp-ch[data-tone="ink"] {
+  --pp-bg: var(--rg-band);
+  --pp-ink-hi: #fcf9f2;
+  --pp-ink: #e9e4d8;
+  --pp-dim: #b3ad9f;
+  --pp-faint: #8a867b;
+  --pp-line: rgba(252, 249, 242, 0.14);
+
+  width: 100cqw;
+  margin-left: calc(50% - 50cqw);
+  padding-inline: calc(50cqw - 50%);
+  padding-bottom: var(--sp-8);
+  background: var(--pp-bg);
+  color: var(--pp-ink);
+}
+
+/* ---- type ---- */
+.rg-body,
+.rg-cols p,
+.rg-aside {
+  margin: 0;
+  font-family: var(--rg-serif);
+  color: var(--pp-dim);
+}
+.rg-body {
+  font-size: 17.5px;
+  line-height: 1.68;
+}
+.rg-body + .rg-body {
+  margin-top: var(--sp-4);
+}
+.rg-body strong {
+  font-weight: 600;
+  color: var(--pp-ink-hi);
+}
+.rg-body code {
+  font-family: var(--pp-mono);
+  font-size: 0.86em;
+  color: var(--pp-ink-hi);
+}
+.rg-aside {
+  font-size: var(--d-xs);
+  line-height: 1.62;
+}
+
+.rg-tag {
+  margin: 0;
+  font-family: var(--pp-label);
+  font-size: 11px;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--pp-faint);
+}
+
+/* the question on the left, her quiet answer on the right */
+.rg-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1.65fr) minmax(0, 1fr);
+  gap: var(--sp-6);
+  align-items: start;
+  margin-bottom: var(--sp-7);
+}
+.rg-head .pp-say {
+  max-width: 17ch;
+}
+.rg-head .rg-aside {
+  padding-top: 10px;
+}
+
+/* her four- and three-column narrative rows */
+.rg-cols {
+  display: grid;
+  grid-template-columns: repeat(var(--rg-n, 4), minmax(0, 1fr));
+  gap: var(--sp-5);
+  margin: 0 0 var(--sp-7);
+}
+.rg-cols p {
+  font-size: 16px;
+  line-height: 1.62;
+}
+
+/* ---- figures ---- */
+.rg-fig {
+  margin: 0;
+}
+.rg-fig img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.rg-fig.is-stage img {
+  background: var(--pp-sunk);
+}
+.rg-fig.is-framed img {
+  outline: 1px solid var(--pp-line);
+  outline-offset: -1px;
+}
+.rg-cap {
+  max-width: 420px;
+  margin: var(--sp-3) 0 0 auto;
+  font-family: var(--rg-serif);
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--pp-faint);
+}
+
+/* ================= the opening (her "01 Cover") ================= */
+.rg-strip {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding-bottom: var(--sp-4);
+  border-bottom: 1px solid var(--rg-rule);
+}
+.rg-strip .rg-tag:first-child {
+  color: var(--pp-ink-hi);
+}
+.rg-strip i {
+  width: 8px;
+  height: 8px;
+  background: var(--pp-accent);
+}
+.rg-strip .rg-tag:last-child {
+  margin-left: auto;
+}
+
+.rg-cover {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 0.5fr);
+  border-bottom: 1px solid var(--rg-rule);
+}
+.rg-title {
+  margin: 0;
+  padding: var(--sp-8) var(--sp-6) var(--sp-8) 0;
+  font-family: var(--rg-grot);
+  font-size: var(--d-xl);
+  font-weight: 400;
+  line-height: 1.08;
+  letter-spacing: -0.04em;
+  color: var(--pp-ink-hi);
+}
+.rg-cover-meta {
+  display: flex;
+  flex-direction: column;
+  border-left: 1px solid var(--rg-rule);
+}
+.rg-cover-meta ul {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin: 0;
+  padding: var(--sp-7) 0 var(--sp-5) var(--sp-6);
+  list-style: none;
+  font-family: var(--pp-label);
+  font-size: 12.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--pp-faint);
+}
+.rg-cover-meta ul + ul {
+  padding-top: var(--sp-5);
+  border-top: 1px solid rgba(214, 207, 189, 0.45);
+}
+.rg-cover-meta .is-ink {
+  color: var(--pp-ink-hi);
+}
+/* her chip, sitting on the rule under the title */
+.rg-chip {
+  position: absolute;
+  right: calc(33.333% - 0px);
+  bottom: 0;
+  translate: 50% 50%;
+  margin: 0;
+  padding: 12px 20px;
+  background: var(--rg-band);
+  color: #fcf9f2;
+  font-family: var(--rg-serif);
+  font-size: 18px;
+  white-space: nowrap;
+}
+
+/* "Compliance isn't hard in India. It's relentless." */
+.rg-relent {
+  display: grid;
+  grid-template-columns: minmax(0, 0.72fr) minmax(0, 1fr);
+  margin-top: var(--sp-8);
+  border-bottom: 1px solid var(--rg-rule);
+}
+.rg-justice {
+  align-self: end;
+  margin: 0;
+  border-right: 1px solid var(--pp-line);
+}
+.rg-justice img {
+  display: block;
+  width: 100%;
+  max-width: 460px;
+  height: auto;
+  margin-right: auto;
+}
+.rg-relent-say {
+  align-self: center;
+  padding: var(--sp-7) 0 var(--sp-7) var(--sp-7);
+}
+.rg-relent-say .pp-say {
+  max-width: 15ch;
+}
+.rg-scrawl {
+  display: block;
+  margin: 6px 0 var(--sp-4) 5.2em;
+  font-family: var(--rg-hand);
+  font-weight: 700;
+  font-size: clamp(24px, 2.4cqw, 34px);
+  line-height: 1;
+  color: var(--pp-accent);
+  rotate: -2deg;
+}
+.rg-scrawl::before {
+  content: "⌃";
+  display: block;
+  margin: 0 0 2px 0.4em;
+  font-family: var(--pp-display);
+  font-size: 16px;
+  font-weight: 500;
+}
+
+/* ================= the problem ================= */
+.rg-problem {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 0.42fr);
+  border-top: 1px solid var(--rg-rule);
+  border-bottom: 1px solid var(--rg-rule);
+}
+.rg-problem-main {
+  display: grid;
+  grid-template-columns: minmax(0, 0.92fr) minmax(0, 1fr);
+}
+.rg-problem-main > * {
+  padding: var(--sp-6) var(--sp-6) var(--sp-6) 0;
+  border-bottom: 1px solid var(--pp-line);
+}
+.rg-problem-main > :nth-child(even) {
+  padding-left: var(--sp-6);
+  border-left: 1px solid var(--pp-line);
+}
+.rg-problem-main > :nth-last-child(-n + 2) {
+  border-bottom: 0;
+}
+.rg-problem-main h4 {
+  margin: 0 0 var(--sp-3);
+  font-family: var(--rg-serif);
+  font-size: 19px;
+  font-weight: 600;
+  line-height: 1.5;
+  color: var(--pp-ink-hi);
+}
+.rg-problem-main p {
+  margin: 0;
+  font-family: var(--rg-serif);
+  font-size: 16.5px;
+  line-height: 1.64;
+  color: var(--pp-dim);
+}
+.rg-lead {
+  font-family: var(--rg-serif);
+  font-size: clamp(19px, 1.9cqw, 24px) !important;
+  line-height: 1.46 !important;
+}
+.rg-lead strong {
+  display: block;
+  margin-bottom: var(--sp-3);
+  font-weight: 600;
+  color: var(--pp-ink-hi);
+}
+.rg-lead span {
+  color: var(--pp-faint);
+}
+.rg-quote {
+  font-style: italic;
+  font-size: clamp(18px, 1.7cqw, 21px) !important;
+  line-height: 1.58 !important;
+  color: var(--pp-ink-hi) !important;
+}
+.rg-quote + .rg-tag {
+  margin-top: var(--sp-4);
+  color: var(--pp-accent);
+}
+.rg-quote + .rg-tag::before {
+  content: "";
+  display: inline-block;
+  width: 18px;
+  height: 1px;
+  margin-right: 8px;
+  vertical-align: 0.3em;
+  background: currentColor;
+}
+.rg-portrait {
+  align-self: end;
+  margin: 0;
+  border-left: 1px solid var(--pp-line);
+  overflow: hidden;
+}
+.rg-portrait img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* Monday morning: question | answer, on hairlines */
+.rg-monday {
+  margin: 0;
+  padding: var(--sp-7) 0 0;
+}
+.rg-monday > div {
+  display: grid;
+  grid-template-columns: minmax(0, 0.58fr) minmax(0, 1fr);
+  gap: var(--sp-5);
+  padding: 18px 0;
+  border-bottom: 1px solid var(--pp-line);
+  font-family: var(--rg-serif);
+  font-size: 18px;
+  line-height: 1.55;
+}
+.rg-monday > div:last-child {
+  border-bottom: 0;
+}
+.rg-monday dt {
+  font-weight: 600;
+  color: var(--pp-ink-hi);
+}
+.rg-monday dd {
+  margin: 0;
+  color: var(--pp-dim);
+}
+
+/* ================= the product: three things ================= */
+.rg-split {
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+  gap: var(--sp-6);
+  align-items: start;
+}
+.rg-three {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--sp-5);
+  margin: var(--sp-6) 0 0;
+  padding: 0;
+  list-style: none;
+}
+.rg-num {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  margin-bottom: var(--sp-4);
+  background: var(--rg-chip);
+  font-family: var(--rg-serif);
+  font-size: 14px;
+  color: var(--pp-dim);
+}
+.rg-three h4,
+.rg-rules h4,
+.rg-key h4 {
+  margin: 0 0 10px;
+  font-family: var(--pp-display);
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.3;
+  color: var(--pp-ink-hi);
+}
+.rg-three p,
+.rg-rules p,
+.rg-key p {
+  margin: 0;
+  font-family: var(--rg-serif);
+  font-size: 15.5px;
+  line-height: 1.62;
+  color: var(--pp-dim);
+}
+
+/* ================= my role ================= */
+.rg-role {
+  border-left: 1px solid var(--pp-line);
+  padding-left: var(--sp-6);
+}
+.rg-star {
+  color: var(--pp-accent);
+  margin-right: 0.35em;
+  font-size: 0.78em;
+  vertical-align: 0.08em;
+}
+.rg-facts4 {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--sp-4);
+  margin: var(--sp-6) 0 0;
+  padding-top: var(--sp-5);
+  border-top: 1px solid var(--pp-line);
+}
+.rg-facts4 dt {
+  margin-bottom: 10px;
+}
+.rg-facts4 dd {
+  margin: 0;
+  font-family: var(--rg-serif);
+  font-size: 16px;
+  color: var(--pp-ink-hi);
+}
+
+/* ================= numbered rules: principles, fatigue ================= */
+.rg-rules {
+  display: grid;
+  grid-template-columns: repeat(var(--rg-n, 4), minmax(0, 1fr));
+  gap: var(--sp-6) var(--sp-5);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.rg-rules li {
+  padding-top: var(--sp-3);
+  border-top: 1px solid var(--pp-ink-hi);
+}
+.rg-rules .rg-tag {
+  margin-bottom: var(--sp-3);
+}
+
+/* ================= the walkthrough band ================= */
+.rg-question {
+  max-width: 24ch !important;
+  font-size: var(--d-lg);
+}
+
+/* ================= 02 · the ranking ================= */
+.rg-model {
+  padding: var(--sp-5);
+  background: #fffdf8;
+  border: 1px solid var(--rg-rule);
+  font-family: var(--pp-mono);
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--pp-ink-hi);
+}
+.rg-model-eq {
+  margin: 10px 0 var(--sp-4);
+  padding-bottom: var(--sp-4);
+  border-bottom: 1px solid var(--pp-line);
+  font-size: 16px;
+}
+.rg-model-eq i {
+  font-style: normal;
+  color: var(--pp-faint);
+  margin: 0 0.6em;
+}
+/* label above its values: the card is a half-column wide, and her table's
+   longest row ("overdue  3 + log10(1 + days/7) × 1.5") will not share a line
+   with a label column at that width */
+.rg-model dl {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+}
+.rg-model dd + dt {
+  margin-top: var(--sp-3);
+}
+.rg-model dt {
+  color: var(--pp-dim);
+}
+.rg-model dd {
+  margin: 0;
+}
+.rg-model dd span + span {
+  margin-left: 1.6em;
+}
+.rg-model table {
+  border-collapse: collapse;
+}
+.rg-model td {
+  padding: 0 1.6em 3px 0;
+  vertical-align: top;
+  white-space: nowrap;
+}
+.rg-model-note {
+  margin: var(--sp-3) 0 0;
+  font-family: var(--rg-serif);
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--pp-faint);
+}
+
+.rg-scores {
+  margin-top: var(--sp-7);
+  padding-top: var(--sp-3);
+  border-top: 1px solid var(--rg-rule);
+}
+.rg-plot {
+  margin: var(--sp-5) 0 0;
+}
+.rg-plot-head {
+  display: grid;
+  grid-template-columns: 190px minmax(0, 1fr);
+  align-items: baseline;
+  margin-bottom: 10px;
+}
+.rg-plot-head b {
+  font-family: var(--pp-display);
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--pp-ink-hi);
+}
+.rg-plot img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.rg-plot-foot {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 0.8fr);
+  gap: var(--sp-6);
+  margin-top: var(--sp-3);
+}
+.rg-plot-foot p {
+  margin: 0;
+  font-family: var(--rg-serif);
+  font-size: 15px;
+  line-height: 1.58;
+  color: var(--pp-dim);
+}
+.rg-plot-foot p.is-alert {
+  color: var(--pp-accent);
+}
+.rg-plot-foot p.is-note {
+  color: var(--pp-faint);
+  font-size: 14px;
+}
+.rg-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 20px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-family: var(--pp-display);
+  font-size: 12.5px;
+  color: var(--pp-faint);
+}
+.rg-legend i {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-right: 8px;
+  border-radius: 50%;
+  vertical-align: 0.12em;
+  background: #9a968b;
+}
+.rg-legend i.is-red {
+  background: var(--pp-accent);
+}
+.rg-close-line {
+  margin-top: var(--sp-7) !important;
+  max-width: 62ch;
+}
+
+/* ================= 03 · the queue key ================= */
+.rg-key {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: var(--sp-5);
+  margin: var(--sp-7) 0 0;
+  padding: var(--sp-5) 0 0;
+  border-top: 1px solid var(--rg-rule);
+  list-style: none;
+}
+.rg-key-n {
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  margin-bottom: var(--sp-3);
+  border-radius: 50%;
+  background: var(--pp-ink-hi);
+  color: #fcf9f2;
+  font-family: var(--pp-display);
+  font-size: 11px;
+  font-weight: 600;
+}
+.rg-key p {
+  font-size: 14.5px;
+}
+
+/* ================= before / shipped ================= */
+.rg-two {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--sp-6);
+  margin-bottom: var(--sp-7);
+}
+/* side by side, not stacked: the stacking gap must not push the second down */
+.rg-two > .rg-body + .rg-body {
+  margin-top: 0;
+}
+.rg-compare {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--sp-6);
+}
+.rg-panel {
+  margin: 0;
+  padding-top: var(--sp-3);
+  border-top: 2px solid var(--pp-ink-hi);
+}
+.rg-panel.is-before {
+  border-top-color: var(--pp-accent);
+}
+.rg-panel.is-before .rg-tag {
+  color: var(--pp-accent);
+}
+.rg-panel .rg-tag {
+  margin-bottom: var(--sp-4);
+  color: var(--pp-ink-hi);
+}
+.rg-panel img {
+  display: block;
+  width: 100%;
+  height: auto;
+  background: var(--pp-sunk);
+}
+.rg-panel figcaption {
+  margin-top: var(--sp-3);
+  font-family: var(--rg-serif);
+  font-size: 15px;
+  line-height: 1.58;
+  color: var(--pp-dim);
+}
+
+/* ================= 09 · Ledger ================= */
+.rg-swatches {
+  margin: var(--sp-7) 0 0;
+  padding-top: var(--sp-3);
+  border-top: 1px solid var(--rg-rule);
+}
+.rg-swatches img {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin-top: var(--sp-4);
+}
+.rg-type {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.75fr);
+  gap: var(--sp-7);
+  margin-top: var(--sp-7);
+  padding-top: var(--sp-3);
+  border-top: 1px solid var(--rg-rule);
+}
+.rg-ramp {
+  margin: var(--sp-4) 0 0;
+}
+.rg-ramp > div {
+  display: grid;
+  grid-template-columns: 150px minmax(0, 1fr);
+  align-items: baseline;
+  gap: var(--sp-4);
+  padding: 16px 0;
+  border-top: 1px solid var(--pp-line);
+}
+.rg-ramp dt {
+  font-family: var(--pp-mono);
+  font-size: 11px;
+  color: var(--pp-faint);
+}
+.rg-ramp dd {
+  margin: 0;
+  min-width: 0;
+  color: var(--pp-ink-hi);
+  font-family: var(--pp-display);
+}
+.rg-ramp .is-score {
+  font-size: 38px;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+.rg-ramp .is-h1 {
+  font-size: 21px;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+.rg-ramp .is-h3 {
+  font-size: 14px;
+  font-weight: 600;
+}
+.rg-ramp .is-body {
+  font-size: 14px;
+}
+.rg-ramp .is-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  word-spacing: 0.8em;
+}
+.rg-ramp .is-mono {
+  font-family: var(--pp-mono);
+  font-size: 12.5px;
+}
+.rg-built h4 {
+  margin: var(--sp-4) 0 var(--sp-3);
+  font-family: var(--pp-display);
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--pp-ink-hi);
+}
+.rg-built .rg-fig {
+  margin-top: var(--sp-5);
+}
+
+/* ================= the close ================= */
+.rg-end-name {
+  margin: 0;
+  font-family: var(--pp-display);
+  font-size: clamp(56px, 8cqw, 112px);
+  font-weight: 600;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  color: var(--pp-ink-hi);
+}
+.rg-end-thanks {
+  margin: var(--sp-4) 0 var(--sp-8);
+  font-family: var(--rg-serif);
+  font-size: var(--d-xs);
+  color: var(--pp-dim);
+}
+.rg-end-meta {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--sp-4);
+  margin: 0;
+  padding-top: var(--sp-5);
+  border-top: 1px solid var(--pp-line);
+}
+.rg-end-meta dt {
+  margin-bottom: 10px;
+}
+.rg-end-meta dd {
+  margin: 0;
+  font-family: var(--rg-serif);
+  font-size: 16px;
+  color: var(--pp-ink-hi);
+}
+
+/* ================= narrower windows ================= */
+@container cwdoc (max-width: 900px) {
+  .rg-head,
+  .rg-split,
+  .rg-type {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--sp-4);
+  }
+  .rg-cols,
+  .rg-rules,
+  .rg-three {
+    --rg-n: 2;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .rg-key {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .rg-problem {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .rg-portrait {
+    display: none;
+  }
+  .rg-relent {
+    grid-template-columns: minmax(0, 0.6fr) minmax(0, 1fr);
+  }
+  .rg-relent-say {
+    padding-left: var(--sp-5);
+  }
+  .rg-chip {
+    right: auto;
+    left: 0;
+    translate: 0 50%;
+  }
+}
+
+@container cwdoc (max-width: 620px) {
+  .rg-cover,
+  .rg-relent,
+  .rg-problem-main,
+  .rg-monday > div,
+  .rg-two,
+  .rg-compare,
+  .rg-plot-foot {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .rg-cols,
+  .rg-rules,
+  .rg-three,
+  .rg-key,
+  .rg-facts4,
+  .rg-end-meta {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .rg-title {
+    padding: var(--sp-6) 0;
+  }
+  .rg-cover-meta {
+    border-left: 0;
+    border-top: 1px solid var(--rg-rule);
+  }
+  .rg-cover-meta ul {
+    padding: var(--sp-4) 0;
+  }
+  .rg-chip {
+    position: static;
+    translate: none;
+    justify-self: start;
+    margin: 0 0 calc(-1 * var(--sp-4));
+  }
+  .rg-justice {
+    border-right: 0;
+  }
+  .rg-relent-say {
+    padding: var(--sp-5) 0;
+  }
+  .rg-problem-main > *,
+  .rg-problem-main > :nth-child(even) {
+    padding: var(--sp-4) 0;
+    border-left: 0;
+    border-bottom: 1px solid var(--pp-line);
+  }
+  .rg-role {
+    border-left: 0;
+    padding-left: 0;
+  }
+  .rg-plot-head,
+  .rg-ramp > div {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 6px;
+  }
+}

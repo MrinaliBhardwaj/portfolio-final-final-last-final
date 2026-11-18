@@ -40,6 +40,11 @@ import "@fontsource/poppins/latin-400.css";
 import "@fontsource/poppins/latin-500.css";
 import "@fontsource/poppins/latin-600.css";
 import "@fontsource/poppins/latin-700.css";
+// Regis: her body face, upright and italic (the "who this is for" line), and
+// the Caveat hand for the one annotation on her cover
+import "@fontsource-variable/source-serif-4/index.css";
+import "@fontsource-variable/source-serif-4/opsz-italic.css";
+import "@fontsource/caveat/700.css";
 
 import {
   ChapterNav,
@@ -54,6 +59,7 @@ import Layover from "./Layover.jsx";
 import MealMaestro from "./MealMaestro.jsx";
 import Futurepreneurs from "./Futurepreneurs.jsx";
 import NextG from "./NextG.jsx";
+import Regis from "./Regis.jsx";
 import "./project-page.css";
 import "./themes.css";
 
@@ -122,6 +128,7 @@ const STORIES = {
   "meal-maestro": MealMaestro,
   futurepreneurs: Futurepreneurs,
   nextg: NextG,
+  regis: Regis,
 };
 
 /** the one project whose masthead sits on its own gradient */
