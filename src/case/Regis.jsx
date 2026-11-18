@@ -22,11 +22,23 @@ import "./regis.css";
 
 const F = (n) => `/work/regis/fig/${n}.webp`;
 
-/** an image at its manifest size, lazy, its box reserved */
-function Img({ name, alt }) {
+/** an image at its manifest size, lazy, its box reserved. `pan` is the width
+    (px) it keeps on a phone: a 1360px product screen squeezed into 360px is
+    unreadable, so below 620px it holds this width inside a sideways-scrolling
+    strip instead. On wider windows the wrapper is inert. */
+function Img({ name, alt, pan }) {
   const [w, h] = size(F(name));
-  return (
+  const img = (
     <img src={F(name)} alt={alt} width={w} height={h} loading="lazy" decoding="async" draggable="false" />
+  );
+  if (!pan) return img;
+  return (
+    <>
+      <div className="rg-pan" style={{ "--rg-pan": `${pan}px` }}>
+        {img}
+      </div>
+      <p className="rg-pan-hint" aria-hidden="true">Swipe to see it all →</p>
+    </>
   );
 }
 
@@ -61,7 +73,7 @@ function Cols({ items }) {
 function Screen({ name, alt, caption, framed = false }) {
   return (
     <Reveal as="figure" from="in" className={`rg-fig${framed ? " is-framed" : " is-stage"}`}>
-      <Img name={name} alt={alt} />
+      <Img name={name} alt={alt} pan={820} />
       {caption && <figcaption className="rg-cap">{caption}</figcaption>}
     </Reveal>
   );
@@ -436,6 +448,7 @@ export default function Regis() {
             </div>
             <Img
               name="plot-capped"
+              pan={720}
               alt="Dot plot of priority scores with lateness capped: the overdue obligations stack in three tall columns, almost all at a score of exactly 15."
             />
             <div className="rg-plot-foot">
@@ -464,6 +477,7 @@ export default function Regis() {
             </div>
             <Img
               name="plot-log"
+              pan={720}
               alt="Dot plot of the shipped log-curve scores: the same obligations spread across the whole range, the critical band scattered rather than stacked."
             />
             <div className="rg-plot-foot">
@@ -681,6 +695,7 @@ export default function Regis() {
           <p className="rg-tag">Colour · 27 semantic tokens × 2 modes</p>
           <Img
             name="swatches"
+            pan={680}
             alt="Ledger's colour tokens in eight families (ground, ink, structure, accent, critical, warning, good, info), light mode above and the same tokens in dark mode below."
           />
         </Reveal>
@@ -713,6 +728,7 @@ export default function Regis() {
             <Reveal as="figure" from="in" className="rg-fig">
               <Img
                 name="dark"
+                pan={700}
                 alt="The obligations tracker in dark mode, identical in layout to the light one."
               />
               <figcaption className="rg-cap" style={{ marginLeft: 0 }}>

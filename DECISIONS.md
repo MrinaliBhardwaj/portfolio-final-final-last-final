@@ -5380,3 +5380,7 @@ are. Measured after the change: identical positions (Meal Maestro 27,64 at
 
 ## Phone CD: one-time play hint (2026-11-19)
 - Phone has no hover, so the white play glyph shows once ~1.4s after load, holds ~1.6s, fades. Hidden once playing. CSS only (opacity/scale).
+
+## Regis on phone (2026-11-19)
+- Below 620px: product screens, dot plots, swatches and the dark screen go full-bleed and pan sideways at a readable fixed width (820/720/680/700px) with a "Swipe to see it all" hint, instead of shrinking to thumbnails. Before/after dialogs go edge to edge.
+- Model card values wrap inside the card; section air drops 96px to 48px. Desktop unchanged.

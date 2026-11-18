@@ -927,3 +927,82 @@
     gap: 6px;
   }
 }
+
+/* ================= phone ================= */
+/* the sideways strip is only switched on here; above 620px it is inert */
+.rg-pan-hint {
+  display: none;
+}
+@container cwdoc (max-width: 620px) {
+  /* her 96px section air is a desktop rhythm; on a phone it reads as a gap */
+  .pp[data-project="regis"] .pp-ch {
+    padding-top: var(--sp-6);
+  }
+  .pp[data-project="regis"] .pp-ch[data-tone="ink"] {
+    padding-bottom: var(--sp-6);
+  }
+  .rg-head {
+    margin-bottom: var(--sp-5);
+  }
+  .rg-cols {
+    gap: var(--sp-4);
+    margin-bottom: var(--sp-5);
+  }
+
+  /* product screens, plots, swatches: full-bleed and pannable at a readable
+     width rather than shrunk to an illegible thumbnail */
+  .rg-pan {
+    width: 100cqw;
+    margin-left: calc(50% - 50cqw);
+    padding-inline: calc(50cqw - 50%);
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  .rg-pan::-webkit-scrollbar {
+    display: none;
+  }
+  .rg-pan img {
+    width: var(--rg-pan) !important;
+    max-width: none;
+  }
+  .rg-pan-hint {
+    display: block;
+    margin: 8px 0 0;
+    font-family: var(--pp-mono);
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--pp-faint);
+  }
+  .rg-cap {
+    max-width: none;
+    margin-left: 0;
+  }
+
+  /* the model card: values may wrap instead of running out of the card */
+  .rg-model {
+    padding: var(--sp-4);
+    font-size: 12px;
+  }
+  .rg-model-eq {
+    font-size: 14px;
+  }
+  .rg-model td {
+    padding-right: 1em;
+  }
+  .rg-model td + td {
+    white-space: normal;
+  }
+  .rg-model dd span + span {
+    margin-left: 1em;
+  }
+
+  /* before/after dialogs: a touch wider, to the screen edges */
+  .rg-compare img {
+    width: 100cqw;
+    max-width: none;
+    margin-left: calc(50% - 50cqw);
+  }
+}
