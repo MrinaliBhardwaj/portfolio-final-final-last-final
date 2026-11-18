@@ -5329,3 +5329,8 @@ would grow every icon and the CD — which she has just asked to stay as they
 are. Measured after the change: identical positions (Meal Maestro 27,64 at
 71x71; CD 161x167). If the top margin ever reads as too empty, lowering
 `--ph-status` is the one dial, and it will enlarge the grid.
+
+## 18 Nov 2026 — Notes: the grown-up portrait is dp.jpeg
+- The portrait at the end of the scribbled line on page one (#/notes) is now her photo `Downloads/dp.jpeg` (pink shirt, sunglasses on her head), replacing the maroon-shirt passport photo.
+- It is baked into `public/notes/origin.webp`, so it was swapped in pixels: warped into the old photo's measured quad (≈7° tilt, ~185×222px in the 1673×714 frame), 1.2% past the old edge so no maroon bleeds, the old drop shadow kept. The photo was cropped to the frame's aspect, trimming mostly from the bottom to keep the sunglasses.
+- Nothing else reads those pixels (the milestone dots are fixed percentages); the alt text ("a recent portrait of her") still holds.
