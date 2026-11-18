@@ -235,6 +235,31 @@
 .ph-cd .ph-tile-art {
   container-type: size; /* the disc squares itself off this box */
 }
+/* phone has no hover, so the desktop's play glyph appears once on load, holds
+   briefly, then fades away for good. Opacity/scale only. */
+.ph-cd-hint {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 34%;
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  opacity: 0;
+  pointer-events: none;
+  animation: ph-cd-hint 3.2s ease 1.4s both;
+}
+.ph-cd-hint svg {
+  width: 100%;
+  height: 100%;
+  fill: #fff;
+  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.45));
+}
+@keyframes ph-cd-hint {
+  0% { opacity: 0; scale: 0.8; }
+  15%, 70% { opacity: 1; scale: 1; }
+  100% { opacity: 0; scale: 1; }
+}
+.ph-cd.is-spinning .ph-cd-hint { animation: none; opacity: 0; }
 .ph-cd.is-spinning .ph-cd-disc {
   animation-play-state: running;
 }

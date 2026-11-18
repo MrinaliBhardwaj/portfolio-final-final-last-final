@@ -255,6 +255,10 @@ function PhoneCd({ p, style, visible }) {
       <span className="ph-tile-art">
         <Art p={p} />
         <span className="ph-cd-disc" aria-hidden="true" style={{ backgroundImage: `url(${p.src})` }} />
+        {/* a one-time hint, since a phone has no hover: shows, then fades for good */}
+        <span className="ph-cd-hint" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M9 6.6v10.8a.8.8 0 0 0 1.2.7l8.6-5.4a.8.8 0 0 0 0-1.4l-8.6-5.4a.8.8 0 0 0-1.2.7z" /></svg>
+        </span>
       </span>
       {audio}
     </button>

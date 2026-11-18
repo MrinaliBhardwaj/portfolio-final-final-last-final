@@ -5377,3 +5377,6 @@ are. Measured after the change: identical positions (Meal Maestro 27,64 at
 - Cookieless, free on Hobby, no consent banner on the cover. `src/SiteAnalytics.jsx` reports the hash room (#/design → /design) as the path so rooms show separately.
 - Must be switched on in Vercel → project → Analytics. Hobby has no custom events (CD plays, resume opens need Pro).
 - Instagram links use `?utm_source=instagram`: the in-app browser often drops the referrer.
+
+## Phone CD: one-time play hint (2026-11-19)
+- Phone has no hover, so the white play glyph shows once ~1.4s after load, holds ~1.6s, fades. Hidden once playing. CSS only (opacity/scale).
