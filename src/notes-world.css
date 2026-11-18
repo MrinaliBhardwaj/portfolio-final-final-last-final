@@ -482,68 +482,43 @@
 }
 
 
-/* ---- Portrait phones get a "turn me sideways" gate; landscape gets nothing
-   special at all ----
-   REVERSES the 2026-07-28 decision (DECISIONS.md) to pan instead of rotate.
-   That entry rejected a page-wide `rotate(90deg)` because it breaks the fixed
-   dock, `dvh` sizing, scroll direction and text selection all at once — true
-   of faking landscape with a transform while the phone is still held
-   portrait. It is NOT true of asking for the real thing: a phone actually
-   turned sideways is a genuine landscape viewport as far as the browser is
-   concerned, so none of those four problems exist to trigger.
+/* ---- Portrait phones get the landscape scrapbook ALREADY TURNED (19 Nov 2026)
+   Replaces the "turn your phone sideways" gate (30 Jul 2026), which turned
+   away anyone who would not rotate. Both pages are wide artwork with the copy
+   baked in, so they are never squeezed to portrait width: instead .nw-turn is
+   laid on its side (rotated 90deg clockwise), filling the screen under the
+   toolbar, and the visitor turns the phone to read it. The device can stay
+   rotation-locked; no prompt, no permission.
 
-   Both collages are fixed-aspect wide compositions with their copy baked into
-   the pixels, so shrinking them to fit a PORTRAIT phone's width is the one
-   thing that cannot work — at 390px page one lands at 0.23x, 6.3px text,
-   measured. A phone turned sideways doesn't have that problem: landscape
-   width clears 700px on every phone in normal use (an iPhone SE, the smallest
-   common case, is 667px turned sideways is already close, and anything larger
-   clears it outright), so it falls straight through this query and renders
-   with the exact same width-driven rules the desktop uses above — full plate,
-   no scroll, no special-casing to maintain.
-
-   So portrait doesn't get a squeezed layout OR a pan - it gets a gate asking
-   for landscape, in the scrapbook's own pencil voice, and landscape gets
-   silence: the rules already above it are already correct for a wide screen,
-   phone or not. */
-.nw-rotate-gate {
-  /* base rule MUST come before the media query below: both are a single
-     class (0,1,0), and an unconditional rule beats a media-scoped one at
-     equal specificity when it is LATER in source - this display:none sat
-     after the query overriding it to flex and silently won every time. */
-  display: none;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 16px;
-  min-height: calc(var(--nw-vh, 100dvh) - 44px);
-  padding: 0 14vw;
-  text-align: center;
-}
-
+   Inside the turned box the existing width-driven rules apply unchanged: its
+   width is the screen's long side and its height the short side. --nw-vh and
+   --nw-room are re-pointed at that box (no toolbar inside it, no dock on a
+   phone), and the box itself scrolls, so the reader's "down" is along the
+   phone's long edge. Real landscape is untouched: it never matches this query. */
 @media (max-width: 700px) and (orientation: portrait) {
-  .nw .sheet {
-    display: none;
+  .nw:not(.nw-in-window) {
+    height: 100dvh;
+    min-height: 0;
+    overflow: hidden;
   }
-
-  .nw-rotate-gate {
-    display: flex;
+  .nw:not(.nw-in-window) .nw-turn {
+    position: fixed;
+    top: 44px;
+    left: 0;
+    width: calc(100dvh - 44px);
+    height: 100vw;
+    transform-origin: 0 0;
+    transform: translateX(100vw) rotate(90deg);
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    /* sheets read (--nw-vh - 44px) as their room; the box has no toolbar */
+    --nw-vh: calc(100vw + 44px);
+    --nw-room: 92px;
   }
-}
-
-.nw-rotate-gate svg {
-  color: var(--pencil);
-  /* the icon IS the instruction: an upright phone glyph laid on its side reads
-     as "like this", not as decoration */
-  transform: rotate(90deg);
-}
-
-.nw-rotate-gate p {
-  margin: 0;
-  font-family: "Caveat", cursive;
-  font-size: 22px;
-  line-height: 1.45;
-  color: var(--pencil);
+  .nw:not(.nw-in-window) .nw-turn .sheet {
+    padding: 24px 0;
+  }
 }
 
 /* ---- the same scrapbook, inside the About Me window ----

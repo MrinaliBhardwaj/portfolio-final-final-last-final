@@ -5396,3 +5396,8 @@ are. Measured after the change: identical positions (Meal Maestro 27,64 at
 ## Notes: three milestone dots, evenly spaced (2026-11-19)
 - origin.webp had a fourth pink dot (by the recent portrait) with no note; painted out and the line redrawn under it.
 - The age-17 dot moved to the point on the line equidistant from the other two (94.5px each in the 1673px artwork): hotspot now 46.145%, 34.314%.
+
+## #/notes on portrait phones: shown already turned, no rotate gate (2026-11-19)
+- Overrules the 2026-07-30 "turn your phone sideways" gate. Not a pan (tried and undone the same day: she wants the landscape page itself, not a strip of it).
+- Portrait <=700px: `.nw-turn` wraps both sheets, is fixed under the 44px toolbar, sized (100dvh - 44px) x 100vw and rotated 90deg clockwise, so the landscape scrapbook fills the screen on its side. The visitor turns the phone to read; works with rotation lock on. The box scrolls along the long edge from page one to page two.
+- Inside it --nw-vh = 100vw + 44px and --nw-room = 92px (no toolbar inside, no dock on a phone). Real landscape and desktop never match the query and are unchanged.

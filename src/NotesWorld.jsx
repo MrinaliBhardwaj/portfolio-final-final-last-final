@@ -13,7 +13,6 @@
 // Notes is the portfolio's one LIGHT world on purpose. Design, tech, gallery
 // and the pond are all dark; the scrapbook is paper, and Apple Notes is paper
 // too, so the app and its contents agree instead of fighting.
-import { Smartphone } from "lucide-react";
 import Scene from "./Scene.jsx";
 import SceneTwo from "./SceneTwo.jsx";
 import WindowLights from "./WindowLights.jsx";
@@ -32,29 +31,20 @@ export default function NotesWorld() {
         <span className="nw-app">Notes</span>
       </header>
 
-      {/* Portrait phones only (see notes-world.css): both pages are wide
-          fixed-aspect artwork with the copy baked into the pixels, which
-          cannot be shrunk to a portrait phone's width without the text going
-          unreadable. Rather than pan or fake a rotated layout, this asks for
-          the real thing — landscape gets no special treatment at all, because
-          the same width-driven rules the desktop uses already work on it. */}
-      <div className="nw-rotate-gate" role="status">
-        <Smartphone size={30} strokeWidth={1.3} aria-hidden="true" />
-        <p>
-          turn your phone sideways
-          <br />
-          to read the scrapbook
-        </p>
+      {/* Portrait phones only (see notes-world.css): .nw-turn lays the
+          landscape scrapbook on its side, already turned, so a visitor holding
+          the phone upright just turns it to read; nothing asks them to. On
+          every other screen the wrapper is inert. */}
+      <div className="nw-turn">
+        <Scene />
+        {/* Page two is the LAST thing on the page. The poster collage that
+            followed it (SceneThree.jsx, three viewport-tall sheets) was cut 12 Sep
+            2026 by request, in the About Me window too; the file is kept, just
+            not rendered. The "drawn june 2026" coda went before it (4 Aug 2026).
+            Page two already reserves --nw-room for the floating dock, so ending
+            on it puts nothing under the dock. */}
+        <SceneTwo />
       </div>
-
-      <Scene />
-      {/* Page two is the LAST thing on the page. The poster collage that
-          followed it (SceneThree.jsx, three viewport-tall sheets) was cut 12 Sep
-          2026 by request, in the About Me window too; the file is kept, just
-          not rendered. The "drawn june 2026" coda went before it (4 Aug 2026).
-          Page two already reserves --nw-room for the floating dock, so ending
-          on it puts nothing under the dock. */}
-      <SceneTwo />
     </div>
   );
 }
