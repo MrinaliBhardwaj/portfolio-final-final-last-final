@@ -1326,6 +1326,7 @@
   flex-direction: column;
   gap: 1.6rem;
   padding: clamp(2rem, 7vw, 3rem) clamp(1.4rem, 5vw, 2.6rem);
+  overflow: hidden; /* the envelope's shadow stops at the frame edge */
 }
 
 .dwc-big {
@@ -1341,7 +1342,7 @@
 }
 .dwc-big--bl {
   font-size: clamp(2.8rem, 15vw, 4.6rem);
-  order: 6; /* "a wrap." closes the mobile stack */
+  order: 6; /* "a wrap." closes the text; the envelope sits under it */
 }
 
 .dwc-links {
@@ -1407,11 +1408,16 @@
 /* the opened envelope + handwritten letter — a single true-transparent PNG of
    her own, floating directly on the cream (no card, no keying artefacts). The
    box just carries the image's aspect; a soft drop-shadow grounds it. */
+/* STACKED (<=768px): the envelope runs the frame's full width and sits on its
+   bottom edge, the way the desktop poster bleeds it off the bottom, instead of
+   floating mid-frame at 430px. Its own bottom edge is a straight cut, so it
+   reads as tucked into the frame. It is last in the stack, under "a wrap."; the
+   negative margins undo the frame's padding (same clamps as .dwc above). */
 .dwc-env {
-  width: min(430px, 94%);
+  order: 7;
+  align-self: stretch;
   aspect-ratio: 1351 / 902;
-  align-self: center;
-  margin-top: 0.4rem;
+  margin: 0.4rem calc(-1 * clamp(1.4rem, 5vw, 2.6rem)) calc(-1 * clamp(2rem, 7vw, 3rem));
 }
 .dwc-env-photo {
   display: block;
