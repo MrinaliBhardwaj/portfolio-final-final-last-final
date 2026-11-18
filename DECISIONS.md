@@ -5392,3 +5392,7 @@ are. Measured after the change: identical positions (Meal Maestro 27,64 at
 - Static Vite build on Vercel CDN: no server to overload. First visit ~0.8-0.9 MB (measured live).
 - vercel.json: /assets/* (content-hashed by Vite) cached immutable for a year. public/ files keep Vercel defaults, because they are replaced in place under the same name.
 - Ceiling to watch: Hobby plan bandwidth (Vercel dashboard > Usage). Analytics stops counting past its monthly event cap; the site keeps working.
+
+## Notes: three milestone dots, evenly spaced (2026-11-19)
+- origin.webp had a fourth pink dot (by the recent portrait) with no note; painted out and the line redrawn under it.
+- The age-17 dot moved to the point on the line equidistant from the other two (94.5px each in the 1673px artwork): hotspot now 46.145%, 34.314%.

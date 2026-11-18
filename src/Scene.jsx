@@ -46,7 +46,7 @@
 // there is nothing there until the closing paragraph.
 const MILESTONES = [
   { left: 40.538, top: 36.449, age: "age 13", note: "1M on TikTok", place: "above" },
-  { left: 48.928, top: 40.946, age: "age 17", note: "500k on Pinterest", place: "below" },
+  { left: 46.145, top: 34.314, age: "age 17", note: "500k on Pinterest", place: "below" },
   { left: 51.737, top: 32.835, age: "age 21", note: "18k on Instagram", place: "above" },
 ];
 
