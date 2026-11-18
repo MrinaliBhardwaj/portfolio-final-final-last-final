@@ -56,7 +56,7 @@
 /* Her deck numbers its sections "01 — THE SPINE"; the page keeps the em dash
    and the gold number. */
 .pp[data-project="layover"] .pp-ch-n::after {
-  content: " —";
+  content: " ·";
   color: var(--pp-faint);
 }
 
@@ -242,7 +242,7 @@
 }
 
 .pp[data-project="nextg"] .pp-ch-n::after {
-  content: " —";
+  content: " ·";
 }
 
 .pp[data-project="nextg"] .pp-ch-label {

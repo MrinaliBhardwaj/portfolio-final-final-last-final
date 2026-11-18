@@ -97,7 +97,7 @@ const PAGE_ONE = [
     at: [1, 3],
     opensNote: undefined,
     href: "#/notes",
-    aria: "About Me — the scrapbook",
+    aria: "About Me: the scrapbook",
   }),
   // THE HORSE AND THE KARMA CARD ARE OFF THE PHONE (12 Sep 2026, her call —
   // "for now"). The horse is the untitled folder, whose whole content is a
@@ -136,7 +136,7 @@ const SOCIALS = [
   {
     key: "github",
     label: "GitHub",
-    aria: "GitHub — mrinali's code",
+    aria: "GitHub: mrinali's code",
     href: GITHUB,
     newTab: true,
     mark: <GitHubMark className="ph-mark-glyph" aria-hidden="true" />,
@@ -146,7 +146,7 @@ const SOCIALS = [
   {
     key: "linkedin",
     label: "LinkedIn",
-    aria: "LinkedIn — mrinali's profile",
+    aria: "LinkedIn: mrinali's profile",
     href: LINKEDIN,
     newTab: true,
     mark: <LinkedInMarkColor className="ph-mark-glyph" aria-hidden="true" />,
@@ -173,7 +173,7 @@ const SOCIALS = [
   {
     key: "instagram",
     label: "Instagram",
-    aria: "Instagram — @mrinalii._",
+    aria: "Instagram: @mrinalii._",
     href: INSTAGRAM,
     newTab: true,
     mark: <InstagramMark className="ph-mark-glyph" aria-hidden="true" />,

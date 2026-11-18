@@ -173,7 +173,7 @@ const experience = [
     when: "May – Jul 2026",
     impact: "91% mAP@0.5 · 20+ FPS",
     summary:
-      "YOLOv8 hazard & PPE detection over live CCTV feeds — multi-stream RTSP inference in real time",
+      "YOLOv8 hazard & PPE detection over live CCTV feeds: multi-stream RTSP inference in real time",
     detail: [
       "curated + annotated 12,000+ frames across 25+ viewpoints; augmentation lifted small-object recall 14%",
       "manual monitoring effort down ~60%",
@@ -186,7 +186,7 @@ const experience = [
     when: "Jun 2026",
     impact: "500K+ outlets",
     summary:
-      "scroll-driven WebGL brand experience — cursor-reactive particle lattice, dependency-free vanilla JS",
+      "scroll-driven WebGL brand experience: cursor-reactive particle lattice, dependency-free vanilla JS",
     detail: [
       "owned creative direction through implementation: end-to-end landing prototypes in React, TypeScript, WebGL",
     ],
@@ -208,7 +208,7 @@ const experience = [
     when: "May – Jul 2025",
     impact: "",
     summary:
-      "full-stack Django apps — auth, order management, secure payments — serving live users",
+      "full-stack Django apps (auth, order management, secure payments) serving live users",
     detail: [
       "tested, documented PRs to an open-source text-analysis tool",
     ],
@@ -379,7 +379,7 @@ export default function TechWorld() {
           {phone ? (
             <PhoneBack />
           ) : (
-            <a className="tw-mark" href="#/" aria-label="Mrinali Bhardwaj — home">
+            <a className="tw-mark" href="#/" aria-label="Mrinali Bhardwaj: home">
               mb
             </a>
           )}
@@ -399,14 +399,14 @@ export default function TechWorld() {
             <div className="mdp">
               <div className="mdp-bar">
                 <Eye size={12} strokeWidth={2} aria-hidden="true" />
-                <span>README.md — preview</span>
+                <span>README.md · preview</span>
               </div>
               <h1 className="mdp-h1">Mrinali Bhardwaj</h1>
               <p className="mdp-lede">
-                Software engineer — <strong>full-stack + applied AI</strong>.
+                Software engineer: <strong>full-stack + applied AI</strong>.
                 Ships end-to-end products: typed backends, real frontends,
                 models that run on live data. B.Tech CSE @ VIT, CGPA 8.34,
-                class of 2027. Now: SDE intern @ LTIMindtree — computer
+                class of 2027. Now: SDE intern @ LTIMindtree: computer
                 vision for BPCL.
               </p>
               <div className="mdp-badges">

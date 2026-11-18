@@ -26,7 +26,7 @@ export default function NotesWorld() {
           (18 Aug 2026) — see WindowLights.jsx; all three do something real. */}
       <header className="nw-top">
         <WindowLights world="notes" label="Notes" />
-        <a className="nw-mark" href="#/" aria-label="Mrinali Bhardwaj — home">
+        <a className="nw-mark" href="#/" aria-label="Mrinali Bhardwaj: home">
           mb
         </a>
         <span className="nw-app">Notes</span>

@@ -47,7 +47,7 @@ export default function GalleryWorld() {
 
       <header className="gw-top">
         <WindowLights world="gallery" label="Gallery" />
-        <a className="gw-mark" href="#/" aria-label="Mrinali Bhardwaj — home">
+        <a className="gw-mark" href="#/" aria-label="Mrinali Bhardwaj: home">
           mb
         </a>
         <span className="gw-label">Gallery</span>

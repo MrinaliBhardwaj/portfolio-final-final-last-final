@@ -90,7 +90,7 @@ export default function NoteWindow({ index, z, onClose, onFocus }) {
       dragElastic={0}
       onPointerDownCapture={onFocus}
       role="dialog"
-      aria-label="About Me — the scrapbook"
+      aria-label="About Me: the scrapbook"
     >
       <div
         className="cw-bar"

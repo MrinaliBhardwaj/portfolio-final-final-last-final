@@ -43,7 +43,7 @@ export default function EmptyWindow({ index, z, onClose, onFocus }) {
       dragElastic={0}
       onPointerDownCapture={onFocus}
       role="dialog"
-      aria-label="untitled folder — empty"
+      aria-label="untitled folder, empty"
     >
       <div
         className="cw-bar"

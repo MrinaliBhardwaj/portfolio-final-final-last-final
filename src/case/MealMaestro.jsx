@@ -69,10 +69,10 @@ const PALETTE = [
     five carry a line on her board; the other two are left as names rather
     than given a description she did not write. */
 const SEVEN = [
-  ["Scan & Savour", "Point your camera at ingredients — get instant recipes."],
+  ["Scan & Savour", "Point your camera at ingredients, get instant recipes."],
   ["Swipe & Dine", ""],
   ["Season’s Best", "Curated picks from this season’s freshest produce."],
-  ["Mood BITES", "Eat by emotion — comfort, energy, or light."],
+  ["Mood BITES", "Eat by emotion: comfort, energy, or light."],
   ["Talk & COOK", "A voice guides you through any recipe, completely hands-free."],
   ["Boost My Plate", ""],
   ["HOT Picks", "Trending recipes, surfaced daily from what’s popular right now."],
@@ -139,7 +139,7 @@ export default function MealMaestro() {
         <Split ratio="0.95fr 1.05fr" gap="40px">
           <Say>
             Five weeks, qualitative and quantitative, with working professionals aged 26 to
-            45 — the people who want to eat well and keep failing to.
+            45, the people who want to eat well and keep failing to.
           </Say>
           <Columns
             groups={[
@@ -147,7 +147,7 @@ export default function MealMaestro() {
                 head: "What we needed to know",
                 items: [
                   "Why do motivated people abandon meal planning within weeks?",
-                  "Where does the friction actually live — planning, shopping, cooking, or tracking?",
+                  "Where does the friction actually live: planning, shopping, cooking, or tracking?",
                   "What makes a food tool trustworthy enough to open every day?",
                 ],
               },
@@ -171,7 +171,7 @@ export default function MealMaestro() {
               <Statement size="md">The failure is not motivation.</Statement>
               <Say>
                 Almost everyone surveyed had tried. Most had tried recently. The apps were
-                not too hard to understand — they were too tedious to keep open.
+                not too hard to understand. They were too tedious to keep open.
               </Say>
             </>
           }
@@ -187,7 +187,7 @@ export default function MealMaestro() {
         </Sticky>
 
         <Pull>
-          78% order takeout three or more times a week — driven by planning friction, not
+          78% order takeout three or more times a week, driven by planning friction, not
           preference.
         </Pull>
       </Chapter>
@@ -210,7 +210,7 @@ export default function MealMaestro() {
             <Statement size="lg">Nobody quits on Sunday.</Statement>
             <Say>
               Motivation is highest exactly when the decisions are cheapest, and the plan
-              collapses on the first weekday that costs something — a late meeting, an
+              collapses on the first weekday that costs something: a late meeting, an
               empty fridge, a long commute.
             </Say>
             <Decision
@@ -254,15 +254,15 @@ export default function MealMaestro() {
             {
               head: "MVP zone",
               items: [
-                "AI meal plans — daily decision fatigue",
-                "Auto-grocery list — plan-to-shop disconnect",
-                "Progress dashboard — invisible progress",
+                "AI meal plans: daily decision fatigue",
+                "Auto-grocery list: plan-to-shop disconnect",
+                "Progress dashboard: invisible progress",
               ],
             },
             {
               head: "Below the line",
               items: [
-                "Leftover recipes — wasted groceries",
+                "Leftover recipes: wasted groceries",
                 "Nutrition tracking",
                 "Voice assistant",
                 "Water tracking",
@@ -284,7 +284,7 @@ export default function MealMaestro() {
             </Statement>
             <Say>
               Forest and sea green carry the interface; terracotta is spent only where
-              something needs acting on — a calorie ring filling, a button, a warning. The
+              something needs acting on: a calorie ring filling, a button, a warning. The
               cream is the paper everything sits on, and it is this page&rsquo;s paper too.
             </Say>
             <Swatches items={PALETTE} />
@@ -360,7 +360,7 @@ export default function MealMaestro() {
             ratio="2 / 3"
             from="right"
             depth={14}
-            caption="Taste every detail — every recipe carries its own photograph, macros and prep time."
+            caption="Taste every detail. Every recipe carries its own photograph, macros and prep time."
           />
         </Split>
       </Chapter>
@@ -378,7 +378,7 @@ export default function MealMaestro() {
             <Statement size="md">Every macro, every kcal, turned into clarity you can act on.</Statement>
             <Plate
               src={F("macro")}
-              alt="The daily macro split — 821 kcal, protein 26%, carbs 58%, fats 16% — above a chart of daily progress."
+              alt="The daily macro split (821 kcal, protein 26%, carbs 58%, fats 16%) above a chart of daily progress."
               size={size(F("macro"))}
               className="mm-macro"
             />
@@ -427,7 +427,7 @@ export default function MealMaestro() {
           />
         </Split>
         <Statement size="xl">
-          Third at the GDG Design-a-thon — for an app that <em>decides</em> for you.
+          Third at the GDG Design-a-thon, for an app that <em>decides</em> for you.
         </Statement>
         {/* THE SAME THREE, WORD FOR WORD, as the masthead's. A standfirst and
             a conclusion are allowed to carry the same numbers — a skimmer
@@ -441,7 +441,7 @@ export default function MealMaestro() {
             { value: "12", label: "discovery interviews" },
           ]}
         />
-        <Credit>Meal Maestro — UI design, March 2025 · Vellore, Tamil Nadu</Credit>
+        <Credit>Meal Maestro · UI design, March 2025 · Vellore, Tamil Nadu</Credit>
       </Chapter>
     </>
   );

@@ -67,10 +67,10 @@ export default function Scene() {
             alt={
               "meet mini mri. tiny, curious and an eye for art. If something " +
               "looked cool, she noticed. By the time she was 12, the signs had " +
-              "aligned. — A childhood school photograph of Mrinali is joined by " +
+              "aligned. A childhood school photograph of Mrinali is joined by " +
               "a looping hand-drawn line to a recent portrait of her, the line " +
               "tangling into a dense scribble in between before straightening " +
-              "out and leaving as a single confident arrow. — After mastering " +
+              "out and leaving as a single confident arrow. After mastering " +
               "the art of growing an audience with just a little flair, she " +
               "probably thought she'd cracked it. That's when it clicked, maybe " +
               "this was half the game."
@@ -97,7 +97,7 @@ export default function Scene() {
               type="button"
               className={`nw-milestone nw-milestone--${m.place}`}
               style={{ left: `${m.left}%`, top: `${m.top}%` }}
-              aria-label={`${m.age} — ${m.note}`}
+              aria-label={`${m.age}: ${m.note}`}
             >
               <span className="nw-milestone-note" aria-hidden="true">
                 <span className="nw-milestone-age">{m.age}</span>

@@ -5345,3 +5345,9 @@ are. Measured after the change: identical positions (Meal Maestro 27,64 at
 ## 18 Nov 2026 — New intro copy on the design profile
 - Intro (shared by the desktop poster and the phone frame) is now her third-person copy: "She studies computer science but has never managed to keep her interests confined to code. …" (verbatim in `INTRO`, DesignHero.jsx).
 - It runs a line longer than the file's on both layouts. Poster: Experience, Skill Set and Education drop 22 units (`INTRO_DROP`); there was room above the flourish. Phone: intro line-height 1.2 (her "normal"), and only the Experience block drops (heading 282, rows 302/380). Row two cannot go lower: its date would run under the photo's hat, and the photo is pinned to the sheet's bottom. Softwares and Skill Set stay at her coordinates.
+
+## 18 Nov 2026 — No em dashes anywhere on the site (her rule)
+- No em dash (—) in any visible text: copy, captions, alt text, aria-labels, CSS `content`, link-preview titles. Code comments are not site copy and keep theirs.
+- Replacements by role: labels and aria names take a colon ("Figma: enter the design world"); numbered captions, credits and dateline-style labels take the site's middle dot ("01 · Business details", "Layover · brand & product design"); prose takes a comma, colon, full stop or parentheses, whichever the sentence needs. En dashes in ranges (Jan 2024 – Jan 2025, ₹50–500) are a different mark and stay.
+- Check: `scan-dash.mjs`-style DOM scan over every route (innerText, alt/aria-label/title, ::before/::after content) came back clean on all ten routes.
+- Text baked into images can't be scanned; none was found by eye, but new artwork should follow the rule too.

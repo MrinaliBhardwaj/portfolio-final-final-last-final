@@ -59,7 +59,7 @@ export default function SceneTwo() {
             <img
               className="t2-ref"
               src="/tech-discovery.webp"
-              alt="Hand-drawn pencil flow: from first website through prototype, deployment and first real product — idea, sketch, wireframe, build, launch, iterate."
+              alt="Hand-drawn pencil flow: from first website through prototype, deployment and first real product: idea, sketch, wireframe, build, launch, iterate."
               draggable="false"
             />
           </div>

@@ -330,7 +330,7 @@ export default function FigmaCanvas({ page, activeNode, onSelect, focusAt }) {
         onPointerUp={up}
         onPointerCancel={up}
         role="application"
-        aria-label={`${page.name} — Figma canvas. Drag to pan, ctrl and scroll to zoom.`}
+        aria-label={`${page.name}: Figma canvas. Drag to pan, ctrl and scroll to zoom.`}
       >
         <div
           className={`fc-canvas${view.z < 0.2 ? " is-far" : ""}`}

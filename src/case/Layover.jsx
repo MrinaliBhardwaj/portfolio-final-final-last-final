@@ -52,7 +52,7 @@ const AUTH = [
   ["04-otp-pass-2", "Pass 2"],
   ["04-otp-pass-3", "Pass 3"],
   ["04-otp-pass-4", "Pass 4"],
-  ["04-otp-final-with-error-state", "Final — with the error state"],
+  ["04-otp-final-with-error-state", "Final, with the error state"],
 ];
 
 /** the vendor portal: the screen nobody screenshots */
@@ -67,16 +67,16 @@ const VENDOR = [
 
 /** six steps, identity first and documents last */
 const ONBOARD = [
-  ["07-01-business-details", "01 — Business details"],
-  ["07-02-contact-details", "02 — Contact"],
-  ["07-03-email-and-phone-otp", "03 — Verify both"],
-  ["07-04-kyc-fssai-trade-licence", "04 — KYC, FSSAI, trade licence"],
-  ["07-05-bank-details", "05 — Bank"],
-  ["07-06-submitted", "06 — Submitted"],
+  ["07-01-business-details", "01 · Business details"],
+  ["07-02-contact-details", "02 · Contact"],
+  ["07-03-email-and-phone-otp", "03 · Verify both"],
+  ["07-04-kyc-fssai-trade-licence", "04 · KYC, FSSAI, trade licence"],
+  ["07-05-bank-details", "05 · Bank"],
+  ["07-06-submitted", "06 · Submitted"],
 ];
 
 const ADMIN = [
-  ["08-onboarding-approval", "Approvals — the gate before a stall goes live"],
+  ["08-onboarding-approval", "Approvals: the gate before a stall goes live"],
   ["08-vendor-management", "Vendors, by completion rate"],
   ["08-order-management", "Orders, across every terminal"],
   ["08-menu-oversight", "Menu oversight"],
@@ -166,7 +166,7 @@ export default function Layover() {
         </Split>
         <Say>
           Prep time is the answer to both. It is set by the kitchen, read by the traveller,
-          and counted down by both — which is the part that keeps it honest. Admin grades
+          and counted down by both, which is the part that keeps it honest. Admin grades
           vendors on it, so it cannot quietly become a marketing number.
         </Say>
 
@@ -209,14 +209,14 @@ export default function Layover() {
           />
         </Split>
 
-        <Rail kind="phone" fit label="Consumer app — iOS" count={`${APP.length} screens`}>
+        <Rail kind="phone" fit label="Consumer app · iOS" count={`${APP.length} screens`}>
           {APP.map(([n, cap], i) => (
             <Slide
               key={n}
               src={S(n)}
-              alt={`Layover consumer app — ${cap}.`}
+              alt={`Layover consumer app: ${cap}.`}
               size={size(S(n))}
-              caption={`${String(i + 1).padStart(2, "0")} — ${cap}`}
+              caption={`${String(i + 1).padStart(2, "0")} · ${cap}`}
             />
           ))}
         </Rail>
@@ -226,7 +226,7 @@ export default function Layover() {
         <Statement size="md">We kept asking for less.</Statement>
         <Say wide>
           Five explorations, converging rather than competing: a phone number and an OTP.
-          No password, no profile, and nothing requested until checkout — at which point
+          No password, no profile, and nothing requested until checkout, at which point
           the session returns you to wherever you left off.
         </Say>
         <Rail kind="phone" fit label="The five passes" count="01 → final">
@@ -234,7 +234,7 @@ export default function Layover() {
             <Slide
               key={n}
               src={S(n)}
-              alt={`Layover sign-up — ${cap}.`}
+              alt={`Layover sign-up: ${cap}.`}
               size={size(S(n))}
               caption={cap}
             />
@@ -253,7 +253,7 @@ export default function Layover() {
         </Say>
         <Decision
           what="The operator surfaces invert the whole system."
-          why="Almost everything that makes a consumer app good makes this one worse. White ground, not black. Inter at small sizes, because it survives in a data row where Montserrat does not. Dense on purpose — it competes with the queue, not with a duty-free window."
+          why="Almost everything that makes a consumer app good makes this one worse. White ground, not black. Inter at small sizes, because it survives in a data row where Montserrat does not. Dense on purpose: it competes with the queue, not with a duty-free window."
         />
 
         <Rail kind="wide" label="Vendor portal" count={`${VENDOR.length} of 11`}>
@@ -261,7 +261,7 @@ export default function Layover() {
             <Slide
               key={n}
               src={S(n)}
-              alt={`Layover vendor portal — ${cap}.`}
+              alt={`Layover vendor portal: ${cap}.`}
               size={size(S(n))}
               caption={cap}
             />
@@ -275,16 +275,16 @@ export default function Layover() {
           system instead of by a policy nobody reads.
         </Say>
 
-        <Rail kind="phone" fit label="Vendor portal — on a phone" count="2 screens">
+        <Rail kind="phone" fit label="Vendor portal · on a phone" count="2 screens">
           <Slide
             src={S("06-dashboard")}
-            alt="Layover vendor portal on a phone — the dashboard."
+            alt="Layover vendor portal on a phone: the dashboard."
             size={size(S("06-dashboard"))}
             caption="Most stall owners do not have a desk."
           />
           <Slide
             src={S("06-incoming-order")}
-            alt="Layover vendor portal on a phone — an incoming order."
+            alt="Layover vendor portal on a phone: an incoming order."
             size={size(S("06-incoming-order"))}
             caption="An incoming order, thumb-high."
           />
@@ -305,7 +305,7 @@ export default function Layover() {
             <Slide
               key={n}
               src={S(n)}
-              alt={`Layover vendor onboarding — ${cap}.`}
+              alt={`Layover vendor onboarding: ${cap}.`}
               size={size(S(n))}
               caption={cap}
             />
@@ -328,7 +328,7 @@ export default function Layover() {
               <Slide
                 key={n}
                 src={S(n)}
-                alt={`Layover admin portal — ${cap}.`}
+                alt={`Layover admin portal: ${cap}.`}
                 size={size(S(n))}
                 caption={cap}
               />
@@ -357,18 +357,18 @@ export default function Layover() {
         </Reveal>
         <Split ratio="1fr 1fr" gap="34px">
           <div>
-            <Note>CONSUMER — SELLING SOMETHING</Note>
+            <Note>CONSUMER · SELLING SOMETHING</Note>
             <Say>
-              Ink under gold, Montserrat set large with a lot of air. Slow on purpose — it
+              Ink under gold, Montserrat set large with a lot of air. Slow on purpose: it
               competes with a duty-free window, not a spreadsheet.
             </Say>
             <Swatches items={CONSUMER_SWATCHES} />
           </div>
           <div>
-            <Note>OPERATOR — RUNNING SOMETHING</Note>
+            <Note>OPERATOR · RUNNING SOMETHING</Note>
             <Say>
               White ground, Inter at small sizes because it survives in a data row where
-              Montserrat does not. Dense on purpose — it competes with the queue in front of
+              Montserrat does not. Dense on purpose: it competes with the queue in front of
               you.
             </Say>
             <Swatches items={OPERATOR_SWATCHES} />
@@ -411,7 +411,7 @@ export default function Layover() {
             <ArrowUpRight size={15} strokeWidth={2} aria-hidden="true" />
           </a>
         </div>
-        <Credit>Layover — brand &amp; product design, 2025 · mylayover.in</Credit>
+        <Credit>Layover · brand &amp; product design, 2025 · mylayover.in</Credit>
       </Chapter>
     </>
   );

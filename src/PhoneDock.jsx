@@ -25,7 +25,7 @@ const APPS = [
   {
     key: "figma",
     world: "design",
-    aria: "Figma — enter the design world",
+    aria: "Figma: enter the design world",
     href: "#/design",
     mark: <FigmaMarkColor className="ph-mark-glyph" aria-hidden="true" />,
     skin: "light",
@@ -34,7 +34,7 @@ const APPS = [
   {
     key: "vscode",
     world: "tech",
-    aria: "VS Code — enter the tech world",
+    aria: "VS Code: enter the tech world",
     href: "#/tech",
     mark: <VSCodeMark className="ph-mark-glyph" aria-hidden="true" />,
     skin: "light",
@@ -43,7 +43,7 @@ const APPS = [
   {
     key: "gallery",
     world: "gallery",
-    aria: "Gallery — open the dome gallery",
+    aria: "Gallery: open the dome gallery",
     href: "#/gallery",
     mark: <ApplePhotosMark className="ph-mark-glyph" aria-hidden="true" />,
     skin: "light",
@@ -52,7 +52,7 @@ const APPS = [
   {
     key: "pond",
     world: "pond",
-    aria: "Game — the Lotus Pond, catch coding bugs with a pixel frog",
+    aria: "Game: the Lotus Pond, catch coding bugs with a pixel frog",
     href: "#/pond",
     mark: <FroggieMark className="ph-mark-glyph" aria-hidden="true" />,
     // on a white tile like the three beside it; the sticker is wider than it

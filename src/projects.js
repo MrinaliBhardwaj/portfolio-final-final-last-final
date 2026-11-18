@@ -114,7 +114,7 @@ export const PROJECTS = [
     summary:
       "A meal-planning app built around one idea: the hard part isn't cooking, it's deciding. Meal Maestro takes what you like, what you avoid and what's already in the kitchen, and turns it into a week of recipes and the one grocery list that covers them. Placed third at the GDG Design-a-thon.",
     facts: [
-      ["Role", "UI design — research through to UI"],
+      ["Role", "UI design: research through to UI"],
       ["Timeline", "Mar 2025 · 5 weeks of field research"],
       ["Scope", "Brand, four product flows, design system"],
       ["Tools", "Figma"],
@@ -162,7 +162,7 @@ export const PROJECTS = [
         { src: "/work/meal-maestro/case/s09.webp", w: 1400, h: 829 },
       ],
       alt:
-          "The Meal Maestro case study: a smart meal-planning app for personalized recommendations and nutrition guidance, designed in Vellore, Tamil Nadu, May 2026. It runs from the goal of making healthy eating simpler and more accessible, through branding and primary research grounded in real voices and real data (12 discovery phone interviews, 140 survey responses, 4 comparison teardowns, 5 weeks), into key insights about why people abandon meal planning, then a design system of colour and type — Poppins for display and headings, Open Sans for body — and finally the home, recipe detail, tracker and explore flows, closing on \"Thanks for watching!\".",
+          "The Meal Maestro case study: a smart meal-planning app for personalized recommendations and nutrition guidance, designed in Vellore, Tamil Nadu, May 2026. It runs from the goal of making healthy eating simpler and more accessible, through branding and primary research grounded in real voices and real data (12 discovery phone interviews, 140 survey responses, 4 comparison teardowns, 5 weeks), into key insights about why people abandon meal planning, then a design system of colour and type (Poppins for display and headings, Open Sans for body) and finally the home, recipe detail, tracker and explore flows, closing on \"Thanks for watching!\".",
     }],
   },
   {
@@ -179,14 +179,14 @@ export const PROJECTS = [
     dims: "1080 × 1350",
     role: "Brand identity, UI design, product design",
     summary:
-      "A layover is dead time you've already paid for. Layover turns it into something usable: enter your airport or PNR and it shows what's actually open in your terminal right now — order a meal to your gate, or book into a lounge. Built around Indian airports (Delhi, Mumbai, Bengaluru, Hyderabad) and the details that matter there: terminal-aware delivery, veg and non-veg filters as a first-class control, and a live prep timer so you know whether you have time before boarding.",
+      "A layover is dead time you've already paid for. Layover turns it into something usable: enter your airport or PNR and it shows what's actually open in your terminal right now: order a meal to your gate, or book into a lounge. Built around Indian airports (Delhi, Mumbai, Bengaluru, Hyderabad) and the details that matter there: terminal-aware delivery, veg and non-veg filters as a first-class control, and a live prep timer so you know whether you have time before boarding.",
     // CORRECTED FROM HER OWN BOARD (5 Sep 2026). The case study states the role
     // as "Product Designer, co-lead" and names five surfaces; this said three,
     // and the two were now contradicting each other on the same page. Her
     // artwork is the authority on her project.
     facts: [
       ["Role", "Product designer, co-lead"],
-      ["Timeline", "2025 — shipped"],
+      ["Timeline", "2025 · shipped"],
       ["Scope", "Brand, consumer app and web, vendor and admin portals"],
       ["Tools", "Figma"],
     ],
@@ -226,7 +226,7 @@ export const PROJECTS = [
         { src: "/work/layover/case/s09.webp", w: 1600, h: 544 },
       ],
       alt:
-        "The Layover case study. It opens on “You have ninety minutes. Nothing tells you what fits.” and argues that a layover looks like leisure and behaves like a deadline, that both sides — traveller and counter — are solving the same equation from opposite ends, and that the work is designing for someone who is already slightly late. It runs through one number across five surfaces, the marketing site, the ordering flow, the vendor portal that is “the screen nobody screenshots and the one the product runs on”, the legal requirements that cannot be deleted only sequenced, and the admin tools for a marketplace that does not fail loudly — closing on “we kept asking for less.”",
+        "The Layover case study. It opens on “You have ninety minutes. Nothing tells you what fits.” and argues that a layover looks like leisure and behaves like a deadline, that both sides, traveller and counter, are solving the same equation from opposite ends, and that the work is designing for someone who is already slightly late. It runs through one number across five surfaces, the marketing site, the ordering flow, the vendor portal that is “the screen nobody screenshots and the one the product runs on”, the legal requirements that cannot be deleted only sequenced, and the admin tools for a marketplace that does not fail loudly, closing on “we kept asking for less.”",
     }],
     shots: [],
   },
@@ -237,18 +237,18 @@ export const PROJECTS = [
     when: "Oct 2024",
     tag: "2,200+ registrations",
     blurb:
-      "Full identity and digital assets — website, social, reels, brochures — driving 10,000+ views.",
+      "Full identity and digital assets (website, social, reels, brochures) driving 10,000+ views.",
     size: "wide",
     cover: "/work/futurepreneurs/cover.webp",
     file: "futurepreneurs-final-FINAL(2)",
     dims: "1920 × 720",
     role: "Branding, UI design",
     summary:
-      "The tenth edition of Futurepreneurs needed an identity that could hold a whole campaign, not just a poster. One system carried the website, the social run, the reels and the print brochures — which is what let it reach 10,000+ views and convert to 2,200+ registrations.",
+      "The tenth edition of Futurepreneurs needed an identity that could hold a whole campaign, not just a poster. One system carried the website, the social run, the reels and the print brochures, which is what let it reach 10,000+ views and convert to 2,200+ registrations.",
     facts: [
       ["Role", "Brand identity · UI design · total visual execution"],
       ["Timeline", "Oct 2024"],
-      ["Scope", "Ten deliverables — identity, website, social, print"],
+      ["Scope", "Ten deliverables: identity, website, social, print"],
       ["Tools", "Figma"],
     ],
     // The project's own gallery, not the general profile — same reasoning as
@@ -301,7 +301,7 @@ export const PROJECTS = [
           { src: "/work/futurepreneurs/case-b/s07.webp", w: 1910, h: 1853 },
         ],
         alt:
-          "The longer Futurepreneurs 10.0 deck: it opens on “PROJECT FUTUREPRENEURS” with the brief and deliverables, then the type and colour system, the event timeline and its sponsors, the aftermovie, winners and prize pool, the registration screens and QR flow, phone mockups, the “10 YEARS” spread, FAQs, the website, stickers, the animation and the certificate — closing on the same orange “Thank_you” slide.",
+          "The longer Futurepreneurs 10.0 deck: it opens on “PROJECT FUTUREPRENEURS” with the brief and deliverables, then the type and colour system, the event timeline and its sponsors, the aftermovie, winners and prize pool, the registration screens and QR flow, phone mockups, the “10 YEARS” spread, FAQs, the website, stickers, the animation and the certificate, closing on the same orange “Thank_you” slide.",
       },
     ],
     shots: [],
@@ -333,9 +333,9 @@ export const PROJECTS = [
     dims: "1600 × 838",
     role: "Product design + front-end",
     summary:
-      "NextG runs field sales for FMCG brands across half a million Indian outlets. Their 10 year old site looked like every other B2B tool, so nobody believed the scale. I rebuilt it end to end — structure, interface, design system, and the front-end code.",
+      "NextG runs field sales for FMCG brands across half a million Indian outlets. Their 10 year old site looked like every other B2B tool, so nobody believed the scale. I rebuilt it end to end: structure, interface, design system, and the front-end code.",
     facts: [
-      ["Role", "Product design and front-end — designed and built"],
+      ["Role", "Product design and front-end, designed and built"],
       ["Timeline", "Jun 2026"],
       ["Scope", "Structure, UI, design system, shipped code"],
       ["Tools", "Figma · HTML, CSS, JavaScript, WebGL"],
@@ -386,7 +386,7 @@ export const PROJECTS = [
         },
       ],
       alt:
-        "The NextG Apex case study: a B2B retail-tech site for field sales across half a million Indian outlets, designed and built end to end. It runs from the project overview and a brief in two halves — a CEO who wanted a site people keep scrolling and a CTO who wanted the phygital proposition stated without ambiguity — through the whole site, the process, an audit, structure, type and colour, the design decisions, the product views, conversion, responsive layouts and the WebGL build, to what shipped: six pages, one system, no framework — closing on “Thanks for watching”.",
+        "The NextG Apex case study: a B2B retail-tech site for field sales across half a million Indian outlets, designed and built end to end. It runs from the project overview and a brief in two halves (a CEO who wanted a site people keep scrolling and a CTO who wanted the phygital proposition stated without ambiguity) through the whole site, the process, an audit, structure, type and colour, the design decisions, the product views, conversion, responsive layouts and the WebGL build, to what shipped: six pages, one system, no framework, closing on “Thanks for watching”.",
     }],
     shots: [],
   },

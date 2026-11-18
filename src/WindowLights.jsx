@@ -103,7 +103,7 @@ export default function WindowLights({ world, label }) {
         type="button"
         className="wlight wlight--min"
         onClick={minimise}
-        aria-label={`Minimise ${label} — return to the desktop, leaving it open`}
+        aria-label={`Minimise ${label}: return to the desktop, leaving it open`}
       >
         <Minus size={9} strokeWidth={2.6} aria-hidden="true" />
       </button>

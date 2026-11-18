@@ -39,7 +39,7 @@ export const TECH_PROJECTS = [
     impact: "137 tests · 84% coverage",
     proof: [
       "34 REST endpoints · 9 modules · 27 tables · multi-tenant isolation · maker-checker approvals",
-      "5 rule engines over 106 obligation templates across 29 Indian laws — 367+ dated obligations from one profile in <2s",
+      "5 rule engines over 106 obligation templates across 29 Indian laws: 367+ dated obligations from one profile in <2s",
       "98.4% AI evidence-classification accuracy",
     ],
     repo: "github.com/MrinaliBhardwaj/compliance-checker",

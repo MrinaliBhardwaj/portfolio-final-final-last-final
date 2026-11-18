@@ -59,11 +59,11 @@ const SCALE = [
 ];
 
 const VIEWS = [
-  ["f-coverage", "Coverage map — 98% coverage, 900+ towns, 512K outlets"],
+  ["f-coverage", "Coverage map: 98% coverage, 900+ towns, 512K outlets"],
   ["f-services", "Everything the field needs, in one loop"],
   ["f-brands", "Brands built with NextG"],
   ["f-leadership", "Built by leaders. Driven by execution."],
-  ["f-demo", "Book a demo — three unasked questions, answered"],
+  ["f-demo", "Book a demo: three unasked questions, answered"],
   ["f-other-views", "Execution, live intelligence, field ops"],
 ];
 
@@ -86,7 +86,7 @@ function BuildVideo() {
         />
       </span>
       <figcaption>
-        The landing page, running. Six static pages, no framework — the code she wrote.
+        The landing page, running. Six static pages, no framework. The code she wrote.
       </figcaption>
     </Reveal>
   );
@@ -104,7 +104,7 @@ export default function NextG() {
             <Say>
               NextG runs field sales for FMCG brands across half a million Indian outlets.
               Their ten-year-old site looked like every other B2B tool, so nobody believed
-              the scale. I rebuilt it end to end — structure, interface, design system, and
+              the scale. I rebuilt it end to end: structure, interface, design system, and
               the front-end code.
             </Say>
             <Say>
@@ -213,7 +213,7 @@ export default function NextG() {
             <>
               <Statement size="md">Research to decisions.</Statement>
               <Say>
-                Each insight paired with the thing it changed — so a reader can check the
+                Each insight paired with the thing it changed, so a reader can check the
                 second against the first rather than taking the design on trust.
               </Say>
             </>
@@ -221,12 +221,12 @@ export default function NextG() {
         >
           <Decision
             what="Scale moved into the first screen, under a hero that DRAWS the coverage instead of claiming it."
-            why="Buyers in this category verify before they book a call. The old site said “nationwide coverage” over a stock photo and gave them nothing to check — so the first screen now carries 500K+ outlets, 900+ towns and 20+ brands."
+            why="Buyers in this category verify before they book a call. The old site said “nationwide coverage” over a stock photo and gave them nothing to check, so the first screen now carries 500K+ outlets, 900+ towns and 20+ brands."
           />
           <Decision
             delay={0.08}
             what="Four product views in one tabbed panel, halfway down the home page."
-            why="Six pages of benefit copy and not one screen of the actual platform — the thing being sold was invisible until a sales call. The light column is what you control; the dark column is what is happening."
+            why="Six pages of benefit copy and not one screen of the actual platform. The thing being sold was invisible until a sales call. The light column is what you control; the dark column is what is happening."
           />
         </Sticky>
       </Chapter>
@@ -237,8 +237,8 @@ export default function NextG() {
             <Statement size="md">One family, held to four sizes.</Statement>
             <Say>
               Mono started out on every label. Wide-tracked uppercase mono is the house style
-              of template design, so I pulled it back to genuine data readouts — counts,
-              percentages, coordinates — and let Archivo carry the editorial voice.
+              of template design, so I pulled it back to genuine data readouts ( counts,
+              percentages, coordinates)  and let Archivo carry the editorial voice.
             </Say>
             <Note>
               The scale below is set in the real face, at her real tracking. Archivo and
@@ -268,7 +268,7 @@ export default function NextG() {
       <Chapter n="06" label="The product">
         <Statement size="lg">Designing the product, not just the page.</Statement>
         <Say wide>
-          Four views of the platform — coverage, execution, live intelligence, field ops.
+          Four views of the platform: coverage, execution, live intelligence, field ops.
           Each one is a real panel. Every panel splits the same way: a white column you
           control, and a near-black column you watch.
         </Say>
@@ -281,7 +281,7 @@ export default function NextG() {
         />
         <Rail kind="wide" label="The site" count={`${VIEWS.length} views`}>
           {VIEWS.map(([n, cap]) => (
-            <Slide key={n} src={F(n)} alt={`NextG — ${cap}.`} size={size(F(n))} caption={cap} />
+            <Slide key={n} src={F(n)} alt={`NextG: ${cap}.`} size={size(F(n))} caption={cap} />
           ))}
         </Rail>
 
@@ -309,7 +309,7 @@ export default function NextG() {
           <div>
             <Statement size="md">Six pages, one scroll each.</Statement>
             <Say>
-              The home page, top to bottom, as it shipped — the coverage hero, the numbered
+              The home page, top to bottom, as it shipped: the coverage hero, the numbered
               services, the live map, the brands, the testimonials, the leadership and the
               demo. Scroll it.
             </Say>
@@ -361,7 +361,7 @@ export default function NextG() {
         <Statement size="lg">I shipped the front-end as well.</Statement>
         <Say wide>
           Six static pages of hand-written HTML, CSS and JavaScript. No framework. The code
-          made the design decision real — I never had to hand a spec to someone else.
+          made the design decision real. I never had to hand a spec to someone else.
         </Say>
         <BuildVideo />
         <Columns
@@ -406,7 +406,7 @@ export default function NextG() {
             { value: "17", label: "colours in one token file every page reads" },
           ]}
         />
-        <Credit>NextG Apex — website design &amp; front-end, June 2026</Credit>
+        <Credit>NextG Apex · website design &amp; front-end, June 2026</Credit>
       </Chapter>
     </>
   );

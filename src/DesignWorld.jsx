@@ -195,7 +195,7 @@ const experience = [
     when: "Jun 2026",
     kpi: "11 sections · 4 weeks",
     points: [
-      "Led the end-to-end strategic redesign of a retail-tech site serving ₹50–500 Cr FMCG brands — from generic vendor to category-defining “phygital” product.",
+      "Led the end-to-end strategic redesign of a retail-tech site serving ₹50–500 Cr FMCG brands, from generic vendor to category-defining “phygital” product.",
       "Rebuilt the design system in Figma: 5 core tokens, 2 typefaces, a dark/light section rhythm.",
     ],
   },
@@ -205,7 +205,7 @@ const experience = [
     when: "Jul – Oct 2025",
     kpi: "10,000+ users · 4 days",
     points: [
-      "End-to-end UX for a lifestyle platform across web and mobile — 40+ hi-fi screens and prototypes, from scratch.",
+      "End-to-end UX for a lifestyle platform across web and mobile: 40+ hi-fi screens and prototypes, from scratch.",
       "Onboarding cut from 5 steps to 2; a reusable component library trimmed design-to-dev handoff ~30%.",
     ],
   },
@@ -336,7 +336,7 @@ export default function DesignWorld() {
             {phone ? (
               <PhoneBack />
             ) : (
-              <a className="dw-mark" href="#/" aria-label="Mrinali Bhardwaj — home">
+              <a className="dw-mark" href="#/" aria-label="Mrinali Bhardwaj: home">
                 mb
               </a>
             )}
@@ -413,7 +413,7 @@ export default function DesignWorld() {
           {phone ? (
             <PhoneBack />
           ) : (
-            <a className="dw-mark" href="#/" aria-label="Mrinali Bhardwaj — home">
+            <a className="dw-mark" href="#/" aria-label="Mrinali Bhardwaj: home">
               mb
             </a>
           )}
@@ -456,7 +456,7 @@ export default function DesignWorld() {
                   <span className="cvf-pin-avatar" aria-hidden="true">M</span>
                   Mrinali
                 </span>
-                Open to design internships — say hello
+                Open to design internships. Say hello
               </span>
             </a>
 
@@ -531,7 +531,7 @@ export default function DesignWorld() {
                      cmd-click and "copy link address" behave, and internal, so
                      no target/rel */
                   href={`#/?case=${w.slug}`}
-                  aria-label={`${w.name} — open the case study`}
+                  aria-label={`${w.name}: open the case study`}
                   initial={{ opacity: 0, y: 18 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: "-40px" }}
@@ -614,7 +614,7 @@ export default function DesignWorld() {
               ))}
             </ul>
             <p className="dw-tools-line">
-              Figma · Photoshop · design tokens in real code —{" "}
+              Figma · Photoshop · design tokens in real code ·{" "}
               <a href="#/tech">see the tech side →</a>
             </p>
           </Frame>
@@ -629,14 +629,14 @@ export default function DesignWorld() {
             <h2 className="dw-h2">Leadership</h2>
             <div className="dw-lead-grid">
               <article>
-                <h3>Riviera&rsquo;26 — Design Coordinator</h3>
+                <h3>Riviera&rsquo;26 · Design Coordinator</h3>
                 <p>
                   Visual identity + official website for a 30,000-participant
-                  fest — 80,000+ site visits, 150+ assets produced.
+                  fest: 80,000+ site visits, 150+ assets produced.
                 </p>
               </article>
               <article>
-                <h3>E-Cell — Design Executive</h3>
+                <h3>E-Cell · Design Executive</h3>
                 <p>
                   Led the design department across 8+ large-scale events,
                   mentoring 75+ student designers.

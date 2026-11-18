@@ -81,7 +81,7 @@ export default function Futurepreneurs() {
             <Statement size="lg">Vision Made Visible: elevating an ecosystem of innovation.</Statement>
             <Say>
               <b>The challenge.</b> To craft a comprehensive, 360-degree brand experience for
-              Futurepreneurs 10.0 — an initiative dedicated to cultivating visionary thinking
+              Futurepreneurs 10.0, an initiative dedicated to cultivating visionary thinking
               and immersing participants in the realities of the professional world.
             </Say>
             <Say>
@@ -112,14 +112,14 @@ export default function Futurepreneurs() {
             <Statement size="lg">Four colours, and one of them does all the work.</Statement>
             <Say>
               Slateblue carries the identity; Sorrell Brown is the only warm thing in the
-              system and is spent sparingly — on the closing card, on one block behind a
+              system and is spent sparingly: on the closing card, on one block behind a
               phone, on a single word. Black and white do the rest.
             </Say>
             <Swatches items={THEME} />
             <Decision
               className="fp-dec"
               what="One warm colour, spent three times."
-              why="Slateblue carries the identity and black and white do the rest. Sorrell Brown appears on the closing card, on one block behind a phone, and on a single word — which is what makes it mean something when it appears."
+              why="Slateblue carries the identity and black and white do the rest. Sorrell Brown appears on the closing card, on one block behind a phone, and on a single word, which is what makes it mean something when it appears."
               cost="A palette this disciplined has nothing left to escalate with. Emphasis has to come from scale and from the mesh."
             />
           </div>
@@ -147,9 +147,9 @@ export default function Futurepreneurs() {
               {
                 head: "Where each one runs",
                 items: [
-                  "Whyte Inktrap — posters, titles, the mark",
-                  "Gantari Medium — body, captions, UI",
-                  "Almarai Regular — the long-form panels",
+                  "Whyte Inktrap: posters, titles, the mark",
+                  "Gantari Medium: body, captions, UI",
+                  "Almarai Regular: the long-form panels",
                 ],
               },
             ]}
@@ -157,7 +157,7 @@ export default function Futurepreneurs() {
         </Split>
         <Note>
           Whyte Inktrap is licensed and cannot be served on this site, so this page sets
-          Archivo — the portfolio&rsquo;s own display face, a grotesque of the same build —
+          Archivo, the portfolio&rsquo;s own display face, a grotesque of the same build,
           in its place. Gantari is here, and is real: every paragraph on this page is set in
           it.
         </Note>
@@ -184,8 +184,8 @@ export default function Futurepreneurs() {
             <Say>
               An Instagram grid is read two ways at once: as a wall, and as a single post in
               somebody&rsquo;s feed three weeks apart. Every tile carries the mark, the
-              edition and one fact — the aftermovie, the winners, the prize pool, the
-              sponsor, the venue, the partner — so it works alone, and the mesh underneath
+              edition and one fact (the aftermovie, the winners, the prize pool, the
+              sponsor, the venue, the partner), so it works alone, and the mesh underneath
               makes it one composition when you open the profile.
             </Say>
             <Columns
@@ -193,10 +193,10 @@ export default function Futurepreneurs() {
                 {
                   head: "The timeline",
                   items: [
-                    "Sept 25 — registrations open",
-                    "Oct 2 — registrations close",
-                    "Oct 3 — qualification round",
-                    "Oct 5 — Futurepreneurs begins",
+                    "Sept 25 · registrations open",
+                    "Oct 2 · registrations close",
+                    "Oct 3 · qualification round",
+                    "Oct 5 · Futurepreneurs begins",
                   ],
                 },
               ]}
@@ -213,7 +213,7 @@ export default function Futurepreneurs() {
         <Statement size="md">Registrations are now open.</Statement>
         <Say wide>
           The story set does one job per frame: the site is live, registrations are open,
-          and here is exactly how to register — a QR a thumb can reach, on the mesh that
+          and here is exactly how to register: a QR a thumb can reach, on the mesh that
           ties it back to everything else.
         </Say>
         <Plate
@@ -232,15 +232,15 @@ export default function Futurepreneurs() {
             alt="The Futurepreneurs X Edition event site, full length: the countdown, the business simulation game, the timeline, ten years, the FAQs and the footer."
             size={size(F("site-desktop"))}
             label="futurepreneurs.ecellvit"
-            caption="The whole site — scroll it."
+            caption="The whole site. Scroll it."
           />
           <div className="fp-site-side">
             <Statement size="md">A countdown, and then the answers.</Statement>
             <Say>
               The site has one job on launch day and a different one the week after. First:
               a live countdown and a register button. Then, as the date closes in, it has to
-              answer a stranger&rsquo;s questions — what the simulation is, who runs it, when
-              the rounds are — so the FAQ is part of the page rather than a link off it.
+              answer a stranger&rsquo;s questions (what the simulation is, who runs it, when
+              the rounds are), so the FAQ is part of the page rather than a link off it.
             </Say>
             <Scroller
               kind="phone"
@@ -267,7 +267,7 @@ export default function Futurepreneurs() {
         <Statement size="lg">The things people took home.</Statement>
         <Say wide>
           The same system, printed: die-cut stickers, the invitation, the certificates. A
-          brand that only exists on a screen has not been tested — these had to survive a
+          brand that only exists on a screen has not been tested. These had to survive a
           printer, a foil and a lanyard.
         </Say>
         <div className="fp-print">
@@ -345,7 +345,7 @@ export default function Futurepreneurs() {
             <ArrowUpRight size={15} strokeWidth={2} aria-hidden="true" />
           </a>
         </div>
-        <Credit>Futurepreneurs 10.0 — branding &amp; UI, October 2024 · E-Cell, VIT Vellore</Credit>
+        <Credit>Futurepreneurs 10.0 · branding &amp; UI, October 2024 · E-Cell, VIT Vellore</Credit>
       </Chapter>
     </>
   );

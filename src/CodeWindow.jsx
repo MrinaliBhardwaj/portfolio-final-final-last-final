@@ -136,7 +136,7 @@ export default function CodeWindow({ project, index, z, onClose, onFocus, onSwit
           </button>
         </div>
 
-        <span className="rw-title">{p.file} — {folder}</span>
+        <span className="rw-title">{p.file} · {folder}</span>
       </div>
 
       {/* `hidden` rather than unmounted while rolled up, so rolling back down

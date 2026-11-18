@@ -70,7 +70,7 @@ export default function PondWorld() {
 
       <header className="pw-top">
         <WindowLights world="pond" label="the Game" />
-        <a className="pw-mark" href="#/" aria-label="Mrinali Bhardwaj — home">
+        <a className="pw-mark" href="#/" aria-label="Mrinali Bhardwaj: home">
           mb
         </a>
       </header>

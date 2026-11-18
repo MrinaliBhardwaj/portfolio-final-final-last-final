@@ -20,7 +20,7 @@
 // ---------------------------------------------------------------------------
 // THE FILE KEYS, SO A PAGE CAN BE RE-PULLED.
 //
-//   regis    8qMVRhvaHKN41AHP72kx86   "Compliance Checker — Regis"
+//   regis    8qMVRhvaHKN41AHP72kx86   "Compliance Checker · Regis"
 //   nextg    bUB4MsJcWhbCEhPEyI7Ip6   "NextG"
 //   layover  BRaDrcuSqhHuA7PTmJX0Zt   "layover Casestudy"
 //
@@ -134,7 +134,7 @@ export const FIGMA_PAGES = [
   {
     slug: "regis",
     name: "Regis",
-    file: "Compliance Checker — Regis",
+    file: "Compliance Checker · Regis",
     // Twelve 1440x900 frames on a 3 x 4 grid: 1540 apart across (a 100px
     // gutter), 1000 apart down. No captions, no section headers — the page is
     // the frames and their names, which is what Figma draws.
@@ -285,7 +285,7 @@ export const FIGMA_PAGES = [
         node: "144:361", name: "browser", x: 2132, y: 165, w: 1440, h: 951,
         children: [
           { icon: "frame", name: "chrome" },
-          { icon: "frame", name: "HERO \u2014 native reconstruction" },
+          { icon: "frame", name: "HERO · native reconstruction" },
         ],
         src: `${N}/f-browser.webp`,
         alt: "NextG's landing page in a browser frame: the headline “Every outlet, One growth engine.” over a constellation of linked dots, with 500K+ retail outlets, 900+ towns and cities and 20+ challenger brands beneath it.",
@@ -330,7 +330,7 @@ export const FIGMA_PAGES = [
       {
         node: "144:5145", name: "featured – coverage map", x: 2135, y: 3744, w: 1440, h: 665,
         children: [
-          { icon: "frame", name: "screen \u2014 tab1" },
+          { icon: "frame", name: "screen · tab1" },
           { icon: "vector", name: "Rectangle" },
           { icon: "vector", name: "Ellipse" },
           { icon: "text", name: "1" },
@@ -391,10 +391,10 @@ export const FIGMA_PAGES = [
     sections: [
       { num: "01", title: "Marketing site", sub: "The public site and its responsive counterpart.", x: 0, y: 0 },
       { num: "02", title: "Consumer web", sub: "Ordering, from entering a terminal to a live countdown.", x: 0, y: 3893 },
-      { num: "03", title: "Consumer app — iOS", sub: "The same decisions at 440px.", x: 0, y: 9407 },
+      { num: "03", title: "Consumer app · iOS", sub: "The same decisions at 440px.", x: 0, y: 9407 },
       { num: "04", title: "Sign-up explorations", sub: "Converged on a phone number and an OTP.", x: 0, y: 11571 },
       { num: "05", title: "Vendor portal", sub: "Light, dense, and built for a bright counter.", x: 0, y: 12829 },
-      { num: "06", title: "Vendor portal — mobile", sub: "Most stall owners do not have a desk.", x: 0, y: 16760 },
+      { num: "06", title: "Vendor portal · mobile", sub: "Most stall owners do not have a desk.", x: 0, y: 16760 },
       { num: "07", title: "Vendor onboarding", sub: "Six steps. Identity first, documents last.", x: 0, y: 18058 },
       { num: "08", title: "Admin portal", sub: "Catching a vendor going bad before a traveller does.", x: 0, y: 21290 },
     ],
@@ -404,7 +404,7 @@ export const FIGMA_PAGES = [
         x: 0, y: 197, w: 1440, h: 3496,
         src: "/work/layover-page/01-landing-page.webp",
         alt:
-          "Layover — Landing page. Airport entry above the fold.",
+          "Layover: Landing page. Airport entry above the fold.",
         children: [
           { icon: "frame", name: "CARD 3" },
           { icon: "frame", name: "CARD 2" },
@@ -419,7 +419,7 @@ export const FIGMA_PAGES = [
         x: 1540, y: 197, w: 440, h: 1812,
         src: "/work/layover-page/01-landing-page-440px.webp",
         alt:
-          "Layover — Landing page — 440px. Single column, prep time retained.",
+          "Layover: Landing page, 440px. Single column, prep time retained.",
         children: [
           { icon: "frame", name: "logo" },
           { icon: "text", name: "Terminal 3" },
@@ -434,7 +434,7 @@ export const FIGMA_PAGES = [
         x: 0, y: 4090, w: 1440, h: 3496,
         src: "/work/layover-page/02-terminal-entry.webp",
         alt:
-          "Layover — Terminal entry. One field: airport or PNR.",
+          "Layover: Terminal entry. One field: airport or PNR.",
         children: [
           { icon: "frame", name: "CARD 3" },
           { icon: "frame", name: "CARD 2" },
@@ -449,7 +449,7 @@ export const FIGMA_PAGES = [
         x: 1540, y: 4090, w: 1440, h: 2446,
         src: "/work/layover-page/02-outlet-listing.webp",
         alt:
-          "Layover — Outlet listing. Prep time and Get Directions on every card.",
+          "Layover: Outlet listing. Prep time and Get Directions on every card.",
         children: [
           { icon: "frame", name: "Footer" },
           { icon: "text", name: "Terminal 3" },
@@ -465,7 +465,7 @@ export const FIGMA_PAGES = [
         x: 3080, y: 4090, w: 1440, h: 2315,
         src: "/work/layover-page/02-outlet-menu.webp",
         alt:
-          "Layover — Outlet menu. Veg / non-veg as a header control.",
+          "Layover: Outlet menu. Veg / non-veg as a header control.",
         children: [
           { icon: "text", name: "Mc Donald\u2019s" },
           { icon: "vector", name: "mcdonalds-logo-transparent-background-free-png 1" },
@@ -478,7 +478,7 @@ export const FIGMA_PAGES = [
         x: 4620, y: 4090, w: 1440, h: 1551,
         src: "/work/layover-page/02-cart.webp",
         alt:
-          "Layover — Cart. Fees itemised before payment.",
+          "Layover: Cart. Fees itemised before payment.",
         children: [
           { icon: "text", name: "Cart" },
           { icon: "text", name: "Complete your meal with" },
@@ -489,7 +489,7 @@ export const FIGMA_PAGES = [
         x: 0, y: 7676, w: 1440, h: 1118,
         src: "/work/layover-page/02-payment-options.webp",
         alt:
-          "Layover — Payment options. UPI, cards, netbanking, pay on pickup.",
+          "Layover: Payment options. UPI, cards, netbanking, pay on pickup.",
         children: [
           { icon: "frame", name: "Footer" },
           { icon: "text", name: "More Payment Options" },
@@ -501,7 +501,7 @@ export const FIGMA_PAGES = [
         x: 1540, y: 7676, w: 1440, h: 1531,
         src: "/work/layover-page/02-order-confirmed.webp",
         alt:
-          "Layover — Order confirmed. Live countdown against prep time.",
+          "Layover: Order confirmed. Live countdown against prep time.",
         children: [
           { icon: "frame", name: "Desktop - 57" },
           { icon: "text", name: "Order Confirmed" },
@@ -516,7 +516,7 @@ export const FIGMA_PAGES = [
         x: 3080, y: 7676, w: 1440, h: 1531,
         src: "/work/layover-page/02-account.webp",
         alt:
-          "Layover — Account. Orders, lounge bookings, preferences.",
+          "Layover: Account. Orders, lounge bookings, preferences.",
         children: [
           { icon: "frame", name: "Desktop - 57" },
           { icon: "frame", name: "Footer" },
@@ -527,7 +527,7 @@ export const FIGMA_PAGES = [
         x: 0, y: 9604, w: 440, h: 1008,
         src: "/work/layover-page/03-airport-selection.webp",
         alt:
-          "Layover — Airport selection.",
+          "Layover: Airport selection.",
         children: [
           { icon: "vector", name: "Container" },
           { icon: "text", name: "Indira Gandhi International Airport" },
@@ -543,7 +543,7 @@ export const FIGMA_PAGES = [
         x: 520, y: 9604, w: 440, h: 1767,
         src: "/work/layover-page/03-home.webp",
         alt:
-          "Layover — Home.",
+          "Layover: Home.",
         children: [
           { icon: "vector", name: "Container" },
           { icon: "text", name: "Indira Gandhi International Airport" },
@@ -559,7 +559,7 @@ export const FIGMA_PAGES = [
         x: 1040, y: 9604, w: 440, h: 1767,
         src: "/work/layover-page/03-outlet-menu.webp",
         alt:
-          "Layover — Outlet menu.",
+          "Layover: Outlet menu.",
         children: [
           { icon: "vector", name: "Container" },
           { icon: "frame", name: "dropdown-arrow-svgrepo-com 1" },
@@ -575,7 +575,7 @@ export const FIGMA_PAGES = [
         x: 1560, y: 9604, w: 440, h: 1767,
         src: "/work/layover-page/03-item-added.webp",
         alt:
-          "Layover — Item added.",
+          "Layover: Item added.",
         children: [
           { icon: "vector", name: "Container" },
           { icon: "frame", name: "dropdown-arrow-svgrepo-com 1" },
@@ -591,7 +591,7 @@ export const FIGMA_PAGES = [
         x: 2080, y: 9604, w: 440, h: 1767,
         src: "/work/layover-page/03-cart-and-payment.webp",
         alt:
-          "Layover — Cart and payment.",
+          "Layover: Cart and payment.",
         children: [
           { icon: "vector", name: "Container" },
           { icon: "frame", name: "dropdown-arrow-svgrepo-com 1" },
@@ -607,7 +607,7 @@ export const FIGMA_PAGES = [
         x: 0, y: 11768, w: 375, h: 861,
         src: "/work/layover-page/04-phone-social.webp",
         alt:
-          "Layover — Phone + social.",
+          "Layover: Phone + social.",
         children: [
           { icon: "frame", name: "Content" },
           { icon: "frame", name: "Headline" },
@@ -620,7 +620,7 @@ export const FIGMA_PAGES = [
         x: 455, y: 11768, w: 375, h: 861,
         src: "/work/layover-page/04-otp-pass-2.webp",
         alt:
-          "Layover — OTP — pass 2.",
+          "Layover: OTP, pass 2.",
         children: [
           { icon: "frame", name: "Content" },
           { icon: "frame", name: "Headline" },
@@ -634,7 +634,7 @@ export const FIGMA_PAGES = [
         x: 910, y: 11768, w: 375, h: 861,
         src: "/work/layover-page/04-otp-pass-3.webp",
         alt:
-          "Layover — OTP — pass 3.",
+          "Layover: OTP, pass 3.",
         children: [
           { icon: "frame", name: "Content" },
           { icon: "frame", name: "Headline" },
@@ -647,7 +647,7 @@ export const FIGMA_PAGES = [
         x: 1365, y: 11768, w: 375, h: 861,
         src: "/work/layover-page/04-otp-pass-4.webp",
         alt:
-          "Layover — OTP — pass 4.",
+          "Layover: OTP, pass 4.",
         children: [
           { icon: "frame", name: "Content" },
           { icon: "frame", name: "Headline" },
@@ -661,7 +661,7 @@ export const FIGMA_PAGES = [
         x: 1820, y: 11768, w: 375, h: 861,
         src: "/work/layover-page/04-otp-final-with-error-state.webp",
         alt:
-          "Layover — OTP — final, with error state.",
+          "Layover: OTP, final, with error state.",
         children: [
           { icon: "frame", name: "Content" },
           { icon: "frame", name: "Headline" },
@@ -675,7 +675,7 @@ export const FIGMA_PAGES = [
         x: 0, y: 13026, w: 1440, h: 1118,
         src: "/work/layover-page/05-order-queue.webp",
         alt:
-          "Layover — Order queue. Colour-coded by state.",
+          "Layover: Order queue. Colour-coded by state.",
         children: [
           { icon: "frame", name: "header" },
           { icon: "frame", name: "order history" },
@@ -691,7 +691,7 @@ export const FIGMA_PAGES = [
         x: 1540, y: 13026, w: 1440, h: 1118,
         src: "/work/layover-page/05-order-card.webp",
         alt:
-          "Layover — Order card. Accept and Reject take the largest targets.",
+          "Layover: Order card. Accept and Reject take the largest targets.",
         children: [
           { icon: "text", name: "Dashboard" },
           { icon: "frame", name: "order 1" },
@@ -707,7 +707,7 @@ export const FIGMA_PAGES = [
         x: 3080, y: 13026, w: 1440, h: 1118,
         src: "/work/layover-page/05-empty-queue.webp",
         alt:
-          "Layover — Empty queue. Designed before the populated version.",
+          "Layover: Empty queue. Designed before the populated version.",
         children: [
           { icon: "frame", name: "header" },
           { icon: "frame", name: "searchbar" },
@@ -720,7 +720,7 @@ export const FIGMA_PAGES = [
         x: 4620, y: 13026, w: 1440, h: 1118,
         src: "/work/layover-page/05-menu-management.webp",
         alt:
-          "Layover — Menu management. Edited in place, not in a settings tree.",
+          "Layover: Menu management. Edited in place, not in a settings tree.",
         children: [
           { icon: "frame", name: "header" },
           { icon: "frame", name: "searchbar" },
@@ -733,7 +733,7 @@ export const FIGMA_PAGES = [
         x: 0, y: 14234, w: 1440, h: 1118,
         src: "/work/layover-page/05-item-editor.webp",
         alt:
-          "Layover — Item editor. Preparation Time is a required field.",
+          "Layover: Item editor. Preparation Time is a required field.",
         children: [
           { icon: "frame", name: "header" },
           { icon: "text", name: "Add Ons" },
@@ -745,7 +745,7 @@ export const FIGMA_PAGES = [
         x: 1540, y: 14234, w: 1440, h: 1118,
         src: "/work/layover-page/05-coupons.webp",
         alt:
-          "Layover — Coupons. Scoped to items and dates.",
+          "Layover: Coupons. Scoped to items and dates.",
         children: [
           { icon: "frame", name: "coupons" },
           { icon: "frame", name: "buton" },
@@ -756,7 +756,7 @@ export const FIGMA_PAGES = [
         x: 3080, y: 14234, w: 1440, h: 1118,
         src: "/work/layover-page/05-analytics.webp",
         alt:
-          "Layover — Analytics. The same numbers admin grades them on.",
+          "Layover: Analytics. The same numbers admin grades them on.",
         children: [
           { icon: "frame", name: "header" },
         ],
@@ -766,7 +766,7 @@ export const FIGMA_PAGES = [
         x: 4620, y: 14234, w: 1440, h: 1118,
         src: "/work/layover-page/05-reviews.webp",
         alt:
-          "Layover — Reviews. Vendor can reply directly.",
+          "Layover: Reviews. Vendor can reply directly.",
         children: [
           { icon: "frame", name: "coupons" },
           { icon: "frame", name: "buton" },
@@ -777,7 +777,7 @@ export const FIGMA_PAGES = [
         x: 0, y: 15442, w: 1440, h: 1118,
         src: "/work/layover-page/05-business-profile.webp",
         alt:
-          "Layover — Business profile. Logo, cuisine, operating hours.",
+          "Layover: Business profile. Logo, cuisine, operating hours.",
         children: [
           { icon: "frame", name: "header" },
           { icon: "frame", name: "button" },
@@ -790,7 +790,7 @@ export const FIGMA_PAGES = [
         x: 1540, y: 15442, w: 1440, h: 1118,
         src: "/work/layover-page/05-bank-details-gst-and-pan.webp",
         alt:
-          "Layover — Bank details, GST and PAN. Upload proof stays visible after saving.",
+          "Layover: Bank details, GST and PAN. Upload proof stays visible after saving.",
         children: [
           { icon: "frame", name: "header" },
           { icon: "frame", name: "button" },
@@ -803,7 +803,7 @@ export const FIGMA_PAGES = [
         x: 0, y: 16957, w: 393, h: 901,
         src: "/work/layover-page/06-dashboard.webp",
         alt:
-          "Layover — Dashboard.",
+          "Layover: Dashboard.",
         children: [
           { icon: "text", name: "Dashboard" },
           { icon: "frame", name: "pajamas:hamburger" },
@@ -817,7 +817,7 @@ export const FIGMA_PAGES = [
         x: 473, y: 16957, w: 393, h: 901,
         src: "/work/layover-page/06-incoming-order.webp",
         alt:
-          "Layover — Incoming order.",
+          "Layover: Incoming order.",
         children: [
           { icon: "text", name: "Dashboard" },
           { icon: "frame", name: "pajamas:hamburger" },
@@ -829,7 +829,7 @@ export const FIGMA_PAGES = [
         x: 946, y: 16957, w: 393, h: 901,
         src: "/work/layover-page/06-order-detail.webp",
         alt:
-          "Layover — Order detail.",
+          "Layover: Order detail.",
         children: [
           { icon: "text", name: "Dashboard" },
           { icon: "frame", name: "pajamas:hamburger" },
@@ -843,7 +843,7 @@ export const FIGMA_PAGES = [
         x: 1419, y: 16957, w: 393, h: 901,
         src: "/work/layover-page/06-queue.webp",
         alt:
-          "Layover — Queue.",
+          "Layover: Queue.",
         children: [
           { icon: "text", name: "Dashboard" },
           { icon: "frame", name: "pajamas:hamburger" },
@@ -857,7 +857,7 @@ export const FIGMA_PAGES = [
         x: 1892, y: 16957, w: 393, h: 901,
         src: "/work/layover-page/06-menu.webp",
         alt:
-          "Layover — Menu.",
+          "Layover: Menu.",
         children: [
           { icon: "text", name: "Dashboard" },
           { icon: "frame", name: "pajamas:hamburger" },
@@ -872,7 +872,7 @@ export const FIGMA_PAGES = [
         x: 0, y: 18255, w: 1423, h: 1106,
         src: "/work/layover-page/07-01-business-details.webp",
         alt:
-          "Layover — 01 · Business details. Completable on a phone at the counter.",
+          "Layover: 01 · Business details. Completable on a phone at the counter.",
         children: [
           { icon: "text", name: "Vendor Onboarding" },
           { icon: "text", name: "Complete your registration" },
@@ -886,7 +886,7 @@ export const FIGMA_PAGES = [
         x: 1523, y: 18255, w: 1423, h: 1061,
         src: "/work/layover-page/07-02-contact-details.webp",
         alt:
-          "Layover — 02 · Contact details.",
+          "Layover: 02 · Contact details.",
         children: [
           { icon: "text", name: "Vendor Onboarding" },
           { icon: "text", name: "Complete your registration" },
@@ -901,7 +901,7 @@ export const FIGMA_PAGES = [
         x: 3045, y: 18255, w: 1423, h: 1061,
         src: "/work/layover-page/07-03-email-and-phone-otp.webp",
         alt:
-          "Layover — 03 · Email and phone OTP.",
+          "Layover: 03 · Email and phone OTP.",
         children: [
           { icon: "text", name: "Vendor Onboarding" },
           { icon: "text", name: "Complete your registration" },
@@ -916,7 +916,7 @@ export const FIGMA_PAGES = [
         x: 4568, y: 18255, w: 1423, h: 1326,
         src: "/work/layover-page/07-04-kyc-fssai-trade-licence.webp",
         alt:
-          "Layover — 04 · KYC, FSSAI, trade licence. Constraint stated under the field.",
+          "Layover: 04 · KYC, FSSAI, trade licence. Constraint stated under the field.",
         children: [
           { icon: "text", name: "Vendor Onboarding" },
           { icon: "text", name: "Complete your registration" },
@@ -931,7 +931,7 @@ export const FIGMA_PAGES = [
         x: 0, y: 19671, w: 1423, h: 1281,
         src: "/work/layover-page/07-05-bank-details.webp",
         alt:
-          "Layover — 05 · Bank details.",
+          "Layover: 05 · Bank details.",
         children: [
           { icon: "text", name: "Vendor Onboarding" },
           { icon: "text", name: "Complete your registration" },
@@ -946,7 +946,7 @@ export const FIGMA_PAGES = [
         x: 1523, y: 19671, w: 1423, h: 1419,
         src: "/work/layover-page/07-06-submitted.webp",
         alt:
-          "Layover — 06 · Submitted. Approval estimate and what happens next.",
+          "Layover: 06 · Submitted. Approval estimate and what happens next.",
         children: [
           { icon: "text", name: "Vendor Onboarding" },
           { icon: "text", name: "Complete your registration" },
@@ -961,7 +961,7 @@ export const FIGMA_PAGES = [
         x: 0, y: 21487, w: 1440, h: 1118,
         src: "/work/layover-page/08-vendor-management.webp",
         alt:
-          "Layover — Vendor management. Four metrics per row.",
+          "Layover: Vendor management. Four metrics per row.",
         children: [
           { icon: "text", name: "Vendor Management" },
           { icon: "text", name: "Monitor and control vendor operations and performance" },
@@ -972,7 +972,7 @@ export const FIGMA_PAGES = [
         x: 1540, y: 21487, w: 1440, h: 1073,
         src: "/work/layover-page/08-onboarding-approval.webp",
         alt:
-          "Layover — Onboarding approval.",
+          "Layover: Onboarding approval.",
         children: [
           { icon: "text", name: "Vendor Onboarding" },
           { icon: "text", name: "Manage vendor applications and onboard new partners" },
@@ -983,7 +983,7 @@ export const FIGMA_PAGES = [
         x: 3080, y: 21487, w: 1440, h: 1118,
         src: "/work/layover-page/08-menu-oversight.webp",
         alt:
-          "Layover — Menu oversight. Admin can correct a listing directly.",
+          "Layover: Menu oversight. Admin can correct a listing directly.",
         children: [
           { icon: "text", name: "Vendor Management" },
           { icon: "text", name: "Monitor and control vendor operations and performance" },
@@ -995,7 +995,7 @@ export const FIGMA_PAGES = [
         x: 4620, y: 21487, w: 1440, h: 1073,
         src: "/work/layover-page/08-order-management.webp",
         alt:
-          "Layover — Order management.",
+          "Layover: Order management.",
         children: [
           { icon: "frame", name: "coupons" },
           { icon: "frame", name: "buton" },
@@ -1006,7 +1006,7 @@ export const FIGMA_PAGES = [
         x: 0, y: 22695, w: 1440, h: 1073,
         src: "/work/layover-page/08-user-management.webp",
         alt:
-          "Layover — User management.",
+          "Layover: User management.",
         children: [
           { icon: "text", name: "Vendor Management" },
           { icon: "text", name: "Monitor and control vendor operations and performance" },

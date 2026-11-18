@@ -156,7 +156,7 @@ function Poster({ eager }) {
           <img
             className="cl-abs"
             src="/collage/subtract.svg"
-            alt="trust the process — and the artist"
+            alt="trust the process, and the artist"
             loading={load}
             decoding="async"
             style={{ left: U(0), top: U(0), width: U(841.855), height: U(793.979) }}
@@ -343,7 +343,7 @@ function Poster({ eager }) {
           The word is aria-hidden and the panel carries a label instead: read
           out, thirty repetitions of the same name is noise, and the one thing a
           screen reader should get is what the panel IS. */}
-      <div className="cl-namepanel" role="img" aria-label="मृणाली — Mrinali, set over and over">
+      <div className="cl-namepanel" role="img" aria-label="मृणाली: Mrinali, set over and over">
         <img src="/collage/image68.png" alt="" loading="lazy" decoding="async" />
         <p className="cl-nametext" aria-hidden="true">{"मृणाली ".repeat(30)}</p>
       </div>

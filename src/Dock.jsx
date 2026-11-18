@@ -167,7 +167,7 @@ export default function Dock({ visible, onChoose, active, minimised = [] }) {
     {
       key: "figma",
       name: "Design",
-      label: "Figma — enter the design world",
+      label: "Figma: enter the design world",
       world: "design",
       action: () => onChoose("design"),
       node: (
@@ -177,7 +177,7 @@ export default function Dock({ visible, onChoose, active, minimised = [] }) {
     {
       key: "vscode",
       name: "Tech",
-      label: "VS Code — enter the tech world",
+      label: "VS Code: enter the tech world",
       world: "tech",
       action: () => onChoose("tech"),
       node: <VSCodeMark className="dock-item-icon" aria-hidden="true" />,
@@ -190,7 +190,7 @@ export default function Dock({ visible, onChoose, active, minimised = [] }) {
     {
       key: "gallery",
       name: "Gallery",
-      label: "Gallery — open the dome gallery",
+      label: "Gallery: open the dome gallery",
       world: "gallery",
       action: () => onChoose("gallery"),
       node: (
@@ -203,7 +203,7 @@ export default function Dock({ visible, onChoose, active, minimised = [] }) {
       // The visible tag is the accessible name's FIRST word on purpose. Voice
       // control matches what a user can see ("click Game"), so a label that
       // opened with "Lotus Pond" while the tag said "Game" would be unspeakable.
-      label: "Game — the Lotus Pond, catch coding bugs with a pixel frog",
+      label: "Game: the Lotus Pond, catch coding bugs with a pixel frog",
       world: "pond",
       action: () => onChoose("pond"),
       node: <FroggieMark className="dock-item-icon" aria-hidden="true" />,
@@ -217,14 +217,14 @@ export default function Dock({ visible, onChoose, active, minimised = [] }) {
     {
       key: "github",
       name: "GitHub",
-      label: "GitHub — mrinali's code",
+      label: "GitHub: mrinali's code",
       href: GITHUB,
       node: <GitHubMark className="dock-item-icon dock-item-icon--mono" aria-hidden="true" />,
     },
     {
       key: "linkedin",
       name: "LinkedIn",
-      label: "LinkedIn — mrinali's profile",
+      label: "LinkedIn: mrinali's profile",
       href: LINKEDIN,
       node: <LinkedInMarkColor className="dock-item-icon" aria-hidden="true" />,
     },
@@ -238,7 +238,7 @@ export default function Dock({ visible, onChoose, active, minimised = [] }) {
     {
       key: "instagram",
       name: "Instagram",
-      label: "Instagram — @mrinalii._",
+      label: "Instagram: @mrinalii._",
       href: INSTAGRAM,
       node: <InstagramMark className="dock-item-icon" aria-hidden="true" />,
     },

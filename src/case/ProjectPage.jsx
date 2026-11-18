@@ -205,7 +205,7 @@ export default function ProjectPage({ project: p, scrollerRef }) {
                yet says so, and the board below is still the whole study. */
             <p className="pp-copy is-wide pp-pending">
               {p.pending ||
-                "The page for this one hasn’t been art-directed yet — the full case study is below."}
+                "The page for this one hasn’t been art-directed yet. The full case study is below."}
             </p>
           )}
 
@@ -222,7 +222,7 @@ export default function ProjectPage({ project: p, scrollerRef }) {
                 <span className="pp-board-dim">{b.dims}</span>
               </summary>
               <p className="pp-board-note">
-                The original board. Everything above is built out of this — the page is the
+                The original board. Everything above is built out of this. The page is the
                 edit, this is the source.
               </p>
               <figure className="pp-strip">

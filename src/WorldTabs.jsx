@@ -72,7 +72,7 @@ export default function WorldTabs({ world }) {
           end. The span is the optical-centring hook: Pinyon sits low in its em
           box and needs a nudge, but transforming the anchor would drag its
           hover background along with it. */}
-      <a className="wt-home" href="#/" aria-label="Mrinali Bhardwaj — home">
+      <a className="wt-home" href="#/" aria-label="Mrinali Bhardwaj: home">
         <span>mb</span>
       </a>
     </nav>
