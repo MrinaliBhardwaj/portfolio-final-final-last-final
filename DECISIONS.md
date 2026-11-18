@@ -5401,3 +5401,6 @@ are. Measured after the change: identical positions (Meal Maestro 27,64 at
 - Overrules the 2026-07-30 "turn your phone sideways" gate. Not a pan (tried and undone the same day: she wants the landscape page itself, not a strip of it).
 - Portrait <=700px: `.nw-turn` wraps both sheets, is fixed under the 44px toolbar, sized (100dvh - 44px) x 100vw and rotated 90deg clockwise, so the landscape scrapbook fills the screen on its side. The visitor turns the phone to read; works with rotation lock on. The box scrolls along the long edge from page one to page two.
 - Inside it --nw-vh = 100vw + 44px and --nw-room = 92px (no toolbar inside, no dock on a phone). Real landscape and desktop never match the query and are unchanged.
+
+## CD play button a touch smaller (2026-11-19)
+- Desk .cd-play 15% -> 12.5% of the disc; phone .ph-cd-hint 34% -> 28% of the tile. Sits inside the hub now.
