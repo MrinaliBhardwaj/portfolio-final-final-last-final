@@ -154,12 +154,16 @@ export default function CdPlayer({ piece, style, visible }) {
 
   // Spin while the pointer is on it, and keep spinning for as long as it
   // plays — a stopped disc with sound coming out of it would read as broken.
-  const spinning = hovered || playing;
+  // HER THREE STATES (18 Nov 2026): at rest, exactly the desk as it was.
+  // Hover: the disc turns a few degrees, like a hand nudging it, and a small
+  // play button rises on the hub; no sound. Click: the song, and the disc
+  // spins for as long as it plays. Hovering a playing disc shows pause.
+  const spinning = playing;
 
   return (
     <button
       type="button"
-      className={`dpiece dpiece-cd${spinning ? " is-spinning" : ""}`}
+      className={`dpiece dpiece-cd${spinning ? " is-spinning" : ""}${hovered ? " is-hover" : ""}`}
       data-key={piece.key}
       style={style}
       aria-label={label}
@@ -179,6 +183,13 @@ export default function CdPlayer({ piece, style, visible }) {
           aria-hidden="true"
           style={{ backgroundImage: `url(${piece.src})` }}
         />
+        <span className="cd-play" aria-hidden="true">
+          {playing ? (
+            <svg viewBox="0 0 24 24"><rect x="7" y="6" width="3.6" height="12" rx="1" /><rect x="13.4" y="6" width="3.6" height="12" rx="1" /></svg>
+          ) : (
+            <svg viewBox="0 0 24 24"><path d="M9 6.6v10.8a.8.8 0 0 0 1.2.7l8.6-5.4a.8.8 0 0 0 0-1.4l-8.6-5.4a.8.8 0 0 0-1.2.7z" /></svg>
+          )}
+        </span>
       </span>
       {audio}
     </button>

@@ -5357,3 +5357,4 @@ are. Measured after the change: identical positions (Meal Maestro 27,64 at
 - Click/tap to play, never hover: browsers block sound until a click/tap/keypress, and unexpected sound in public was her own worry. Desk: disc spins on hover as the "this does something" cue, keeps spinning while it plays. Phone: the CD tile is now a button; the disc spins while playing. No caption anywhere; the spinning disc is the on-air light.
 - Shared logic in `useDeskTrack()` (CdPlayer.jsx): 120ms fade in/out, stops when the tab is hidden.
 - LICENSING: a commercial recording on a public site can draw a takedown. Her call; flagged.
+- Revised same day (her spec): rest = unchanged; hover = disc turns 16deg (a nudge, `rotate` property so it composes with the spin) + a small frosted play button on the hub, no sound; click = song + continuous spin. Hovering while playing shows pause. Phone has no hover: tap plays and spins.
