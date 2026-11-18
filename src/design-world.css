@@ -823,6 +823,8 @@
    pushed to the right edge, so the four boards zig-zag down the canvas
    instead of lining up on the left. */
 .dw-board--offset { grid-column: 6 / span 7; }
+/* Regis's slot (18 Nov 2026): the zig-zag carries on, back to the left. */
+.dw-board--trail { grid-column: 1 / span 7; }
 
 .dw-board {
   display: block;
@@ -899,6 +901,12 @@
 .dw-board--offset .dw-board-art {
   aspect-ratio: 1600 / 838;
   transform: rotate(0.9deg);
+}
+
+/* the cover's own ratio: her "Today" screen plate, cut at 1360 x 820 */
+.dw-board--trail .dw-board-art {
+  aspect-ratio: 1360 / 820;
+  transform: rotate(-0.8deg);
 }
 
 .dw-board:hover .dw-board-art,
@@ -1173,7 +1181,8 @@
   .dw-board--lg,
   .dw-board--sm,
   .dw-board--wide,
-  .dw-board--offset {
+  .dw-board--offset,
+  .dw-board--trail {
     grid-column: 1 / -1;
     margin-top: 0;
   }
@@ -1953,7 +1962,8 @@
   .dw-board--lg,
   .dw-board--sm,
   .dw-board--wide,
-  .dw-board--offset {
+  .dw-board--offset,
+  .dw-board--trail {
     grid-column: 1 / -1;
     margin-top: 0;
   }

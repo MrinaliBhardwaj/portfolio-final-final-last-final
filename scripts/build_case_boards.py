@@ -38,6 +38,12 @@ JOBS = {
     # renders as 20077 rows, the last a 1px (30,30,30) sliver of the canvas
     # behind the frame, so it is trimmed to the frame's whole-pixel height.
     "nextg": {"crop_h": 20076, "out": "public/work/nextg/case"},
+    # Regis, node 104:4102 ("Frame 1", file 8qMVRhvaHKN41AHP72kx86), 2960 x
+    # 21708: her fifteen section frames ("01 Cover" .. "21 Close") in the right
+    # 1600px, with 120-250px of Figma canvas between them and an empty 1360px
+    # column to their left. The export is the sections STACKED edge to edge
+    # (canvas gaps dropped) by the section boxes in her file, 1600 x 19900.
+    "regis": {"crop_h": 19900, "out": "public/work/regis/case"},
 }
 
 TARGET = 2200  # slice height aimed for

@@ -100,6 +100,9 @@ const PAGE_ONE = [
     href: "#/notes",
     aria: "About Me: the scrapbook",
   }),
+  // REGIS (18 Nov 2026): the horse is back on the phone now that it opens a
+  // study, beside About Me in the cell that was open.
+  tile("folder-horse", [1, 1], { at: [2, 3] }),
   // THE HORSE AND THE KARMA CARD ARE OFF THE PHONE (12 Sep 2026, her call —
   // "for now"). The horse is the untitled folder, whose whole content is a
   // window saying it is empty; the card is decoration. On a screen this size

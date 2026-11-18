@@ -77,15 +77,17 @@ const A = "/desk";
 // does not touch the composition.
 const PIECES = [
   // ---------------- left: the folders, the case, the frog ----------------
-  // The gingham horse. Contents not decided yet, so it is an EMPTY FOLDER and
-  // says so, rather than being a folder-shaped thing that ignores the cursor.
+  // The gingham horse. It was the "untitled folder" that opened an empty
+  // window until a study existed for it; Regis landed 18 Nov 2026, so it is a
+  // case study folder like the others now.
   {
     key: "folder-horse",
     src: `${A}/meal-maestro.webp`,
     x: 454, y: 113.1, w: 117.39, h: 97.825,
-    label: "untitled folder",
-    aria: "untitled folder, empty",
-    opensEmpty: "horse",
+    label: "Regis",
+    kind: "Case Study",
+    aria: "Regis: compliance tracking platform, open the case study",
+    opensCase: "regis",
   },
   // The Chinese landscape: the fourth case-study slot, and NextG Apex's. It
   // got its folder a day before its study (11 Sep 2026, opening onto "on its

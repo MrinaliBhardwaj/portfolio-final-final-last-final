@@ -200,21 +200,43 @@ export default function ProjectPage({ project: p, scrollerRef }) {
 
           {Story ? (
             <Story />
-          ) : (
-            /* Honest rather than decorative. A project with a board and no page
-               yet says so, and the board below is still the whole study. */
-            <p className="pp-copy is-wide pp-pending">
-              {p.pending ||
-                "The page for this one hasn’t been art-directed yet. The full case study is below."}
-            </p>
-          )}
+          ) : p.pending ? (
+            <p className="pp-copy is-wide pp-pending">{p.pending}</p>
+          ) : null}
+
+          {/* NO PAGE OF ITS OWN YET, SO THE BOARD IS THE STUDY (18 Nov 2026).
+              It used to sit folded under a line saying the page had not been
+              art-directed, which left a reader on Regis (art-directed in full,
+              in Figma) a masthead and a closed disclosure. Without a Story the
+              board is shown open, as the page; images still load lazily. */}
+          {!Story &&
+            boards.map((b, i) => (
+              <figure className="pp-strip pp-strip--lead" key={b.node || i}>
+                {b.slices.map((sl, s) => (
+                  <img
+                    key={sl.src}
+                    src={sl.src}
+                    alt={s === 0 ? b.alt : ""}
+                    aria-hidden={s === 0 ? undefined : "true"}
+                    loading="lazy"
+                    decoding="async"
+                    width={sl.w}
+                    height={sl.h}
+                    draggable="false"
+                  />
+                ))}
+                {b.videos?.map((v) => (
+                  <BoardVideo key={v.src} v={v} board={b} />
+                ))}
+              </figure>
+            ))}
 
           {/* ---- her board, demoted ----
               It used to BE the page. Closed by default, so `loading="lazy"`
               inside it fetches none of its megabytes — and, just as usefully,
               20,000px of image boxes are not laid out the instant a window
               opens. */}
-          {boards.map((b, i) => (
+          {Story && boards.map((b, i) => (
             <details className="pp-board" key={b.node || i}>
               <summary>
                 <ChevronRight size={14} strokeWidth={2.2} aria-hidden="true" />

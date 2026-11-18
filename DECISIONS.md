@@ -5358,3 +5358,11 @@ are. Measured after the change: identical positions (Meal Maestro 27,64 at
 - Shared logic in `useDeskTrack()` (CdPlayer.jsx): 120ms fade in/out, stops when the tab is hidden.
 - LICENSING: a commercial recording on a public site can draw a takedown. Her call; flagged.
 - Revised same day (her spec): rest = unchanged; hover = disc turns 16deg (a nudge, `rotate` property so it composes with the spin) + a small frosted play button on the hub, no sound; click = song + continuous spin. Hovering while playing shows pause. Phone has no hover: tap plays and spins.
+
+## 18 Nov 2026 — Regis is the fifth case study; the untitled folder opens it
+- Source: Figma file 8qMVRhvaHKN41AHP72kx86, node 104:4102 ("Frame 1"): fifteen section frames, 01 Cover … 21 Close. Exported at 1x, the Figma-canvas gaps between sections dropped, stacked edge to edge (1600 × 19900), sliced into 9 WebPs by `scripts/build_case_boards.py regis` (1.04 MB).
+- The gingham-horse "untitled folder" on the desk is now "Regis · Case Study" and opens `#/?case=regis`. It is back on the phone home screen too, at row 3 beside About Me.
+- Design canvas: a fifth board in a new `trail` slot (cols 1–7, the zig-zag returning left), cover = her "Today" screen plate from "09 What needs me today" (1360 × 820).
+- Masthead copy is hers (cover, "06 My role", "21 Close"). Metrics: 346 dated obligations from one profile, 28 frontend files rewritten, 0 backend changes. Her sample-entity numbers (109 overdue etc.) are deliberately not used as outcomes.
+- A project with no custom page now shows its board OPEN as the page, with no "hasn't been art-directed yet" line (Regis is fully art-directed, in Figma). Projects with a custom page keep the board folded at the foot.
+- OPEN: her Figma copy contains em dashes, baked into the board image; the site rule says none. Fix in Figma and re-export, or build Regis an HTML page.

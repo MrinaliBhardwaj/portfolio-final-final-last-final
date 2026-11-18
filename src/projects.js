@@ -179,7 +179,7 @@ export const PROJECTS = [
     dims: "1080 × 1350",
     role: "Brand identity, UI design, product design",
     summary:
-      "A layover is dead time you've already paid for. Layover turns it into something usable: enter your airport or PNR and it shows what's actually open in your terminal right now: order a meal to your gate, or book into a lounge. Built around Indian airports (Delhi, Mumbai, Bengaluru, Hyderabad) and the details that matter there: terminal-aware delivery, veg and non-veg filters as a first-class control, and a live prep timer so you know whether you have time before boarding.",
+      "A layover is dead time you've already paid for. Layover turns it into something usable: enter your airport or PNR and it shows what's actually open in your terminal right now. Order a meal to your gate, or book into a lounge. Built around Indian airports (Delhi, Mumbai, Bengaluru, Hyderabad) and the details that matter there: terminal-aware delivery, veg and non-veg filters as a first-class control, and a live prep timer so you know whether you have time before boarding.",
     // CORRECTED FROM HER OWN BOARD (5 Sep 2026). The case study states the role
     // as "Product Designer, co-lead" and names five surfaces; this said three,
     // and the two were now contradicting each other on the same page. Her
@@ -387,6 +387,62 @@ export const PROJECTS = [
       ],
       alt:
         "The NextG Apex case study: a B2B retail-tech site for field sales across half a million Indian outlets, designed and built end to end. It runs from the project overview and a brief in two halves (a CEO who wanted a site people keep scrolling and a CTO who wanted the phygital proposition stated without ambiguity) through the whole site, the process, an audit, structure, type and colour, the design decisions, the product views, conversion, responsive layouts and the WebGL build, to what shipped: six pages, one system, no framework, closing on “Thanks for watching”.",
+    }],
+    shots: [],
+  },
+  // REGIS (18 Nov 2026). The desk's "untitled folder" (the gingham horse) was
+  // an honest empty room until this study arrived; it opens this now.
+  //
+  // Every word below is hers, from the study itself ("01 Cover", "06 My role"
+  // and "21 Close" in file 8qMVRhvaHKN41AHP72kx86), not written for this page.
+  // Her demo data (109 overdue and the like) is NOT used as a metric: it is the
+  // state of a sample entity, not an outcome.
+  {
+    slug: "regis",
+    name: "Regis",
+    what: "Compliance tracking platform",
+    when: "2026",
+    tag: "346 obligations → one queue",
+    blurb:
+      "A compliance tracker for Indian NBFCs that turns 346 dated obligations into one queue you can work from the top.",
+    size: "trail",
+    // Her "Today" screen on its plate, from "09 What needs me today", cut at
+    // 1360 x 820 from the board and saved at 1200 wide.
+    cover: "/work/regis/cover.webp",
+    file: "regis-case-study",
+    dims: "1360 × 820",
+    role: "Product design + frontend",
+    summary:
+      "Compliance isn’t hard in India. It’s relentless. Regis is built for Indian NBFCs, and for the person whose name is on the filings. It does three things: it knows what you owe, ranks what to do first, and proves it was done.",
+    facts: [
+      ["Role", "Solo: information architecture, interaction design, design system, frontend"],
+      ["Timeline", "2026 · pre-seed stage"],
+      ["Scope", "The entire product surface"],
+      ["Tools", "Figma · Next.js, TypeScript"],
+    ],
+    metrics: [
+      { value: "346", label: "dated obligations derived from one profile" },
+      { value: "28", label: "frontend files rewritten" },
+      { value: "0", label: "backend changes, every fix reachable from the client" },
+    ],
+    // Regis, node 104:4102, her fifteen sections stacked edge to edge
+    // (1600 x 19900). Sliced by scripts/build_case_boards.py, job "regis".
+    boards: [{
+      node: "104:4102",
+      dims: "1600 × 19900",
+      slices: [
+        { src: "/work/regis/case/s00.webp", w: 1600, h: 2383 },
+        { src: "/work/regis/case/s01.webp", w: 1600, h: 2186 },
+        { src: "/work/regis/case/s02.webp", w: 1600, h: 2410 },
+        { src: "/work/regis/case/s03.webp", w: 1600, h: 2150 },
+        { src: "/work/regis/case/s04.webp", w: 1600, h: 2239 },
+        { src: "/work/regis/case/s05.webp", w: 1600, h: 2033 },
+        { src: "/work/regis/case/s06.webp", w: 1600, h: 2191 },
+        { src: "/work/regis/case/s07.webp", w: 1600, h: 2208 },
+        { src: "/work/regis/case/s08.webp", w: 1600, h: 2100 },
+      ],
+      alt:
+        "The Regis case study: building a compliance tracking platform for Indian NBFCs, designed and built solo in 2026. It opens on why compliance in India is relentless (an NBFC answers to four regulators, the dates are set by regulation, and every filing needs proof that outlives the people who filed it), then how Regis solves it: it knows what you owe, ranks what to do first, and proves it was done. After her role and four principles, it walks the product one question at a time: what needs me today, which of 109 overdue items to do first (a priority score of risk weight times time pressure, shown as charts), whether the queue can explain itself, an evidence check before committing, where the proof is, what goes on record, the audit trail, the board report, and the Ledger design system with its colour and type tokens. It closes on designing for the 300th row, and “Thanks for reading.”",
     }],
     shots: [],
   },
