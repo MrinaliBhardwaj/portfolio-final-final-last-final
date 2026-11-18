@@ -5315,3 +5315,17 @@ The frog is off the phone (her call). Nothing moved up into its rows: closing
 the gap would make page one six rows, the height-bound cell would grow, and
 the top would change size again. The open cells show the bloom. The crowd
 stays a full-width 4x2 widget with its container-query fallback.
+
+### 18 Nov 2026 — no drawn status bar on the phone
+
+Her call. The lock screen and the home screen each drew their own iOS status
+bar (clock, signal, wifi, battery, a Dynamic Island) — on a real iPhone that
+is a second copy directly under the phone's own, two clocks a few points
+apart. `PhoneStatus.jsx` and its styles are deleted.
+
+The band it occupied (`--ph-status`, 54px) is still reserved: the home
+screen's cell is derived from the height left after it, so reclaiming it
+would grow every icon and the CD — which she has just asked to stay as they
+are. Measured after the change: identical positions (Meal Maestro 27,64 at
+71x71; CD 161x167). If the top margin ever reads as too empty, lowering
+`--ph-status` is the one dial, and it will enlarge the grid.

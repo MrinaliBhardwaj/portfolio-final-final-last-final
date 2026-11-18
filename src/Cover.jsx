@@ -67,7 +67,6 @@ import { TECH_PROJECTS } from "./tech-projects.js";
 import TextMorph from "./TextMorph.jsx";
 import DesktopFiles from "./DesktopFiles.jsx";
 import PhoneHome from "./PhoneHome.jsx";
-import PhoneStatus from "./PhoneStatus.jsx";
 import useIsPhone from "./use-is-phone.js";
 import NameMark from "./NameMark.jsx";
 import { createLotusScrubber } from "./lotus.js";
@@ -769,24 +768,17 @@ export default function Cover({ onChoose, onSettledChange }) {
           <div className="cover-video-overlay" />
 
           {/* THE PHONE'S COVER IS A LOCK SCREEN. It settles into a home screen
-              (PhoneHome), so what stands before it is the screen you unlock —
-              and a lock screen wears the device's own status bar, carries the
-              name large at the top, and offers one way in at the thumb.
+              (PhoneHome), so what stands before it is the screen you unlock.
 
-              The bar is the SAME component the home screen wears, in the same
-              place, so the cross-fade at settle is invisible: it goes out on
-              exactly the signal PhoneHome comes in on, over the same 0.55s. */}
+              NO DRAWN STATUS BAR (18 Nov 2026, her call). It used to wear a
+              clock, signal, wifi and battery of its own — on a real iPhone a
+              second copy directly under the phone's real one. The space it
+              took is still reserved (--ph-status), so nothing below moved. */}
           {/* NO SCRIM ON THIS SCREEN. There was one, when the name was up
               under the status bar and its second line crossed lit petals. The
               name is back at the foot and the notes are in the sky, and both
               of those bands measure 0.001 luminance on the poster at this
               crop — so the flower is never dimmed by anything. */}
-          {phone && (
-            <div className={`cover-status${settled ? " is-off" : ""}`}>
-              <PhoneStatus />
-            </div>
-          )}
-
           {/* beat 1: the name, alone. It used to write itself on via a mask
               wipe; that reveal is gone (26 Oct 2026) and it now arrives whole
               — see .is-ready in cover.css. The "a design engineer" caption

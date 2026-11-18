@@ -16,8 +16,13 @@
    now (App.jsx puts it on every phone route), so the numbers both of them
    need — its icon, its height, the margin and the safe area — live here rather
    than inside .ph, where the dock could no longer see them. */
-/* --ph-status is up here for the same reason: the status bar is the DEVICE's
-   chrome, not this screen's (PhoneStatus.jsx), and the cover wears it too. */
+/* --ph-status is up here for the same reason, and it is now SPACE, not a bar.
+   The drawn status bar (clock, signal, battery, a Dynamic Island) is gone
+   (18 Nov 2026, her call): on a real iPhone it sat directly under the phone's
+   own. The band it occupied is still reserved — the cell is derived from the
+   height left over, so reclaiming it would grow every icon and the CD, which
+   she has asked to stay as they are. Both the lock screen and the home screen
+   read it. */
 :root {
   --ph-margin: 22px;
   --ph-dock-icon: clamp(46px, 15vw, 60px);
@@ -104,66 +109,6 @@
     rgba(4, 4, 10, 0.62) 72%
   );
   -webkit-tap-highlight-color: transparent;
-}
-
-/* ---- status bar ---- */
-.ph-status {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: var(--ph-status);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 2px 26px 0;
-  font-size: 15px;
-  font-weight: 600;
-  letter-spacing: 0.01em;
-  z-index: 4;
-}
-
-.ph-status-time {
-  min-width: 54px;
-}
-
-.ph-status-icons {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  min-width: 54px;
-  justify-content: flex-end;
-}
-
-.ph-status-glyph {
-  height: 11px;
-  width: auto;
-  fill: currentColor;
-}
-
-.ph-status-battery {
-  height: 12px;
-}
-
-/* the Dynamic Island: drawn in the status row so the clock and the indicators
-   sit either side of it, which is what puts them where iOS puts them */
-.ph-island {
-  width: 108px;
-  height: 32px;
-  border-radius: 20px;
-  background: #000;
-  display: grid;
-  place-items: center;
-  justify-items: end;
-  padding-right: 12px;
-}
-
-.ph-island-lens {
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  background: radial-gradient(circle at 35% 30%, #2b2b3a, #09090d 70%);
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
 }
 
 /* ---- the pages ---- */

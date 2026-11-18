@@ -647,24 +647,6 @@
    needs a scrim — an earlier pass put the name up top and needed a heavy one,
    and dimming her own photograph to make room for type is the wrong trade. */
 @media (max-width: 640px) {
-  /* the device's own bar, the same component the home screen wears; it goes
-     out exactly as PhoneHome comes in, over the same 0.55s, in the same place */
-  .cover-status {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: var(--ph-status);
-    z-index: 5;
-    color: #fff;
-    font-family: var(--font-ui, system-ui, sans-serif);
-    transition: opacity 0.55s ease;
-  }
-
-  .cover-status.is-off {
-    opacity: 0;
-  }
-
   .cover-hero-inner {
     /* BIGGER, AND THE CEILING IS ARITHMETIC. The name wraps to two lines here,
        so the constraint is the wider word: Bhardwaj is 3.5815em (NameMark.jsx),
@@ -698,7 +680,7 @@
   /* THE NOTES, IN THE SKY. They are absolutely-positioned margin notes on a
      Mac — 148px columns holding the outer edges of the flower. A phone has no
      margins to write in, so everything that held them to an edge is undone and
-     they stack under the status bar as one centred block. */
+     they stack under the status bar's reserved band as one centred block. */
   .cover-phone-notes {
     position: absolute;
     top: calc(var(--ph-status) + 20px);

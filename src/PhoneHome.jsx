@@ -7,7 +7,7 @@
 // picture of a Mac rather than a machine you are holding.
 //
 // So on a phone the metaphor SWITCHES (12 Sep 2026, on her brief): this is an
-// iPhone home screen. Status bar, Dynamic Island, an iOS grid of icons and
+// iPhone home screen: an iOS grid of icons and
 // widgets, a page indicator, and two pages you swipe between — with the dock
 // below it (PhoneDock.jsx), which App renders on every phone route so it never
 // moves. The
@@ -32,7 +32,6 @@
 // scrolls straight through it.
 import { useRef, useState } from "react";
 import { DESK, windowHref } from "./DesktopFiles.jsx";
-import PhoneStatus from "./PhoneStatus.jsx";
 import {
   GitHubMark,
   LinkedInMarkColor,
@@ -335,9 +334,6 @@ export default function PhoneHome({ visible = true, onOpenCase, onOpenNote, onOp
           holding, so it costs 2px and reads as nothing; in a narrow desktop
           window it is what makes the composition read as a device. */}
       <div className="ph-frame">
-        {/* the same bar the lock screen wears — see PhoneStatus.jsx */}
-        <PhoneStatus />
-
         {/* the two home screens. `scroll-snap` is the whole swipe. */}
         <div className="ph-pages" ref={pagesRef} onScroll={onScroll}>
           {pages.map((items, i) => (
