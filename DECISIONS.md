@@ -5384,3 +5384,6 @@ are. Measured after the change: identical positions (Meal Maestro 27,64 at
 ## Regis on phone (2026-11-19)
 - Below 620px: product screens, dot plots, swatches and the dark screen go full-bleed and pan sideways at a readable fixed width (820/720/680/700px) with a "Swipe to see it all" hint, instead of shrinking to thumbnails. Before/after dialogs go edge to edge.
 - Model card values wrap inside the card; section air drops 96px to 48px. Desktop unchanged.
+
+## Phone profile.doc tab: clean asset (2026-11-19)
+- profile-tab-cut.png (phone only) rebuilt: baked brown outline and shadow seam removed, filled in the sheet colour #f6f5f2 so tab and box read as one piece; lettering re-inked in the frame ink #4a4a58. Desktop uses profile-tab.png, untouched.
