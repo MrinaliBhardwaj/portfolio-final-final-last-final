@@ -27,7 +27,11 @@ const UM = (n) => `calc(${n} * var(--um))`;
 
 // the intro copy, shared by the fixed poster and the mobile reflow below
 const INTRO =
-  "I am an aspiring design engineer based in India, currently pursuing a bachelors degree in computer science at VIT University. My academic background allows me to work at the intersection of tech and design";
+  "She studies computer science but has never managed to keep her interests confined to code. She has been drawn to visuals since out of the womb. Over time, this curiosity has taken her into product design. There is no neat label for everything she does, but she loves keeping it that way.";
+
+// The poster's intro wraps to three lines with her current copy (the file's
+// had two): one line of 16.778px type, plus the gap it used to have.
+const INTRO_DROP = 22;
 
 // four experience entries — {block x,y, alignment, and the four lines}
 const EXPERIENCE = [
@@ -125,7 +129,13 @@ const T = {
 // Experience: her two rows, her line offsets inside a block.
 const COL_L = 120;                    // clears "Entrepreneurship Cell"
 const COL_R = 110;                    // clears "LUMA Technologies"
-const ROW_Y = [296, 379];
+// Her copy of 18 Nov 2026 is one line longer than the file's (6 lines, not
+// 5), so the Experience block drops: heading 274 -> 282, rows 296/379 ->
+// 302/380. ONLY that block. The second row cannot go lower than 380 — its date
+// line would run under the top of the photo's hat (~449), and the photo is
+// pinned to the sheet's bottom edge. Softwares and Skill Set stay at hers.
+const XP_HEAD_Y = 282;
+const ROW_Y = [302, 380];
 const XP_LINE = { kind: 0, role: 13.4, org: 29.6, date: 46.6 };
 
 const M_EXP = [
@@ -284,7 +294,9 @@ export default function DesignHero() {
         Mrinali Bhardwaj!
       </span>
 
-      {/* intro */}
+      {/* intro — her 18 Nov 2026 copy runs a line longer than the file's, so
+          everything that hangs under it (experience, skill set, education)
+          drops by INTRO_DROP; the sheet had the room above the flourish */}
       <p className="dwh-intro" style={{ left: U(205), top: U(190), width: U(989), fontSize: U(16.778) }}>
         {INTRO}
       </p>
@@ -307,7 +319,7 @@ export default function DesignHero() {
       </a>
 
       {/* ============ EXPERIENCE (2×2) ============ */}
-      <div className="dwh-group dwh-exp" style={{ left: U(354), top: U(212), width: U(421.29), height: U(349) }}>
+      <div className="dwh-group dwh-exp" style={{ left: U(354), top: U(212 + INTRO_DROP), width: U(421.29), height: U(349) }}>
         <span className="dwh-head" style={{ left: U(3.53), top: U(34.63), fontSize: U(18) }}>
           Experience
         </span>
@@ -337,7 +349,7 @@ export default function DesignHero() {
       </div>
 
       {/* ============ SKILL SET ============ */}
-      <div className="dwh-group" style={{ left: U(826), top: U(252), width: U(253), height: U(114.8) }}>
+      <div className="dwh-group" style={{ left: U(826), top: U(252 + INTRO_DROP), width: U(253), height: U(114.8) }}>
         <span className="dwh-head" style={{ left: U(0), top: U(-5), fontSize: U(18) }}>
           Skill Set
         </span>
@@ -370,7 +382,7 @@ export default function DesignHero() {
       </div>
 
       {/* ============ EDUCATION ============ */}
-      <div className="dwh-group" style={{ left: U(826), top: U(420), width: U(291), height: U(112.79) }}>
+      <div className="dwh-group" style={{ left: U(826), top: U(420 + INTRO_DROP), width: U(291), height: U(112.79) }}>
         <span className="dwh-head" style={{ left: U(-2), top: U(-0.49), fontSize: U(18) }}>
           Education
         </span>
@@ -424,7 +436,7 @@ export default function DesignHero() {
           </p>
 
           {/* ---- experience ---- */}
-          <span className="dwh-m-head" style={{ left: UM(CL), top: UM(274), fontSize: UM(T.head) }}>
+          <span className="dwh-m-head" style={{ left: UM(CL), top: UM(XP_HEAD_Y), fontSize: UM(T.head) }}>
             Experience
           </span>
           {M_EXP.map((e) => (

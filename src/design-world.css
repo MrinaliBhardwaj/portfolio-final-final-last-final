@@ -2100,7 +2100,7 @@
   .dwh-m-intro {
     margin: 0;
     font-weight: 300;
-    line-height: 1.25; /* her "normal" is ~1.21; 5 lines end at ~256 */
+    line-height: 1.2; /* her "normal" is ~1.21; 6 lines end at ~267 */
     text-align: justify; /* her frame justifies it */
   }
 

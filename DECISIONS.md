@@ -5341,3 +5341,7 @@ are. Measured after the change: identical positions (Meal Maestro 27,64 at
 - One type scale, per her "make all text sizes uniform": display (name 43.2), Meet 20, heading 15, text 12 (intro, role, org), small 10 (kind, date, View Resume, skill labels).
 - "Softwares" is real 15px text now; `softwares-tiles.png` is `softwares.png` with its baked-in label cropped off (rows 44–107).
 - The frame is no longer full-bleed: it sits 12px in from each screen edge so it reads as a frame on the canvas (the artboard scales with it, ×0.94 on a 393 phone).
+
+## 18 Nov 2026 — New intro copy on the design profile
+- Intro (shared by the desktop poster and the phone frame) is now her third-person copy: "She studies computer science but has never managed to keep her interests confined to code. …" (verbatim in `INTRO`, DesignHero.jsx).
+- It runs a line longer than the file's on both layouts. Poster: Experience, Skill Set and Education drop 22 units (`INTRO_DROP`); there was room above the flourish. Phone: intro line-height 1.2 (her "normal"), and only the Experience block drops (heading 282, rows 302/380). Row two cannot go lower: its date would run under the photo's hat, and the photo is pinned to the sheet's bottom. Softwares and Skill Set stay at her coordinates.
