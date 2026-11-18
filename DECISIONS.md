@@ -5387,3 +5387,8 @@ are. Measured after the change: identical positions (Meal Maestro 27,64 at
 
 ## Phone profile.doc tab: clean asset (2026-11-19)
 - profile-tab-cut.png (phone only) rebuilt: baked brown outline and shadow seam removed, filled in the sheet colour #f6f5f2 so tab and box read as one piece; lettering re-inked in the frame ink #4a4a58. Desktop uses profile-tab.png, untouched.
+
+## Traffic readiness (2026-11-19)
+- Static Vite build on Vercel CDN: no server to overload. First visit ~0.8-0.9 MB (measured live).
+- vercel.json: /assets/* (content-hashed by Vite) cached immutable for a year. public/ files keep Vercel defaults, because they are replaced in place under the same name.
+- Ceiling to watch: Hobby plan bandwidth (Vercel dashboard > Usage). Analytics stops counting past its monthly event cap; the site keeps working.
