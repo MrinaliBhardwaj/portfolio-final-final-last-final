@@ -1340,9 +1340,16 @@
 .dwc-big--tr {
   font-size: clamp(2.4rem, 12vw, 3.6rem);
 }
+/* "a wrap." sits over the envelope's lower left, as on the desktop poster
+   (there: 54u in, 36u up, z 5). Out of the flow, so the envelope still meets
+   the frame's bottom edge. */
 .dwc-big--bl {
+  position: absolute;
+  left: clamp(1.4rem, 5vw, 2.6rem);
+  bottom: clamp(0.9rem, 4vw, 1.6rem);
+  margin: 0;
+  z-index: 5;
   font-size: clamp(2.8rem, 15vw, 4.6rem);
-  order: 6; /* "a wrap." closes the text; the envelope sits under it */
 }
 
 .dwc-links {

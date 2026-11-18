@@ -5408,3 +5408,4 @@ are. Measured after the change: identical positions (Meal Maestro 27,64 at
 ## Contact frame, stacked layout: envelope edge to edge (2026-11-19)
 - <=768px the envelope was a 430px image floating mid-frame. It now runs the frame's full width, last in the stack under "a wrap.", sitting on the bottom edge (its straight bottom cut reads as tucked in), as the desktop poster bleeds it off the bottom. .dwc clips its shadow.
 - Desktop poster unchanged: there the envelope is 1300/1690 wide and already anchored to the bottom; full width would make it taller than the frame.
+- Same day: "a wrap." now overlaps the envelope's lower left in the stacked layout too (absolute, padding-inset left, ~1-1.6rem up, z 5), matching the desktop poster.
