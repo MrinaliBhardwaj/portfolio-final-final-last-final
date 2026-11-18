@@ -43,7 +43,8 @@ import { GITHUB, LINKEDIN, INSTAGRAM, EMAIL } from "./links.js";
 
 /**
  * One tile, built from the desk's own piece: `span` is [columns, rows] on the
- * iOS grid, and anything after it overrides what the desk says.
+ * iOS grid, and anything after it overrides what the desk says. `at` pins it
+ * to a cell — [column, row], 1-based — instead of letting auto-placement pick.
  * @param {string} key
  * @param {[number, number]} span
  * @param {object} [over]
@@ -51,24 +52,50 @@ import { GITHUB, LINKEDIN, INSTAGRAM, EMAIL } from "./links.js";
 const tile = (key, span, over = {}) => ({ ...DESK[key], span, ...over });
 
 // ---------------------------------------------------------------------------
-// PAGE ONE — the work.
+// PAGE ONE — the work, on iOS's own grid (18 Nov 2026, from her reference).
 //
-// Read as an iOS home screen: the four case studies are app icons in the first
-// two rows, the jewel case is a 2x2 widget beside them, the bloom is the wide
-// widget across the middle, and the two résumés sit either side of the frog.
-// Auto-placement runs in this order, which is what puts each piece in the slot
-// the reference composition has it in.
+//        col 1        col 2        col 3        col 4
+//   1   Meal Maestro Futurepren.  ┌─── CD ────────────┐
+//   2   Layover      NextG Apex   └───────────────────┘
+//   3   About Me     ·            ·            ·          ← the bloom shows
+//   4   ┌── frog ──────────────┐  ·            ·          ← through here
+//   5   └──────────────────────┘  Tech résumé  Design résumé
+//   6   ┌── crowd ─────────────────────────────────────────┐
+//   7   └──────────────────────────────────────────────────┘
+//
+// Every tile is PINNED to its cell. The previous layout leaned on
+// auto-placement, which cannot leave a hole: it packs each tile into the first
+// slot that fits, so the two résumés would jump up beside the top of the frog
+// and the cells the flower shows through would fill in. iOS lets you leave a
+// cell empty; pinning is how this does.
+//
+// WHAT CHANGED, AND THE APPLE RULE BEHIND EACH:
+//   · The crowd is a MEDIUM widget, 4x2 — the full width of the screen. It was
+//     a 2x1, which is not a size iOS has: widgets come in 2x2, 4x2 and 4x4.
+//   · The frog sits on top of it as a SMALL widget, 2x2, on a widget's own
+//     dark card. It used to float on a 4%-white plate inherited from the desk,
+//     which read as a smudge rather than a widget (see .ph-widget).
+//   · The résumés are on row 5, so their icons bottom-align with the frog the
+//     way iOS lines an icon row up with the bottom row of a widget. Her mock
+//     has them centred on the frog, which is between two rows — the grid has
+//     no such slot. Row 5 rather than row 4 keeps the upper cells clear, which
+//     is where her mock lets the lotus show.
+//   · Tech before Design, as the reference orders them.
+//   · The full-row hole the bloom used to get (rows 4-5) is gone: the flower
+//     now shows through the open cells beside About Me and above the résumés,
+//     which is where it sits in her reference.
 const PAGE_ONE = [
-  tile("folder-green", [1, 1]), // Meal Maestro
-  tile("futurepreneurs", [1, 1]),
-  tile("cd-case", [2, 2]),
-  tile("folder-floral", [1, 1]), // Layover
-  tile("folder-scenery", [1, 1]), // NextG Apex
+  tile("folder-green", [1, 1], { at: [1, 1] }), // Meal Maestro
+  tile("futurepreneurs", [1, 1], { at: [2, 1] }),
+  tile("cd-case", [2, 2], { at: [3, 1] }),
+  tile("folder-floral", [1, 1], { at: [1, 2] }), // Layover
+  tile("folder-scenery", [1, 1], { at: [2, 2] }), // NextG Apex
   // ABOUT ME GOES TO THE WORLD ON A PHONE, not to the window. The scrapbook's
   // copy is baked into 1673px-wide artwork; in a window on a 390px screen that
   // is 23% and unreadable, while #/notes carries the rotate-to-read gate that
   // was built for exactly this. Same folder, same art, the honest door.
   tile("about-me", [1, 1], {
+    at: [1, 3],
     opensNote: undefined,
     href: "#/notes",
     aria: "About Me — the scrapbook",
@@ -77,18 +104,14 @@ const PAGE_ONE = [
   // "for now"). The horse is the untitled folder, whose whole content is a
   // window saying it is empty; the card is decoration. On a screen this size
   // both were spending a row that the work and the flower use better. Both are
-  // still on the desk, and putting either back is this line uncommented.
-  // THE BLOOM IS THE WALLPAPER, so the grid leaves it a hole rather than
-  // carrying a picture of it. The flower behind this screen is the real one —
-  // the canvas the ceremony just scrubbed, still on the stage underneath —
-  // and it lands in exactly this band on a portrait phone (the measurement is
-  // in DesktopFiles.jsx: y 27-68%). A tile here would be a second flower on
-  // top of the first.
-  { key: "bloom-gap", span: [4, 2], spacer: true },
-  tile("frog-jar", [2, 2]),
-  tile("resume-design", [1, 1]),
-  tile("resume-tech", [1, 1]),
-  tile("crowd", [2, 1]),
+  // still on the desk, and putting either back is a line here.
+  //
+  // The widgets drop the desk's own treatments: the frog's plate is replaced
+  // by the widget card, and the crowd's desk radius by the widget radius.
+  tile("frog-jar", [2, 2], { at: [1, 4], plate: undefined, widget: "frog" }),
+  tile("resume-tech", [1, 1], { at: [3, 5] }),
+  tile("resume-design", [1, 1], { at: [4, 5] }),
+  tile("crowd", [4, 2], { at: [1, 6], radius: undefined, widget: "photo" }),
 ];
 
 // ---------------------------------------------------------------------------
@@ -187,12 +210,17 @@ function Art({ p }) {
       draggable="false"
       decoding="async"
       style={{
-        objectFit: p.radius ? "cover" : "contain",
+        objectFit: p.radius || p.widget === "photo" ? "cover" : "contain",
         objectPosition: p.focus,
         borderRadius: p.radius ? "var(--ph-tile-radius)" : undefined,
       }}
     />
   );
+  // A WIDGET IS A CARD, the way iOS draws one: a dark rounded body that
+  // clips whatever it holds. "photo" fills it edge to edge, like the Photos
+  // widget; "frog" stands the cut-out frog up inside it (see .ph-widget).
+  if (p.widget)
+    return <span className={`ph-widget is-${p.widget}`}>{img}</span>;
   // the dragonfly's glass plate and the frog's card, as on the desk
   if (p.glass) return <span className="ph-glass">{img}</span>;
   if (p.plate)
@@ -208,7 +236,13 @@ function Art({ p }) {
 /** one grid tile — a link if the desk says it opens something, paint if not */
 function Tile({ p, visible, onOpenCase, onOpenNote, onOpenEmpty }) {
   const live = !!(p.opensCase || p.opensNote || p.opensEmpty || p.href);
-  const style = { gridColumn: `span ${p.span[0]}`, gridRow: `span ${p.span[1]}` };
+  // pinned to a cell when the page says where; auto-placed when it does not
+  const style = p.at
+    ? {
+        gridColumn: `${p.at[0]} / span ${p.span[0]}`,
+        gridRow: `${p.at[1]} / span ${p.span[1]}`,
+      }
+    : { gridColumn: `span ${p.span[0]}`, gridRow: `span ${p.span[1]}` };
 
   const inner = (
     <>

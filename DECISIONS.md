@@ -5251,3 +5251,34 @@ a little later than before when the GPU is busy rehearsing (16–24 of 40 at
 profile is slower than her real machine. (4) The phone path is not rehearsed.
 (5) Feel was measured by frame counts, not by eye — it wants a look in a real
 browser, in a fresh profile/incognito window.
+
+## 18 Nov 2026 — The phone's home screen, on iOS's own grid
+
+From her reference (a 393x852 iPhone 16 mock). Page one, pinned cell by cell:
+
+    1-2  four case-study folders · CD (2x2)            — unchanged
+    3    About Me                                       — the bloom shows through
+    4-5  frog (small widget, 2x2) · Tech + Design résumé on row 5
+    6-7  crowd (medium widget, 4x2, full width)
+
+**Apple rules applied, and where they overrode the mock:**
+- Widget sizes are only 2x2, 4x2, 4x4. The crowd was a 2x1, which iOS has no
+  such size for; it is a 4x2 medium widget now. Her mock draws it a little
+  shorter (~2.9:1); 4x2 is ~2.1:1.
+- Widgets are a card: iOS's dark fill (#1c1c1e), one shared corner (13% of a
+  small widget's side, 22pt on a real iPhone 16), a hairline light rim. The
+  frog's 4%-white plate from the desk is gone.
+- Icons snap to rows. The mock centres the résumés on the frog, which is
+  between two rows; they sit on row 5, bottom-aligned with the widget, which
+  keeps the upper cells open for the flower as the mock does.
+- Tiles are pinned (`at: [col, row]`) because auto-placement cannot leave an
+  empty cell.
+- The grid always spans the screen (`justify-content: space-between`). In
+  Safari the cell is height-bound (~53px at 740 tall), and the four columns
+  used to huddle in the middle with labels cut to "Futurepren…".
+- Page dots raised 13px: centre now ~22px above the dock, as on iOS.
+
+**Known cost:** seven rows do not fit Safari's viewport at full icon size, so
+in Safari the icons are smaller than on the home-screen mock; the columns
+stretch instead. The frog art's own edges cut its toes, so they fade out at
+the card's sides rather than stopping on a straight line.

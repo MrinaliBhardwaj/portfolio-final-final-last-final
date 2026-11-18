@@ -48,10 +48,14 @@
   --ph-gap-y: 24px;
   --ph-label: 16px;
   --ph-dots: 26px;
+  /* HOW FAR THE PAGE DOTS STAND OFF THE DOCK. They sat with their centre 9px
+     above its top edge and read as resting on it; iOS floats them clear,
+     about 22pt centre-to-edge on an iPhone 16, measured off her reference. */
+  --ph-dots-lift: 13px;
   /* (the dock's own figures are on :root above — the cell is derived from the
      height left after the dock, so measuring the dock from the cell would be a
      circular definition CSS resolves to nothing) */
-  --ph-chrome: calc(var(--ph-status) + var(--ph-dots) + var(--ph-dock) + var(--ph-safe) + 18px);
+  --ph-chrome: calc(var(--ph-status) + var(--ph-dots) + var(--ph-dots-lift) + var(--ph-dock) + var(--ph-safe) + 18px);
   --ph-cell: clamp(
     46px,
     min(
@@ -61,6 +65,12 @@
     82px
   );
   --ph-tile-radius: 14px;
+  /* ONE CORNER FOR EVERY WIDGET, as iOS gives them: a small widget on an
+     iPhone 16 is 170pt across with a 22pt corner, 13% of its side — and the
+     medium widget beside it keeps the same corner rather than scaling it, so
+     the two read as one family. Derived from the small widget's side here, so
+     it tracks the cell. */
+  --ph-widget-radius: calc((2 * var(--ph-cell) + var(--ph-gap-x)) * 0.13);
   color: #fff;
   font-family: var(--font-ui, system-ui, sans-serif);
 }
@@ -161,7 +171,7 @@
   top: var(--ph-status);
   left: 0;
   right: 0;
-  bottom: calc(var(--ph-dock) + var(--ph-safe) + var(--ph-dots));
+  bottom: calc(var(--ph-dock) + var(--ph-safe) + var(--ph-dots) + var(--ph-dots-lift));
   display: flex;
   overflow-x: auto;
   overflow-y: hidden;
@@ -199,7 +209,15 @@
   grid-auto-rows: var(--ph-cell);
   column-gap: var(--ph-gap-x);
   row-gap: var(--ph-gap-y);
-  justify-content: center;
+  /* THE GRID ALWAYS SPANS THE SCREEN, as iOS's does. The cell is the smaller
+     of what the width and the height allow, and in Safari — whose toolbars
+     take ~110pt of an iPhone 16 — the height wins by a long way, so the four
+     columns used to huddle in the middle with ~60px of empty margin a side
+     and labels cut to "Futurepren…". The margins are fixed now and the spare
+     width goes into the gaps: a two-column widget grows with them (CSS grid
+     widens a spanning item across the space it spans), so the frog and the
+     crowd still meet the screen's margins exactly. */
+  justify-content: space-between;
   align-content: start;
   padding: 10px var(--ph-margin) var(--ph-label);
 }
@@ -233,10 +251,58 @@
   height: 100%;
 }
 
-/* the bloom's hole: it reserves its cells and paints nothing, so the flower
-   on the stage behind shows through the middle of the grid */
+/* a hole in the grid: it reserves its cells and paints nothing (page one
+   leaves its holes by pinning tiles instead, so nothing uses this today) */
 .ph-tile.is-spacer {
   pointer-events: none;
+}
+
+/* ---- widgets ----
+   iOS's widget, not the desk's object on a plate: a dark body (the system's
+   own dark widget fill, #1c1c1e), the shared widget corner, and the thin light
+   rim iOS draws on a dark-mode widget so its edge holds against a dark
+   wallpaper. The rim is an overlay rather than a border, so a full-bleed
+   picture runs under it to the very edge instead of stopping a pixel short. */
+.ph-widget {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: var(--ph-widget-radius);
+  background: #1c1c1e;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+}
+
+.ph-widget::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow:
+    inset 0 0 0 0.5px rgba(255, 255, 255, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  pointer-events: none;
+}
+
+/* THE FROG STANDS UP IN ITS CARD. The art is a 380x684 cut-out with clear
+   space above and below the animal — the frog itself is 519 tall, 76% of the
+   file. Contained as-is it would sit small in a square; scaled so the ANIMAL
+   (not the file) is 88% of the card's height, it fills the widget the way her
+   reference has it, with its own feet clear of the corners. */
+.ph-widget.is-frog .ph-img {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: auto;
+  height: calc(92% * 684 / 519);
+  transform: translate(-50%, -49%);
+  /* The file's left and right edges cut straight through the frog's toes —
+     the art was framed for the desk, where its own plate hid them. A short
+     fade at each side lets the feet trail off instead of ending on a ruler
+     line in the middle of the card. */
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
 }
 
 /* the desk's own treatments, carried over: the dragonfly's glass plate and the
@@ -269,8 +335,11 @@
 .ph-tile-label {
   position: absolute;
   top: 100%;
-  left: -8px;
-  right: -8px;
+  /* a label may be wider than its icon, up to about its column's pitch —
+     "Futurepreneurs" is ~75px at this size, and a 53px cell in Safari would
+     otherwise cut it */
+  left: -12px;
+  right: -12px;
   margin-top: 5px;
   font-size: 10.5px;
   line-height: 1.1;
@@ -336,7 +405,7 @@
   position: absolute;
   left: 0;
   right: 0;
-  bottom: calc(var(--ph-dock) + var(--ph-safe) + 4px);
+  bottom: calc(var(--ph-dock) + var(--ph-safe) + 4px + var(--ph-dots-lift));
   height: var(--ph-dots);
   display: flex;
   align-items: center;
@@ -458,12 +527,13 @@
 /* ---- a SHORT screen (an SE, a landscape-ish window) ----
    Page one is seven rows, and seven rows of anything do not fit in 568px: at
    the 46px tap-target floor the grid still ran 88px past the dock, so the last
-   row — the frog and the two résumés — hid behind it.
+   row hid behind it.
    Tightening the rhythm buys ~64px, which is not enough on its own, so the
-   bloom gives up its second row too. It is the one tile that loses nothing by
-   being shorter: it is a picture of a flower, not a grid of anything, and at
-   4x1 it is still the widest thing on the screen. That takes page one to six
-   rows, which fits with room to spare. */
+   crowd gives up its second row. It is the one tile that loses nothing by
+   being shorter: it is a picture, not a grid of anything, and at 4x1 it is
+   still the widest thing on the screen. That takes page one to six rows,
+   which fits with room to spare. (This used to be the bloom's hole, which
+   page one no longer has.) */
 @media (max-height: 700px) {
   .ph {
     --ph-gap-y: 18px;
@@ -474,8 +544,8 @@
 
   /* the span is an inline style (the tile table owns the layout), so this is
      the one place that has to out-rank it */
-  .ph-tile[data-key="bloom-gap"] {
-    grid-row: span 1 !important;
+  .ph-tile[data-key="crowd"] {
+    grid-row: 6 / span 1 !important;
   }
 }
 
