@@ -5282,3 +5282,21 @@ From her reference (a 393x852 iPhone 16 mock). Page one, pinned cell by cell:
 in Safari the icons are smaller than on the home-screen mock; the columns
 stretch instead. The frog art's own edges cut its toes, so they fade out at
 the card's sides rather than stopping on a straight line.
+
+### 18 Nov 2026, later — the crowd was squashed on her real iPhone
+
+On her iPhone 16 in Safari the crowd rendered 4x1 — a thin strip — with a
+row of empty space under it. The short-screen fallback (crowd drops to one
+row) was a `@media (max-height: 700px)` rule, and iOS Safari answers media
+queries with its SMALL viewport (toolbars showing, ~660pt) while the page is
+laid out in the space it really has once they hide (~740pt). The fallback
+fired for room that was there.
+
+It is a container query on `.ph-page` now (`container-type: size`), so it
+measures the grid's own box: the crowd only gives up its row below 460px,
+which is where seven rows at the 46px tap floor truly stop fitting (an
+iPhone SE). Measured: full 2-row crowd at 852, 740 and 659 tall, no overflow;
+4x1 only at 568. Labels widened 4px a side so they still fit at 659.
+
+Not checkable here: Chrome emulation cannot split small/large viewports the
+way Safari does, so the real-phone look is hers to confirm.

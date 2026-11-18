@@ -193,6 +193,10 @@
 .ph-page {
   flex: 0 0 100%;
   min-width: 0;
+  /* the page is a size container so the one layout decision that depends on
+     height — whether the crowd keeps its second row — is made against the
+     space the grid really has (see the end of this file) */
+  container-type: size;
   scroll-snap-align: center;
   scroll-snap-stop: always;
   overflow-y: auto;
@@ -336,10 +340,11 @@
   position: absolute;
   top: 100%;
   /* a label may be wider than its icon, up to about its column's pitch —
-     "Futurepreneurs" is ~75px at this size, and a 53px cell in Safari would
-     otherwise cut it */
-  left: -12px;
-  right: -12px;
+     "Futurepreneurs" is ~75px at this size, and the 49px cell Safari leaves
+     with its toolbars showing would otherwise cut it. The columns are spread
+     ~100px apart there, so the boxes still never meet. */
+  left: -16px;
+  right: -16px;
   margin-top: 5px;
   font-size: 10.5px;
   line-height: 1.1;
@@ -541,9 +546,23 @@
     --ph-status: 44px;
     --ph-dots: 20px;
   }
+}
 
-  /* the span is an inline style (the tile table owns the layout), so this is
-     the one place that has to out-rank it */
+/* …BUT THE CROWD ONLY GIVES UP ITS ROW WHEN THE ROWS TRULY DO NOT FIT, and that
+   is asked of the page, not of the window. It was inside the media query
+   above, and on an iPhone 16 in Safari that fired with a row of empty space
+   left under the grid: iOS Safari answers `max-height` with its SMALL
+   viewport, toolbars showing (~660pt), while the grid is laid out in the space
+   the page really has once they slide away (~740pt) — so the crowd was
+   squashed to a 4x1 sliver for room that was there all along.
+
+   A container query measures the page's own box, whichever toolbars are up.
+   460px is what seven rows need at the 46px tap-target floor with the tight
+   rhythm above (7 x 46 + 6 x 18 gaps + the grid's padding), so below it the
+   seventh row genuinely cannot fit, and only then does the crowd go 4x1.
+   The span is an inline style (the tile table owns the layout), so this is the
+   one place that has to out-rank it. */
+@container (max-height: 460px) {
   .ph-tile[data-key="crowd"] {
     grid-row: 6 / span 1 !important;
   }
