@@ -89,58 +89,44 @@ const SKILLS = [
 const skillLabelX = (s) => s.fx + (FOLDER_W - s.lw) / 2;
 
 // ---------------------------------------------------------------------------
-// THE MOBILE FRAME, ON A GRID.
+// THE MOBILE FRAME — HER ARTBOARD, AT HER SIZE (18 Nov 2026).
 //
-// Her frame (node 361:489) gave the composition: the stepped tab, the script
-// name, a justified intro, experience as a 2x2 with hand-drawn connectors, the
-// softwares tiles, the photo bleeding off the bottom-left, three scattered
-// skill folders. All of that is kept. What is NOT kept is her measurements,
-// because reproduced literally they had two problems a phone cannot absorb:
+// Figma node 361:489, "iPhone 16 - 1": 393x852, a cream sheet 340x665 inset
+// 27px, everything on it at her coordinates. This replaces a 393x1100 reflow
+// that had raised the type to a 15px body and spread every section to pay for
+// it; she called the spacing wrong and the frame too long. The positions below
+// are hers, read from the file. Two things are deliberately NOT hers:
 //
-//   TYPE. The smallest text rendered at 7.48px (skill labels) and 9.48px (the
-//   Leadership/Internship line and the dates), under a 12px intro. Nobody
-//   reads 7px on a phone. Everything is raised to a floor of 10.5px with the
-//   body at 15px, and the hierarchy is kept by ratio instead of by shrinking.
+//   RAILS. Her frame has six left edges (intro 42, "Meet" 52, name 47, the
+//   experience head 44, its blocks 46) and two right ones (intro 351, the
+//   experience column 339). Content now starts on CL and ends on CR, which sit
+//   on her intro, the widest thing on the sheet.
 //
-//   MARGINS. The frame had SIX different left edges — the intro at 42, "Meet"
-//   at 52, the name at 47, the experience head at 44, its blocks at 46, and a
-//   right column ending at 339 against a sheet edge of 367. Nothing lined up
-//   with anything. There is now one padding and two rails, CL and CR; every
-//   element starts or ends on one of them.
-//
-// The stage grew 852 -> 1040 to pay for the larger type. That is the honest
-// trade: her artboard is one phone screen, and this content at a readable size
-// is not one phone screen. A phone scrolls.
-const PAD = 24;
+//   ONE TYPE SCALE. Her file mixes 12.636 / 11.152 for the same role line,
+//   11.122 / 12 for org and intro, and 9.477 / 8.737 / 7.478 for the small
+//   lines. Four sizes now, one per job: display (the name), heading 15,
+//   text 12 (intro, role, org), small 10 (kind, date, the resume link, the
+//   skill labels). Her 7.5px skill labels come up to the small size with the
+//   rest; nothing else moves.
 const SHEET_X = 27;
 const SHEET_W = 340;
 const SHEET_Y = 94;
-const SHEET_H = 956;                  // 94 -> 1050
-const STAGE_W = 393;
-const STAGE_H = 1100;
-const CL = SHEET_X + PAD;             // 51  — the left rail
-const CR = SHEET_X + SHEET_W - PAD;   // 343 — the right rail
-const CW = CR - CL;                   // 292 — content width
+const SHEET_H = 665;                  // 94 -> 759, hers
+const STAGE_W = 393;                  // x 852 tall — see .dwh-m-stage
+const CL = 44;                        // the left rail
+const CR = 349;                       // the right rail
+const CW = CR - CL;                   // 305 — her intro is 309
 
-// Type scale. The ratios are hers; the floor is not.
-//
-// These are STAGE units, so they scale with the viewport: a 360px Android
-// renders them at 0.916 of the number below. The floor is therefore set for
-// the narrowest common phone rather than for the 393 the frame was drawn at —
-// date 11 and skill 11.5 land at 10.1 and 10.5 on a 360, where her frame's
-// own 9.477 and 7.478 would have landed at 8.7 and 6.9.
 const T = {
-  meet: 19, name: 42, resume: 12, intro: 15, head: 17,
-  kind: 11, role: 14, org: 12, date: 11, skill: 11.5,
+  meet: 20, name: 43.244, head: 15,
+  text: 12, small: 10,
 };
 
-// Experience: two rails, two rows. The left column is wider because it carries
-// "Entrepreneurship Cell" and "June 2026 - July 2026", the two longest strings
-// in the block; the right only has to clear "LUMA Technologies".
-const COL_L = 130;
-const COL_R = 110;
-const ROW_Y = [432, 524];
-const XP_LINE = { kind: 0, role: 19, org: 40, date: 60 };
+// Experience: her two rows, her line offsets inside a block.
+const COL_L = 120;                    // clears "Entrepreneurship Cell"
+const COL_R = 110;                    // clears "LUMA Technologies"
+const ROW_Y = [296, 379];
+const XP_LINE = { kind: 0, role: 13.4, org: 29.6, date: 46.6 };
 
 const M_EXP = [
   { x: CL, y: ROW_Y[0], w: COL_L, align: "left", kind: "Leadership", role: "Design Executive", org: "Entrepreneurship Cell", date: "Jan 2024 – Jan 2025" },
@@ -149,64 +135,54 @@ const M_EXP = [
   { x: CR - COL_R, y: ROW_Y[1], w: COL_R, align: "right", kind: "Freelance", role: "UI/ UX Designer", org: "LUMA Technologies", date: "Jul 2025 - Oct 2025" },
 ];
 
-// The two connectors, centred in the gutter between the columns and sitting on
-// the role line. Her third rule was a 21-unit vertical tick at the sheet's
-// right edge; on this grid it lands on the rail with nothing to connect, where
-// it reads as a rendering artifact rather than a drawn mark, so it is dropped.
-const GUT_L = CL + COL_L;             // 181
-const GUT_R = CR - COL_R;             // 233
-const M_RULES = ROW_Y.map((y) => ({ x: GUT_L + 5, y: y + XP_LINE.role + 7, w: GUT_R - GUT_L - 10 }));
+// The connectors, in the gutter between the columns at her height (327.5 and
+// 409.2 in the file). Her third rule, a vertical tick at the sheet's right
+// edge, connects nothing and reads as an artifact, so it stays dropped.
+const GUT_L = CL + COL_L;             // 164
+const GUT_R = CR - COL_R;             // 239
+const M_RULES = ROW_Y.map((y) => ({ x: GUT_L + 5, y: y + 31, w: GUT_R - GUT_L - 10 }));
 
-// Softwares keeps the crop's own aspect (264 x 108 on the poster) and ends on
-// the right rail.
 // THE FOLDER TAB, DERIVED FROM THE SHEET RATHER THAN PLACED AGAINST IT.
 //
 // profile-tab.png is a 400x72 crop taken from the rendered poster, and only
 // x 50..319 / y 21..71 of it is folder — the rest was opaque pond-painting.
-// That works on the poster, where the crop is pasted back at 1:1 over the
-// painting it came from and the seam disappears. On the phone it is scaled to
-// 0.72 over a DIFFERENT crop of that painting, so it cannot realign: a hard
-// rectangle of foreign landscape sat around the tab from x -7 to 282.
 // profile-tab-cut.png is the same artwork with everything but the folder cut
-// to alpha (36% of the asset survives), so the real background shows through.
-//
-// With the painting gone the folder's own edges are what you see, so they are
-// placed off the sheet instead of off her node box: x=50 in the asset is the
+// to alpha, so the real background shows through. x=50 in the asset is the
 // folder's left edge and y=67 is where its body begins, so those land on the
-// sheet's left edge and top. The vertical falls out as 45.59 — the same number
-// the landmark scan found by hand, which is what says the derivation is right.
+// sheet's left edge and top.
 const TAB_W = 289;                       // her node's width, and it was right
 const TAB_K = TAB_W / 400;               // asset px -> stage units
 const TAB_H = 72 * TAB_K;                // the asset's own aspect, not her box
 const TAB_X = SHEET_X - 50 * TAB_K;      // folder left edge == sheet left edge
 const TAB_Y = SHEET_Y - 67 * TAB_K;      // folder body top  == sheet top
 
+// SOFTWARES. softwares.png has the word "Softwares" baked in above the tiles,
+// at whatever size the crop is drawn — at her width that was ~11px, under a
+// 15px "Experience" and "Skill Set". softwares-tiles.png is the same asset with
+// the word cut off (rows 44..107), and the heading is real text on the scale.
 const SOFT_W = 175;
-const SOFT_H = SOFT_W / (264 / 108);
-const SOFT_X = CR - SOFT_W;
-const SOFT_Y = 640;
-const SKILL_Y = 752;
+const SOFT_H = SOFT_W * (64 / 264);
+const SOFT_X = CR - SOFT_W;              // 174 — her tiles start at ~176
+const SOFT_HEAD_X = SOFT_X + 5 * (SOFT_W / 264); // the first tile's edge
+const SOFT_HEAD_Y = 461;                 // her label, 460.5
+const SOFT_Y = 484;
 
-// The photo sits on the sheet's bottom edge and bleeds off the left, as she
-// drew it. Its aspect is the asset's own.
-const PHOTO_W = 300;
-const PHOTO_H = PHOTO_W / (303 / 325.209);
-const PHOTO_X = -44;
-const PHOTO_Y = SHEET_Y + SHEET_H - PHOTO_H;
+// The photo bleeds off the left and stands on the sheet's bottom edge: her
+// node, (-48, 435.35) 303x325.2.
+const PHOTO_W = 303;
+const PHOTO_H = 325.209;
+const PHOTO_X = -48;
+const PHOTO_Y = 435.35;
 
-// Skill folders: her scatter, stored as centres because that is how a
-// scattered cluster wants to be positioned.
-//
-// THE LABELS ARE ONE LINE NOW. Her frame wraps them ("UI/UX" / "Design"),
-// which was free at 7.5px and is not at 11: two lines plus a 50-unit folder
-// needs 84 units of stagger, and at the 58 her scatter uses, each folder
-// landed on the label above it. One line needs 70, and "Graphic Design" at
-// 11px measures ~80 against a 110-wide column, so it fits without wrapping.
-const M_FOLDER = 46;
+// Skill Set: her heading at (207, 546.6) and her three folder centres,
+// recovered from the group's centre-relative offsets.
+const SKILL_X = 207;
+const SKILL_Y = 548;
+const M_FOLDER = 44;                     // hers is 43.6
 const M_SKILLS = [
-  { cx: 285, cy: 810, label: ["UI/UX Design"] },
-  { cx: 318, cy: 890, label: ["Branding"] },
-  { cx: 297, cy: 970, label: ["Graphic Design"] },
+  { cx: 240.8, cy: 597.9, label: ["UI/UX Design"] },
+  { cx: 311.8, cy: 646.8, label: ["Branding"] },
+  { cx: 253.8, cy: 690.8, label: ["Graphic Design"] },
 ];
 
 function MobileExperience({ e }) {
@@ -215,10 +191,10 @@ function MobileExperience({ e }) {
   const side = e.align === "right" ? "right" : "left";
   return (
     <div className="dwh-m-xp" style={{ left: UM(e.x), top: UM(e.y), width: UM(e.w) }}>
-      <span className="dwh-m-xp-kind" style={{ top: UM(XP_LINE.kind), fontSize: UM(T.kind), [side]: 0 }}>{e.kind}</span>
-      <span className="dwh-m-xp-role" style={{ top: UM(XP_LINE.role), fontSize: UM(T.role), [side]: 0 }}>{e.role}</span>
-      <span className="dwh-m-xp-org" style={{ top: UM(XP_LINE.org), fontSize: UM(T.org), [side]: 0 }}>{e.org}</span>
-      <span className="dwh-m-xp-date" style={{ top: UM(XP_LINE.date), fontSize: UM(T.date) }}>{e.date}</span>
+      <span className="dwh-m-xp-kind" style={{ top: UM(XP_LINE.kind), fontSize: UM(T.small), [side]: 0 }}>{e.kind}</span>
+      <span className="dwh-m-xp-role" style={{ top: UM(XP_LINE.role), fontSize: UM(T.text), [side]: 0 }}>{e.role}</span>
+      <span className="dwh-m-xp-org" style={{ top: UM(XP_LINE.org), fontSize: UM(T.text), [side]: 0 }}>{e.org}</span>
+      <span className="dwh-m-xp-date" style={{ top: UM(XP_LINE.date), fontSize: UM(T.small) }}>{e.date}</span>
     </div>
   );
 }
@@ -406,54 +382,49 @@ export default function DesignHero() {
         ))}
       </div>
 
-      {/* ============ MOBILE: HER FRAME, ON A GRID ============ */}
-      {/* Figma node 361:489, "iPhone 16 - 1". Her composition, her assets, her
-          art direction — laid out on the rails defined at the top of this file
-          rather than at her literal coordinates, because reproduced to the
-          pixel the type bottomed out at 7.48px and nothing shared a margin.
-          The poster's own layers stay hidden below 768px; only this changes. */}
+      {/* ============ MOBILE: HER FRAME, AT HER SIZE ============ */}
+      {/* Figma node 361:489, "iPhone 16 - 1": her coordinates, on two rails
+          and one type scale (see the constants at the top of this file). The
+          poster's own layers stay hidden below 768px; only this changes. */}
       <div className="dwh-m">
         <div className="dwh-m-stage">
-          {/* the painting, bleeding past the sheet on every side */}
+          {/* the painting, bleeding past the sheet on every side — her two
+              layers, at her sizes */}
           <img className="dwh-m-bg" src={`${A}/bg-pond.webp`} alt="" aria-hidden="true"
-            style={{ left: UM(-860), top: UM(154), width: UM(1521.429), height: UM(1100) }} />
+            style={{ left: UM(-860), top: UM(154), width: UM(1521.429), height: UM(852) }} />
           <img className="dwh-m-bg" src={`${A}/bg-pond.webp`} alt="" aria-hidden="true"
-            style={{ left: UM(-561), top: UM(-66), width: UM(1251.786), height: UM(900) }} />
+            style={{ left: UM(-561), top: UM(-66), width: UM(1251.786), height: UM(701) }} />
 
           <div className="dwh-m-sheet"
             style={{ left: UM(SHEET_X), top: UM(SHEET_Y), width: UM(SHEET_W), height: UM(SHEET_H) }} />
 
-          {/* HER WIDTH; THE ASSET'S HEIGHT; THE SHEET'S EDGES. Her frame
-              places the tab as "image 25" at (-7, 16) 289x79.377 — aspect
-              3.64 against the asset's 5.56, which is why filling her box
-              stretched it half again as tall. See TAB_* above for the rest. */}
+          {/* HER WIDTH; THE ASSET'S HEIGHT; THE SHEET'S EDGES. See TAB_*. */}
           <img className="dwh-m-tab" src={`${A}/profile-tab-cut.png`} alt="" aria-hidden="true"
             style={{ left: UM(TAB_X), top: UM(TAB_Y), width: UM(TAB_W), height: UM(TAB_H) }} />
 
-          <span className="dwh-m-meet" style={{ left: UM(CL), top: UM(128), fontSize: UM(T.meet) }}>
+          <span className="dwh-m-meet" style={{ left: UM(CL), top: UM(107), fontSize: UM(T.meet) }}>
             Meet
           </span>
           {/* the script overhangs its own box, so it sits a touch left of the
               rail to read as optically aligned with "Meet" above it */}
-          <span className="dwh-m-name" style={{ left: UM(CL - 4), top: UM(150), fontSize: UM(T.name) }}>
+          <span className="dwh-m-name" style={{ left: UM(CL - 3), top: UM(134), fontSize: UM(T.name) }}>
             Mrinali Bhardwaj!
           </span>
 
-          {/* her frame sets this 8.737px; the type is now 12 and the 44px hit
-              area is handled by `a.dwh-m-download::after` in design-world.css */}
+          {/* the 44px hit area is `a.dwh-m-download::after` in design-world.css */}
           <a className="dwh-m-download" href="/resume-design.pdf" target="_blank" rel="noreferrer"
-            style={{ right: UM(STAGE_W - CR), top: UM(128), fontSize: UM(T.resume) }}>
+            style={{ right: UM(STAGE_W - CR), top: UM(109), fontSize: UM(T.small) }}>
             View Resume
             <span className="dwh-m-download-arrow" aria-hidden="true">↗</span>
           </a>
 
           <p className="dwh-m-intro"
-            style={{ left: UM(CL), top: UM(222), width: UM(CW), fontSize: UM(T.intro) }}>
+            style={{ left: UM(CL), top: UM(181), width: UM(CW), fontSize: UM(T.text) }}>
             {INTRO}
           </p>
 
           {/* ---- experience ---- */}
-          <span className="dwh-m-head" style={{ left: UM(CL), top: UM(400), fontSize: UM(T.head) }}>
+          <span className="dwh-m-head" style={{ left: UM(CL), top: UM(274), fontSize: UM(T.head) }}>
             Experience
           </span>
           {M_EXP.map((e) => (
@@ -464,11 +435,12 @@ export default function DesignHero() {
               style={{ left: UM(r.x), top: UM(r.y), width: UM(r.w) }} />
           ))}
 
-          {/* the crop carries its own "Softwares" label above the tiles, so her
-              separate label node is deliberately not rendered — drawing it
-              would print the word twice */}
-          <img className="dwh-m-soft" src={`${A}/softwares.png`}
-            alt="Softwares: Figma, Photoshop, Illustrator, VS Code"
+          {/* ---- softwares: real heading, tiles-only crop ---- */}
+          <span className="dwh-m-head" style={{ left: UM(SOFT_HEAD_X), top: UM(SOFT_HEAD_Y), fontSize: UM(T.head) }}>
+            Softwares
+          </span>
+          <img className="dwh-m-soft" src={`${A}/softwares-tiles.png`}
+            alt="Figma, Photoshop, Illustrator, VS Code"
             style={{ left: UM(SOFT_X), top: UM(SOFT_Y), width: UM(SOFT_W), height: UM(SOFT_H) }} />
 
           {/* on the sheet's bottom edge, bleeding off the left as she drew it */}
@@ -477,7 +449,7 @@ export default function DesignHero() {
             style={{ left: UM(PHOTO_X), top: UM(PHOTO_Y), width: UM(PHOTO_W), height: UM(PHOTO_H) }} />
 
           {/* ---- skill set ---- */}
-          <span className="dwh-m-head" style={{ left: UM(GUT_R), top: UM(SKILL_Y), fontSize: UM(T.head) }}>
+          <span className="dwh-m-head" style={{ left: UM(SKILL_X), top: UM(SKILL_Y), fontSize: UM(T.head) }}>
             Skill Set
           </span>
           {M_SKILLS.map((s, i) => (
@@ -489,7 +461,7 @@ export default function DesignHero() {
           ))}
           {M_SKILLS.map((s, i) => (
             <span key={`l${i}`} className="dwh-m-skill-label"
-              style={{ left: UM(s.cx), top: UM(s.cy + M_FOLDER / 2 + 6), fontSize: UM(T.skill) }}>
+              style={{ left: UM(s.cx), top: UM(s.cy + M_FOLDER / 2 + 5), fontSize: UM(T.small) }}>
               {s.label.map((line, j) => (
                 <span key={j}>{line}</span>
               ))}

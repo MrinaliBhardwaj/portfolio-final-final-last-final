@@ -1960,29 +1960,16 @@
 
   /* ---- design hero: swap the fixed poster for the flowed mobile profile ---- */
 
-  /* THE FRAME IS THE PHONE, CHROME INCLUDED.
-     Her mobile artboard IS 393 wide, so on a 393 phone it has to reach both
-     screen edges or her own 27px margin stops being her margin. The frame
-     steps out of .dw-canvas's gutter to do it — 50% of the grid area minus
-     50vw is exactly that gutter, whatever the clamp resolves it to, so the
-     two can never drift apart. Only the poster bleeds; every other frame
-     keeps the gutter, which is what still reads as a canvas. */
+  /* A FRAME ON THE CANVAS, NOT THE SCREEN (18 Nov 2026, her call).
+     This frame used to break out to 100vw so her 393 artboard met both screen
+     edges. She wants it to read as what it is, a frame sitting on a Figma
+     canvas, so it is a little narrower than the viewport: 12px of canvas each
+     side. Still wider than the canvas gutter the other frames keep, because
+     at that width (~353) the whole artboard would shrink by a tenth. The
+     artboard scales with it — --um is measured off .dwh-m, not the screen. */
   .cvf--poster {
-    width: 100vw;
-    margin-left: calc(50% - 50vw);
-  }
-  /* the label stays on the canvas even though its frame left it */
-  .cvf--poster > .cvf-label {
-    padding-left: clamp(1.25rem, 4vw, 3rem);
-  }
-  /* handles sit INSIDE a flush frame; at -4px they were half off-screen */
-  .cvf--poster .cvf-handle--tl,
-  .cvf--poster .cvf-handle--bl {
-    left: 0;
-  }
-  .cvf--poster .cvf-handle--tr,
-  .cvf--poster .cvf-handle--br {
-    right: 0;
+    width: calc(100vw - 24px);
+    margin-left: calc(50% - 50vw + 12px);
   }
 
   /* the artboard on screen is hers, so the pill names hers */
@@ -2038,7 +2025,7 @@
     --um: calc(100cqw / 393);
     position: relative;
     width: 100%;
-    aspect-ratio: 393 / 1100;
+    aspect-ratio: 393 / 852; /* her artboard, one iPhone screen */
     overflow: hidden; /* the painting and the photo bleed; the frame clips */
     background: #4a4a58;
   }
@@ -2113,7 +2100,7 @@
   .dwh-m-intro {
     margin: 0;
     font-weight: 300;
-    line-height: 1.35;
+    line-height: 1.25; /* her "normal" is ~1.21; 5 lines end at ~256 */
     text-align: justify; /* her frame justifies it */
   }
 

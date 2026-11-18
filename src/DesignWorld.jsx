@@ -69,7 +69,7 @@ const FRAMES = [
     // so the dimension pill was stating 1316 x 741 under a 393 x 1100 frame.
     // Declared, not measured: the pill reports the ARTBOARD, which is why
     // props.w is 1316 and not however many px the poster happens to occupy.
-    mobile: { w: 393, h: 1100 },
+    mobile: { w: 393, h: 852 },
     children: [
       { icon: "image", name: "PROFILE.DOC" },
       { icon: "text", name: "Meet Mrinali Bhardwaj" },

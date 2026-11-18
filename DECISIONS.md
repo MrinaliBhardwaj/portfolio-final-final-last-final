@@ -5334,3 +5334,10 @@ are. Measured after the change: identical positions (Meal Maestro 27,64 at
 - The portrait at the end of the scribbled line on page one (#/notes) is now her photo `Downloads/dp.jpeg` (pink shirt, sunglasses on her head), replacing the maroon-shirt passport photo.
 - It is baked into `public/notes/origin.webp`, so it was swapped in pixels: warped into the old photo's measured quad (≈7° tilt, ~185×222px in the 1673×714 frame), 1.2% past the old edge so no maroon bleeds, the old drop shadow kept. The photo was cropped to the frame's aspect, trimming mostly from the bottom to keep the sunglasses.
 - Nothing else reads those pixels (the milestone dots are fixed percentages); the alt text ("a recent portrait of her") still holds.
+
+## 18 Nov 2026 — Phone design hero back to her 393×852 frame
+- She called the phone profile frame's spacing wrong and too long. The 393×1100 reflow (15px body, sections spread to fit) is gone; the phone hero is her Figma node 361:489 at her coordinates: 393×852 stage, sheet 340×665 at (27,94), her rows, rules, photo and skill-folder scatter.
+- Kept from the old pass: two rails (CL 44, CR 349) instead of her six left edges.
+- One type scale, per her "make all text sizes uniform": display (name 43.2), Meet 20, heading 15, text 12 (intro, role, org), small 10 (kind, date, View Resume, skill labels).
+- "Softwares" is real 15px text now; `softwares-tiles.png` is `softwares.png` with its baked-in label cropped off (rows 44–107).
+- The frame is no longer full-bleed: it sits 12px in from each screen edge so it reads as a frame on the canvas (the artboard scales with it, ×0.94 on a 393 phone).
